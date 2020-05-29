@@ -35,7 +35,13 @@ public:
 
   void close() override {
     if (m_sock_fd != -1) {
+#ifdef _WN_MACOS
+      ::close(m_sock_fd);
+      m_sock_fd = -1;
+#else
       ::shutdown(m_sock_fd, SHUT_RDWR);
+#endif
+      m_sock_fd = -1;
     }
   }
 

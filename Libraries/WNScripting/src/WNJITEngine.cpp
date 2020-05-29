@@ -166,6 +166,9 @@ public:
     }
 #endif
 #endif
+#if defined(_WN_MACOS)
+    Nm = Nm.substr(1);
+#endif
     {
       auto it = m_imported_functions->find(
           containers::string(m_allocator, Nm.c_str()));

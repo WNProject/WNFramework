@@ -23,5 +23,5 @@ overlay_library_sources(WNGraphics
     src/Vulkan/WNQueue.cpp
     src/Vulkan/WNSwapchain.cpp
   INCLUDES
-    ${WNFramework_SOURCE_DIR}/Externals
+    ${WNFramework_SOURCE_DIR}/Externals/vulkan/include
 )

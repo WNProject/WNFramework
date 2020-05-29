@@ -29,6 +29,7 @@
 // found in the LICENSE.txt file.
 #include "XMLParseTools.h"
 #include <ctype.h>
+#include <strings.h>
 #include "../../Include/Rocket/Core.h"
 #include "../../Include/Rocket/Core/StreamMemory.h"
 #include "Template.h"

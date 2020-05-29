@@ -68,12 +68,12 @@ network_error WNReliableNetworkTransportSocket::do_send(
     send_buffers[i].iov_len = _buffers[i].size();
   }
 
-  msghdr header = {nullptr,  // msg_name
-      0,                     // msg_namelen
-      send_buffers,          // msg_iov
-      _buffers.size(),       // msg_iovlen
-      nullptr,               // msg_control
-      0,                     //  msg_controllen
+  msghdr header = {nullptr,               // msg_name
+      0,                                  // msg_namelen
+      send_buffers,                       // msg_iov
+      static_cast<int>(_buffers.size()),  // msg_iovlen
+      nullptr,                            // msg_control
+      0,                                  //  msg_controllen
       0};
 
   ssize_t num_sent = 0;

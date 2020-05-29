@@ -1,15 +1,13 @@
 set(ENABLED OFF)
-
 if (WN_SYSTEM_NAME STREQUAL "Linux")
   set(ENABLED ON)
 endif()
-
-if (WN_SYSTEM_NAME STREQUAL "Android")
+if (ANDROID)
   set(ENABLED ON)
 endif()
 
-if (WN_SYSTEM_NAME STREQUAL "Darwin")
+if (WN_ANDROID_WRAPPER)
   set(ENABLED ON)
 endif()
 
-register_overlay(${ENABLED} Posix)
+register_overlay(${ENABLED} NonMac)

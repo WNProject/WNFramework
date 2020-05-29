@@ -115,6 +115,8 @@ TEST(networking_rt, accept_cleans_up) {
             wn::networking::network_error>(allocator, cb),
         wn::runtime::networking::k_infinite);
   }
+  int x = 4;
+  (void)x;
   EXPECT_EQ(i, 1u);
 }
 

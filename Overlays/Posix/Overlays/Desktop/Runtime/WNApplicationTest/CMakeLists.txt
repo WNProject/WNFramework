@@ -1,0 +1,1 @@
+overlay_library_sources(WNApplicationTest SOURCES src/WNTestHarness.cpp)

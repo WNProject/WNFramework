@@ -13,3 +13,6 @@
 [submodule "Externals/effcee"]
 	path = Externals/effcee
 	url = https://github.com/google/effcee
+[submodule "Externals/vulkan"]
+	path = Externals/vulkan
+	url = https://github.com/KhronosGroup/Vulkan-Headers.git

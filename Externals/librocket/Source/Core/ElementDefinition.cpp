@@ -28,6 +28,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 #include "ElementDefinition.h"
+#include <strings.h>
 #include "../../Include/Rocket/Core/Decorator.h"
 #include "../../Include/Rocket/Core/Factory.h"
 #include "../../Include/Rocket/Core/FontDatabase.h"
@@ -386,23 +387,25 @@ void ElementDefinition::BuildPropertyGroup(PropertyGroupMap& groups,
           PropertyGroupMap::const_iterator default_definition =
               default_properties->find(group_name);
           if (default_definition != default_properties->end())
-            group_properties = &(
-                *groups
-                     .insert(PropertyGroupMap::value_type(
-                         group_name, PropertyGroup(group_class,
-                                         (*default_definition).second.second)))
-                     .first).second.second;
+            group_properties =
+                &(*groups
+                        .insert(PropertyGroupMap::value_type(group_name,
+                            PropertyGroup(group_class,
+                                (*default_definition).second.second)))
+                        .first)
+                     .second.second;
         }
 
         // If we still haven't got somewhere to put the properties for the new
         // decorator, make a new
         // definition.
         if (group_properties == NULL)
-          group_properties = &(
-              *groups
-                   .insert(PropertyGroupMap::value_type(group_name,
-                       PropertyGroup(group_class, PropertyDictionary())))
-                   .first).second.second;
+          group_properties =
+              &(*groups
+                      .insert(PropertyGroupMap::value_type(group_name,
+                          PropertyGroup(group_class, PropertyDictionary())))
+                      .first)
+                   .second.second;
       }
 
       // Now find all of this decorator's properties.

@@ -252,7 +252,7 @@ inline T_SIZE range_partition<NodeAllocator, T_SIZE>::token::size() const {
 }
 template <typename NodeAllocator, typename T_SIZE>
 inline T_SIZE range_partition<NodeAllocator, T_SIZE>::token::offset() const {
-  return list->small_size() ? math::trailing_zeros(bits) : node->offset();
+  return list->small_size() ? math::trailing_zeros(static_cast<uint64_t>(bits)) : node->offset();
 }
 template <typename NodeAllocator, typename T_SIZE>
 inline bool range_partition<NodeAllocator, T_SIZE>::token::is_valid() const {
@@ -366,18 +366,18 @@ range_partition<NodeAllocator, T_SIZE>::get_aligned_interval(
                           ? static_cast<T_SIZE>(-1)
                           : (static_cast<T_SIZE>(1) << _size) - 1;
     T_SIZE inv_bucket = ~m_used_bucket;
-    T_SIZE offset = math::trailing_zeros(inv_bucket);
+    T_SIZE offset = math::trailing_zeros(static_cast<uint64_t>(inv_bucket));
     inv_bucket >>= offset;
 
     while (inv_bucket) {
       while (inv_bucket & ((inv_bucket & bit_mask) != bit_mask)) {
         // We could not fit into the free bits on the end. Remove them
-        T_SIZE new_offset = math::trailing_zeros(~inv_bucket);
+        T_SIZE new_offset = math::trailing_zeros(static_cast<uint64_t>(~inv_bucket));
         inv_bucket >>= new_offset;
         offset += new_offset;
         // We definitely won't be able to fit in the used bits at the end
         // so remove all of those as well.
-        new_offset = math::trailing_zeros(inv_bucket);
+        new_offset = math::trailing_zeros(static_cast<uint64_t>(inv_bucket));
         inv_bucket >>= new_offset;
         offset += new_offset;
       }
@@ -449,16 +449,16 @@ range_partition<NodeAllocator, T_SIZE>::get_interval(T_SIZE _size) {
                           ? static_cast<T_SIZE>(-1)
                           : (static_cast<T_SIZE>(1) << _size) - 1;
     T_SIZE inv_bucket = ~m_used_bucket;
-    T_SIZE offset = math::trailing_zeros(inv_bucket);
+    T_SIZE offset = math::trailing_zeros(static_cast<uint64_t>(inv_bucket));
     inv_bucket >>= offset;
     while (inv_bucket & ((inv_bucket & bit_mask) != bit_mask)) {
       // We could not fit into the free bits on the end. Remove them
-      T_SIZE new_offset = math::trailing_zeros(~inv_bucket);
+      T_SIZE new_offset = math::trailing_zeros(static_cast<uint64_t>(~inv_bucket));
       inv_bucket >>= new_offset;
       offset += new_offset;
       // We definitely won't be able to fit in the used bits at the end
       // so remove all of those as well.
-      new_offset = math::trailing_zeros(inv_bucket);
+      new_offset = math::trailing_zeros(static_cast<uint64_t>(inv_bucket));
       inv_bucket >>= new_offset;
       offset += new_offset;
     }

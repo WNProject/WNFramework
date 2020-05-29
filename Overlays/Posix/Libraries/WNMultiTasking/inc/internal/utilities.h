@@ -16,7 +16,7 @@ namespace multi_tasking {
 namespace internal {
 
 inline size_t processor_logical_core_count() {
-  return ::sysconf(_SC_NPROCESSORS_ONLN);
+  return ::sysconf(_SC_NPROCESSORS_CONF);
 }
 
 }  // namespace internal

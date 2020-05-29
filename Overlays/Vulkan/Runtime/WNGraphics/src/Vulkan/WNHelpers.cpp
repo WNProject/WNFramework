@@ -26,6 +26,15 @@ const char* vulkan_library_name = "vulkan-1.dll";
 void* load_symbol(library_type _lib, const char* _symbol) {
   return GetProcAddress(_lib, _symbol);
 }
+#elif defined _WN_MACOS
+#include <dlfcn.h>
+library_type open_function(const char* _name) {
+  return dlopen(_name, RTLD_NOW);
+}
+const char* vulkan_library_name = "libvulkan.dylib";
+void* load_symbol(library_type _lib, const char* _symbol) {
+  return dlsym(_lib, _symbol);
+}
 #else
 #include <dlfcn.h>
 library_type open_function(const char* _name) {

@@ -17,7 +17,10 @@
 #include "WNMultiTasking/src/context.h"
 #define __FIBER_ARGUMENT_TYPE void*
 #define __FIBER_RESULT_TYPE void
-#elif defined _WN_POSIX
+#elif defined _WN_POSIX || defined _WN_MACOS
+#if defined _WN_MACOS
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
 #include <ucontext.h>
 #define __FIBER_ARGUMENT_TYPE void
 #define __FIBER_RESULT_TYPE void
