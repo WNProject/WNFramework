@@ -58,7 +58,7 @@ public:
   }
 
   const void* get_native_handle() const override {
-    return nullptr;
+    return m_native_window_handle;
   }
 
   window_error initialize() override;
