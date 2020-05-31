@@ -42,6 +42,7 @@ public:
       m_width(_width),
       m_height(_height),
       m_exit(false),
+      m_native_window_handle(nullptr),
       m_create_signal(_job_pool, 0),
       m_destroy_signal(_job_pool, 0),
       m_creation_signal(_creation_signal) {}
@@ -50,6 +51,10 @@ public:
     m_create_signal.wait_until(1);
     // Clean up window here.
     // Cannot destroy until it has been created
+
+    // signal destroy somehow
+    m_exit = true;
+    m_destroy_signal.wait_until(1);
   }
 
   const void* get_native_handle() const override {
@@ -57,8 +62,9 @@ public:
   }
 
   window_error initialize() override;
+
   bool is_valid() const override {
-    return false;
+    return !m_exit;
   }
 
   window_type type() const override {
@@ -90,6 +96,7 @@ public:
   }
 
 private:
+  void run_loop();
   logging::log* m_log;
   multi_tasking::job_pool* m_job_pool;
   const application::application_data* m_app_data;
@@ -98,6 +105,7 @@ private:
   uint32_t m_width;
   uint32_t m_height;
   bool m_exit;
+  void* m_native_window_handle;
 
   multi_tasking::job_signal m_create_signal;
   multi_tasking::job_signal m_destroy_signal;

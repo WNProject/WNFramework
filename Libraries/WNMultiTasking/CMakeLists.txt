@@ -22,6 +22,7 @@ add_wn_library(
     inc/thread_pool.h
     inc/thread_task.h
     inc/utilities.h
+    inc/work_queue.h
     src/fiber.cpp
     src/job_pool.cpp
     src/job_signal.cpp

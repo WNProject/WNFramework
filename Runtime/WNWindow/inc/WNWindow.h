@@ -92,8 +92,9 @@ protected:
   std::atomic_bool
       m_mouse_states[static_cast<uint32_t>(mouse_button::mouse_max) + 1] = {};
 
-private:
   memory::allocator* m_allocator;
+
+private:
   multi_tasking::spin_lock m_input_context_lock;
   containers::hash_map<input_context*, memory::unique_ptr<input_context>>
       m_input_contexts;

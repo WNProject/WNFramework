@@ -6,4 +6,8 @@ overlay_library_sources(
   SOURCES
     inc/WNMacOSWindow.h
     src/WNMacOSWindow.cpp
+    src/macos_window.m
+  LIBS
+    "-framework Cocoa"
+    "-framework QuartzCore"
 )

@@ -6,6 +6,8 @@
 #include "WNLogging/inc/WNConsoleLogger.h"
 #include "WNMemory/inc/basic_allocator.h"
 #include "WNMultiTasking/inc/job_pool.h"
+#include "WNMultiTasking/inc/job_signal.h"
+#include "WNMultiTasking/inc/work_queue.h"
 #include "executable_entry/inc/executable_entry.h"
 
 namespace wn {
@@ -52,15 +54,24 @@ int32_t wn_main(const wn::executable::executable_data* _data) {
   {
     main_application app;
     wn::multi_tasking::thread_job_pool job_pool(&root_allocator, 1);
-
+    wn::multi_tasking::thread_exclusive_work_queue work_queue(&root_allocator);
+    wn::multi_tasking::job_signal main_done_signal(&job_pool, 0);
     params.data.default_job_pool = &job_pool;
+    params.data.main_thread_work_queue = &work_queue;
     // TODO(awoloszyn): Finish fiber job pool, start using that instead
     // of the super slow thread job pool.
     // TODO(awoloszyn): Replace the hard-coded 2 with the number
     // of cores in the system.
 
-    job_pool.add_job(
-        nullptr, &main_application::main_application_job, &app, &params);
+    job_pool.add_job(&main_done_signal, &main_application::main_application_job,
+        &app, &params);
+
+    // Wait until EITHER the main application thread is done *and*
+    // we have no more jobs to run on the actaul main thread.
+    bool ran_work = false;
+    do {
+      ran_work = work_queue.try_do_work(std::chrono::milliseconds(10));
+    } while (ran_work || !main_done_signal.current_value());
   }
 
   log.log()->flush();
