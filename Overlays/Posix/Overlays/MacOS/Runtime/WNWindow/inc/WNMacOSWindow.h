@@ -105,6 +105,7 @@ private:
   uint32_t m_width;
   uint32_t m_height;
   bool m_exit;
+  int m_window_number;
   void* m_native_window_handle;
 
   multi_tasking::job_signal m_create_signal;

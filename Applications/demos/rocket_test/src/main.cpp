@@ -1258,8 +1258,8 @@ int32_t wn_application_main(
   }
 
   const wn::runtime::graphics::swapchain_create_info create_info = {
-      wn::runtime::graphics::data_format::r8g8b8a8_unorm, 4,
-      wn::runtime::graphics::swap_mode::mailbox,
+      surface.first.valid_formats()[0], 3,
+      wn::runtime::graphics::swap_mode::fifo,
       wn::runtime::graphics::discard_policy::discard};
 
   auto device = adapter->make_device(allocator, log, {});
@@ -1401,8 +1401,6 @@ int32_t wn_application_main(
     wn::runtime::window::input_event evt;
     int key_modifier_state = get_key_modifier_state(window.get());
     while (input_context->get_event(&evt)) {
-      log->log_error("Event!! ", evt.type());
-      log->flush();
       switch (evt.type()) {
         case wn::runtime::window::event_type::key_down:
           documents->ProcessKeyDown(
@@ -1434,7 +1432,6 @@ int32_t wn_application_main(
               key_modifier_state);
           break;
         case wn::runtime::window::event_type::text_input:
-          log->log_error("Character Input: ", evt.get_character());
           documents->ProcessTextInput(
               static_cast<Rocket::Core::word>(evt.get_character()));
           break;

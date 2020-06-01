@@ -5,6 +5,7 @@ overlay_library_sources(
   WNWindow
   SOURCES
     inc/WNMacOSWindow.h
+    inc/helpers.h
     src/WNMacOSWindow.cpp
     src/macos_window.m
   LIBS

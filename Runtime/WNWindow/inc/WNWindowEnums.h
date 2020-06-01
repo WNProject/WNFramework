@@ -21,6 +21,7 @@ enum class mouse_button : uint16_t {
 };
 
 enum class key_code : uint16_t {
+  key_unimplemented,
   key_a,
   key_b,
   key_c,
