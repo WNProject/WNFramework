@@ -14,7 +14,7 @@ if (NOT WN_DISABLE_CXX)
   endif()
 
   set(WN_LLVM_SOURCE_DIR
-      ${WNFramework_SOURCE_DIR}/Externals/llvm
+      ${WNFramework_SOURCE_DIR}/Externals/llvm-project/llvm
       CACHE STRING "Location of the llvm source checkout"
   )
 
@@ -46,9 +46,9 @@ if (NOT WN_DISABLE_CXX)
 
     execute_process(
      COMMAND ${CMAKE_COMMAND} -E make_directory
-      ${WNFramework_BINARY_DIR}/Externals
+      ${WNFramework_BINARY_DIR}/Externals/llvm-project/llvm
       COMMAND ${CMAKE_COMMAND} -E make_directory
-      ${WNFramework_BINARY_DIR}/Externals/llvm
+      ${WNFramework_BINARY_DIR}/Externals/llvm-project/llvm
     )
 
     message(
@@ -72,7 +72,7 @@ if (NOT WN_DISABLE_CXX)
       "-G ${CMAKE_GENERATOR} "
       "${WN_LLVM_EXTRA_FLAGS} "
       "${WN_LLVM_SOURCE_DIR} "
-      "WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/Externals/llvm "
+      "WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/Externals/llvm-project/llvm "
     )
 
     execute_process(
@@ -96,16 +96,16 @@ if (NOT WN_DISABLE_CXX)
       -G ${CMAKE_GENERATOR}
       ${WN_LLVM_EXTRA_FLAGS}
       ${WN_LLVM_SOURCE_DIR}
-      WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/Externals/llvm
+      WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/Externals/llvm-project/llvm
     )
     set(LLVM_CONFIGURED TRUE CACHE INTERNAL "llvm has been configured" FORCE)
   endif()
 
   add_custom_target(llvm_target
       COMMAND ${CMAKE_COMMAND} --build . ${WN_LLVM_ADDITIONAL_BUILD_FLAGS}
-      WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/Externals/llvm)
+      WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/Externals/llvm-project/llvm)
 
-  include(${WNFramework_BINARY_DIR}/Externals/llvm/lib/cmake/llvm/LLVMConfig.cmake)
+  include(${WNFramework_BINARY_DIR}/Externals/llvm-project/llvm/lib/cmake/llvm/LLVMConfig.cmake)
 
   set(WNScriptingLLVMComponents codegen mcjit native)
   llvm_map_components_to_libnames(WNScriptingLLVMLibs ${WNScriptingLLVMComponents})
@@ -196,7 +196,7 @@ add_wn_library(WNScripting
   INCLUDES
     ${CMAKE_SOURCE_DIR}/Externals/antlr
     ${LLVM_SOURCE_DIR_CMAKE_PATH}/include
-    ${CMAKE_BINARY_DIR}/Externals/llvm/include
+    ${CMAKE_BINARY_DIR}/Externals/llvm-project/llvm/include
 )
 
 set_source_files_properties(lang/WNScriptAST.g

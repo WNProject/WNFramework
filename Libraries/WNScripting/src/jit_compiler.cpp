@@ -139,7 +139,7 @@ struct jit_compiler_context {
   bool write_break(const ast_break* _break);
   bool write_continue(const ast_continue_instruction* _continue);
   llvm::Value* get_alloca(
-      llvm::Type* _type, llvm::Value* array_size, const char* name);
+      llvm::Type* _type, unsigned int array_size, const char* name);
 
   // Helpers
   bool write_temporaries(const ast_expression* _expression);
@@ -291,7 +291,7 @@ bool internal::jit_compiler_context::forward_declare_function(
 }
 
 llvm::Value* internal::jit_compiler_context::get_alloca(
-    llvm::Type* _type, llvm::Value* array_size, const char* name) {
+    llvm::Type* _type, unsigned int array_size, const char* name) {
   llvm::Value* v = new llvm::AllocaInst(_type, 0, array_size, name ? name : "",
       &(*m_current_function->getBasicBlockList().begin()->begin()));
   return v;
