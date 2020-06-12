@@ -28,7 +28,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 #include "ElementDefinition.h"
+
+#ifdef __APPLE__
 #include <strings.h>
+#endif
+
 #include "../../Include/Rocket/Core/Decorator.h"
 #include "../../Include/Rocket/Core/Factory.h"
 #include "../../Include/Rocket/Core/FontDatabase.h"

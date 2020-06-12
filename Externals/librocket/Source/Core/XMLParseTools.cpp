@@ -29,7 +29,9 @@
 // found in the LICENSE.txt file.
 #include "XMLParseTools.h"
 #include <ctype.h>
+#ifdef __APPLE__
 #include <strings.h>
+#endif
 #include "../../Include/Rocket/Core.h"
 #include "../../Include/Rocket/Core/StreamMemory.h"
 #include "Template.h"
