@@ -1,5 +1,6 @@
-project(WNFramework)
-cmake_minimum_required(VERSION 2.8.12)
+cmake_policy(SET CMP0048 NEW)
+cmake_minimum_required(VERSION 3.17.2)
+project(WNFramework VERSION 1.0.0)
 
 include(cmake/all.cmake)
 include(cmake/pre_add.cmake)
