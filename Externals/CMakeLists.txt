@@ -1,5 +1,14 @@
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-  add_compile_options(/wd4100 /wd4201 /wd4456 /wd4457 /wd4702 /wd4815 /wd4459)
+  add_compile_options(
+    /wd4100
+    /wd4201
+    /wd4456
+    /wd4457
+    /wd4702
+    /wd4815
+    /wd4459
+    /wd4244
+  )
 endif()
 
 set(RE2_SOURCES
@@ -48,4 +57,3 @@ LIBS
 INCLUDES
     re2
     effcee)
-
