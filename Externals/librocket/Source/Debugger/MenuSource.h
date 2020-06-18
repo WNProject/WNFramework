@@ -33,7 +33,7 @@ static const char* menu_rcss =
     "	position: absolute;\n"
     "	z-index: top;\n"
     "	background: #888;\n"
-    "	font-family: Lacuna;\n"
+    "	font-family: Fira Code;\n"
     "	font-size: 15px;\n"
     "	color: black;\n"
     "}\n"

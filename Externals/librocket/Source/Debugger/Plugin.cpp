@@ -269,10 +269,12 @@ Plugin* Plugin::GetInstance(Core::Context* _context) {
 }
 
 bool Plugin::LoadFont() {
-  return (Core::FontDatabase::LoadFontFace(m_context, "lacuna_regular.fnt",
-              "Lacuna", Core::Font::STYLE_NORMAL, Core::Font::WEIGHT_NORMAL) &&
-          Core::FontDatabase::LoadFontFace(m_context, "lacuna_italic.fnt",
-              "Lacuna", Core::Font::STYLE_ITALIC, Core::Font::WEIGHT_NORMAL));
+  return (Core::FontDatabase::LoadFontFace(m_context,
+              "assets/fonts/FiraCode-Regular.ttf", "Fira Code",
+              Core::Font::STYLE_NORMAL, Core::Font::WEIGHT_NORMAL) &&
+          Core::FontDatabase::LoadFontFace(m_context,
+              "assets/fonts/FiraCode-Regular.ttf", "Fira Code",
+              Core::Font::STYLE_ITALIC, Core::Font::WEIGHT_NORMAL));
 }
 
 bool Plugin::LoadMenuElement() {

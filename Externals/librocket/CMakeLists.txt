@@ -1,6 +1,8 @@
 enable_overlay_directory()
 
 add_wn_library(librocket
+  INCLUDES
+     ${WNFramework_SOURCE_DIR}/Externals/stb
   SOURCES
     Include/Rocket/Controls/Clipboard.h
     Include/Rocket/Controls/Controls.h
@@ -23,6 +25,7 @@ add_wn_library(librocket
     Include/Rocket/Controls.h
     Include/Rocket/Core/BaseXMLParser.h
     Include/Rocket/Core/BitmapFont/FontProvider.h
+    Include/Rocket/Core/TTFFont/FontProvider.h
     Include/Rocket/Core/Box.h
     Include/Rocket/Core/Colour.h
     Include/Rocket/Core/Colour.inl
@@ -169,6 +172,16 @@ add_wn_library(librocket
     Source/Core/BitmapFont/FontParser.cpp
     Source/Core/BitmapFont/FontParser.h
     Source/Core/BitmapFont/FontProvider.cpp
+    Source/Core/TTFFont/TTFFontDefinitions.h
+    Source/Core/TTFFont/FontFace.cpp
+    Source/Core/TTFFont/FontFace.h
+    Source/Core/TTFFont/FontFaceHandle.cpp
+    Source/Core/TTFFont/FontFaceHandle.h
+    Source/Core/TTFFont/FontFaceLayer.cpp
+    Source/Core/TTFFont/FontFaceLayer.h
+    Source/Core/TTFFont/FontFamily.cpp
+    Source/Core/TTFFont/FontFamily.h
+    Source/Core/TTFFont/FontProvider.cpp
     Source/Core/Box.cpp
     Source/Core/Clock.cpp
     Source/Core/Clock.h
@@ -403,6 +416,8 @@ add_wn_library(librocket
     Source/Debugger/Plugin.h
     Source/Debugger/SystemInterface.cpp
     Source/Debugger/SystemInterface.h
+  LIBS
+    stb
 )
 
 post_enable_overlay_directory()

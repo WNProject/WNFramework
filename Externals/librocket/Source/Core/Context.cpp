@@ -13,6 +13,7 @@
 #include "../../Include/Rocket/Core/Geometry.h"
 #include "../../Include/Rocket/Core/ReferenceCountable.h"
 #include "../../Include/Rocket/Core/StyleSheetSpecification.h"
+#include "../../Include/Rocket/Core/TTFFont/FontProvider.h"
 #include "../../Include/Rocket/Core/XMLParser.h"
 #include "../Debugger/Geometry.h"
 #include "../Debugger/Plugin.h"
@@ -31,6 +32,7 @@ Context::Context() {
   Controls::RegisterContextValues(this);
   Controls::DataSource::RegisterContextValues(this);
   BitmapFont::FontProvider::RegisterContextValues(this);
+  TTFFont::FontProvider::RegisterContextValues(this);
   Core::RegisterContextValues(this);
   FontDatabase::RegisterContextValues(this);
   Factory::RegisterContextValues(this);

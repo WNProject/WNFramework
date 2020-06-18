@@ -43,7 +43,7 @@ add_wn_library(re2
     re2
 )
 
-add_subdirectory(stb_image)
+add_subdirectory(stb)
 add_subdirectory(xxhash)
 
 set(EFFCEE_SOURCES

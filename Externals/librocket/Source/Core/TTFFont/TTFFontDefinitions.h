@@ -25,27 +25,34 @@
  *
  */
 
-static const char* beacon_rcss =
-    "body\n"
-    "{\n"
-    "	position: absolute;\n"
-    "	top: 5px;\n"
-    "	right: 33px;\n"
-    "	z-index: top;\n"
-    "	width: 20px;\n"
-    "	font-family: Fira Code;\n"
-    "	font-size: 12px;\n"
-    "	color: black;\n"
-    "	visibility: hidden;\n"
-    "}\n"
-    "button\n"
-    "{\n"
-    "	display: block;\n"
-    "	width: 18px;\n"
-    "	height: 18px;\n"
-    "	text-align: center;\n"
-    "	border-width: 1px;\n"
-    "	font-weight: bold;\n"
-    "}\n";
+#ifndef TTFFONTDEFINITIONS_H
+#define TTFFONTDEFINITIONS_H
 
-static const char* beacon_rml = "<button class=\"error\">!</button>\n";
+#include <Rocket/Core/Dictionary.h>
+#include <Rocket/Core/Font.h>
+#include <Rocket/Core/Types.h>
+#include <stb_public.h>
+#include <set>
+
+namespace Rocket {
+namespace Core {
+namespace TTFFont {
+
+struct FontInfo {
+  String FamilyName;
+  stbtt_fontinfo font_info;
+  int Size;
+  Font::Style Style;
+  Font::Weight Weight;
+  float scale;
+};
+
+class TTFFontDefinitions {
+public:
+  FontInfo Face;
+};
+
+}  // namespace TTFFont
+}  // namespace Core
+}  // namespace Rocket
+#endif

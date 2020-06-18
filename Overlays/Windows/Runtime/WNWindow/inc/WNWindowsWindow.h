@@ -95,6 +95,10 @@ public:
     return m_cursor_y;
   }
 
+  uint32_t get_dpi() const override {
+    return m_dpi;
+  }
+
 private:
   void dispatch_loop(RECT data);
 
@@ -109,6 +113,7 @@ private:
   uint32_t m_y;
   uint32_t m_width;
   uint32_t m_height;
+  uint32_t m_dpi = 0;
   bool m_exit;
   native_handle m_window;
   multi_tasking::job_signal m_signal;

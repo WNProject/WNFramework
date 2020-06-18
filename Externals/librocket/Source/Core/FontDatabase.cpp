@@ -31,6 +31,7 @@
 #include <Rocket/Core/BitmapFont/FontProvider.h>
 #include <Rocket/Core/FontDatabase.h>
 #include <Rocket/Core/FontFamily.h>
+#include <Rocket/Core/TTFFont/FontProvider.h>
 #include "precompiled.h"
 
 namespace Rocket {
@@ -68,6 +69,8 @@ bool FontDatabase::Initialise(Context* _context) {
 
     if (!BitmapFont::FontProvider::Initialise(_context))
       return false;
+    if (!TTFFont::FontProvider::Initialise(_context))
+      return false;
   }
 
   return true;
@@ -77,7 +80,7 @@ void FontDatabase::Shutdown(Context* _context) {
   auto& instance = (*_context)(kFontDatabaseKey);
   if (instance != NULL) {
     BitmapFont::FontProvider::Shutdown(_context);
-
+    TTFFont::FontProvider::Shutdown(_context);
     delete instance;
   }
 }
@@ -89,7 +92,8 @@ bool FontDatabase::LoadFontFace(Context* _context, const String& file_name) {
   switch (font_provider_type) {
     case BitmapFont:
       return BitmapFont::FontProvider::LoadFontFace(_context, file_name);
-
+    case TTFFont:
+      return TTFFont::FontProvider::LoadFontFace(_context, file_name);
     default:
       return false;
   }
@@ -105,7 +109,9 @@ bool FontDatabase::LoadFontFace(Context* _context, const String& file_name,
     case BitmapFont:
       return BitmapFont::FontProvider::LoadFontFace(
           _context, file_name, family, style, weight);
-
+    case TTFFont:
+      return TTFFont::FontProvider::LoadFontFace(
+          _context, file_name, family, style, weight);
     default:
       return false;
   }
@@ -118,7 +124,8 @@ bool FontDatabase::LoadFontFace(Context* _context,
     case BitmapFont:
       return BitmapFont::FontProvider::LoadFontFace(
           _context, data, data_length);
-
+    case TTFFont:
+      return TTFFont::FontProvider::LoadFontFace(_context, data, data_length);
     default:
       return false;
   }
@@ -133,15 +140,24 @@ bool FontDatabase::LoadFontFace(Context* _context,
     case BitmapFont:
       return BitmapFont::FontProvider::LoadFontFace(
           _context, data, data_length, family, style, weight);
-
+    case TTFFont:
+      return TTFFont::FontProvider::LoadFontFace(_context, data, data_length);
     default:
       return false;
   }
 }
 
 FontDatabase::FontProviderType FontDatabase::GetFontProviderType(
-    const String& ROCKET_UNUSED_PARAMETER(file_name)) {
-  return BitmapFont;
+    const String& file_name) {
+  if (file_name.RFind(".fnt") == file_name.Length() - 4) {
+    return BitmapFont;
+  }
+  if (file_name.RFind(".ttf") == file_name.Length() - 4) {
+    return TTFFont;
+  }
+
+  ROCKET_ASSERT(!"Invalid font type");
+  return FontDatabase::FontProviderType(0);
 }
 
 // Returns a handle to a font face that can be used to position and render text.

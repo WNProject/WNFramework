@@ -27,7 +27,7 @@ textarea {
 }
 
 body {
-  font-family: Lacuna;
+  font-family: Fira Code;
   font-weight: normal;
   font-style: normal;
   font-size: 20px;

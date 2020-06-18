@@ -52,7 +52,7 @@ class PropertyDictionary;
 
 class FontDatabase {
 public:
-  enum FontProviderType { BitmapFont };
+  enum FontProviderType { None, BitmapFont, TTFFont };
 
   static bool Initialise(Context* _context);
   static void Shutdown(Context* _context);

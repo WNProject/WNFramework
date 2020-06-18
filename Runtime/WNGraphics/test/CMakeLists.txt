@@ -38,7 +38,7 @@ macro(add_pixel_test name)
       WNFileSystem
       stb
   INCLUDES
-    ${WNFramework_SOURCE_DIR}/Externals/stb_image
+    ${WNFramework_SOURCE_DIR}/Externals/stb
   )
 
   wn_create_call_test(

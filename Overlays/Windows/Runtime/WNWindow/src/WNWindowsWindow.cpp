@@ -59,6 +59,12 @@ window_error windows_window::initialize() {
   rect.left = m_x;
   rect.top = m_y;
 
+  HDC screen = GetDC(NULL);
+  double h = GetDeviceCaps(screen, LOGPIXELSX);
+  double v = GetDeviceCaps(screen, LOGPIXELSY);
+  ReleaseDC(NULL, screen);
+  m_dpi = (int)((h + v) / 2);
+
   m_job_pool->add_job(&m_signal, &windows_window::dispatch_loop, this, rect);
   return window_error::ok;
 }
@@ -249,6 +255,10 @@ LRESULT CALLBACK windows_window::wnd_proc(
       window->m_cursor_x = x_pos;
       window->m_cursor_y = y_pos;
       window->dispatch_input(input_event::mouse_move(x_pos, y_pos));
+      return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    }
+    case WM_DPICHANGED: {
+      window->m_dpi = ((wParam >> 16) & 0xFFFF + (wParam & 0xFFFF)) / 2;
       return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }
     case WM_CHAR: {

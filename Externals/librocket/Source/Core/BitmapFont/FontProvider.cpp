@@ -189,6 +189,8 @@ void* FontProvider::LoadFace(const String& file_name) {
   parser.Parse(stream);
 
   bm_face->Face.Source = file_name;
+
+  delete buffer;
   return bm_face;
 }
 

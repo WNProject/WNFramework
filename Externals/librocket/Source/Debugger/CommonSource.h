@@ -28,7 +28,7 @@
 static const char* common_rcss =
     "body\n"
     "{\n"
-    "	font-family: Lacuna;\n"
+    "	font-family: Fira Code;\n"
     "	z-index: top;\n"
     "	font-size: 12px;\n"
     "	color: black;\n"

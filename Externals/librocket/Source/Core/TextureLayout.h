@@ -84,7 +84,7 @@ private:
   TextureList textures;
   RectangleList rectangles;
 };
-}
-}
+}  // namespace Core
+}  // namespace Rocket
 
 #endif

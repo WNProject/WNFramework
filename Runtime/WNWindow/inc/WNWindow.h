@@ -51,7 +51,7 @@ public:
   virtual void show_keyboard() {}
   virtual void hide_keyboard() {}
   // TODO: Fix this up later, stick with this for now
-  virtual uint32_t get_dpi() {
+  virtual uint32_t get_dpi() const {
     return 96;
   }
 

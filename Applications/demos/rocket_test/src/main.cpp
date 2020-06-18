@@ -1305,14 +1305,10 @@ int32_t wn_application_main(
       Rocket::Core::CreateDocumentContext(
           &context, "main", Rocket::Core::Vector2i(width, height));
 
-  Rocket::Core::FontDatabase::LoadFontFace(
-      &context, "assets/fonts/lc_regular_12.fnt");
-  Rocket::Core::FontDatabase::LoadFontFace(
-      &context, "assets/fonts/lc_regular_20.fnt");
-  Rocket::Core::FontDatabase::LoadFontFace(
-      &context, "assets/fonts/lc_italic_12.fnt");
-  Rocket::Core::FontDatabase::LoadFontFace(
-      &context, "assets/fonts/lc_italic_20.fnt");
+  Rocket::Core::FontDatabase::LoadFontFace(&context,
+      "assets/fonts/FiraCode-Regular.ttf", "Fira Code",
+      Rocket::Core::Font::Style::STYLE_NORMAL,
+      Rocket::Core::Font::Weight::WEIGHT_NORMAL);
 
   Rocket::Debugger::Initialise(&context, documents);
   Rocket::Controls::Initialise(&context);
