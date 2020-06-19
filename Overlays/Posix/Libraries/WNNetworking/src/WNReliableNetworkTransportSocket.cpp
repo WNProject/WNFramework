@@ -71,7 +71,7 @@ network_error WNReliableNetworkTransportSocket::do_send(
   msghdr header = {nullptr,               // msg_name
       0,                                  // msg_namelen
       send_buffers,                       // msg_iov
-      static_cast<int>(_buffers.size()),  // msg_iovlen
+      static_cast<size_t>(_buffers.size()),  // msg_iovlen
       nullptr,                            // msg_control
       0,                                  //  msg_controllen
       0};

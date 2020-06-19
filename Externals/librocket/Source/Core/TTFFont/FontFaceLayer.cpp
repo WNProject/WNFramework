@@ -23,11 +23,7 @@ bool FontFaceLayer::Initialise(const Rocket::Core::FontFaceHandle* _handle,
   (void)(_effect);
   (void)(deep_clone);
 
-  Rocket::Core::TTFFont::FontFaceHandle* ttf_font_face_handle;
-
   handle = _handle;
-
-  ttf_font_face_handle = (Rocket::Core::TTFFont::FontFaceHandle*)handle;
 
   const FontGlyphList& glyphs = handle->GetGlyphs();
 

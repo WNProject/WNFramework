@@ -227,12 +227,12 @@ jit_engine::jit_engine(memory::allocator* _allocator,
     m_modules(_allocator),
     m_pointers(_allocator),
     m_c_pointers(_allocator),
+    m_resources(_allocator),
+    m_extension_handlers(_allocator),
     m_external_types(_allocator),
     m_struct_infos(_allocator),
     m_started_files(_allocator),
-    m_finished_files(_allocator),
-    m_resources(_allocator),
-    m_extension_handlers(_allocator) {
+    m_finished_files(_allocator) {
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();

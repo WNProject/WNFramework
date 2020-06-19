@@ -829,7 +829,7 @@ const ast_type* type_manager::get_resource(
     return nullptr;
   }
 
-  if (!res->second.resource->convert_to_user_data(resource_data, data)) {
+  if (!res->second.m_resource->convert_to_user_data(resource_data, data)) {
     return nullptr;
   }
 

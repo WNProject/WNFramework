@@ -802,7 +802,7 @@ llvm::Function* internal::jit_compiler_context::get_resource_function(
   if (m_resource_functions.find(_res) == m_resource_functions.end()) {
     llvm::Type* return_type = get_type(res->m_type);
     if (!return_type) {
-      return false;
+      return nullptr;
     }
 
     if (res->m_type->m_pass_by_reference) {

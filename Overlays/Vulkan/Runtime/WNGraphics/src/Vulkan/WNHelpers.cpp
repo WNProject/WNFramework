@@ -40,7 +40,7 @@ void* load_symbol(library_type _lib, const char* _symbol) {
 library_type open_function(const char* _name) {
   return dlopen(_name, RTLD_NOW);
 }
-const char* vulkan_library_name = "libvulkan.so";
+const char* vulkan_library_name = "libvulkan.so.1";
 void* load_symbol(library_type _lib, const char* _symbol) {
   return dlsym(_lib, _symbol);
 }

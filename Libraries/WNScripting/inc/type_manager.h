@@ -423,7 +423,7 @@ private:
 
   struct res_type {
     const ast_type* type;
-    resource* resource;
+    resource* m_resource;
   };
 
   containers::hash_map<containers::string, res_type> m_resource_types;
