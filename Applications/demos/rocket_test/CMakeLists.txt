@@ -37,4 +37,6 @@ add_wn_application(rocket_test
     WNFileSystem
 )
 
+add_dependencies(rocket_test rocket_assets)
+
 post_enable_overlay_directory()

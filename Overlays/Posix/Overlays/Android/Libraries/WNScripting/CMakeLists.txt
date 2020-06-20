@@ -56,12 +56,12 @@ elseif(WN_OVERLAY_IS_ENABLED)
   append_to_overlay_var(SUB_BUILD_TARGET_DEPS llvm-host-tblgen)
   add_custom_target(llvm-host-tblgen
     WORKING_DIRECTORY
-      ${WNFramework_BINARY_DIR}/host/Externals/llvm/)
+      ${WNFramework_BINARY_DIR}/host/Externals/llvm-project/llvm)
   add_custom_command(TARGET llvm-host-tblgen
     COMMAND
       ${CMAKE_COMMAND} --build . --target llvm-tblgen
     WORKING_DIRECTORY
-      ${WNFramework_BINARY_DIR}/host/Externals/llvm/)
+      ${WNFramework_BINARY_DIR}/host/Externals/llvm-project/llvm/)
 endif()
 
 

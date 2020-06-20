@@ -444,6 +444,9 @@ function(wn_filesystem_files name)
       DEPENDS ${WNFramework_SOURCE_DIR}/Utilities/compile_file_directory.py
         ${${name}_OVERLAY_SOURCES}
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+    add_custom_target(${name} DEPENDS 
+       ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR}/${name}.h
+       ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR}/${name}.cpp)
   endif()
 endfunction()
 

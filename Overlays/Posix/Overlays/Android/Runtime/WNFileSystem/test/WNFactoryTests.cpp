@@ -24,7 +24,7 @@ TEST_P(factory, make_mapping) {
   }
 }
 
-INSTANTIATE_TEST_CASE_P(all_mappings, factory,
+INSTANTIATE_TEST_SUITE_P(all_mappings, factory,
     ::testing::Values(wn::file_system::mapping_type::scratch_directory,
         wn::file_system::mapping_type::memory_backed,
         wn::file_system::mapping_type::executable_directory,

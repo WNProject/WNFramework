@@ -1248,6 +1248,7 @@ int32_t wn_application_main(
     log->log_error("Could not create a valid window");
     return -1;
   }
+  log->log_info("DPI Multiplier:", multiplier);
 
   auto input_context = window->get_input_context();
   auto surface = adapter->make_surface(allocator, window.get());
@@ -1322,8 +1323,18 @@ int32_t wn_application_main(
 
   // DONE SETTING UP ROCKET
   bool debugger_visible = false;
-
+  auto last = std::chrono::high_resolution_clock::now();
+  uint64_t n_frames = 0;
   for (;;) {
+    n_frames++;
+    auto now = std::chrono::high_resolution_clock::now();
+    if (std::chrono::duration_cast<std::chrono::seconds>(now - last) >
+        std::chrono::seconds(1)) {
+      log->log_info("Rendered frames:", n_frames);
+      n_frames = 0;
+      last = now;
+      log->flush();
+    }
     image_fence.reset();
     uint32_t idx = swapchain->get_next_backbuffer_index(&image_fence, nullptr);
     if (!unused[idx]) {

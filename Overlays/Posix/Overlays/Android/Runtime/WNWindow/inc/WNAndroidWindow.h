@@ -122,7 +122,7 @@ public:
 
   void hide_keyboard() override;
 
-  uint32_t get_dpi() override;
+  uint32_t get_dpi() const override;
 
 private:
   void handle_input_event(AInputEvent* _event);

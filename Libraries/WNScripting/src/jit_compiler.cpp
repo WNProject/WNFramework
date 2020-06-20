@@ -20,6 +20,7 @@
 #pragma warning(disable : 4141)
 #pragma warning(disable : 4324)
 #pragma warning(disable : 4245)
+#pragma warning(disable : 4702)
 #endif
 
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
@@ -272,7 +273,8 @@ bool internal::jit_compiler_context::forward_declare_function(
   m_function_types[_function] = ft;
 
   llvm::Function* f = llvm::cast<llvm::Function>(
-      m_module->getOrInsertFunction(_function->m_mangled_name.c_str(), ft));
+      m_module->getOrInsertFunction(_function->m_mangled_name.c_str(), ft)
+          .getCallee());
   f->addFnAttr(llvm::Attribute::NoUnwind);
   if (_extern) {
     f->setLinkage(llvm::GlobalValue::LinkageTypes::ExternalLinkage);
@@ -292,7 +294,8 @@ bool internal::jit_compiler_context::forward_declare_function(
 
 llvm::Value* internal::jit_compiler_context::get_alloca(
     llvm::Type* _type, unsigned int array_size, const char* name) {
-  llvm::Value* v = new llvm::AllocaInst(_type, 0, array_size, name ? name : "",
+  llvm::Value* v = new llvm::AllocaInst(_type, 0,
+      llvm::ConstantInt::get(m_int32_t, array_size), name ? name : "",
       &(*m_current_function->getBasicBlockList().begin()->begin()));
   return v;
 }
@@ -814,7 +817,7 @@ llvm::Function* internal::jit_compiler_context::get_resource_function(
     containers::string str(m_allocator, "@");
     str = str + _res;
     llvm::Function* f = llvm::cast<llvm::Function>(
-        m_module->getOrInsertFunction(str.c_str(), ft));
+        m_module->getOrInsertFunction(str.c_str(), ft).getCallee());
     f->addFnAttr(llvm::Attribute::NoUnwind);
 
     f->setLinkage(llvm::GlobalValue::LinkageTypes::ExternalLinkage);
@@ -1738,7 +1741,7 @@ bool internal::jit_compiler_context::write_declaration(
   if (!t) {
     return false;
   }
-  llvm::Value* decl = get_alloca(t, 0, _declaration->m_name.c_str());
+  llvm::Value* decl = get_alloca(t, 1, _declaration->m_name.c_str());
   m_declarations[_declaration] = decl;
   if (_declaration->m_initializer) {
     llvm::Value* v = get_expression(_declaration->m_initializer.get());
@@ -1760,7 +1763,7 @@ bool internal::jit_compiler_context::write_array_destruction(
       m_context, "destruction_check", m_current_function);
 
   // YOU ARE HERE
-  llvm::Value* val = get_alloca(m_int32_t, 0, nullptr);
+  llvm::Value* val = get_alloca(m_int32_t, 1, nullptr);
   llvm::Value* target = get_expression(_dest->m_target.get());
 
   if (_dest->m_target->m_type->m_static_array_size != 0 &&

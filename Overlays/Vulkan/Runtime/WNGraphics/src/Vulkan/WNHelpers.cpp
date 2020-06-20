@@ -23,6 +23,7 @@ library_type open_function(const char* _name) {
   return LoadLibrary(_name);
 }
 const char* vulkan_library_name = "vulkan-1.dll";
+const char* backup_vulkan_libray_name = "vulkan.dll";
 void* load_symbol(library_type _lib, const char* _symbol) {
   return GetProcAddress(_lib, _symbol);
 }
@@ -32,6 +33,7 @@ library_type open_function(const char* _name) {
   return dlopen(_name, RTLD_NOW);
 }
 const char* vulkan_library_name = "libvulkan.dylib";
+const char* backup_vulkan_libray_name = "libvulkan.dylib";
 void* load_symbol(library_type _lib, const char* _symbol) {
   return dlsym(_lib, _symbol);
 }
@@ -41,6 +43,7 @@ library_type open_function(const char* _name) {
   return dlopen(_name, RTLD_NOW);
 }
 const char* vulkan_library_name = "libvulkan.so.1";
+const char* backup_vulkan_libray_name = "libvulkan.so";
 void* load_symbol(library_type _lib, const char* _symbol) {
   return dlsym(_lib, _symbol);
 }
@@ -82,6 +85,9 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
   vulkan_context_ptr context =
       wn::memory::make_intrusive<vulkan_context>(_allocator, _allocator);
   context->library = open_function(vulkan_library_name);
+  if (!context->library) {
+    context->library = open_function(backup_vulkan_libray_name);
+  }
   if (!context->library) {
     _log->log_info("Could not find vulkan loader library.");
     _log->log_info("Vulkan will not be available.");

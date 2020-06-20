@@ -190,7 +190,7 @@ void* FontProvider::LoadFace(const String& file_name) {
 
   bm_face->Face.Source = file_name;
 
-  delete buffer;
+  delete[] buffer;
   return bm_face;
 }
 

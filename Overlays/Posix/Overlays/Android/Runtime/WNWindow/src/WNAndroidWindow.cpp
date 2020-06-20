@@ -277,7 +277,7 @@ void android_window::hide_keyboard() {
   m_keyboard_showing = false;
 }
 
-uint32_t android_window::get_dpi() {
+uint32_t android_window::get_dpi() const {
   ANativeActivity* activity =
       m_app_data->executable_data->host_data->android_app->activity;
   JNIEnv* env = 0;
