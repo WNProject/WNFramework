@@ -72,7 +72,7 @@ def run():
         if args.delay:
             time.sleep(args.delay)
         run_args = [sys.executable, runner, 'uninstall',
-                    "${WN_PACKAGE}", '--sdk', sdk_dir]
+                    "${WN_PACKAGE_STRING}.${WN_ACTIVITY_NAME}", '--sdk', sdk_dir]
         return(subprocess.call(run_args))
 
 
