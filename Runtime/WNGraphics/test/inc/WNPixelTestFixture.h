@@ -21,7 +21,10 @@
 #include "WNMath/inc/WNBasic.h"
 #include "executable_test/inc/WNTestHarness.h"
 
-#include <stb_public.h>
+#include <stb_image.h>
+#include <stb_image_write.h>
+#include <stb_rect_pack.h>
+#include <stb_truetype.h>
 
 namespace wn {
 namespace runtime {

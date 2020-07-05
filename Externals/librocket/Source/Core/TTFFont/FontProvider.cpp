@@ -35,7 +35,11 @@
 #include "../precompiled.h"
 #include "FontFamily.h"
 #include "TTFFontDefinitions.h"
-#include "stb_public.h"
+
+#include <stb_image.h>
+#include <stb_image_write.h>
+#include <stb_rect_pack.h>
+#include <stb_truetype.h>
 
 namespace Rocket {
 namespace Core {

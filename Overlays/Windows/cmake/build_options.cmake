@@ -1,11 +1,15 @@
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
-# Fix for LLVM Visual Studio 2015 RC issue
 if(MSVC)
+  # Fix for LLVM Visual Studio 2015 RC issue
   if(MSVC_VERSION GREATER 1800)
     list(APPEND WN_LLVM_EXTRA_FLAGS "-DCMAKE_CXX_FLAGS=/Zc:sizedDealloc-")
   endif()
+
+  # Fix for stb issue
+  add_compile_options(/wd4204)
 endif()
+
 # Preprocessor definitions
 add_compile_options(/D_CRT_SECURE_NO_WARNINGS) # Disable CRT secure warnings
 add_compile_options(/D_SCL_SECURE_NO_WARNINGS) # Disable SCL secure warnings

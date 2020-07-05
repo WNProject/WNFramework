@@ -32,13 +32,13 @@ macro(add_pixel_test name)
   add_wn_executable(${name}
     SOURCES
       ${PIXEL_TEST_SOURCES}
+    INCLUDES
+      ${WNFramework_SOURCE_DIR}/Externals/stb
     LIBS
       executable_test
       WNGraphics
       WNFileSystem
       stb
-  INCLUDES
-    ${WNFramework_SOURCE_DIR}/Externals/stb
   )
 
   wn_create_call_test(

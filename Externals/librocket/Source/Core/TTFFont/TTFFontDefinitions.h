@@ -31,7 +31,10 @@
 #include <Rocket/Core/Dictionary.h>
 #include <Rocket/Core/Font.h>
 #include <Rocket/Core/Types.h>
-#include <stb_public.h>
+#include <stb_image.h>
+#include <stb_image_write.h>
+#include <stb_rect_pack.h>
+#include <stb_truetype.h>
 #include <set>
 
 namespace Rocket {

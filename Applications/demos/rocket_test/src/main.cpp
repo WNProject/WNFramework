@@ -33,7 +33,10 @@
 #include "Rocket/Core/RenderInterface.h"
 #include "Rocket/Debugger/Debugger.h"
 
-#include <stb_public.h>
+#include <stb_image.h>
+#include <stb_image_write.h>
+#include <stb_rect_pack.h>
+#include <stb_truetype.h>
 #include <time.h>
 
 using wn::containers::contiguous_range;
