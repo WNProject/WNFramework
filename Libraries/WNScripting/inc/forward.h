@@ -284,7 +284,7 @@ private:
   }
 
   void unsafe_set_engine_free(
-      const engine* _engine, void (*_free)(engine*, void*)) {
+      const engine* _engine, void (*_free)(const engine*, void*)) {
     m_engine = _engine;
     m_free = _free;
   }
