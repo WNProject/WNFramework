@@ -8,6 +8,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     /wd4815
     /wd4459
     /wd4244
+    /wd4127
   )
 endif()
 
