@@ -11,7 +11,7 @@
 [submodule "Externals/effcee"]
 	path = Externals/effcee
 	url = https://github.com/google/effcee
-	branch = master
+	branch = main
 	ignore = dirty
 [submodule "Externals/vulkan-headers"]
 	path = Externals/vulkan-headers
