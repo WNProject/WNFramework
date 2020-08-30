@@ -9,7 +9,8 @@
 
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNLogging/inc/WNLog.h"
-#include "xxhash/xxhash.h"
+
+#include <xxhash/xxhash.h>
 
 namespace wn {
 namespace hashing {
@@ -18,86 +19,114 @@ template <size_t N>
 class hash {};
 
 template <>
-class hash<32> {
+class hash<32> final {
 public:
-  hash(uint32_t _seed = 0) {
+  hash(uint32_t _seed = 0) : m_state(XXH32_createState()) {
     reset(_seed);
   }
+
+  ~hash() {
+    XXH32_freeState(m_state);
+  }
+
   void reset(uint32_t _seed = 0) {
-    XXH32_reset(&m_state, _seed);
+    XXH32_reset(m_state, _seed);
   }
 
   template <typename T>
   void append(const containers::contiguous_range<T>& data) {
     static_assert(core::is_scalar<T>::value, "Can only hash scalars");
-    XXH32_update(&m_state, data.data(), sizeof(T) * data.size());
+
+    XXH32_update(m_state, data.data(), sizeof(T) * data.size());
   }
 
   uint32_t get_data() const {
-    return XXH32_digest(&m_state);
+    return XXH32_digest(m_state);
   }
 
 private:
-  XXH32_state_s m_state;
+  XXH32_state_s* m_state;
 };
 
 template <>
-class hash<64> {
+class hash<64> final {
 public:
-  hash(uint64_t _seed = 0) {
+  hash(uint64_t _seed = 0) : m_state(XXH64_createState()) {
     reset(_seed);
   }
+
+  ~hash() {
+    XXH64_freeState(m_state);
+  }
+
   void reset(uint64_t _seed = 0) {
-    XXH64_reset(&m_state, _seed);
+    XXH64_reset(m_state, _seed);
   }
 
   template <typename T>
   void append(const containers::contiguous_range<T>& data) {
     static_assert(core::is_scalar<T>::value, "Can only hash scalars");
-    XXH64_update(&m_state, data.data(), sizeof(T) * data.size());
+
+    XXH64_update(m_state, data.data(), sizeof(T) * data.size());
   }
 
   uint64_t get_data() const {
-    return XXH64_digest(&m_state);
+    return XXH64_digest(m_state);
   }
 
 private:
-  XXH64_state_s m_state;
+  XXH64_state_s* m_state;
 };
 
-struct hash_data {
-  uint32_t parts[3];
+template <size_t N>
+struct hash_data final {
+  static_assert(
+      (N % sizeof(uint32_t)) == 0, "Must be multiple of sizeof(uint32_t)");
+
+  uint32_t parts[N / sizeof(uint32_t)];
 };
 
 template <>
-class hash<96> {
+class hash<96> final {
 public:
-  hash(uint64_t _seed_high = 0, uint32_t _seed_low = 0) {
+  using value_type = hash_data<96>;
+
+  hash(uint64_t _seed_high = 0, uint32_t _seed_low = 0)
+    : m_state64(XXH64_createState()), m_state32(XXH32_createState()) {
     reset(_seed_high, _seed_low);
   }
+
+  ~hash() {
+    XXH64_freeState(m_state64);
+    XXH32_freeState(m_state32);
+  }
+
   void reset(uint64_t _seed_high = 0, uint32_t _seed_low = 0) {
-    XXH64_reset(&m_state64, _seed_high);
-    XXH32_reset(&m_state32, _seed_low);
+    XXH64_reset(m_state64, _seed_high);
+    XXH32_reset(m_state32, _seed_low);
   }
 
   template <typename T>
   void append(const containers::contiguous_range<T>& data) {
     static_assert(core::is_scalar<T>::value, "Can only hash scalars");
-    XXH64_update(&m_state64, data.data(), sizeof(T) * data.size());
-    XXH32_update(&m_state32, data.data(), sizeof(T) * data.size());
+
+    XXH64_update(m_state64, data.data(), sizeof(T) * data.size());
+    XXH32_update(m_state32, data.data(), sizeof(T) * data.size());
   }
 
-  hash_data get_data() const {
-    uint64_t hash_data0 = XXH64_digest(&m_state64);
-    uint32_t part0 = (hash_data0 >> 32) & 0xFFFFFFFF;
-    uint32_t part1 = (hash_data0)&0xFFFFFFFF;
-    return hash_data{{part1, part0, XXH32_digest(&m_state32)}};
+  value_type get_data() const {
+    const uint64_t hash_data0 = XXH64_digest(m_state64);
+    const uint32_t part0 = (hash_data0 >> 32) & 0xFFFFFFFF;
+    const uint32_t part1 = hash_data0 & 0xFFFFFFFF;
+
+    return value_type{{part1, part0, XXH32_digest(m_state32)}};
   }
 
 private:
-  XXH32_state_s m_state32;
-  XXH64_state_s m_state64;
+  XXH64_state_s* m_state64;
+  XXH32_state_s* m_state32;
 };
+
 }  // namespace hashing
 
 namespace logging {
@@ -107,13 +136,15 @@ static const char hex_values[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8',
 
 template <size_t N, typename BuffType>
 struct log_type_helper<hashing::hash<N>, BuffType> {
-  WN_FORCE_INLINE static bool do_log(
+  inline static bool do_log(
       const hashing::hash<N>& _0, BuffType* _buffer, size_t& _buffer_left) {
     size_t last_buffer_left = _buffer_left;
+
     if (!log_type_helper<char[3], BuffType>::do_log(
             "0x", _buffer, last_buffer_left)) {
       return false;
     }
+
     _buffer += 2;
 
     auto hash_val = _0.get_data();
@@ -125,7 +156,9 @@ struct log_type_helper<hashing::hash<N>, BuffType> {
     }
 
     char ob[output_size];
+
     memory::memcpy(ob, &hash_val, output_size);
+
     for (size_t i = 0; i < output_size; ++i) {
       _buffer[0] = hex_values[(ob[output_size - i - 1] >> 4) & 0xF];
       _buffer[1] = hex_values[ob[output_size - i - 1] & 0xF];
@@ -134,6 +167,7 @@ struct log_type_helper<hashing::hash<N>, BuffType> {
     }
 
     _buffer_left = last_buffer_left;
+
     return true;
   }
 };
@@ -141,4 +175,4 @@ struct log_type_helper<hashing::hash<N>, BuffType> {
 }  // namespace logging
 }  // namespace wn
 
-#endif  //__WN_HASHING_HASH_H__
+#endif  // __WN_HASHING_HASH_H__

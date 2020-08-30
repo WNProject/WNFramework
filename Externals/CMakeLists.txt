@@ -12,7 +12,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   )
 endif()
 
-set(RE2_SOURCES
+set(
+    RE2_SOURCES
     re2/re2/bitstate.cc
     re2/re2/compile.cc
     re2/re2/dfa.cc
@@ -37,23 +38,37 @@ set(RE2_SOURCES
     re2/util/strutil.cc
 )
 
-add_wn_library(re2
-  SOURCES ${RE2_SOURCES}
+add_wn_library(
+  re2
+  SOURCES
+    ${RE2_SOURCES}
   INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/re2_helper
     re2
 )
 
-add_subdirectory(xxhash)
-
-set(EFFCEE_SOURCES
+set(
+  EFFCEE_SOURCES
   effcee/effcee/check.cc
-  effcee/effcee/match.cc)
+  effcee/effcee/match.cc
+)
 
-add_wn_library(effcee
-  SOURCES ${EFFCEE_SOURCES}
-LIBS
+add_wn_library(
+  effcee
+  SOURCES
+    ${EFFCEE_SOURCES}
+  LIBS
     re2
-INCLUDES
+  INCLUDES
     re2
-    effcee)
+    effcee
+)
+
+add_wn_library(
+  xxhash
+  SOURCES
+    xxhash/xxhash.h
+    xxhash/xxhash.c
+  INCLUDES
+    xxhash
+)
