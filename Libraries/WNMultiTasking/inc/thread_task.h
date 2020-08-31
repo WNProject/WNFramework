@@ -7,7 +7,6 @@
 #ifndef __WN_MULTI_TASKING_THREAD_TASK_H__
 #define __WN_MULTI_TASKING_THREAD_TASK_H__
 
-
 #include "WNMemory/inc/intrusive_ptr.h"
 #include "WNMultiTasking/inc/semaphore.h"
 

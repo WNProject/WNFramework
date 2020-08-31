@@ -7,7 +7,6 @@
 #ifndef __WN_MATH_INTERNAL_GENERIC_BASIC_TRAITS_H__
 #define __WN_MATH_INTERNAL_GENERIC_BASIC_TRAITS_H__
 
-
 #include "WNCore/inc/type_traits.h"
 #include "WNCore/inc/types.h"
 #include "WNCore/inc/utilities.h"
