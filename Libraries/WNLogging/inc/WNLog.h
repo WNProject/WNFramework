@@ -99,6 +99,7 @@ public:
   template <typename... Args>
   WN_FORCE_INLINE void log_critical_flags(size_t size, const Args&... args) {
     log_params(log_level::critical, size, args...);
+    flush();
   }
   template <typename... Args>
   WN_FORCE_INLINE void log_error_flags(size_t size, const Args&... args) {

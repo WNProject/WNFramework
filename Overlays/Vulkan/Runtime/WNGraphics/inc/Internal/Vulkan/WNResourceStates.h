@@ -24,6 +24,8 @@ static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_access_flags(
       VK_ACCESS_HOST_READ_BIT,              // host_read
       VK_ACCESS_TRANSFER_READ_BIT,          // copy_source
       VK_ACCESS_TRANSFER_WRITE_BIT,         // copy_dest
+      VK_ACCESS_TRANSFER_READ_BIT,          // blit_source
+      VK_ACCESS_TRANSFER_WRITE_BIT,         // blit_dest
       VK_ACCESS_INDEX_READ_BIT,             // index_buffer
       VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,  // vertex_buffer
       VK_ACCESS_UNIFORM_READ_BIT,           // read_only_buffer
@@ -55,6 +57,8 @@ static WN_FORCE_INLINE VkImageLayout resource_state_to_vulkan_layout(
       VK_IMAGE_LAYOUT_GENERAL,                           // host_read
       VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,              // copy_source
       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,              // copy_dest
+      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,              // blit_source
+      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,              // blit_dest
       VK_IMAGE_LAYOUT_UNDEFINED,                         // index_buffer
       VK_IMAGE_LAYOUT_UNDEFINED,                         // vertex_buffer
       VK_IMAGE_LAYOUT_UNDEFINED,                         // read_only_buffer
@@ -142,6 +146,8 @@ static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_pipeline_stage(
       VK_PIPELINE_STAGE_HOST_BIT,                     // host_read
       VK_PIPELINE_STAGE_TRANSFER_BIT,                 // copy_source
       VK_PIPELINE_STAGE_TRANSFER_BIT,                 // copy_dest
+      VK_PIPELINE_STAGE_TRANSFER_BIT,                 // blit_source
+      VK_PIPELINE_STAGE_TRANSFER_BIT,                 // blit_dest
       VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,             // index_buffer
       VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,             // vertex_buffer
       VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,             // read_only_buffer

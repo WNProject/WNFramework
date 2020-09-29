@@ -2,18 +2,21 @@ add_wn_library(
   renderer
   SOURCES
     inc/gpu_heap.h
+    inc/render_context.h
     inc/render_data.h
     inc/render_pass.h
     inc/render_target.h
-    inc/render_context.h
+    inc/renderable_object.h
     src/gpu_heap.cpp
+    src/render_context.cpp
     src/render_data.cpp
     src/render_pass.cpp
     src/render_target.cpp
-    src/render_context.cpp
+    src/renderable_object.cpp
   LIBS
     engine_base
     window
+    WNFileSystem
     WNGraphics
     WNScripting
 )

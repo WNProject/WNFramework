@@ -9,4 +9,5 @@ add_wn_application(
     engine_base
     renderer
     window
+    ui
 )

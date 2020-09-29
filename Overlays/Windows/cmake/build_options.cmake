@@ -47,9 +47,6 @@ add_compile_options(/WX) # Enable warnings as errors
 add_compile_options(/GR-) # Disable run-time type information
 add_compile_options(/MP) # Enable multi-processor compilation
 
-# Adjust CRT usage to static for all configs
-add_compile_options($<$<CONFIG:Debug>:/MTd>
-                    $<$<NOT:$<CONFIG:Debug>>:/MT>)
 # Adjust optimization to full optimization
 add_compile_options($<$<CONFIG:Release>:/Ox>)
 # Adjust inlining to any suitable

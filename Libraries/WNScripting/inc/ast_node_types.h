@@ -277,6 +277,7 @@ public:
             return;
           case builtin_type::c_string_type:
             m_mangled_name = containers::string(_allocator, "Ph");
+            return;
           default:
             break;
         }
@@ -287,6 +288,10 @@ public:
           m_mangled_name += t->m_mangled_name;
         }
         m_mangled_name += containers::string(_allocator, "E");
+        return;
+      case ast_type_classification::slice_type:
+        m_mangled_name = containers::string(_allocator, "S0_");
+        m_mangled_name += m_implicitly_contained_type->m_mangled_name;
         return;
       case ast_type_classification::static_array:
         m_mangled_name = containers::string(_allocator, "A0_");
@@ -310,7 +315,11 @@ public:
         return;
       case ast_type_classification::extern_type:
         m_mangled_name = containers::string(_allocator, "P");
+        break;
+      case ast_type_classification::struct_type:
+        break;
       default:
+        WN_RELEASE_ASSERT(false, "We should not end up here");
         break;
     }
 

@@ -24,6 +24,8 @@ resource_state_to_d3d12_resource_states(const resource_state _state) {
       D3D12_RESOURCE_STATE_COMMON,                      // host_read
       D3D12_RESOURCE_STATE_COPY_SOURCE,                 // copy_source
       D3D12_RESOURCE_STATE_COPY_DEST,                   // copy_dest
+      D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,       // blit_source
+      D3D12_RESOURCE_STATE_RENDER_TARGET,               // blit_dest
       D3D12_RESOURCE_STATE_INDEX_BUFFER,                // index_buffer
       D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,  // vertex_buffer
       D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER,  // read_only_buffer
@@ -57,6 +59,9 @@ static WN_FORCE_INLINE D3D12_RESOURCE_FLAGS resources_states_to_resource_flags(
   }
   if (_state & static_cast<uint32_t>(resource_state::depth_target)) {
     flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+  }
+  if (_state & static_cast<uint32_t>(resource_state::blit_dest)) {
+    flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
   }
   return flags;
 }

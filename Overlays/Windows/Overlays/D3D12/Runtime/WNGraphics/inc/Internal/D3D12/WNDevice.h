@@ -12,6 +12,7 @@
 #include "WNContainers/inc/WNRangePartition.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNCore/inc/pair.h"
+#include "WNGraphics/inc/Internal/D3D12/WND3D12ResourceCache.h"
 #include "WNGraphics/inc/Internal/D3D12/WNLockedHeap.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNArenaProperties.h"
@@ -23,6 +24,7 @@
 #include "WNMath/inc/WNMatrix.h"
 #include "WNMath/inc/WNVector.h"
 #include "WNMemory/inc/unique_ptr.h"
+#include "WNMultiTasking/inc/mutex.h"
 #include "WNMultiTasking/inc/spin_lock.h"
 #include "WNWindow/inc/WNWindow.h"
 
@@ -104,9 +106,13 @@ public:
   size_t get_image_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
   size_t get_buffer_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
 
-  swapchain_ptr create_swapchain(const surface& _surface,
-      const swapchain_create_info& _info, queue* queue,
-      float _multiplier = 1.0f) WN_GRAPHICS_OVERRIDE_FINAL;
+  swapchain_ptr create_swapchain(surface& _surface,
+      const swapchain_create_info& _info,
+      queue* _queue) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  swapchain_ptr recreate_swapchain(surface& _surface,
+      swapchain_ptr _old_swapchain, const swapchain_create_info& _info,
+      queue* _queue) WN_GRAPHICS_OVERRIDE_FINAL;
 
   math::mat44f get_perspective_fixup_matrix() WN_GRAPHICS_OVERRIDE_FINAL {
     return math::mat44f({        //
@@ -266,6 +272,7 @@ protected:
       const buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
 
 private:
+  void get_blit_pipeline(DXGI_FORMAT texture_format, blit_image_data* _data);
   template <typename T>
   typename data_type<T>::value& get_data(T* t) const;
 
@@ -289,6 +296,7 @@ private:
   memory::allocator* m_allocator;
   logging::log* m_log;
   std::atomic<uint32_t> m_num_queues;
+
   struct sampler_data {
     uint32_t m_sampler_data_count = 0;
     containers::default_range_partition::token m_range_token = {};
@@ -298,6 +306,7 @@ private:
       sampler_create_info_hasher>
       m_sampler_cache;
   multi_tasking::spin_lock m_sampler_cache_lock;
+  d3d12_resource_cache m_resource_cache;
 };
 
 }  // namespace d3d12

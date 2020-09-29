@@ -10,6 +10,7 @@
 #include "engine_base/inc/context.h"
 #include "renderer/inc/render_data.h"
 #include "renderer/inc/render_target.h"
+#include "renderer/inc/renderable_object.h"
 #include "window/inc/window.h"
 
 using namespace wn::engine;
@@ -35,19 +36,23 @@ struct exported_script_type<renderer::render_context> {
 
   template <typename T>
   static void export_type(T* _exporter) {
-    _exporter->template register_nonvirtual_function<
-        decltype(&renderer::render_context::width),
-        &renderer::render_context::width>("width");
-    _exporter->template register_nonvirtual_function<
-        decltype(&renderer::render_context::height),
-        &renderer::render_context::height>("height");
-    _exporter->template register_nonvirtual_function<
-        decltype(&renderer::render_context::render),
-        &renderer::render_context::render>("render");
-    _exporter->template register_nonvirtual_function<
-        decltype(&renderer::render_context::register_description),
-        &renderer::render_context::register_description>(
-        "register_description");
+    _exporter->register_virtual<int32_t>()
+        .register_virtual<&renderer::render_context::width>("width");
+    _exporter->register_virtual<int32_t>()
+        .register_virtual<&renderer::render_context::height>("height");
+    _exporter->register_virtual<bool>()
+        .register_virtual<&renderer::render_context::render>("render");
+    _exporter
+        ->register_virtual<void,
+            shared_cpp_pointer<renderer::renderable_object>,
+            slice<const char*>>()
+        .register_virtual<&renderer::render_context::add_renderable_to_passes>(
+            "add_renderable_to_passes");
+    _exporter
+        ->register_virtual<void,
+            scripting::script_pointer<renderer::render_description>>()
+        .register_virtual<&renderer::render_context::register_description>(
+            "register_description");
   }
 };
 }  // namespace scripting
@@ -186,10 +191,6 @@ void register_graphics_enums(scripting::engine* _engine) {
 }
 }  // namespace
 
-int32_t test() {
-  return 0;
-}
-
 void render_context::register_scripting(scripting::engine* _engine) {
   register_graphics_enums(_engine);
   rt_description::register_scripting(_engine);
@@ -197,6 +198,7 @@ void render_context::register_scripting(scripting::engine* _engine) {
   render_target_usage::register_scripting(_engine);
   pass_data::register_scripting(_engine);
   render_data::register_scripting(_engine);
+  renderable_object::register_scripting(_engine);
   _engine->export_script_type<render_description>();
   _engine->register_cpp_type<render_context>();
   _engine->register_function<decltype(&get_attachmentless_render_context),
@@ -206,12 +208,12 @@ void render_context::register_scripting(scripting::engine* _engine) {
           "get_render_context");
   _engine->register_function<decltype(&get_render_context_with_window),
       &get_render_context_with_window>("get_render_context");
-  _engine->register_function<decltype(&test), &test>("test");
 }
 
 bool render_context::resolve_scripting(scripting::engine* _engine) {
   return rt_description::resolve_scripting(_engine) &&
          render_data::resolve_scripting(_engine) &&
+         renderable_object::resolve_scripting(_engine) &&
          render_dependency::resolve_scripting(_engine) &&
          render_target_usage::resolve_scripting(_engine) &&
          pass_data::resolve_scripting(_engine) &&
@@ -234,7 +236,8 @@ render_context::render_context(memory::allocator* _allocator,
     m_swapchain_ready_signals(m_allocator),
     m_swapchain_image_initialized(m_allocator),
     m_render_targets(_allocator),
-    m_render_passes(_allocator) {
+    m_render_passes(_allocator),
+    m_render_pass_names(_allocator) {
   if (_window) {
     m_log->log_info("Created Renderer With Window");
   } else {
@@ -441,7 +444,7 @@ void render_context::register_description(
             math::max(num_backings[rd], static_cast<uint32_t>(-rt));
       }
     }
-
+    m_render_pass_names.push_back(containers::string(m_allocator, pass_name));
     all_rp_descs.push_back(core::move(rp_attachments));
     all_rts.push_back(core::move(rts));
   }
@@ -466,7 +469,6 @@ void render_context::register_description(
     if (all_dts[i] != -1) {
       rts.push_back(&m_render_targets[all_dts[i]]);
     }
-
     m_render_passes.push_back(render_pass(m_allocator, m_log, m_device.get(),
         core::move(all_rp_descs[i]), core::move(rts), all_depth_descs[i]));
   }
@@ -476,6 +478,10 @@ gpu_allocation render_context::get_allocation_for_render_target(
     uint64_t _size, uint64_t _alignment) {
   return m_render_target_heap->allocate_memory(_size, _alignment);
 }
+
+void render_context::add_renderable_to_passes(
+    scripting::shared_cpp_pointer<renderable_object>,
+    scripting::slice<const char*>) {}
 
 bool render_context::render() {
   // TODO(awoloszyn): I don't like this tick, but it will do for now.
@@ -509,6 +515,35 @@ bool render_context::render() {
 
   auto swap_idx = m_swapchain->get_next_backbuffer_index(
       nullptr, &m_swapchain_get_signals[backing_idx]);
+  while (swap_idx == -1) {
+    m_log->log_warning("Swapchain out of date, resizing");
+
+    runtime::graphics::data_format swapchain_format =
+        m_surface->valid_formats()[0];
+    const runtime::graphics::swapchain_create_info create_info = {
+        swapchain_format, 2, wn::runtime::graphics::swap_mode::fifo,
+        wn::runtime::graphics::discard_policy::discard};
+    if (m_swapchain) {
+      m_swapchain = m_device->recreate_swapchain(
+          *m_surface, core::move(m_swapchain), create_info, m_queue.get());
+    } else {
+      m_swapchain =
+          m_device->create_swapchain(*m_surface, create_info, m_queue.get());
+    }
+    if (!m_swapchain) {
+      m_log->log_warning("Swapchain recreation failed, trying again");
+      continue;
+    }
+    m_swapchain_image_initialized.resize(m_swapchain->info().num_buffers);
+    for (auto& init : m_swapchain_image_initialized) {
+      init = false;
+    }
+
+    swap_idx = m_swapchain->get_next_backbuffer_index(
+        nullptr, &m_swapchain_get_signals[backing_idx]);
+    WN_RELEASE_ASSERT(swap_idx >= 0, "Cannot recreate the swapchain");
+  }
+
   auto swap_img = m_swapchain->get_image_for_index(swap_idx);
   if (m_swapchain_image_initialized[swap_idx]) {
     cmd_list->transition_resource(*swap_img,

@@ -22,15 +22,15 @@ int res_fn(void* user_data) {
 class test_resource : public scripting::resource {
 public:
   test_resource(memory::allocator* _allocator)
-    : scripting::resource(containers::string(_allocator, "TestResource")),
-      m_allocator(_allocator) {}
+    : scripting::resource(containers::string(_allocator, "TestResource")) {}
   bool convert_to_user_data(containers::string_view, void** dat) override {
     *dat = (void*)(uintptr_t)32;
     return true;
   }
-  containers::string get_include_for_resource(
-      containers::string_view /*_res*/) override {
-    return containers::string(m_allocator, "dummy_file.dummy");
+  bool get_include_for_resource(containers::string_view /*_res*/,
+      containers::string* _out_string) override {
+    *_out_string = "dummy_file.dummy";
+    return true;
   }
   containers::string_view get_file_extension() const override {
     return ".dummy";
@@ -45,7 +45,6 @@ public:
   }
 
 private:
-  memory::allocator* m_allocator;
 };
 
 inline containers::string_view to_view(const re2::StringPiece& sp) {

@@ -7,7 +7,9 @@
 #ifndef __WN_GRAPHICS_INTERNAL_D3D12_COMMAND_LIST_H__
 #define __WN_GRAPHICS_INTERNAL_D3D12_COMMAND_LIST_H__
 
+#include "WNGraphics/inc/Internal/D3D12/WND3D12ResourceCache.h"
 #include "WNGraphics/inc/Internal/D3D12/WNDataTypes.h"
+#include "WNGraphics/inc/Internal/D3D12/WNLockedHeap.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNGraphics/inc/WNGraphicsTypes.h"
@@ -78,6 +80,9 @@ public:
   void copy_image(const image& _src, uint32_t _src_mip_level, const image& _dst,
       uint32_t _dst_mip_level) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  void blit_image(const image& _src, uint32_t _src_mip_level, const image& _dst,
+      uint32_t _dst_mip_level) WN_GRAPHICS_OVERRIDE_FINAL;
+
   void draw(uint32_t _vertex_count, uint32_t _instance_count,
       uint32_t _vertex_offset,
       uint32_t _instance_offset) WN_GRAPHICS_OVERRIDE_FINAL;
@@ -125,8 +130,11 @@ protected:
   }
 
   WN_FORCE_INLINE void initialize(memory::allocator* _allocator,
-      Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>&& _command_list) {
+      ID3D12Device* _device,
+      Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>&& _command_list,
+      d3d12_resource_cache* _cache) {
     m_allocator = _allocator;
+    m_device = _device;
     m_command_list = core::move(_command_list);
     m_current_render_pass = nullptr;
     m_current_framebuffer = nullptr;
@@ -135,6 +143,8 @@ protected:
     m_clear_values = containers::dynamic_array<clear_value>(m_allocator);
     m_active_framebuffer_resource_states =
         containers::dynamic_array<resource_state>(m_allocator);
+    m_resource_cache = _cache;
+    m_temporary_descriptors.set_allocator(_allocator);
   }
 
 private:
@@ -150,6 +160,7 @@ private:
   template <typename T>
   typename data_type<const T>::value& get_data(const T* const t);
 
+  ID3D12Device* m_device;
   Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_command_list;
   const render_pass_data* m_current_render_pass;
   const framebuffer_data* m_current_framebuffer;
@@ -161,6 +172,8 @@ private:
   memory::allocator* m_allocator;
   pipeline_layout_object* m_current_graphics_pipeline_layout;
   graphics_pipeline_data* m_current_graphics_pipeline;
+  d3d12_resource_cache* m_resource_cache;
+  containers::dynamic_array<locked_heap::token> m_temporary_descriptors;
 };
 
 }  // namespace d3d12

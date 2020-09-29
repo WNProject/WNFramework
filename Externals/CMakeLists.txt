@@ -72,3 +72,5 @@ add_wn_library(
   INCLUDES
     xxhash
 )
+
+add_subdirectory(librocket)

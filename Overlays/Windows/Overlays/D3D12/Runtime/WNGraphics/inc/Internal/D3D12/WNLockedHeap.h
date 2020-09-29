@@ -53,14 +53,14 @@ public:
     m_root_cpu_handle = m_heap->GetCPUDescriptorHandleForHeapStart();
     m_root_gpu_handle = m_heap->GetGPUDescriptorHandleForHeapStart();
   }
+  using token = containers::default_range_partition::token;
 
-  containers::default_range_partition::token get_partition(
-      size_t num_elements) {
+  token get_partition(size_t num_elements) {
     multi_tasking::spin_lock_guard guard(m_lock);
     return m_parition.get_interval(num_elements);
   }
 
-  void release_partition(containers::default_range_partition::token t) {
+  void release_partition(token t) {
     multi_tasking::spin_lock_guard guard(m_lock);
     t.free();
   }

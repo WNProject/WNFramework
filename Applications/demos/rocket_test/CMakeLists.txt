@@ -3,8 +3,6 @@ enable_overlay_directory()
 include_directories(${WNFramework_BINARY_DIR}/Applications/demos)
 include_directories(${WNFramework_SOURCE_DIR}/Externals/librocket/Include)
 
-add_subdirectory(${WNFramework_SOURCE_DIR}/Externals/librocket librocket)
-
 wn_filesystem_files(rocket_assets
   OUTPUT_DIR
     inc

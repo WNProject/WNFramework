@@ -8,6 +8,7 @@
 #include "engine/inc/script_export.h"
 #include "engine_base/inc/context.h"
 #include "renderer/inc/render_context.h"
+#include "ui/inc/ui.h"
 #include "window/inc/window.h"
 
 using namespace wn;
@@ -22,6 +23,7 @@ int32_t wn_application_main(
         _application_data->system_allocator;
     memory::allocator* scripting_allocator =
         _application_data->system_allocator;
+    memory::allocator* ui_allocator = _application_data->system_allocator;
 
     // TODO: If we ever need a logger in file-systems add it here.
     logging::log* scripting_logger = _application_data->default_log;
@@ -42,6 +44,8 @@ int32_t wn_application_main(
     engine::window::window::register_scripting(scripting_engine.get());
     engine::renderer::render_context::register_scripting(
         scripting_engine.get());
+    engine::ui::ui::register_scripting(
+        ui_allocator, scripting_engine.get(), mapping.get());
 
     scripting::parse_error err = scripting_engine->parse_file("main.wns");
     if (err != scripting::parse_error::ok) {
@@ -50,6 +54,7 @@ int32_t wn_application_main(
     }
 
     engine::renderer::render_context::resolve_scripting(scripting_engine.get());
+    engine::ui::ui::resolve_scripting(scripting_engine.get());
 
     wn::scripting::script_function<int32_t, engine_base::context*> main;
     scripting_engine->get_function("main", &main);

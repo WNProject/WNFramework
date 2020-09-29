@@ -62,6 +62,8 @@ public:
       const buffer& _dst_buffer, size_t _buffer_offset_in_bytes) = 0;
   virtual void copy_image(const image& _src, uint32_t _src_mip_level,
       const image& _dst, uint32_t _dst_mip_level) = 0;
+  virtual void blit_image(const image& _src, uint32_t _src_mip_level,
+      const image& _dst, uint32_t _dst_mip_level) = 0;
 
   virtual void draw(uint32_t _vertex_count, uint32_t _instance_count,
       uint32_t _vertex_offset, uint32_t _instance_offset) = 0;

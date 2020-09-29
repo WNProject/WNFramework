@@ -50,7 +50,8 @@ bool FontFaceHandle::Initialise(
   base_layer = GenerateLayer(NULL);
   layer_configurations.push_back(LayerConfiguration());
   layer_configurations.back().push_back(base_layer);
-
+  Log::Message(m_context, Log::LT_INFO, "Loaded font %s at size %d.",
+      m_ttf_face->Face.FamilyName.CString(), size);
   return true;
 }
 

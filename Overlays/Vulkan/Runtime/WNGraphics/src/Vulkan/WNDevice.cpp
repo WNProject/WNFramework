@@ -206,6 +206,7 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
   LOAD_VK_SUB_DEVICE_SYMBOL(
       m_device, m_command_list_context, vkCmdCopyBufferToImage);
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_command_list_context, vkCmdCopyImage);
+  LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_command_list_context, vkCmdBlitImage);
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_command_list_context, vkCmdDraw);
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_command_list_context, vkCmdDrawIndexed);
 
@@ -582,8 +583,8 @@ void vulkan_device::destroy_image(image* _image) {
   vkDestroyImage(m_device, img, nullptr);
 }
 
-swapchain_ptr vulkan_device::create_swapchain(const surface& _surface,
-    const swapchain_create_info& _info, queue*, float _multiplier) {
+swapchain_ptr vulkan_device::create_swapchain(surface& _surface,
+    const swapchain_create_info& _info, queue*) {
   VkSurfaceKHR surface = _surface.data_as<VkSurfaceKHR>();
   VkPresentModeKHR mode;
   switch (_info.mode) {
@@ -604,6 +605,14 @@ swapchain_ptr vulkan_device::create_swapchain(const surface& _surface,
       mode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
   }
 
+  surface_capabilities capabilities;
+  graphics_error err;
+  if (err = _surface.get_surface_capabilities(&capabilities),
+      err != graphics_error::ok) {
+    m_log->log_error("Could not get swapchain size");
+    return nullptr;
+  }
+
   VkSwapchainCreateInfoKHR create_info = {
       VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,  // sType
       nullptr,                                      // pNext
@@ -614,8 +623,8 @@ swapchain_ptr vulkan_device::create_swapchain(const surface& _surface,
       VK_COLORSPACE_SRGB_NONLINEAR_KHR,             // imageColorSpace
       {
           // imageExtent
-          static_cast<uint32_t>(_surface.get_width() * _multiplier),   // width
-          static_cast<uint32_t>(_surface.get_height() * _multiplier),  // height
+          static_cast<uint32_t>(capabilities.width),   // width
+          static_cast<uint32_t>(capabilities.height),  // height
       },
       1,  // imageArrayLayers
       VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
@@ -649,8 +658,101 @@ swapchain_ptr vulkan_device::create_swapchain(const surface& _surface,
             return new (_memory) vulkan_swapchain_constructable();
           });
   swp->set_create_info(info);
-  swp->initialize(m_allocator, this, _surface.get_width(),
-      _surface.get_height(), info, swapchain);
+  swp->initialize(m_allocator, this, static_cast<uint32_t>(capabilities.width),
+      static_cast<uint32_t>(capabilities.height), info, swapchain);
+  return core::move(swp);
+}
+
+swapchain_ptr vulkan_device::recreate_swapchain(surface& _surface,
+    swapchain_ptr _old_swapchain, const swapchain_create_info& _info, queue*) {
+  swapchain_create_info* last_info = &_old_swapchain->m_create_info;
+
+  WN_RELEASE_ASSERT(_info.discard == last_info->discard,
+      "Discard mode must match when recreating a swapchain");
+  WN_RELEASE_ASSERT(_info.mode == last_info->mode,
+      "Flip mode must match when recreating a swapchain");
+
+  VkSurfaceKHR surface = _surface.data_as<VkSurfaceKHR>();
+  VkPresentModeKHR mode;
+  switch (_info.mode) {
+    case swap_mode::immediate:
+      mode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+      break;
+    case swap_mode::mailbox:
+      mode = VK_PRESENT_MODE_MAILBOX_KHR;
+      break;
+    case swap_mode::fifo:
+      mode = VK_PRESENT_MODE_FIFO_KHR;
+      break;
+    case swap_mode::fifo_relaxed:
+      mode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+      break;
+    default:
+      WN_DEBUG_ASSERT(false, "Should never get here");
+      mode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+  }
+
+  vulkan_swapchain_constructable* old_swp =
+      static_cast<vulkan_swapchain_constructable*>(_old_swapchain.get());
+  old_swp->m_device = nullptr;
+  surface_capabilities capabilities;
+  graphics_error err;
+  if (err = _surface.get_surface_capabilities(&capabilities),
+      err != graphics_error::ok) {
+    m_log->log_error("Could not get swapchain size");
+    return nullptr;
+  }
+
+  VkSwapchainCreateInfoKHR create_info = {
+      VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,  // sType
+      nullptr,                                      // pNext
+      0,                                            // flags
+      surface,                                      // surface
+      _info.num_buffers,                            // minImageCount
+      image_format_to_vulkan_format(_info.format),  // imageFormat
+      VK_COLORSPACE_SRGB_NONLINEAR_KHR,             // imageColorSpace
+      {
+          // imageExtent
+          static_cast<uint32_t>(capabilities.width),   // width
+          static_cast<uint32_t>(capabilities.height),  // height
+      },
+      1,  // imageArrayLayers
+      VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+          VK_IMAGE_USAGE_TRANSFER_DST_BIT,    // imageUsage
+      VK_SHARING_MODE_EXCLUSIVE,              // imageSharingMode
+      0,                                      // queueFamilyIndexCount
+      nullptr,                                // pQueueFamilyIndices
+      VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,  // preTransform
+      VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,      // compositeAlpha
+      mode,                                   // presentMode
+      VK_FALSE,                               // clipped
+      old_swp->m_swapchain                    // oldSwapchain
+  };
+
+  VkSwapchainKHR swapchain;
+  VkResult res;
+  if (res = vkCreateSwapchainKHR(m_device, &create_info, nullptr, &swapchain),
+      res != VK_SUCCESS) {
+    m_log->log_error("Could not create VkSwapchain: ", res);
+    return nullptr;
+  }
+  vkDestroySwapchainKHR(m_device, old_swp->m_swapchain, nullptr);
+  uint32_t num_images;
+  vkGetSwapchainImagesKHR(m_device, swapchain, &num_images, nullptr);
+
+  swapchain_create_info info = _info;
+  info.num_buffers = num_images;
+
+  memory::unique_ptr<vulkan_swapchain_constructable> swp =
+      memory::make_unique_delegated<vulkan_swapchain_constructable>(
+          m_allocator, [](void* _memory) {
+            return new (_memory) vulkan_swapchain_constructable();
+          });
+  swp->set_create_info(info);
+  swp->initialize(m_allocator, this,
+      static_cast<uint32_t>(capabilities.width),
+      static_cast<uint32_t>(capabilities.height), info,
+      swapchain);
   return core::move(swp);
 }
 

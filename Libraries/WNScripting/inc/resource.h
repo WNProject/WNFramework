@@ -25,9 +25,9 @@ public:
       containers::string* /*out_string*/) {
     return convert_type::failed;
   }
-  virtual containers::string get_include_for_resource(
-      containers::string_view /*_res*/) {
-    return containers::string();
+  virtual bool get_include_for_resource(
+      containers::string_view /*_res*/, containers::string* /*_out*/) {
+    return false;
   }
 
   containers::string_view get_name() const {

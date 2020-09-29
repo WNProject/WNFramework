@@ -293,6 +293,12 @@ private:
   const engine* m_engine = nullptr;
   void (*m_free)(const engine*, void*) = nullptr;
   friend class engine;
+
+  template <typename T>
+  friend shared_cpp_pointer<T>& fixup_return_type(shared_cpp_pointer<T>&);
+
+  template <typename U, typename V>
+  friend struct get_thunk_passed_type;
 };
 
 template <typename T, size_t S = 1>

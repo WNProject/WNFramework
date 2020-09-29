@@ -33,30 +33,34 @@ namespace window {
 class window;
 }
 namespace renderer {
-
+class renderable_object;
 class render_context {
 public:
   render_context(memory::allocator* _allocator, logging::log* _log,
       window::window* _window, int32_t _width, int32_t _height,
       uint32_t _forced_adapter = 0);
 
-  ~render_context() {
+  virtual ~render_context() {
     m_log->log_info("Destroyed Renderer");
   }
   static void register_scripting(scripting::engine* _engine);
   static bool resolve_scripting(scripting::engine* _engine);
 
-  void register_description(
+  virtual void register_description(
       scripting::script_pointer<render_description> _context);
 
-  int32_t width() {
+  virtual int32_t width() {
     return m_width;
   }
-  int32_t height() {
+  virtual int32_t height() {
     return m_height;
   }
 
-  bool render();
+  virtual bool render();
+
+  virtual void add_renderable_to_passes(
+      scripting::shared_cpp_pointer<renderable_object> object,
+      scripting::slice<const char*> passes);
 
 private:
   gpu_allocation get_allocation_for_render_target(
@@ -70,6 +74,7 @@ private:
   int32_t m_output_rt;
   uint64_t m_frame_num = 0;
 
+  runtime::graphics::adapter_ptr m_adapter;
   runtime::graphics::factory m_factory;
   runtime::graphics::device_ptr m_device;
   runtime::graphics::queue_ptr m_queue;
@@ -95,6 +100,7 @@ private:
   containers::dynamic_array<render_target> m_render_targets;
 
   containers::dynamic_array<render_pass> m_render_passes;
+  containers::dynamic_array<containers::string> m_render_pass_names;
   friend class render_target;
 };
 

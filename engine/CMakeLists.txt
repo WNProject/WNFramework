@@ -22,6 +22,7 @@ include_directories(${WNFramework_SOURCE_DIR}/engine)
 wn_add_subdirectory(engine_base)
 wn_add_subdirectory(renderer)
 wn_add_subdirectory(window)
+wn_add_subdirectory(ui)
 
 # Engine
 wn_add_subdirectory(engine)

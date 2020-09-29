@@ -352,10 +352,10 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
             if (it == m_resources.end()) {
               return true;
             }
+            containers::string str(m_allocator);
 
-            auto str =
-                it->second.resource->get_include_for_resource(resource_name);
-            if (str.empty()) {
+            if (!it->second.resource->get_include_for_resource(
+                    resource_name, &str)) {
               return true;
             }
             return parse_file(str) == scripting::parse_error::ok ? true : false;

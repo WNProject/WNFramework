@@ -102,10 +102,12 @@ public:
   // It is only valid to have a single queue active at a time.
   virtual queue_ptr create_queue() = 0;
 
-  virtual swapchain_ptr create_swapchain(const surface& _surface,
-      const swapchain_create_info& _info, queue* queue,
-      float _multiplier = 1.0f) = 0;
+  virtual swapchain_ptr create_swapchain(surface& _surface,
+      const swapchain_create_info& _info, queue* queue) = 0;
 
+  virtual swapchain_ptr recreate_swapchain(surface& _surface,
+      swapchain_ptr _old_swapchain, const swapchain_create_info& _info,
+      queue* queue) = 0;
   virtual size_t get_image_upload_buffer_alignment() = 0;
   virtual size_t get_buffer_upload_buffer_alignment() = 0;
 #endif
