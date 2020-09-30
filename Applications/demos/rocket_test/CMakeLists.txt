@@ -10,6 +10,7 @@ wn_filesystem_files(rocket_assets
     assets/textures/gradient.png
     assets/main.rml
     assets/main.rcss
+    assets/header.wns
     assets/fonts/FiraCode-Regular.ttf
     assets/built_shaders/ui.vs.spv
     assets/built_shaders/ui.vs.dxbc

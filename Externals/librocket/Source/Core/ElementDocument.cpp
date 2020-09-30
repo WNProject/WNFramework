@@ -129,11 +129,15 @@ void ElementDocument::ProcessHeader(const DocumentHeader* document_header) {
 
   // Load external scripts.
   for (size_t i = 0; i < header.scripts_external.size(); i++) {
-    StreamFile* stream = new StreamFile(m_context);
-    if (stream->Open(header.scripts_external[i]))
-      LoadScript(stream, header.scripts_external[i]);
-
-    stream->RemoveReference();
+    if (m_context->LoadScriptContents()) {
+      StreamFile* stream = new StreamFile(m_context);
+      if (stream->Open(header.scripts_external[i])) {
+        LoadScript(stream, header.scripts_external[i]);
+      }
+      stream->RemoveReference();
+    } else {
+      LoadScript(nullptr, header.scripts_external[i]);
+    }
   }
 
   // Load internal scripts.

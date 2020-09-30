@@ -3,11 +3,11 @@
     <link type="text/css" href="main.rcss"/>
     <script src="header.wns"></script>
     <script>
-      Void OnButtonClick(Element e) {
+      Void aOnButtonClick(Element e) {
       }
     </script>
     <script>
-      Void OnButtonClick(Element e) {
+      Void bOnButtonClick(Element e) {
       }
     </script>
 </head>
@@ -26,7 +26,7 @@
     Hello World. This is some really long text that will hopefully correctly split on to the next line. More words, not sure how many I will need.
     Hello World. This is some really long text that will hopefully correctly split on to the next line. More words, not sure how many I will need.
     Hello World. This is some really long text that will hopefully correctly split on to the next line. More words, not sure how many I will need.
-    <button onclick="OnButtonClick">High Scores</button><br />
+    <button onclick: "OnButtonClick">High Scores</button><br />
   </div>
 </body>
 </rml>

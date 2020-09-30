@@ -4,6 +4,7 @@ add_wn_library(librocket
   INCLUDES
      ${WNFramework_SOURCE_DIR}/Externals/stb
      ${CMAKE_CURRENT_SOURCE_DIR}/Include/
+     ${CMAKE_CURRENT_SOURCE_DIR}/../
   SOURCES
     Include/Rocket/Controls/Clipboard.h
     Include/Rocket/Controls/Controls.h

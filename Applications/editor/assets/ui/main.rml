@@ -1,6 +1,11 @@
 <rml>
 <head>
-    <link type="text/css" href="assets/ui/main.rcss"/>
+    <link type="text/css" href="main.rcss"/>
+    <script src="header.wns"></script>
+    <script>
+      Void aOnButtonClick() {
+      }
+    </script>
 </head>
 <body style="width: 100%; height: 100%;">
   <div style="background-color: red; position:absolute; top: 0%; bottom:75%; border-width:5px; border-color: yellow;">

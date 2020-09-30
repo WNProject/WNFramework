@@ -37,7 +37,8 @@ public:
     return ".rml";
   }
 
-  scripting::convert_type convert_file(containers::string_view _file_name,
+  scripting::convert_type convert_file(logging::log* _log,
+      file_system::mapping*, containers::string_view _file_name,
       containers::string* _out_string) override;
 
 private:

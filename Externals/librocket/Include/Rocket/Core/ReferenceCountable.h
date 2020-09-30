@@ -66,11 +66,10 @@ protected:
   /// A hook method called when the reference count drops to 0.
   virtual void OnReferenceDeactivate();
 
-private:
   // The number of references against this object.
   int reference_count;
 };
-}
-}
+}  // namespace Core
+}  // namespace Rocket
 
 #endif
