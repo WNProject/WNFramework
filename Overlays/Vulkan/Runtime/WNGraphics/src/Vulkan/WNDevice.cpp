@@ -583,8 +583,8 @@ void vulkan_device::destroy_image(image* _image) {
   vkDestroyImage(m_device, img, nullptr);
 }
 
-swapchain_ptr vulkan_device::create_swapchain(surface& _surface,
-    const swapchain_create_info& _info, queue*) {
+swapchain_ptr vulkan_device::create_swapchain(
+    surface& _surface, const swapchain_create_info& _info, queue*) {
   VkSurfaceKHR surface = _surface.data_as<VkSurfaceKHR>();
   VkPresentModeKHR mode;
   switch (_info.mode) {
@@ -749,10 +749,8 @@ swapchain_ptr vulkan_device::recreate_swapchain(surface& _surface,
             return new (_memory) vulkan_swapchain_constructable();
           });
   swp->set_create_info(info);
-  swp->initialize(m_allocator, this,
-      static_cast<uint32_t>(capabilities.width),
-      static_cast<uint32_t>(capabilities.height), info,
-      swapchain);
+  swp->initialize(m_allocator, this, static_cast<uint32_t>(capabilities.width),
+      static_cast<uint32_t>(capabilities.height), info, swapchain);
   return core::move(swp);
 }
 

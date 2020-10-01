@@ -26,7 +26,6 @@ public:
       const runtime::graphics::render_pass_attachment& depth_attachment);
   void render(uint64_t _frame_idx, runtime::graphics::command_list* _list);
 
-
 private:
   memory::allocator* m_allocator;
   runtime::graphics::device* m_device;
