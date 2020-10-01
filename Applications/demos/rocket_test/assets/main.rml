@@ -1,21 +1,32 @@
 <rml>
 <head>
     <link type="text/css" href="main.rcss"/>
+    <script src="header.wns"></script>
+    <script>
+      Void OnButtonClick(Element e) {
+      }
+    </script>
+    <script>
+      Void OnButtonClick(Element e) {
+      }
+    </script>
 </head>
+
 <body style="width: 100%; height: 100%;">
-  <div style="background-color: red; position:absolute; top: 0%; bottom:75%; border-width:5px; border-color: yellow;">
-    <div style="background-color: blue; position:absolute; top: 0%; bottom:25%; border-color: gray; padding: 6px; border-width:1px;">
+  <div style="background-color: red; position:absolute; top: 0%; bottom:75%; border-width:1mm; border-color: yellow;">
+    <div style="background-color: blue; position:absolute; top: 0%; bottom:25%; border-color: gray; padding: 1mm; border-width:1mm;">
       Hello World
       <textarea>Helloa</textarea>
     </div>
-    <div class="foo" style="background-color: orange; position:absolute; top: 75%; bottom: 0%; border-color:gray; border-width:1px;"></div>
+    <div class="foo" style="background-color: orange; position:absolute; top: 75%; bottom: 0%; border-color:gray; border-width:1mm;"></div>
   </div>
-  <div style="background-color: green; position:absolute; top: 25%; bottom: 0%; border-width:5px; padding: 6px; font-style: italic;">
+  <div style="background-color: green; position:absolute; top: 25%; bottom: 0%; border-width:1mm; padding: 1mm; font-style: italic;">
+    Hello World. ss This is some really long text that will hopefully correctly split on to the next line. More words, not sure how many I will need.
     Hello World. This is some really long text that will hopefully correctly split on to the next line. More words, not sure how many I will need.
     Hello World. This is some really long text that will hopefully correctly split on to the next line. More words, not sure how many I will need.
     Hello World. This is some really long text that will hopefully correctly split on to the next line. More words, not sure how many I will need.
     Hello World. This is some really long text that will hopefully correctly split on to the next line. More words, not sure how many I will need.
-    Hello World. This is some really long text that will hopefully correctly split on to the next line. More words, not sure how many I will need.
+    <button onclick="OnButtonClick">High Scores</button><br />
   </div>
 </body>
 </rml>

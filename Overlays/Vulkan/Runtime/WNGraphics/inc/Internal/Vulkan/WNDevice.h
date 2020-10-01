@@ -104,9 +104,13 @@ public:
   size_t get_image_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
   size_t get_buffer_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
 
-  swapchain_ptr create_swapchain(const surface& _surface,
-      const swapchain_create_info& _info, queue* queue,
-      float _multiplier = 1.0f) WN_GRAPHICS_OVERRIDE_FINAL;
+  swapchain_ptr create_swapchain(surface& _surface,
+      const swapchain_create_info& _info,
+      queue* queue) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  swapchain_ptr recreate_swapchain(surface& _surface,
+      swapchain_ptr _old_swapchain, const swapchain_create_info& _info,
+      queue* queue) WN_GRAPHICS_OVERRIDE_FINAL;
 
   math::mat44f get_perspective_fixup_matrix() WN_GRAPHICS_OVERRIDE_FINAL {
     return math::mat44f({         //

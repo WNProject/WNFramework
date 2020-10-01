@@ -1,0 +1,13 @@
+add_wn_library(
+    ui
+  SOURCES
+    inc/resource.h
+    inc/ui.h
+    src/resource.cpp
+    src/ui.cpp
+  LIBS
+    renderer
+    WNGraphics
+    WNScripting
+    librocket
+)

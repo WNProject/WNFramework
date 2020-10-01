@@ -9,6 +9,7 @@
 
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNDevice.h"
+#include "WNGraphics/inc/WNErrors.h"
 #include "WNMemory/inc/manipulation.h"
 
 WN_GRAPHICS_FORWARD(adapter)
@@ -19,6 +20,11 @@ namespace runtime {
 namespace graphics {
 class adapter;
 class device;
+
+struct surface_capabilities {
+  uint32_t width;
+  uint32_t height;
+};
 
 class surface final : public core::non_copyable {
 public:
@@ -40,13 +46,7 @@ public:
     return (m_adapter != nullptr);
   }
 
-  uint32_t get_width() const {
-    return m_width;
-  }
-
-  uint32_t get_height() const {
-    return m_height;
-  }
+  graphics_error get_surface_capabilities(surface_capabilities* _capabilities);
 
   const containers::dynamic_array<data_format>& valid_formats() const {
     return m_valid_formats;

@@ -41,6 +41,18 @@
 #include <d3d12.h>
 #include <dxgi1_4.h>
 
+namespace blit_shader_vs {
+#include "WNGraphics/inc/Internal/D3D12/blit_shader.vs.h"
+const BYTE* bytes = g_main;
+const size_t size = sizeof(g_main);
+}  // namespace blit_shader_vs
+
+namespace blit_shader_ps {
+#include "WNGraphics/inc/Internal/D3D12/blit_shader.ps.h"
+const BYTE* bytes = g_main;
+const size_t size = sizeof(g_main);
+}  // namespace blit_shader_ps
+
 namespace wn {
 namespace runtime {
 namespace graphics {
@@ -165,7 +177,8 @@ command_list_ptr d3d12_device::create_command_list(command_allocator* _alloc) {
   ID3D12DescriptorHeap* heaps[2] = {m_csv_heap.heap(), m_sampler_heap.heap()};
   command_list->SetDescriptorHeaps(2, heaps);
   if (ptr) {
-    ptr->initialize(m_allocator, core::move(command_list));
+    ptr->initialize(m_allocator, m_device.Get(), core::move(command_list),
+        &m_resource_cache);
   }
 
   return core::move(ptr);
@@ -578,8 +591,8 @@ void d3d12_device::destroy_image(image* _image) {
   memory::unique_ptr<image_data> data = core::move(get_data(_image));
 }
 
-swapchain_ptr d3d12_device::create_swapchain(const surface& _surface,
-    const swapchain_create_info& _info, queue* _queue, float _multiplier) {
+swapchain_ptr d3d12_device::create_swapchain(
+    surface& _surface, const swapchain_create_info& _info, queue* _queue) {
   const runtime::window::native_handle* handle =
       &_surface.data_as<runtime::window::native_handle>();
 
@@ -596,8 +609,15 @@ swapchain_ptr d3d12_device::create_swapchain(const surface& _surface,
   swap_effect = discard ? DXGI_SWAP_EFFECT_FLIP_DISCARD
                         : DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 
-  DXGI_SWAP_CHAIN_DESC1 swapchain_desc = {_surface.get_width(),
-      _surface.get_height(), image_format_to_dxgi_format(_info.format), false,
+  surface_capabilities capabilities;
+  graphics_error err;
+  if (err = _surface.get_surface_capabilities(&capabilities),
+      err != graphics_error::ok) {
+    m_log->log_error("Could not get swapchain size");
+  }
+
+  DXGI_SWAP_CHAIN_DESC1 swapchain_desc = {capabilities.width,
+      capabilities.height, image_format_to_dxgi_format(_info.format), false,
       {1, 0},                           // SampleDesc
       DXGI_USAGE_RENDER_TARGET_OUTPUT,  // Usage
       _info.num_buffers, DXGI_SCALING_STRETCH, swap_effect,
@@ -622,10 +642,39 @@ swapchain_ptr d3d12_device::create_swapchain(const surface& _surface,
     return nullptr;
   }
   swapchain->initialize(m_allocator, this,
-      static_cast<uint32_t>(_surface.get_width() * _multiplier),
-      static_cast<uint32_t>(_surface.get_height() * _multiplier), _info,
-      core::move(swp3));
+      static_cast<uint32_t>(capabilities.width),
+      static_cast<uint32_t>(capabilities.height), _info, core::move(swp3));
   return core::move(swapchain);
+}
+
+swapchain_ptr d3d12_device::recreate_swapchain(surface& _surface,
+    swapchain_ptr _old_swapchain, const swapchain_create_info& _info, queue*) {
+  swapchain_create_info* last_info = &_old_swapchain->m_create_info;
+  WN_RELEASE_ASSERT(_info.discard == last_info->discard,
+      "Discard mode must match when recreating a swapchain");
+  WN_RELEASE_ASSERT(_info.mode == last_info->mode,
+      "Flip mode must match when recreating a swapchain");
+
+  surface_capabilities capabilities;
+  graphics_error err;
+  if (err = _surface.get_surface_capabilities(&capabilities),
+      err != graphics_error::ok) {
+    m_log->log_error("Could not get swapchain size");
+  }
+  d3d12_swapchain* swp =
+      static_cast<d3d12_swapchain_constructable*>(_old_swapchain.get());
+  HRESULT hr = swp->m_swapchain->ResizeBuffers(_info.num_buffers,
+      static_cast<uint32_t>(capabilities.width),
+      static_cast<uint32_t>(capabilities.height),
+      image_format_to_dxgi_format(_info.format), 0);
+  if (FAILED(hr)) {
+    m_log->log_error("Could not successfully create swapchain.");
+    return nullptr;
+  }
+  swp->initialize(m_allocator, this, static_cast<uint32_t>(capabilities.width),
+      static_cast<uint32_t>(capabilities.height), _info,
+      core::move(swp->m_swapchain));
+  return core::move(_old_swapchain);
 }
 
 void d3d12_device::initialize_shader_module(shader_module* _module,
@@ -1267,6 +1316,11 @@ bool d3d12_device::initialize(memory::allocator* _allocator, logging::log* _log,
   m_heap_info = containers::dynamic_array<heap_info>(m_allocator);
   m_arena_properties = containers::dynamic_array<arena_properties>(m_allocator);
   m_sampler_cache.set_allocator(m_allocator);
+  m_resource_cache.initialize(m_allocator,
+      functional::unique_function<void(DXGI_FORMAT, blit_image_data*)>(
+          std::bind(&d3d12_device::get_blit_pipeline, this,
+              std::placeholders::_1, std::placeholders::_2)),
+      &m_csv_heap, &m_rtv_heap);
 
   m_csv_heap.initialize(m_allocator, m_log, m_device.Get(),
       k_reserved_resource_size, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -1523,6 +1577,103 @@ void d3d12_device::destroy_buffer(buffer* _buffer) {
   info.reset();
 }
 
+void d3d12_device::get_blit_pipeline(
+    DXGI_FORMAT _format, blit_image_data* _data) {
+  D3D12_ROOT_SIGNATURE_DESC desc = {
+      0,
+      nullptr,  // parameters go here
+      0,        // NumStaticSamplers
+      nullptr,  // pStaticSamplers
+      D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT  // flags
+  };
+
+  D3D12_ROOT_PARAMETER parameters[2];
+  D3D12_DESCRIPTOR_RANGE ranges[1];
+  {  // Root Constant
+    auto& param = parameters[0];
+    param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+    param.Constants.Num32BitValues = 3;
+    param.Constants.ShaderRegister = 0;
+    param.Constants.RegisterSpace = 0;
+    param.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+  }
+
+  {  // SRC
+    auto& parameter = parameters[1];
+    parameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    parameter.DescriptorTable.NumDescriptorRanges = 1;
+    parameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+    auto& range = ranges[0];
+    parameter.DescriptorTable.pDescriptorRanges = &range;
+    range.NumDescriptors = 1;
+    range.BaseShaderRegister = 0;
+    range.RegisterSpace = 0;
+    range.OffsetInDescriptorsFromTableStart = 0;
+    range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+  }
+
+  D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
+  samplerDesc.Filter = D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+  samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+  samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+  samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+  samplerDesc.MipLODBias = 0.0f;
+  samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+  samplerDesc.MinLOD = 0.0f;
+  samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+  samplerDesc.MaxAnisotropy = 0;
+  samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_OPAQUE_BLACK;
+  samplerDesc.ShaderRegister = 0;
+  samplerDesc.RegisterSpace = 0;
+  samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+
+  desc.pParameters = parameters;
+  desc.NumParameters = 2;
+
+  desc.NumStaticSamplers = 1;
+  desc.pStaticSamplers = &samplerDesc;
+
+  Microsoft::WRL::ComPtr<ID3DBlob> serialized_sig;
+  Microsoft::WRL::ComPtr<ID3DBlob> error;
+  HRESULT hr = D3D12SerializeRootSignature(
+      &desc, D3D_ROOT_SIGNATURE_VERSION_1, &serialized_sig, &error);
+
+  WN_RELEASE_ASSERT(!FAILED(hr), "Could not serialize root signature for blit");
+
+  Microsoft::WRL::ComPtr<ID3D12RootSignature> root_sig;
+
+  hr = m_device->CreateRootSignature(0, serialized_sig->GetBufferPointer(),
+      serialized_sig->GetBufferSize(), __uuidof(ID3D12RootSignature),
+      &root_sig);
+  WN_RELEASE_ASSERT(!FAILED(hr), "Could not create root signature for blit");
+
+  D3D12_GRAPHICS_PIPELINE_STATE_DESC blitDesc = {};
+  blitDesc.pRootSignature = root_sig.Get();
+  blitDesc.PS = {reinterpret_cast<const UINT8*>(blit_shader_ps::bytes),
+      blit_shader_ps::size};
+  blitDesc.VS = {reinterpret_cast<const UINT8*>(blit_shader_vs::bytes),
+      blit_shader_vs::size};
+  blitDesc.BlendState.RenderTarget[0].BlendEnable = false;
+  blitDesc.BlendState.RenderTarget[0].RenderTargetWriteMask =
+      D3D12_COLOR_WRITE_ENABLE_ALL;
+  blitDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+  blitDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+  blitDesc.SampleMask = 0xFFFFFFFF;
+
+  blitDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+  blitDesc.RTVFormats[0] = _format;
+  blitDesc.NumRenderTargets = 1;
+  blitDesc.SampleDesc.Count = 1;
+  blitDesc.SampleDesc.Quality = 0;
+
+  Microsoft::WRL::ComPtr<ID3D12PipelineState> blit_pipeline;
+  hr = m_device->CreateGraphicsPipelineState(
+      &blitDesc, IID_PPV_ARGS(&blit_pipeline));
+  WN_RELEASE_ASSERT(!FAILED(hr), "Could not graphics pipeline state for blit");
+
+  _data->pipeline_state = std::move(blit_pipeline);
+  _data->root_signature = std::move(root_sig);
+}
 }  // namespace d3d12
 }  // namespace internal
 }  // namespace graphics

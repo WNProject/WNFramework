@@ -83,6 +83,17 @@ graphics_error d3d12_adapter::initialize_surface(
   return graphics_error::ok;
 }
 
+graphics_error d3d12_adapter::get_surface_capabilities(
+    surface* _surface, surface_capabilities* _capabilities) {
+  HWND wnd = _surface->data_as<runtime::window::native_handle>().handle;
+
+  RECT windowRect;
+  GetClientRect(wnd, &windowRect);
+  _capabilities->width = windowRect.right - windowRect.left;
+  _capabilities->height = windowRect.bottom - windowRect.top;
+  return graphics_error::ok;
+}
+
 }  // namespace d3d12
 }  // namespace internal
 }  // namespace graphics

@@ -123,9 +123,8 @@ parse_error c_translator::translate_file_with_error(
             if (it == m_resources.end()) {
               return true;
             }
-
-            auto str = it->second->get_include_for_resource(resource_name);
-            if (str.empty()) {
+            containers::string str(m_allocator);
+            if (!it->second->get_include_for_resource(resource_name, &str)) {
               return true;
             }
             return translate_file_with_error(str, _dump_ast_on_failure) ==

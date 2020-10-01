@@ -56,8 +56,8 @@ using wn::runtime::window::key_code;
 using wn::runtime::window::mouse_button;
 using wn::runtime::window::window_factory;
 
-static const uint32_t k_width = 1024;
-static const uint32_t k_height = 768;
+static const uint32_t k_width = 1920;
+static const uint32_t k_height = 1080;
 
 int get_key_modifier_state(wn::runtime::window::window* _window) {
   bool ctrl = _window->get_key_state(key_code::key_lctrl) ||
@@ -89,6 +89,20 @@ int mouse_button_to_index(mouse_button _button) {
       return -1;
   }
 }
+
+class dce : public Rocket::Core::ElementDocument {
+public:
+  ROCKET_RTTI_DefineWithParent(Rocket::Core::ElementDocument);
+
+  dce(Rocket::Core::Context* _ctx, const Rocket::Core::String& tag)
+    : Rocket::Core::ElementDocument(_ctx, tag) {}
+
+  void LoadScript(
+      Rocket::Core::Stream* stream, const Rocket::Core::String& source_name) {
+    (void)stream;
+    (void)source_name;
+  }
+};
 
 Rocket::Core::Input::KeyIdentifier key_code_to_key_index(key_code _key_code) {
   if (_key_code >= key_code::key_0 && _key_code <= key_code::key_9) {
@@ -405,7 +419,7 @@ public:
       wn::containers::contiguous_range<wn::runtime::graphics::image*>
           _target_images,
       wn::file_system::mapping* _mapping, Rocket::Core::Context* _context,
-      uint32_t _width, uint32_t _height)
+      uint32_t _width, uint32_t _height, uint32_t _dpi)
     : Rocket::Core::RenderInterface(_context),
       m_allocator(_allocator),
       m_device(_device),
@@ -433,7 +447,8 @@ public:
           m_init_command_allocator->create_command_list()),
       m_screen_multiplier(_device->get_2d_transform_scale()),
       m_width(_width),
-      m_height(_height) {
+      m_height(_height),
+      m_dpi(_dpi) {
     wn::runtime::graphics::descriptor_binding_info binding_infos[]{
         {
             0,  // binding
@@ -1151,6 +1166,11 @@ public:
     return resource_init_res{};
   }
 
+  // Returns the number of pixels per inch.
+  float GetPixelsPerInch() {
+    return static_cast<float>(m_dpi);
+  }
+
 private:
   wn::memory::allocator* m_allocator;
   wn::runtime::graphics::device* m_device;
@@ -1198,13 +1218,14 @@ private:
   wn::math::vec2f m_screen_multiplier;
   uint32_t m_width;
   uint32_t m_height;
+  uint32_t m_dpi;
 };
 
 int32_t wn_application_main(
     const wn::runtime::application::application_data* _data) {
   uint32_t force_adapter = 0;
   bool choosing_adapter = false;
-
+  wn::runtime::graphics::graphics_error err;
   for (size_t i = 0; i < static_cast<size_t>(_data->executable_data->argc);
        ++i) {
     if (wn::containers::string_view("--force_adapter") ==
@@ -1242,16 +1263,12 @@ int32_t wn_application_main(
   log->log_info("Selected adapter ", force_adapter, ": ", adapter->name());
   log->flush();
   s.wait_until(1);
-  float multiplier =
-      static_cast<float>(wn::runtime::window::k_default_density) /
-      static_cast<float>(window->get_dpi());
-  uint32_t width = static_cast<uint32_t>(window->get_width() * multiplier);
-  uint32_t height = static_cast<uint32_t>(window->get_height() * multiplier);
+  uint32_t width = static_cast<uint32_t>(window->get_width());
+  uint32_t height = static_cast<uint32_t>(window->get_height());
   if (!window->is_valid()) {
     log->log_error("Could not create a valid window");
     return -1;
   }
-  log->log_info("DPI Multiplier:", multiplier);
 
   auto input_context = window->get_input_context();
   auto surface = adapter->make_surface(allocator, window.get());
@@ -1268,35 +1285,77 @@ int32_t wn_application_main(
 
   auto device = adapter->make_device(allocator, log, {});
 
+  const wn::containers::contiguous_range<
+      const wn::runtime::graphics::arena_properties>
+      arena_properties = device->get_arena_properties();
+  size_t rt_arena_index = 0;
+  bool found_arena = false;
+
+  for (; rt_arena_index < arena_properties.size(); ++rt_arena_index) {
+    if (arena_properties[rt_arena_index].allow_render_targets &&
+        arena_properties[rt_arena_index].device_local) {
+      found_arena = true;
+      break;
+    }
+  }
+  WN_RELEASE_ASSERT(found_arena, "Cannot find arena for rendertargets");
+
   wn::runtime::graphics::queue_ptr queue = device->create_queue();
-  auto swapchain = device->create_swapchain(
-      surface.first, create_info, queue.get(), multiplier);
+  auto swapchain =
+      device->create_swapchain(surface.first, create_info, queue.get());
 
   wn::runtime::graphics::fence image_fence = device->create_fence();
 
   wn::containers::dynamic_array<wn::runtime::graphics::fence> fences(allocator);
   wn::containers::dynamic_array<bool> unused(allocator);
-  wn::containers::dynamic_array<wn::runtime::graphics::image*> swapchain_images(
-      allocator);
+  wn::containers::dynamic_array<wn::runtime::graphics::image>
+      rendertarget_images(allocator);
 
   fences.reserve(swapchain->info().num_buffers);
+  wn::runtime::graphics::surface_capabilities caps;
+
+  if (err = surface.first.get_surface_capabilities(&caps),
+      err != graphics_error::ok) {
+    log->log_error("Could not get surface capabilities");
+    return -1;
+  }
+  wn::runtime::graphics::image_create_info info{static_cast<size_t>(caps.width),
+      static_cast<size_t>(caps.height), swapchain->info().format,
+      wn::runtime::graphics::resource_state::render_target |
+          wn::runtime::graphics::resource_state::blit_source,
+      1};
+  wn::containers::list<wn::runtime::graphics::arena> arena_list(allocator);
 
   for (uint32_t i = 0; i < swapchain->info().num_buffers; ++i) {
     unused.push_back(true);
     fences.emplace_back(device->create_fence());
-    swapchain_images.push_back(swapchain->get_image_for_index(i));
+
+    auto img = device->create_image(info, wn::runtime::graphics::clear_value());
+    auto mem_reqs = img.get_memory_requirements();
+    // This is terrible, but this is also a demo :D
+    wn::runtime::graphics::arena texture_arena =
+        device->create_arena(rt_arena_index, mem_reqs.size);
+    img.bind_memory(&texture_arena, 0);
+    arena_list.emplace(arena_list.end(), wn::core::move(texture_arena));
+
+    rendertarget_images.push_back(wn::core::move(img));
   }
 
   // Lets set up Rocket
-
   wn::file_system::factory fs_factory(allocator, _data->executable_data);
   wn::file_system::mapping_ptr file_system = fs_factory.make_mapping(
       allocator, wn::file_system::mapping_type::memory_backed);
   file_system->initialize_files(rocket_assets::get_files());
 
+  wn::containers::dynamic_array<wn::runtime::graphics::image*> rtis(allocator);
+  rtis.reserve(rendertarget_images.size());
+  for (auto& rt : rendertarget_images) {
+    rtis.push_back(&rt);
+  }
+
   Rocket::Core::Context context;
-  WNRenderer renderer(allocator, device.get(), swapchain_images,
-      file_system.get(), &context, width, height);
+  WNRenderer renderer(allocator, device.get(), rtis, file_system.get(),
+      &context, width, height, window->get_dpi());
   WNSystemInterface system_interface(log, window.get());
   WNFileInterface file_interface(log, wn::core::move(file_system));
 
@@ -1305,6 +1364,10 @@ int32_t wn_application_main(
   Rocket::Core::SetFileInterface(&context, &file_interface);
 
   Rocket::Core::Initialise(&context);
+  Rocket::Core::Factory::RegisterElementInstancer(
+      &context, "body", new Rocket::Core::ElementInstancerGeneric<dce>())
+      ->RemoveReference();
+
   Rocket::Core::DocumentContext* documents =
       Rocket::Core::CreateDocumentContext(
           &context, "main", Rocket::Core::Vector2i(width, height));
@@ -1359,11 +1422,12 @@ int32_t wn_application_main(
     wn::runtime::graphics::command_list_ptr setup_list =
         alloc.create_command_list();
 
-    setup_list->transition_resource(*swapchain->get_image_for_index(idx),
+    setup_list->transition_resource(rendertarget_images.at(idx),
         static_cast<wn::runtime::graphics::image_components>(
             wn::runtime::graphics::image_component::color),
-        0, 1, wn::runtime::graphics::resource_state::present,
+        0, 1, wn::runtime::graphics::resource_state::blit_source,
         wn::runtime::graphics::resource_state::render_target);
+
     setup_list->finalize();
     queue->enqueue_command_list(setup_list.get());
 
@@ -1394,10 +1458,25 @@ int32_t wn_application_main(
 
     wn::runtime::graphics::command_list_ptr teardown_list =
         alloc.create_command_list();
-    teardown_list->transition_resource(*swapchain->get_image_for_index(idx),
+
+    teardown_list->transition_resource(rendertarget_images.at(idx),
         static_cast<wn::runtime::graphics::image_components>(
             wn::runtime::graphics::image_component::color),
         0, 1, wn::runtime::graphics::resource_state::render_target,
+        wn::runtime::graphics::resource_state::blit_source);
+
+    teardown_list->transition_resource(*swapchain->get_image_for_index(idx),
+        static_cast<wn::runtime::graphics::image_components>(
+            wn::runtime::graphics::image_component::color),
+        0, 1, wn::runtime::graphics::resource_state::present,
+        wn::runtime::graphics::resource_state::blit_dest);
+
+    teardown_list->blit_image(rendertarget_images.at(idx), 0,
+        *swapchain->get_image_for_index(idx), 0);
+    teardown_list->transition_resource(*swapchain->get_image_for_index(idx),
+        static_cast<wn::runtime::graphics::image_components>(
+            wn::runtime::graphics::image_component::color),
+        0, 1, wn::runtime::graphics::resource_state::blit_dest,
         wn::runtime::graphics::resource_state::present);
     teardown_list->finalize();
     queue->enqueue_command_list(teardown_list.get());
@@ -1436,10 +1515,8 @@ int32_t wn_application_main(
               key_modifier_state);
           break;
         case wn::runtime::window::event_type::mouse_move:
-          documents->ProcessMouseMove(
-              static_cast<int>(evt.get_mouse_x() * multiplier),
-              static_cast<int>(evt.get_mouse_y() * multiplier),
-              key_modifier_state);
+          documents->ProcessMouseMove(static_cast<int>(evt.get_mouse_x()),
+              static_cast<int>(evt.get_mouse_y()), key_modifier_state);
           break;
         case wn::runtime::window::event_type::text_input:
           documents->ProcessTextInput(

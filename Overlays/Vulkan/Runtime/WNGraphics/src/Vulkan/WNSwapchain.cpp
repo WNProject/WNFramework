@@ -64,8 +64,12 @@ uint32_t vulkan_swapchain::get_next_backbuffer_index(
   uint32_t idx;
   ::VkFence f = fence ? get_data(fence) : VK_NULL_HANDLE;
   ::VkSemaphore s = _signal ? get_data(_signal) : VK_NULL_HANDLE;
-  m_device->vkAcquireNextImageKHR(
+  VkResult res = m_device->vkAcquireNextImageKHR(
       m_device->m_device, m_swapchain, 0xFFFFFFFFFFFFFFFF, s, f, &idx);
+  (void)res;
+  if (res != VK_SUCCESS) {
+    return static_cast<uint32_t>(-1);
+  }
   return idx;
 }
 

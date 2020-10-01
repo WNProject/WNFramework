@@ -74,7 +74,8 @@ private:
   virtual void destroy_surface(surface* _surface) = 0;
   virtual graphics_error initialize_surface(
       surface* _surface, runtime::window::window* _window) = 0;
-
+  virtual graphics_error get_surface_capabilities(
+      surface* _surface, surface_capabilities* _capabilities) = 0;
 #endif
 };
 

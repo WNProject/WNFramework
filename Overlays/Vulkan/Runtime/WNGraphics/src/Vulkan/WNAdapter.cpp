@@ -222,6 +222,20 @@ void vulkan_adapter::destroy_surface(surface* _surface) {
   m_surface_helper.destroy_surface(_surface->data_as<VkSurfaceKHR>());
 }
 
+graphics_error vulkan_adapter::get_surface_capabilities(
+    surface* _surface, surface_capabilities* _capabilities) {
+  VkSurfaceCapabilitiesKHR caps;
+  auto err = m_context->vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
+      m_physical_device, _surface->data_as<VkSurfaceKHR>(), &caps);
+  if (VK_SUCCESS != err) {
+    return graphics_error::error;
+  }
+
+  _capabilities->width = caps.currentExtent.width;
+  _capabilities->height = caps.currentExtent.height;
+  return graphics_error::ok;
+}
+
 }  // namespace vulkan
 }  // namespace internal
 }  // namespace graphics

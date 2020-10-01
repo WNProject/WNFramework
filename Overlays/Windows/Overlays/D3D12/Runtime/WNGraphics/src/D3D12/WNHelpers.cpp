@@ -129,6 +129,7 @@ bool determine_support(memory::allocator* _allocator, logging::log* _log,
 void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
     containers::dynamic_array<adapter_ptr>& _physical_devices) {
   HRESULT hr;
+  UINT flags = 0;
 #ifdef _WN_GRAPHICS_ALLOW_DEBUG_MODE
   // Enable debug layer
 
@@ -139,13 +140,14 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
     _log->log_warning("Could not enable D3D12 debug layer, hr: ", hr);
   } else {
     debug_controller->EnableDebugLayer();
+    flags |= DXGI_CREATE_FACTORY_DEBUG;
   }
 #endif
 
   _log->log_info("Enumerating D3D12 Devices");
 
   Microsoft::WRL::ComPtr<IDXGIFactory4> dxgi_factory;
-  hr = ::CreateDXGIFactory1(__uuidof(IDXGIFactory4), &dxgi_factory);
+  hr = ::CreateDXGIFactory2(flags, __uuidof(IDXGIFactory4), &dxgi_factory);
 
   if (FAILED(hr)) {
     _log->log_error("Could not to create DXGI Factory, hr: ", hr);

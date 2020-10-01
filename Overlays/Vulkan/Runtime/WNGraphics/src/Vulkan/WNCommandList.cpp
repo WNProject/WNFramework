@@ -162,6 +162,40 @@ void vulkan_command_list::copy_image(const image& _src, uint32_t _src_mip_level,
       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copy);
 }
 
+void vulkan_command_list::blit_image(const image& _src, uint32_t _src_mip_level,
+    const image& _dst, uint32_t _dst_mip_level) {
+  const VkImage& src = get_data(&_src);
+  const VkImage& dst = get_data(&_dst);
+  size_t width = _src.get_width(_src_mip_level);
+  size_t height = _src.get_height(_src_mip_level);
+  size_t dst_width = _dst.get_width(_src_mip_level);
+  size_t dst_height = _dst.get_height(_src_mip_level);
+  VkImageBlit blit = {
+      VkImageSubresourceLayers{
+          // srcSubresource
+          VK_IMAGE_ASPECT_COLOR_BIT,  // aspectMask
+          _src_mip_level,             // mipLevel
+          0,                          // baseArrayLayer
+          1                           // layerCount
+      },
+      {VkOffset3D{0, 0, 0}, VkOffset3D{static_cast<int32_t>(width),
+                                static_cast<int32_t>(height), 1}},
+      VkImageSubresourceLayers{
+          // srcSubresource
+          VK_IMAGE_ASPECT_COLOR_BIT,  // aspectMask
+          _dst_mip_level,             // mipLevel
+          0,                          // baseArrayLayer
+          1                           // layerCount
+      },
+      {VkOffset3D{0, 0, 0}, VkOffset3D{static_cast<int32_t>(dst_width),
+                                static_cast<int32_t>(dst_height), 1}},
+  };
+
+  m_context->vkCmdBlitImage(m_command_buffer, src,
+      VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dst,
+      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &blit, VK_FILTER_LINEAR);
+}
+
 void vulkan_command_list::copy_image_to_buffer(const image& _image,
     uint32_t _mip_level, const buffer& _dst_buffer,
     size_t _buffer_offset_in_bytes) {

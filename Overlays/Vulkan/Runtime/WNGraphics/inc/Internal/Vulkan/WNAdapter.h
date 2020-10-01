@@ -72,6 +72,9 @@ public:
 
   void destroy_surface(surface* _surface) WN_GRAPHICS_OVERRIDE_FINAL;
 
+  graphics_error get_surface_capabilities(surface* _surface,
+      surface_capabilities* _capabilities) WN_GRAPHICS_OVERRIDE_FINAL;
+
   const adapter_features& get_features() const WN_GRAPHICS_OVERRIDE_FINAL {
     return m_adapter_features;
   }

@@ -195,6 +195,76 @@ void d3d12_command_list::copy_image(const image& _src, uint32_t _src_mip_level,
   m_command_list->CopyTextureRegion(&dest, 0, 0, 0, &source, nullptr);
 }
 
+void d3d12_command_list::blit_image(const image& _src, uint32_t _src_mip_level,
+    const image& _dst, uint32_t _dst_mip_level) {
+  const auto& src = get_data((const image*)&_src);
+  const auto& dst = get_data((const image*)&_dst);
+
+  D3D12_TEXTURE_COPY_LOCATION source = {
+      src->image.Get(),                           // pResource
+      D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,  // Type
+      UINT{_src_mip_level}                        // SubresourceIndex
+  };
+
+  D3D12_TEXTURE_COPY_LOCATION dest = {
+      dst->image.Get(),                           // pResource
+      D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,  // Type
+      UINT{_dst_mip_level}                        // SubresourceIndex
+  };
+  DXGI_FORMAT fmt =
+      image_format_to_dxgi_format(_src.m_resource_info[_src_mip_level].format);
+  auto ptr = m_resource_cache->get_blit_pipeline(fmt);
+  auto src_csv = m_resource_cache->get_temporary_csv(1);
+  auto rtv_csv = m_resource_cache->get_temporary_rtv(1);
+  D3D12_CPU_DESCRIPTOR_HANDLE src_image_handle =
+      m_resource_cache->m_csv_heap->get_handle_at(src_csv.offset());
+  D3D12_CPU_DESCRIPTOR_HANDLE rtv_image_handle =
+      m_resource_cache->m_rtv_heap->get_handle_at(rtv_csv.offset());
+
+  D3D12_SHADER_RESOURCE_VIEW_DESC desc{
+      fmt, D3D12_SRV_DIMENSION_TEXTURE2D,
+      D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,  // rgba
+  };
+  desc.Texture2D = {_src_mip_level, UINT(1), 0, 0.0f};
+
+  D3D12_RENDER_TARGET_VIEW_DESC rtv_desc{
+      image_format_to_dxgi_format(_dst.m_resource_info[_dst_mip_level].format),
+      D3D12_RTV_DIMENSION_TEXTURE2D};
+  rtv_desc.Texture2D = {_dst_mip_level, 0};
+
+  m_device->CreateShaderResourceView(src->image.Get(), &desc, src_image_handle);
+  m_device->CreateRenderTargetView(
+      dst->image.Get(), &rtv_desc, rtv_image_handle);
+
+  m_command_list->SetPipelineState(ptr->pipeline_state.Get());
+  auto& ri = _src.m_resource_info[_src_mip_level];
+  float consts[2] = {1.0f / ri.width, 1.0f / ri.height};
+  m_command_list->SetGraphicsRootSignature(ptr->root_signature.Get());
+  m_command_list->SetGraphicsRoot32BitConstants(0, 2, &consts, 0);
+  m_command_list->SetGraphicsRootDescriptorTable(
+      1, m_resource_cache->m_csv_heap->get_gpu_handle_at(src_csv.offset()));
+
+  m_command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+  m_command_list->OMSetRenderTargets(1, &rtv_image_handle, false, nullptr);
+
+  auto dsi = _dst.m_resource_info[_dst_mip_level];
+
+  D3D12_VIEWPORT vp{0.0f, 0.0f, static_cast<float>(dsi.width),
+      static_cast<float>(dsi.height), 0.0f, 1.0f};
+
+  m_command_list->RSSetViewports(1, &vp);
+  D3D12_RECT rect{
+      0, 0, static_cast<LONG>(dsi.width), static_cast<LONG>(dsi.height)};
+
+  m_command_list->RSSetScissorRects(1, &rect);
+
+  m_command_list->DrawInstanced(4, 1, 0, 0);
+
+  m_temporary_descriptors.push_back(core::move(src_csv));
+  m_temporary_descriptors.push_back(core::move(rtv_csv));
+}
+
 void d3d12_command_list::draw(uint32_t _vertex_count, uint32_t _instance_count,
     uint32_t _vertex_offset, uint32_t _instance_offset) {
   m_command_list->DrawInstanced(

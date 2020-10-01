@@ -146,6 +146,10 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
   m_cstr_t->calculate_mangled_name(m_allocator);
   m_externally_visible_types[core::type_id<const char*>::value()] =
       m_cstr_t.get();
+  m_externally_visible_types[core::type_id<wn_array<const char*>>::value()] =
+      get_array_of(m_cstr_t.get(), 0, nullptr);
+  m_externally_visible_types[core::type_id<slice<const char*>>::value()] =
+      get_slice_of(m_cstr_t.get(), 1, nullptr);
 
   m_destructor_fn_ptr_t = resolve_function_ptr_type(
       containers::dynamic_array<const ast_type*>(

@@ -45,6 +45,8 @@ Int main(Context ctx) {
   MainDesc desc = MainDesc(context);
   context.register_description(desc);
 
+  Int main_gui = @UIResource("assets/ui/main.rml");
+
   while(true) {
     context.render();
   }
