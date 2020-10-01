@@ -1,0 +1,27 @@
+name: Format checks
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+jobs:
+  check-code-format-c-cpp:
+    name: Check code format (C/C++)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install packages
+        run: sudo apt-get install -y clang-format-10
+      - name: Configure clang-format
+        run: >
+          sudo update-alternatives --remove-all clang-format &&
+          sudo update-alternatives --install /usr/bin/clang-format clang-format
+          /usr/bin/clang-format-10 100
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Check code format
+        run: >
+          find .
+          -type f -iregex '^.*\.\(c\|cpp\|h\)$' -and -not
+          -iregex '^\.\/\(externals\|build\).*$' -and -not
+          -iregex '^.*\(hlsl\|glsl\|ps\|vs\)\.h$' |
+          xargs clang-format --dry-run --Werror --verbose
