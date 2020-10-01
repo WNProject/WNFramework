@@ -184,8 +184,9 @@ GetModuleHandle(NULL); // add global namespace ::
 ## Formatting
 
 Our formatting is based off the Google C++ style guide with some modifications.
-We use clang-format extensively, and it should handle all formatting. See our
-[.clang-format](../../.clang-format) for further details.
+We use clang-format extensively, and it should handle all formatting. We support
+`clang-format` version **10**. See our [.clang-format](../../.clang-format) for
+further details.
 
 <!-- external links -->
 [Google C++ Style Guide]: https://google-styleguide.googlecode.com/svn/trunk/cppguide.html
