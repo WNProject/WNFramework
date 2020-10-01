@@ -38,6 +38,15 @@ public:
     return (m_device != nullptr);
   }
 
+  sampler() : m_device(nullptr) {}
+  sampler& operator=(sampler&& _other) {
+    m_device = _other.m_device;
+    _other.m_device = nullptr;
+    memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
+    memory::memzero(&_other.m_data, sizeof(opaque_data));
+    return *this;
+  }
+
 private:
   WN_GRAPHICS_ADD_FRIENDS(device);
 

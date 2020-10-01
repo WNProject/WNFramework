@@ -250,6 +250,12 @@ void vulkan_command_list::set_scissor(const scissor& _scissor) {
   m_context->vkCmdSetScissor(m_command_buffer, 0, 1, &scissor);
 }
 
+void vulkan_command_list::set_viewport(const viewport& _viewport) {
+  VkViewport vp{_viewport.x, _viewport.y, _viewport.width, _viewport.height,
+      _viewport.min_depth, _viewport.max_depth};
+  m_context->vkCmdSetViewport(m_command_buffer, 0, 1, &vp);
+}
+
 void vulkan_command_list::begin_render_pass(render_pass* _pass,
     framebuffer* _framebuffer, const render_area& _area,
     const containers::contiguous_range<clear_value>& _clears) {

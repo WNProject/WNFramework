@@ -7,7 +7,7 @@
 
 #include "WNContainers/inc/WNString.h"
 #include "WNScripting/inc/WNEngine.h"
-#include "WNScripting/inc/resource.h"
+#include "WNScripting/inc/resource_manager.h"
 #include "WNScripting/inc/type_manager.h"
 
 namespace wn {
@@ -50,8 +50,7 @@ public:
       containers::string_view _name, R (*)(Args...));
 
   template <typename R>
-  bool inline register_resource(
-      memory::unique_ptr<resource> resource, R (*)(void*));
+  bool inline register_resource(memory::unique_ptr<resource_manager> resource);
 
   template <typename T>
   bool register_cpp_type();
@@ -70,9 +69,10 @@ protected:
   virtual ast_type* register_external_type(containers::string_view _name) = 0;
   size_t m_num_warnings;
   size_t m_num_errors;
-  containers::hash_map<containers::string, memory::unique_ptr<resource>>
+  containers::hash_map<containers::string, memory::unique_ptr<resource_manager>>
       m_resources;
-  containers::hash_map<containers::string, resource*> m_extension_handlers;
+  containers::hash_map<containers::string, resource_manager*>
+      m_extension_handlers;
   memory::allocator* m_allocator;
   type_manager m_type_manager;
 };
@@ -123,7 +123,7 @@ bool inline translator::register_named_constant(
 
 template <typename R>
 bool inline translator::register_resource(
-    memory::unique_ptr<resource> _resource, R (*)(void*)) {
+    memory::unique_ptr<resource_manager> _resource) {
   if (!m_type_manager.register_resource_type(
           m_type_manager.get_type<R>(), _resource.get())) {
     return false;

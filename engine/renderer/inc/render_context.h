@@ -62,10 +62,23 @@ public:
       scripting::shared_cpp_pointer<renderable_object> object,
       scripting::slice<const char*> passes);
 
-private:
+  // TODO(awoloszyn): Once we figure out exactly what kind of things we will
+  // need we can replace these with higher-level constructs.
   gpu_allocation get_allocation_for_render_target(
       uint64_t _size, uint64_t _alignment);
+  gpu_allocation get_allocation_for_buffer(uint64_t _size, uint64_t _alignment);
+  gpu_allocation get_allocation_for_upload(uint64_t _size, uint64_t _alignment);
+  gpu_allocation get_allocation_for_texture(
+      uint64_t _size, uint64_t _alignment);
 
+  runtime::graphics::device* get_device() {
+    return m_device.get();
+  }
+  window::window* get_window() {
+    return m_window;
+  }
+
+private:
   logging::log* m_log;
   window::window* m_window;
   memory::allocator* m_allocator;
@@ -88,6 +101,10 @@ private:
       m_command_allocators;
   containers::dynamic_array<runtime::graphics::command_list_ptr>
       m_command_lists;
+  containers::dynamic_array<runtime::graphics::command_allocator>
+      m_setup_command_allocators;
+  containers::dynamic_array<runtime::graphics::command_list_ptr>
+      m_setup_command_lists;
   containers::dynamic_array<runtime::graphics::fence> m_frame_fences;
   containers::dynamic_array<runtime::graphics::signal> m_swapchain_get_signals;
   containers::dynamic_array<runtime::graphics::signal>
@@ -95,12 +112,19 @@ private:
   containers::dynamic_array<bool> m_swapchain_image_initialized;
 
   memory::unique_ptr<gpu_heap> m_render_target_heap;
+  memory::unique_ptr<gpu_heap> m_buffer_heap;
+  memory::unique_ptr<gpu_heap> m_upload_heap;
+  memory::unique_ptr<gpu_heap> m_texture_heap;
+
   // Keep the render targets below the render target heap, we need the
   // targets to be cleaned up before the heap.
   containers::dynamic_array<render_target> m_render_targets;
 
   containers::dynamic_array<render_pass> m_render_passes;
   containers::dynamic_array<containers::string> m_render_pass_names;
+  containers::dynamic_array<scripting::shared_cpp_pointer<renderable_object>>
+      m_renderables;
+
   friend class render_target;
 };
 

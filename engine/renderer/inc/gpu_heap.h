@@ -44,6 +44,15 @@ public:
     _other.m_parent = nullptr;
   }
 
+  gpu_allocation& operator=(gpu_allocation&& _other) {
+    m_arena = _other.m_arena;
+    m_offset = _other.m_offset;
+    m_token = core::move(_other.m_token);
+    m_parent = _other.m_parent;
+    _other.m_parent = nullptr;
+    return *this;
+  }
+
 private:
   friend class gpu_heap;
   gpu_allocation(runtime::graphics::arena* _arena, uint64_t _offset,

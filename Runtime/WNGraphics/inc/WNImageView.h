@@ -35,6 +35,17 @@ public:
     return m_components;
   }
 
+  image_view() : m_device(nullptr) {}
+  WN_FORCE_INLINE image_view& operator=(image_view&& _other) {
+    m_device = _other.m_device;
+    m_components = _other.m_components;
+    _other.m_device = nullptr;
+
+    memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
+    memory::memzero(&_other.m_data, sizeof(opaque_data));
+    return *this;
+  }
+
 private:
   WN_GRAPHICS_ADD_FRIENDS(device);
   WN_GRAPHICS_ADD_FRIENDS(command_list);

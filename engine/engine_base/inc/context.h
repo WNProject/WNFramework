@@ -11,6 +11,9 @@
 #include "WNScripting/inc/WNEngine.h"
 
 namespace wn {
+namespace file_system {
+class mapping;
+}
 namespace engine_base {
 
 class context {
@@ -20,6 +23,7 @@ public:
   scripting::engine* m_engine;
   memory::allocator* m_allocator;
   logging::log* m_log;
+  file_system::mapping* m_file_mapping;
 };
 
 void register_context(scripting::engine* _engine);

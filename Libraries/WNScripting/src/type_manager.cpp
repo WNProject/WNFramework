@@ -814,7 +814,7 @@ bool type_manager::get_named_constant(
 }
 
 bool type_manager::register_resource_type(
-    const ast_type* _type, resource* resource) {
+    const ast_type* _type, resource_manager* resource) {
   containers::string res(m_allocator, resource->get_name());
 
   if (m_resource_types.find(res) != m_resource_types.end()) {
@@ -827,13 +827,13 @@ bool type_manager::register_resource_type(
 
 const ast_type* type_manager::get_resource(
     containers::string_view resource_name,
-    containers::string_view resource_data, void** data) {
+    containers::string_view resource_data, containers::string* data) {
   auto res = m_resource_types.find(resource_name.to_string(m_allocator));
   if (res == m_resource_types.end()) {
     return nullptr;
   }
 
-  if (!res->second.m_resource->convert_to_user_data(resource_data, data)) {
+  if (!res->second.m_resource->convert_to_function(resource_data, data)) {
     return nullptr;
   }
 

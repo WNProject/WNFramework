@@ -51,6 +51,22 @@ public:
     }
   }
 
+  WN_FORCE_INLINE buffer& operator=(buffer&& _other) {
+    m_device = core::move(_other.m_device);
+    m_size = _other.m_size;
+    m_memory_size = _other.m_memory_size;
+    m_memory_alignment = _other.m_memory_alignment;
+
+    _other.m_device = nullptr;
+    _other.m_size = 0;
+    _other.m_memory_size = 0;
+    _other.m_memory_alignment = 0;
+
+    memory::memory_copy(&m_data, &_other.m_data);
+    memory::memory_zero(&_other.m_data);
+    return *this;
+  }
+
   WN_FORCE_INLINE bool bind_memory(arena* _arena, const size_t _offset) {
     WN_DEBUG_ASSERT(_offset + size() <= _arena->size(),
         "binding is out of bounds of arena");
@@ -92,12 +108,12 @@ public:
     return buffer_memory_requirements{m_memory_size, m_memory_alignment};
   }
 
+  WN_FORCE_INLINE buffer()
+    : base(), m_device(nullptr), m_size(0), m_bound(false) {}
+
 private:
   WN_GRAPHICS_ADD_FRIENDS(device);
   WN_GRAPHICS_ADD_FRIENDS(command_list);
-
-  WN_FORCE_INLINE buffer()
-    : base(), m_device(nullptr), m_size(0), m_bound(false) {}
 
   WN_FORCE_INLINE buffer(device* _device, const size_t _size)
     : base(), m_device(_device), m_size(_size), m_bound(false) {}

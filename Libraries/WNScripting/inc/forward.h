@@ -203,6 +203,20 @@ public:
     _other.m_free = nullptr;
   }
 
+  template <typename U>
+  shared_cpp_pointer(const shared_cpp_pointer<U>& _other)
+    : val(_other.val), m_engine(_other.m_engine) {
+    acquire();
+  }
+
+  template <typename U>
+  shared_cpp_pointer(shared_cpp_pointer<U>&& _other)
+    : val(_other.val), m_engine(_other.m_engine), m_free(_other.m_free) {
+    _other.val = nullptr;
+    _other.m_engine = nullptr;
+    _other.m_free = nullptr;
+  }
+
   shared_cpp_pointer operator=(const shared_cpp_pointer& _other) {
     release();
     val = _other.val;
@@ -299,6 +313,9 @@ private:
 
   template <typename U, typename V>
   friend struct get_thunk_passed_type;
+
+  template <typename U>
+  friend class shared_cpp_pointer;
 };
 
 template <typename T, size_t S = 1>

@@ -35,6 +35,17 @@ public:
     }
   }
 
+  graphics_pipeline() : m_device(nullptr) {}
+
+  graphics_pipeline& operator=(graphics_pipeline&& _other) {
+    m_device = _other.m_device;
+    _other.m_device = nullptr;
+
+    memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
+    memory::memzero(&_other.m_data, sizeof(opaque_data));
+    return *this;
+  }
+
 private:
   WN_GRAPHICS_ADD_FRIENDS(device)
   WN_GRAPHICS_ADD_FRIENDS(command_list);

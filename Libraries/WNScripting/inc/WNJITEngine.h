@@ -30,9 +30,8 @@ class mapping;
 namespace scripting {
 namespace internal {
 struct resource {
-  void_f function;
   const ast_type* type;
-  scripting::resource* resource;
+  scripting::resource_manager* resource;
 };
 }  // namespace internal
 // All of the llvm data needed for a single compiled module.
@@ -57,8 +56,14 @@ public:
 
 protected:
   void_f get_function_pointer(containers::string_view _name) const override {
-    auto it = m_pointers.find(_name);
-    return it != m_pointers.end() ? it->second : nullptr;
+    {
+      auto it = m_pointers.find(_name);
+      if (it != m_pointers.end()) {
+        return it->second;
+      }
+    }
+    auto it = m_c_pointers.find(_name.to_string(m_allocator));
+    return it != m_c_pointers.end() ? it->second : nullptr;
   }
 
   bool register_c_function(containers::string_view name,
@@ -69,7 +74,7 @@ protected:
       void_f _function, bool _is_virtual) override;
 
   bool register_resource(
-      resource* _resource, const ast_type* _type, void_f _function) override;
+      resource_manager* _resource, const ast_type* _type) override;
 
   size_t get_vtable_offset(const ast_type* _t) override;
   void* allocate_shared(size_t size) override;
@@ -84,7 +89,8 @@ private:
   containers::hash_map<containers::string, void_f> m_c_pointers;
 
   containers::hash_map<containers::string, internal::resource> m_resources;
-  containers::hash_map<containers::string, resource*> m_extension_handlers;
+  containers::hash_map<containers::string, resource_manager*>
+      m_extension_handlers;
 
   containers::hash_map<containers::string, memory::unique_ptr<ast_type>>
       m_external_types;

@@ -69,21 +69,32 @@ parse_ast_convertor::convertor_context::resolve_id(
 memory::unique_ptr<ast_expression>
 parse_ast_convertor::convertor_context::resolve_resource(
     const resource_expression* _resource) {
-  memory::unique_ptr<ast_resource> r =
-      memory::make_unique<ast_resource>(m_allocator, _resource);
-  void* v;
-  const ast_type* t = m_type_manager->get_resource(
-      _resource->get_type(), _resource->get_string(), &v);
+  containers::string fn_call_name(m_allocator);
+  containers::string_view data = _resource->get_string();
+  if (data.size() > 2) {
+    data = data.substr(1, data.size() - 2);
+  }
+  const ast_type* t =
+      m_type_manager->get_resource(_resource->get_type(), data, &fn_call_name);
   if (t == nullptr) {
     _resource->log_line(m_log, logging::log_level::error);
     m_log->log_error("Invalid resource: ", _resource->get_type());
     m_log->log_error("                : ", _resource->get_string());
     return nullptr;
   }
-  r->m_type = t;
-  r->m_resource_identifier = v;
-  r->m_string_value = _resource->get_type().to_string(m_allocator);
-  return core::move(r);
+
+  memory::unique_ptr<function_call_expression> fce =
+      memory::make_unique<function_call_expression>(m_allocator, m_allocator);
+  fce->set_start_location(_resource->get_start_location());
+
+  memory::unique_ptr<id_expression> ide = memory::make_unique<id_expression>(
+      m_allocator, m_allocator, fn_call_name.c_str());
+  ide->copy_location_from(fce.get());
+  fce->add_base_expression(core::move(ide));
+  for (auto& expr : _resource->get_expressions()) {
+    fce->get_expressions().push_back(expr->clone(m_allocator));
+  }
+  return resolve_function_call(fce.get());
 }
 
 memory::unique_ptr<ast_constant>

@@ -12,10 +12,12 @@
 #include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNRenderPass.h"
 #include "renderer/inc/render_target.h"
+#include "renderer/inc/renderable_object.h"
 
 namespace wn {
 namespace engine {
 namespace renderer {
+class render_context;
 class render_pass {
 public:
   render_pass(memory::allocator* _allocator, logging::log* _log,
@@ -24,7 +26,24 @@ public:
           _attachments,
       containers::dynamic_array<render_target*> _render_targets,
       const runtime::graphics::render_pass_attachment& depth_attachment);
-  void render(uint64_t _frame_idx, runtime::graphics::command_list* _list);
+  void render(render_context* _context, uint64_t _frame_idx,
+      runtime::graphics::command_list* _setup,
+      runtime::graphics::command_list* _list);
+
+  void add_renderable_object(
+      scripting::shared_cpp_pointer<renderable_object> object) {
+    m_renderables.push_back(object);
+  }
+
+  uint64_t get_width() {
+    return m_width;
+  }
+  uint64_t get_height() {
+    return m_height;
+  }
+  runtime::graphics::render_pass* get_render_pass() {
+    return m_render_pass.get();
+  }
 
 private:
   memory::allocator* m_allocator;
@@ -38,7 +57,9 @@ private:
       m_framebuffers;
   memory::unique_ptr<runtime::graphics::render_pass> m_render_pass;
   containers::dynamic_array<render_target*> m_render_targets;
-  containers::dynamic_array<runtime::graphics::render_pass_attachment> m_ops;
+  containers::dynamic_array<scripting::shared_cpp_pointer<renderable_object>>
+      m_renderables;
+
   size_t m_width;
   size_t m_height;
   bool m_has_depth_target;

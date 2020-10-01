@@ -651,6 +651,13 @@ public:
   size_type rfind(const value_type _value, size_type _pos = npos) const;
   size_type rfind(const string_view _view, size_type _pos = npos) const;
 
+  size_type find(const string& str, size_type _pos = 0) const;
+  size_type find(
+      const value_type* _ptr, size_type _pos, const size_type _count) const;
+  size_type find(const value_type* _ptr, size_type _pos = 0) const;
+  size_type find(const value_type _value, size_type _pos = 0) const;
+  size_type find(const string_view _view, size_type _pos = 0) const;
+
   size_type find_first_of(const string& _string, size_type _pos = 0) const;
   size_type find_first_of(
       const value_type* _ptr, size_type _pos, const size_type _count) const;
@@ -922,6 +929,31 @@ inline string::size_type string::rfind(
 inline string::size_type string::rfind(
     const string_view _view, size_type _pos) const {
   return to_string_view().rfind(_view, _pos);
+}
+
+inline string::size_type string::find(
+    const string& _string, size_type _pos) const {
+  return find(_string.to_string_view(), _pos);
+}
+
+inline string::size_type string::find(
+    const value_type* _ptr, size_type _pos, const size_type _count) const {
+  return find(string_view(_ptr, _count), _pos);
+}
+
+inline string::size_type string::find(
+    const value_type* _ptr, size_type _pos) const {
+  return find(string_view(_ptr), _pos);
+}
+
+inline string::size_type string::find(
+    const value_type _value, size_type _pos) const {
+  return find(string_view(&_value, 1), _pos);
+}
+
+inline string::size_type string::find(
+    const string_view _view, size_type _pos) const {
+  return to_string_view().find(_view, _pos);
 }
 
 inline string::size_type string::find_first_of(
