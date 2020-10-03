@@ -17,7 +17,7 @@ jobs:
           sudo update-alternatives --install /usr/bin/clang-format clang-format
           /usr/bin/clang-format-10 100
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2.3.3
       - name: Check code format
         run: >
           find .
