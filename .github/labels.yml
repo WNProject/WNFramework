@@ -1,6 +1,12 @@
+- name: auto
+  description: Opened by an automated process
+  color: bdce3b
 - name: bug
   description: Something isn't working
   color: d73a4a
+- name: clean-up
+  description: Clean-up or refactor of something already existing
+  color: a7afe5
 - name: dependencies
   description: Update dependencies
   color: c2e0c6
@@ -8,7 +14,7 @@
   description: Improvements or additions to documentation
   color: 0075ca
 - name: duplicate
-  description: This issue or pull request already exists
+  description: Already exists
   color: cfd3d7
 - name: enhancement
   description: New feature or request
@@ -28,6 +34,3 @@
 - name: won't fix
   description: This will not be worked on
   color: ffffff
-- name: clean-up
-  description: Clean-up or refactor of something already existing
-  color: a7afe5
