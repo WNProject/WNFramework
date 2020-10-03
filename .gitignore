@@ -4,11 +4,10 @@
 *.sdf
 *.suo
 *.user
-.vscode/*
-.vs/*
-.ycm_extra_conf.py
-.ycm_extra_conf.pyc
-/build*/
-/Externals/*
-ipch
+.vs/
+.vscode/
+.ycm_extra_conf.py*
+Externals/*/*
+build*/
+ipch/
 last_clobber.txt
