@@ -294,8 +294,8 @@ private:
   void (*m_free)(const engine*, void*) = nullptr;
   friend class engine;
 
-  template <typename T>
-  friend shared_cpp_pointer<T>& fixup_return_type(shared_cpp_pointer<T>&);
+  template <typename U>
+  friend shared_cpp_pointer<U>& fixup_return_type(shared_cpp_pointer<U>&);
 
   template <typename U, typename V>
   friend struct get_thunk_passed_type;
