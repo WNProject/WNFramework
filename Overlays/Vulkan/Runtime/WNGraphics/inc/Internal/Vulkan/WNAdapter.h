@@ -42,6 +42,7 @@ class factory;
 class adapter;
 class device;
 class surface;
+struct surface_capabilities;
 
 using adapter_ptr = memory::unique_ptr<adapter>;
 using device_ptr = memory::unique_ptr<device>;
