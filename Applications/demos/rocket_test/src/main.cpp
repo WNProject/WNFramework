@@ -1167,7 +1167,7 @@ public:
   }
 
   // Returns the number of pixels per inch.
-  float GetPixelsPerInch() {
+  float GetPixelsPerInch() override {
     return static_cast<float>(m_dpi);
   }
 
