@@ -201,7 +201,7 @@ add_wn_library(WNScripting
     WNLogging
     ${WNScriptingLLVMLibs}
   INCLUDES
-    ${CMAKE_SOURCE_DIR}/Externals/antlr
+    ${CMAKE_SOURCE_DIR}/Externals/antlr3/runtime/Cpp/include
     ${LLVM_SOURCE_DIR_CMAKE_PATH}/include
     ${CMAKE_BINARY_DIR}/Externals/llvm-project/llvm/include
 )
