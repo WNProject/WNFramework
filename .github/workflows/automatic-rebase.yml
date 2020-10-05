@@ -1,0 +1,20 @@
+name: Automatic rebase
+on:
+  issue_comment:
+    types: [created]
+jobs:
+  automatic-rebase:
+    name: Automatic rebase
+    if: >
+      github.event.issue.pull_request &&
+      startsWith(github.event.comment.body, '/rebase')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.3.3
+        with:
+          fetch-depth: 0
+      - name: Automatic rebase
+        uses: cirrus-actions/rebase@1.3.1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
