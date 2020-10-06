@@ -27,7 +27,7 @@
 namespace Rocket {
 namespace Core {
 
-Context::Context() {
+Context::Context() : m_load_script_contents(true) {
   Controls::Clipboard::RegisterContextValues(this);
   Controls::RegisterContextValues(this);
   Controls::DataSource::RegisterContextValues(this);

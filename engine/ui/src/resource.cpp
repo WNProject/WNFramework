@@ -6,6 +6,7 @@
 
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNScripting/inc/WNEngine.h"
+#include "ui/inc/ui_scripting_parser.h"
 
 namespace wn {
 namespace engine {
@@ -45,14 +46,14 @@ bool resource::get_include_for_resource(
   return true;
 }
 
-scripting::convert_type resource::convert_file(
-    containers::string_view _file_name, containers::string* _out_string) {
-  file_system::result res;
-  file_system::file_ptr file = m_mapping->open_file(_file_name, res);
-  if (!file) {
+scripting::convert_type resource::convert_file(logging::log* _log,
+    file_system::mapping* _mapping, containers::string_view _file_name,
+    containers::string* _out_string) {
+  (void)_out_string;
+  ui_scripting_parser parser(_log, m_allocator);
+  if (!parser.parse_ui(_mapping, _file_name, _out_string)) {
     return scripting::convert_type::failed;
   }
-  (void)_out_string;
 
   return scripting::convert_type::success;
 }

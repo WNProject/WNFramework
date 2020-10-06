@@ -3,7 +3,9 @@ add_wn_library(
   SOURCES
     inc/resource.h
     inc/ui.h
+    inc/ui_scripting_parser.h
     src/resource.cpp
+    src/ui_scripting_parser.cpp
     src/ui.cpp
   LIBS
     renderer

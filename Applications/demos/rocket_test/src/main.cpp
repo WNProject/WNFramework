@@ -104,6 +104,20 @@ public:
   }
 };
 
+class evt_listener_instancer : public Rocket::Core::EventListenerInstancer {
+  virtual Rocket::Core::EventListener* InstanceEventListener(
+      const Rocket::Core::String& value, Rocket::Core::Element* element) {
+    (void)value;
+    (void)element;
+    return NULL;
+  }
+
+  /// Destroys the instancer.
+  virtual void Release() {
+    delete this;
+  }
+};
+
 Rocket::Core::Input::KeyIdentifier key_code_to_key_index(key_code _key_code) {
   if (_key_code >= key_code::key_0 && _key_code <= key_code::key_9) {
     return static_cast<Rocket::Core::Input::KeyIdentifier>(
@@ -1367,6 +1381,9 @@ int32_t wn_application_main(
   Rocket::Core::Factory::RegisterElementInstancer(
       &context, "body", new Rocket::Core::ElementInstancerGeneric<dce>())
       ->RemoveReference();
+  Rocket::Core::Factory::RegisterEventListenerInstancer(
+      &context, new evt_listener_instancer())
+      ->RemoveReference();
 
   Rocket::Core::DocumentContext* documents =
       Rocket::Core::CreateDocumentContext(
@@ -1379,6 +1396,7 @@ int32_t wn_application_main(
 
   Rocket::Debugger::Initialise(&context, documents);
   Rocket::Controls::Initialise(&context);
+
   // Rocket::Debugger::SetVisible(&context, true);
   Rocket::Core::ElementDocument* document =
       documents->LoadDocument("assets/main.rml");

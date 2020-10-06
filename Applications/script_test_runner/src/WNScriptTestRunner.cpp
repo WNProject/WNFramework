@@ -35,9 +35,11 @@ public:
   containers::string_view get_file_extension() const override {
     return ".dummy";
   }
-  scripting::convert_type convert_file(containers::string_view _file_name,
+  scripting::convert_type convert_file(logging::log* _log,
+      file_system::mapping*, containers::string_view _file_name,
       containers::string* out_string) override {
     if (_file_name != "dummy_file.dummy") {
+      _log->log_error("Invalid file name");
       return scripting::convert_type::failed;
     }
     *out_string = "Int dummy_file_foo() { return 4; }";
