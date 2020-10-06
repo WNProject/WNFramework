@@ -29,12 +29,14 @@ def main():
     write_lines = []
     with open(file) as my_f:
       has_read_licence = False
-      insert_clang_format_off = False
+      insert_clang_format_off = True
       in_comment = False
       for line in my_f.readlines():
+        if insert_clang_format_off:
+          write_lines.append("// clang-format off\n")
+          insert_clang_format_off = False
         if last_licence_line in line:
           has_read_licence = True
-          insert_clang_format_off = True
         if source_line in line:
           continue
         if source_date in line:
@@ -62,9 +64,6 @@ def main():
             line_left = ""
         line = line.replace("ImplTraits::CommonTokenType*", "ImplTraits::CommonTokenType const*")
         write_lines.append(line.rstrip() + '\n')
-        if insert_clang_format_off:
-          write_lines.append("// clang-format off\n")
-          insert_clang_format_off = False
     with open(file, "w") as my_f:
       my_f.writelines(write_lines)
 

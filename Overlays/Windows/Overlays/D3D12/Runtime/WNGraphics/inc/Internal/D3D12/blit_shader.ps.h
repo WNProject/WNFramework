@@ -1,11 +1,12 @@
+// clang-format off
 #if 0
 ;
 ; Input signature:
 ;
 ; Name                 Index   Mask Register SysValue  Format   Used
 ; -------------------- ----- ------ -------- -------- ------- ------
-; SV_Position              0   xyzw        0      POS   float       
-; TEXCOORD                 0   xy          1     NONE   float       
+; SV_Position              0   xyzw        0      POS   float
+; TEXCOORD                 0   xy          1     NONE   float
 ;
 ;
 ; Output signature:
@@ -15,7 +16,7 @@
 ; SV_Target                0   xyzw        0   TARGET   float   xyzw
 ;
 ;
-; Pipeline Runtime Information: 
+; Pipeline Runtime Information:
 ;
 ; Pixel Shader
 ; DepthOutput=0
@@ -26,14 +27,14 @@
 ;
 ; Name                 Index             InterpMode DynIdx
 ; -------------------- ----- ---------------------- ------
-; SV_Position              0          noperspective       
-; TEXCOORD                 0                 linear       
+; SV_Position              0          noperspective
+; TEXCOORD                 0                 linear
 ;
 ; Output signature:
 ;
 ; Name                 Index             InterpMode DynIdx
 ; -------------------- ----- ---------------------- ------
-; SV_Target                0                              
+; SV_Target                0
 ;
 ; Buffer Definitions:
 ;
@@ -44,7 +45,7 @@
 ;   {
 ;
 ;       float2 texel_size;                            ; Offset:    0
-;   
+;
 ;   } cb;                                             ; Offset:    0 Size:     8
 ;
 ; }
