@@ -22,7 +22,7 @@ namespace graphics {
 
 class shader_module final : public base_object<2> {
 public:
-  shader_module() = delete;
+  shader_module() : m_device(nullptr) {}
 
   WN_FORCE_INLINE shader_module(shader_module&& _other)
     : m_device(_other.m_device) {
@@ -40,6 +40,15 @@ public:
 
   WN_FORCE_INLINE bool is_valid() const {
     return (m_device != nullptr);
+  }
+
+  shader_module& operator=(shader_module&& _other) {
+    m_device = _other.m_device;
+    _other.m_device = nullptr;
+
+    memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
+    memory::memzero(&_other.m_data, sizeof(opaque_data));
+    return *this;
   }
 
 private:

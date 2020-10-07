@@ -187,15 +187,7 @@ public:
             llvm::JITSymbolFlags::Exported);
       }
     }
-    if (Nm[0] == '@') {
-      containers::string s(m_allocator, Nm.c_str() + 1);
-      auto it = m_resource_functions->find(s);
-      if (it != m_resource_functions->end()) {
-        return llvm::JITSymbol(static_cast<uint64_t>(reinterpret_cast<size_t>(
-                                   it->second.function)),
-            llvm::JITSymbolFlags::Exported);
-      }
-    }
+
     return llvm::JITSymbol(0, llvm::JITSymbolFlags::Exported);
   }
 
@@ -365,6 +357,9 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
       &m_num_errors);
 
   if (parsed_file == nullptr) {
+    if (use_synthetic_contents) {
+      m_log->log_info("Synthetic file contents: ", synthetic_contents);
+    }
     return parse_error::parse_failed;
   }
   m_finished_files.insert(_file.to_string(m_allocator));
@@ -431,12 +426,12 @@ size_t jit_engine::get_vtable_offset(const ast_type* _type) {
 }
 
 bool jit_engine::register_resource(
-    resource* _resource, const ast_type* _type, void_f _function) {
+    resource_manager* _resource, const ast_type* _type) {
   auto name = _resource->get_name().to_string(m_allocator);
   if (m_resources.find(name) != m_resources.end()) {
     return false;
   }
-  m_resources[core::move(name)] = {_function, _type, _resource};
+  m_resources[core::move(name)] = {_type, _resource};
   if (!_resource->get_file_extension().empty()) {
     m_extension_handlers[_resource->get_file_extension().to_string(
         m_allocator)] = _resource;

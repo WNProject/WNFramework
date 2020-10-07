@@ -17,11 +17,13 @@ class mapping;
 }
 namespace scripting {
 enum class convert_type { success, failed, use_default };
-class resource {
+class resource_manager {
 public:
-  virtual ~resource() {}
-  explicit resource(containers::string _name) : m_name(_name) {}
-  virtual bool convert_to_user_data(containers::string_view, void**) = 0;
+  virtual ~resource_manager() {}
+  explicit resource_manager(containers::string _name)
+    : m_name(core::move(_name)) {}
+  virtual bool convert_to_function(
+      containers::string_view, containers::string*) = 0;
   virtual containers::string_view get_file_extension() const {
     return "";
   }

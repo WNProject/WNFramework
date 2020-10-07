@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-// RUN: test -> 36
+// RUN: test -> 8
 // CHECK: {{.*test.*{}}
 Int test() {
-// CHECK: __resource__TestResource((void*)
+// CHECK:  _return = (_ZN3wns14dummy_file_fooEi() + _ZN3wns14dummy_file_fooEi());
     return @TestResource("Hello World") + dummy_file_foo();
 }

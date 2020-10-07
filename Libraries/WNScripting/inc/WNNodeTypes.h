@@ -843,49 +843,6 @@ private:
   containers::string m_name;
 };
 
-class resource_expression : public expression {
-public:
-  resource_expression(
-      memory::allocator* _allocator, const char* _type, const char* _str)
-    : expression(_allocator, node_type::resource_expression),
-      m_resource_type(_allocator, _type),
-      m_string(_allocator, _str) {}
-
-  resource_expression(memory::allocator* _allocator,
-      containers::string_view _type, containers::string_view _str)
-    : expression(_allocator, node_type::resource_expression),
-      m_resource_type(_type.to_string(_allocator)),
-      m_string(_str.to_string(_allocator)) {}
-
-  explicit resource_expression(memory::allocator* _allocator)
-    : expression(_allocator, node_type::resource_expression) {}
-  containers::string_view get_type() const {
-    return m_resource_type;
-  }
-  containers::string_view get_string() const {
-    return m_string;
-  }
-
-  void print_node_internal(print_context* c) const override {
-    c->print_header("Resource Expression");
-    c->print_value(m_type, "Type");
-    c->print_value(m_resource_type, "ResourceType");
-    c->print_value(m_string, "String");
-  }
-
-  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
-    auto t = memory::make_unique<resource_expression>(_allocator, _allocator);
-    t->copy_underlying_from(_allocator, this);
-    t->m_resource_type = containers::string(_allocator, m_resource_type);
-    t->m_string = containers::string(_allocator, m_string);
-    return core::move(t);
-  }
-
-private:
-  containers::string m_resource_type;
-  containers::string m_string;
-};
-
 class null_allocation_expression : public expression {
 public:
   null_allocation_expression(memory::allocator* _allocator)
@@ -911,6 +868,9 @@ public:
     : expression(_allocator, _type) {}
   void add_base_expression(expression* _expr) {
     m_base_expression = memory::unique_ptr<expression>(m_allocator, _expr);
+  }
+  void add_base_expression(memory::unique_ptr<expression> _expr) {
+    m_base_expression = core::move(_expr);
   }
   const expression* get_base_expression() const {
     return m_base_expression.get();
@@ -1230,6 +1190,73 @@ public:
 
 private:
   containers::deque<memory::unique_ptr<function_expression>> m_expression_list;
+};
+
+class resource_expression : public expression {
+public:
+  resource_expression(
+      memory::allocator* _allocator, const char* _type, const char* _str)
+    : expression(_allocator, node_type::resource_expression),
+      m_resource_type(_allocator, _type),
+      m_string(_allocator, _str) {}
+
+  resource_expression(memory::allocator* _allocator, const char* _type,
+      const char* _str, arg_list* _list)
+    : expression(_allocator, node_type::resource_expression),
+      m_resource_type(_allocator, _type),
+      m_string(_allocator, _str),
+      m_args(_allocator, _list) {}
+
+  explicit resource_expression(memory::allocator* _allocator)
+    : expression(_allocator, node_type::resource_expression) {}
+  containers::string_view get_type() const {
+    return m_resource_type;
+  }
+  containers::string_view get_string() const {
+    return m_string;
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Resource Expression");
+    c->print_value(m_type, "Type");
+    c->print_value(m_resource_type, "ResourceType");
+    c->print_value(m_string, "String");
+  }
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<resource_expression>(_allocator, _allocator);
+    t->copy_underlying_from(_allocator, this);
+    t->m_resource_type = containers::string(_allocator, m_resource_type);
+    t->m_string = containers::string(_allocator, m_string);
+    return core::move(t);
+  }
+
+  const containers::deque<memory::unique_ptr<function_expression>>&
+  get_expressions() const {
+    if (m_args) {
+      return m_args->get_expressions();
+    }
+    static const containers::deque<memory::unique_ptr<function_expression>>
+        empty_expressions;
+    return empty_expressions;
+  }
+
+  containers::deque<memory::unique_ptr<function_expression>>&
+  get_expressions() {
+    if (!m_args) {
+      m_args = memory::make_unique<arg_list>(m_allocator, m_allocator);
+    }
+    return m_args->get_expressions();
+  }
+
+  const arg_list* get_args() const {
+    return m_args.get();
+  }
+
+private:
+  containers::string m_resource_type;
+  containers::string m_string;
+  memory::unique_ptr<arg_list> m_args;
 };
 
 class struct_allocation_expression : public expression {

@@ -35,6 +35,16 @@ public:
       m_device->destroy_descriptor_set_layout(this);
     }
   }
+  descriptor_set_layout() : m_device(nullptr) {}
+
+  descriptor_set_layout& operator=(descriptor_set_layout&& _other) {
+    m_device = _other.m_device;
+    _other.m_device = nullptr;
+
+    memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
+    memory::memzero(&_other.m_data, sizeof(opaque_data));
+    return *this;
+  }
 
 private:
   WN_GRAPHICS_ADD_FRIENDS(device);
@@ -57,6 +67,15 @@ public:
     if (m_device) {
       m_device->destroy_descriptor_set(this);
     }
+  }
+
+  descriptor_set() : m_device(nullptr) {}
+  descriptor_set& operator=(descriptor_set&& _other) {
+    m_device = _other.m_device;
+    _other.m_device = nullptr;
+    memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
+    memory::memzero(&_other.m_data, sizeof(opaque_data));
+    return *this;
   }
 
   void update_descriptors(
@@ -97,6 +116,16 @@ public:
     memory::memzero(&_other.m_data, sizeof(opaque_data));
   }
 
+  descriptor_pool() : m_device(nullptr) {}
+  descriptor_pool& operator=(descriptor_pool&& _other) {
+    m_device = _other.m_device;
+    _other.m_device = nullptr;
+
+    memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
+    memory::memzero(&_other.m_data, sizeof(opaque_data));
+    return *this;
+  }
+
   ~descriptor_pool() {
     if (m_device) {
       m_device->destroy_descriptor_pool(this);
@@ -124,6 +153,16 @@ public:
     if (m_device) {
       m_device->destroy_pipeline_layout(this);
     }
+  }
+
+  pipeline_layout() : m_device(nullptr) {}
+
+  pipeline_layout& operator=(pipeline_layout&& _other) {
+    m_device = _other.m_device;
+    _other.m_device = nullptr;
+    memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
+    memory::memzero(&_other.m_data, sizeof(opaque_data));
+    return *this;
   }
 
 private:

@@ -7,7 +7,8 @@
 #ifndef __WN_ENGINE_UI_RESOURCE_H__
 #define __WN_ENGINE_UI_RESOURCE_H__
 
-#include "WNScripting/inc/resource.h"
+#include "WNContainers/inc/WNHashMap.h"
+#include "WNScripting/inc/resource_manager.h"
 
 namespace wn {
 namespace scripting {
@@ -19,16 +20,16 @@ class mapping;
 namespace engine {
 namespace ui {
 
-class resource : public scripting::resource {
+class resource_manager : public scripting::resource_manager {
 public:
-  static void register_scripting(memory::allocator* _allocator,
-      scripting::engine* _engine, file_system::mapping* _mapping);
+  static void register_scripting(
+      memory::allocator* _allocator, scripting::engine* _engine);
   static bool resolve_scripting(scripting::engine*);
 
-  resource(memory::allocator* _allocator, file_system::mapping* _mapping);
+  resource_manager(scripting::engine* _engine, memory::allocator* _allocator);
 
-  bool convert_to_user_data(
-      containers::string_view _resource_name, void** _dat) override;
+  bool convert_to_function(containers::string_view _resource_name,
+      containers::string* _dat) override;
 
   bool get_include_for_resource(
       containers::string_view _res, containers::string* _out) override;
@@ -43,7 +44,8 @@ public:
 
 private:
   memory::allocator* m_allocator;
-  file_system::mapping* m_mapping;
+  scripting::engine* m_engine;
+  containers::hash_map<containers::string, containers::string> m_ui_names;
 };
 
 }  // namespace ui

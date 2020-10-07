@@ -124,7 +124,7 @@ struct member_maker {
   static typename get_thunk_passed_type<R>::ret_type member_thunk(
       typename get_thunk_passed_type<Args>::type... args) {
     return get_thunk_passed_type<R>::wrap(
-        (*fn)(get_thunk_passed_type<Args>::wrap(args)...));
+        (*fn)(get_thunk_passed_type<Args>::unwrap(args)...));
   }
 
   template <R (*fn)(Args...)>
@@ -132,7 +132,7 @@ struct member_maker {
       typename get_thunk_passed_type<Args>::type... args,
       typename get_thunk_passed_type<R>::ret_type* _ret) {
     *_ret = get_thunk_passed_type<R>::wrap(
-        (*fn)(get_thunk_passed_type<Args>::wrap(args)...));
+        (*fn)(get_thunk_passed_type<Args>::unwrap(args)...));
   }
 };
 
@@ -141,13 +141,13 @@ struct member_maker<void, Args...> {
   static const bool is_ret_by_ref = false;
   template <void (*fn)(Args...)>
   static void member_thunk(typename get_thunk_passed_type<Args>::type... args) {
-    return (*fn)(get_thunk_passed_type<Args>::wrap(args)...);
+    return (*fn)(get_thunk_passed_type<Args>::unwrap(args)...);
   }
 
   template <void (*fn)(Args...)>
   static void return_member_thunk(
       typename get_thunk_passed_type<Args>::type... args) {
-    (*fn)(get_thunk_passed_type<Args>::wrap(args)...);
+    (*fn)(get_thunk_passed_type<Args>::unwrap(args)...);
   }
 };
 
@@ -186,27 +186,20 @@ bool inline engine::register_function(containers::string_view _name) {
   return register_c_function(_name, f.params, reinterpret_cast<void_f>(fn));
 }
 
-template <typename F, F _function>
-bool inline engine::register_resource(memory::unique_ptr<resource> res) {
-  containers::dynamic_array<const ast_type*> params =
-      get_function_params(_function, &m_type_manager);
-  if (params.size() != 2) {
-    return false;
-  }
-  // We expect this to be a function of type
-  //   resource_type function(void* type_tag)
+template <typename F, typename... Args>
+bool inline engine::register_resource(
+    memory::unique_ptr<resource_manager> res) {
+  const ast_type* t = m_type_manager.get_type<F>();
+  // TODO(awoloszyn): Eventually add some more testing against these "Args".
+  // This will automatically get picked up by the re-writing, but
+  // might be cleaner here.
 
-  if (params[1] != m_type_manager.get_type<void*>()) {
+  if (!m_type_manager.register_resource_type(t, res.get())) {
     return false;
   }
-
-  if (!m_type_manager.register_resource_type(params[0], res.get())) {
-    return false;
-  }
-  void* call = get_thunk<F, _function>();
   auto ptr = res.get();
   m_resources.push_back(core::move(res));
-  return register_resource(ptr, params[0], reinterpret_cast<void_f>(call));
+  return register_resource(ptr, t);
 }
 
 template <typename T>

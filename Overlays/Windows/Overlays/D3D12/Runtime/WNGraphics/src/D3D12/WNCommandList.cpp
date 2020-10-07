@@ -286,6 +286,12 @@ void d3d12_command_list::set_scissor(const scissor& _scissor) {
   m_command_list->RSSetScissorRects(1, &scissor);
 }
 
+void d3d12_command_list::set_viewport(const viewport& _viewport) {
+  D3D12_VIEWPORT vp{_viewport.x, _viewport.y, _viewport.width, _viewport.height,
+      _viewport.min_depth, _viewport.max_depth};
+  m_command_list->RSSetViewports(1, &vp);
+}
+
 void d3d12_command_list::begin_render_pass(render_pass* _pass,
     framebuffer* _framebuffer, const render_area& _render_area,
     const containers::contiguous_range<clear_value>& _clears) {

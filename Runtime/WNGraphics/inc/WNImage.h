@@ -49,7 +49,7 @@ public:
     size_t block_size;    // The size of a single block (or texel) in bytes
   };
 
-  image() = delete;
+  WN_FORCE_INLINE image() : m_device(nullptr) {}
 
   WN_FORCE_INLINE image(image&& _other)
     : m_device(_other.m_device),
@@ -58,6 +58,16 @@ public:
     m_is_swapchain_image = _other.m_is_swapchain_image;
     memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
     memory::memzero(&_other.m_data, sizeof(opaque_data));
+  }
+
+  WN_FORCE_INLINE image& operator=(image&& _other) {
+    m_device = _other.m_device;
+    m_resource_info = core::move(_other.m_resource_info);
+    m_is_swapchain_image = _other.m_is_swapchain_image;
+    _other.m_device = nullptr;
+    memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
+    memory::memzero(&_other.m_data, sizeof(opaque_data));
+    return *this;
   }
 
   WN_FORCE_INLINE ~image() {
