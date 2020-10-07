@@ -73,6 +73,7 @@ public:
       uint32_t _instance_offset) = 0;
 
   virtual void set_scissor(const scissor& _scissor) = 0;
+  virtual void set_viewport(const viewport& _viewport) = 0;
 
   // TODO(awoloszyn): Expose another function (or a parameter)
   // to specify if this is allowed to execute sub-command-lists.

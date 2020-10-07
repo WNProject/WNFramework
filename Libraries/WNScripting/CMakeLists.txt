@@ -160,6 +160,7 @@ add_wn_library(WNScripting
     inc/internal/c_preamble.h
     inc/jit_compiler.h
     inc/parse_ast_convertor.h
+    inc/resource_manager.h
     inc/source_location.h
     inc/type_manager.h
     inc/type_manager.inl

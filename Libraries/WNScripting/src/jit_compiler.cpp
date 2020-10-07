@@ -121,10 +121,6 @@ struct jit_compiler_context {
   llvm::Value* get_builtin(const ast_builtin_expression* _builtin);
   llvm::Value* get_array_access(const ast_array_access_expression* _expr);
   llvm::Value* get_slice(const ast_slice_expression* _expr);
-  llvm::Value* get_resource(const ast_resource* _expr);
-
-  llvm::Function* get_resource_function(
-      const ast_resource* res, const containers::string& val);
 
   // Statements
   bool write_statement(const ast_statement* _statement);
@@ -649,10 +645,6 @@ llvm::Value* internal::jit_compiler_context::get_expression(
           cast_to<ast_function_pointer_expression>(_expression));
       break;
     }
-    case ast_node_type::ast_resource: {
-      v = get_resource(cast_to<ast_resource>(_expression));
-      break;
-    }
     default:
       WN_RELEASE_ASSERT(false, "You should never get here");
   }
@@ -798,34 +790,6 @@ llvm::Function* internal::jit_compiler_context::get_function(
   }
 
   return m_functions[_func];
-}
-
-llvm::Function* internal::jit_compiler_context::get_resource_function(
-    const ast_resource* res, const containers::string& _res) {
-  if (m_resource_functions.find(_res) == m_resource_functions.end()) {
-    llvm::Type* return_type = get_type(res->m_type);
-    if (!return_type) {
-      return nullptr;
-    }
-
-    if (res->m_type->m_pass_by_reference) {
-      return_type = m_void_t;
-    }
-
-    llvm::FunctionType* ft = llvm::FunctionType::get(
-        return_type, llvm::ArrayRef<llvm::Type*>(m_void_ptr_t), false);
-    containers::string str(m_allocator, "@");
-    str = str + _res;
-    llvm::Function* f = llvm::cast<llvm::Function>(
-        m_module->getOrInsertFunction(str.c_str(), ft).getCallee());
-    f->addFnAttr(llvm::Attribute::NoUnwind);
-
-    f->setLinkage(llvm::GlobalValue::LinkageTypes::ExternalLinkage);
-
-    m_resource_functions[_res] = f;
-    return f;
-  }
-  return m_resource_functions[_res];
 }
 
 llvm::Value* internal::jit_compiler_context::get_function_from_ptr(
@@ -1370,27 +1334,6 @@ llvm::Value* internal::jit_compiler_context::get_slice(
     slice = m_function_builder->CreateInsertValue(slice, size, 1);
   }
   return slice;
-}
-
-llvm::Value* internal::jit_compiler_context::get_resource(
-    const ast_resource* _expr) {
-  llvm::Type* t = get_type(_expr->m_type);
-  if (!t) {
-    return nullptr;
-  }
-  llvm::Value* fn = nullptr;
-  fn = get_resource_function(_expr, _expr->m_string_value);
-
-  auto conv = llvm::dyn_cast<llvm::Function>(fn)->getCallingConv();
-  llvm::Value* param = llvm::ConstantInt::get(
-      m_size_t, reinterpret_cast<uintptr_t>(_expr->m_resource_identifier));
-
-  llvm::CallInst* ci = m_function_builder->CreateCall(fn,
-      llvm::ArrayRef<llvm::Value*>(
-          m_function_builder->CreateIntToPtr(param, m_void_ptr_t)),
-      _expr->m_string_value.c_str());
-  ci->setCallingConv(conv);
-  return ci;
 }
 
 llvm::Value* internal::jit_compiler_context::get_constant(

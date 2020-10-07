@@ -108,21 +108,31 @@ class base_document : public Rocket::Core::ElementDocument {
 public:
   ROCKET_RTTI_DefineWithParent(Rocket::Core::ElementDocument);
 
-  base_document(containers::string* _out_string, Rocket::Core::Context* _ctx,
+  base_document(memory::allocator* _allocator,
+      containers::dynamic_array<containers::string>* _includes,
+      containers::string* _out_string, Rocket::Core::Context* _ctx,
       const Rocket::Core::String& tag)
-    : Rocket::Core::ElementDocument(_ctx, tag), m_out_string(_out_string) {}
+    : Rocket::Core::ElementDocument(_ctx, tag),
+      m_allocator(_allocator),
+      m_includes(_includes),
+      m_out_string(_out_string) {}
 
   void LoadScript(
       Rocket::Core::Stream* stream, const Rocket::Core::String& source_name);
 
-private:
+  memory::allocator* m_allocator;
+  containers::dynamic_array<containers::string>* m_includes;
   containers::string* m_out_string;
 };
 
 class base_document_instancer : public Rocket::Core::ElementInstancer {
 public:
-  base_document_instancer(containers::string* _out_string)
-    : m_out_string(_out_string) {}
+  base_document_instancer(memory::allocator* _allocator,
+      containers::dynamic_array<containers::string>* _includes,
+      containers::string* _out_string)
+    : m_allocator(_allocator),
+      m_includes(_includes),
+      m_out_string(_out_string) {}
 
   Rocket::Core::Element* InstanceElement(Rocket::Core::Context* _context,
       Rocket::Core::Element* parent, const Rocket::Core::String& tag,
@@ -130,7 +140,8 @@ public:
     // TODO(awoloszyn) update ALL of this, we should really
     // be using an allocator always;
     (void)parent;
-    return new base_document(m_out_string, _context, tag);
+    return new base_document(
+        m_allocator, m_includes, m_out_string, _context, tag);
   }
 
   void ReleaseElement(Rocket::Core::Element* element) override {
@@ -141,6 +152,8 @@ public:
   void Release() override {}
 
 private:
+  memory::allocator* m_allocator;
+  containers::dynamic_array<containers::string>* m_includes;
   containers::string* m_out_string;
 };
 
@@ -249,9 +262,8 @@ public:
 void base_document::LoadScript(
     Rocket::Core::Stream* stream, const Rocket::Core::String& source_name) {
   if (source_name != "") {
-    m_out_string->append("include \"");
-    m_out_string->append(source_name.CString());
-    m_out_string->append("\"");
+    m_includes->push_back(
+        containers::string(m_allocator, source_name.CString()));
     return;
   }
   char bytes[1024];
@@ -262,7 +274,11 @@ void base_document::LoadScript(
 }
 
 bool ui_scripting_parser::parse_ui(file_system::mapping* _mapping,
-    containers::string_view _view, containers::string* _out_string) {
+    containers::string_view _file_name, containers::string* _out_string,
+    containers::string* _out_ui_name) {
+  containers::dynamic_array<containers::string> includes(m_allocator);
+  containers::string out_string(m_allocator);
+
   Rocket::Core::Context context;
   context.SetLoadScriptContents(false);
   dummy_renderer renderer(&context);
@@ -274,7 +290,7 @@ bool ui_scripting_parser::parse_ui(file_system::mapping* _mapping,
   Rocket::Core::SetFileInterface(&context, &file_interface);
 
   Rocket::Core::Initialise(&context);
-  base_document_instancer base_instancer(_out_string);
+  base_document_instancer base_instancer(m_allocator, &includes, &out_string);
   Rocket::Core::Factory::RegisterElementInstancer(
       &context, "body", &base_instancer)
       ->RemoveReference();
@@ -287,9 +303,10 @@ bool ui_scripting_parser::parse_ui(file_system::mapping* _mapping,
   Rocket::Core::DocumentContext* documents =
       Rocket::Core::CreateDocumentContext(
           &context, "main", Rocket::Core::Vector2i(1024, 1024));
-  containers::string str(m_allocator, _view);
+  containers::string str(m_allocator, _file_name);
   Rocket::Core::ElementDocument* document =
       documents->LoadDocument(str.c_str());
+
   if (document) {
     document->RemoveReference();
   }
@@ -297,6 +314,41 @@ bool ui_scripting_parser::parse_ui(file_system::mapping* _mapping,
   documents->RemoveReference();
   Rocket::Core::Shutdown(&context);
   m_log->flush();
+  if (document == nullptr) {
+    return false;
+  }
+
+  size_t ui_name_pos = out_string.find("// UIName=");
+
+  if (ui_name_pos != containers::string::npos) {
+    ui_name_pos += 10;  // strlen(// UIName=)
+    size_t end = out_string.find_first_of("\n\r", ui_name_pos);
+    *_out_ui_name =
+        out_string.to_string_view().substr(ui_name_pos, end - ui_name_pos);
+  } else {
+    m_log->log_error(_file_name, ": Missing in script tag \"// UIName=\"");
+    return false;
+  }
+
+  for (auto inc : includes) {
+    *_out_string += "include \"";
+    *_out_string += inc.c_str();
+    *_out_string += "\"\n";
+  }
+  *_out_string += "include \"ui/renderable_ui.wns\"\n\n";
+  *_out_string += "class ";
+  *_out_string += *_out_ui_name;
+  *_out_string += " : RenderableUI {\n";
+  *_out_string += " .name = \"";
+  *_out_string += _file_name;
+  *_out_string += "\";\n";
+  *_out_string += out_string;
+  *_out_string += "\n}\n\n shared ";
+
+  *_out_string += *_out_ui_name;
+  *_out_string += " getNew" + *_out_ui_name + "() { shared " + *_out_ui_name +
+                  " x = shared " + *_out_ui_name + "(); return x; }\n";
+
   return document != nullptr;
 }
 

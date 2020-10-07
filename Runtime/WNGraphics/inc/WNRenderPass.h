@@ -24,7 +24,7 @@ namespace graphics {
 
 class render_pass final : public base_object<2> {
 public:
-  render_pass() = delete;
+  render_pass() : m_device(nullptr) {}
 
   WN_FORCE_INLINE render_pass(render_pass&& _other)
     : m_device(_other.m_device) {

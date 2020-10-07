@@ -52,7 +52,7 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
     auto pd = m_type_manager->get_struct_definition(d->get_parent_name());
     if (pd == nullptr) {
       _def->log_line(m_log, logging::log_level::error);
-      m_log->log_error("Could not find parent type:", _def->get_parent_name());
+      m_log->log_error("Could not find parent type: ", _def->get_parent_name());
       return nullptr;
     }
 

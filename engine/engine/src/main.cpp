@@ -44,8 +44,7 @@ int32_t wn_application_main(
     engine::window::window::register_scripting(scripting_engine.get());
     engine::renderer::render_context::register_scripting(
         scripting_engine.get());
-    engine::ui::ui::register_scripting(
-        ui_allocator, scripting_engine.get(), mapping.get());
+    engine::ui::ui::register_scripting(ui_allocator, scripting_engine.get());
 
     scripting::parse_error err = scripting_engine->parse_file("main.wns");
     if (err != scripting::parse_error::ok) {
@@ -53,8 +52,13 @@ int32_t wn_application_main(
       return -1;
     }
 
-    engine::renderer::render_context::resolve_scripting(scripting_engine.get());
-    engine::ui::ui::resolve_scripting(scripting_engine.get());
+    if (!engine::renderer::render_context::resolve_scripting(
+            scripting_engine.get()) ||
+        !engine::ui::ui::resolve_scripting(scripting_engine.get())) {
+      _application_data->default_log->log_critical(
+          "Could not resolve needed script types");
+      return -1;
+    }
 
     wn::scripting::script_function<int32_t, engine_base::context*> main;
     scripting_engine->get_function("main", &main);
@@ -69,6 +73,7 @@ int32_t wn_application_main(
     ctx.m_application_data = _application_data;
     ctx.m_engine = scripting_engine.get();
     ctx.m_log = _application_data->default_log;
+    ctx.m_file_mapping = mapping.get();
 
     ret = scripting_engine->invoke(main, &ctx);
   }

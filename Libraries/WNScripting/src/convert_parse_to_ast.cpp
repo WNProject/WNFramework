@@ -41,8 +41,11 @@ parse_ast_convertor::convert_parse_tree_to_ast(memory::allocator* _allocator,
     }
   }
   for (auto& inc : _file->get_resources()) {
-    if (!_handle_resources(
-            inc.first.to_string_view(), inc.second.to_string_view())) {
+    containers::string_view res_data = inc.second.to_string_view();
+    if (res_data.size() > 2) {
+      res_data = res_data.substr(1, res_data.size() - 2);
+    }
+    if (!_handle_resources(inc.first.to_string_view(), res_data)) {
       return nullptr;
     }
   }

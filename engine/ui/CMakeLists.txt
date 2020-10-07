@@ -1,11 +1,20 @@
 add_wn_library(
     ui
   SOURCES
-    inc/resource.h
-    inc/ui.h
+    inc/resource_manager.h
+    inc/ui_data.h
+    inc/ui_resources.h
+    inc/ui_rocket_interop.h
+    inc/ui_rocket_renderer.h
     inc/ui_scripting_parser.h
-    src/resource.cpp
+    inc/ui.h
+    src/resource_manager.cpp
+    src/ui_data.cpp
+    src/ui_resources.cpp
+    src/ui_rocket_interop.cpp
+    src/ui_rocket_renderer.cpp
     src/ui_scripting_parser.cpp
+    src/ui_static.cpp
     src/ui.cpp
   LIBS
     renderer

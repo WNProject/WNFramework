@@ -19,12 +19,14 @@ int res_fn(void* user_data) {
   return (int)(uintptr_t)(user_data);
 }
 
-class test_resource : public scripting::resource {
+class test_resource : public scripting::resource_manager {
 public:
   test_resource(memory::allocator* _allocator)
-    : scripting::resource(containers::string(_allocator, "TestResource")) {}
-  bool convert_to_user_data(containers::string_view, void** dat) override {
-    *dat = (void*)(uintptr_t)32;
+    : scripting::resource_manager(
+          containers::string(_allocator, "TestResource")) {}
+  bool convert_to_function(
+      containers::string_view, containers::string* dat) override {
+    *dat = "dummy_file_foo";
     return true;
   }
   bool get_include_for_resource(containers::string_view /*_res*/,
@@ -294,10 +296,10 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
   translator->register_named_constant<int32_t>("named_constant_a", constant_a);
   translator->register_named_constant<int32_t>("named_constant_b", constant_b);
 
-  jit->register_resource<decltype(&res_fn), &res_fn>(
+  jit->register_resource<int>(
       memory::make_unique<test_resource>(&allocator, &allocator));
-  translator->register_resource(
-      memory::make_unique<test_resource>(&allocator, &allocator), &res_fn);
+  translator->register_resource<int>(
+      memory::make_unique<test_resource>(&allocator, &allocator));
 
   auto test_file_string = test_file.to_string(&allocator);
   file_system::result res;
@@ -411,6 +413,6 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
       }
     }
   } while (false);
-
+  log.log()->flush();
   return success ? 0 : -1;
 }

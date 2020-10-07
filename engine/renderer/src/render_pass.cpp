@@ -4,6 +4,8 @@
 
 #include "renderer/inc/render_pass.h"
 
+#include "renderer/inc/render_context.h"
+
 namespace wn {
 namespace engine {
 namespace renderer {
@@ -18,6 +20,7 @@ render_pass::render_pass(memory::allocator* _allocator, logging::log* _log,
     m_device(_device),
     m_framebuffers(_allocator),
     m_render_targets(core::move(_render_targets)),
+    m_renderables(_allocator),
     m_width(0),
     m_height(0),
     m_has_depth_target(false) {
@@ -66,8 +69,10 @@ render_pass::render_pass(memory::allocator* _allocator, logging::log* _log,
           {}));
 }
 
-void render_pass::render(
-    uint64_t _frame_idx, runtime::graphics::command_list* _list) {
+void render_pass::render(render_context* _context, uint64_t _frame_idx,
+    runtime::graphics::command_list* _setup,
+    runtime::graphics::command_list* _render) {
+  (void)_context;
   containers::dynamic_array<const runtime::graphics::image_view*> views(
       m_allocator);
   views.reserve(m_render_targets.size());
@@ -98,7 +103,7 @@ void render_pass::render(
   containers::dynamic_array<runtime::graphics::clear_value> clears(m_allocator);
   clears.resize(m_render_targets.size());
   for (size_t i = 0; i < m_render_targets.size() - m_has_depth_target; ++i) {
-    clears[i].color.float_vals[0] = 0.0f;
+    clears[i].color.float_vals[0] = 1.0f;
     clears[i].color.float_vals[1] = 0.0f;
     clears[i].color.float_vals[2] = 0.0f;
     clears[i].color.float_vals[3] = 0.0f;
@@ -112,19 +117,23 @@ void render_pass::render(
   for (size_t i = 0; i < m_render_targets.size() - m_has_depth_target; ++i) {
     auto idx = m_render_targets[i]->get_index_for_frame(_frame_idx);
     m_render_targets[i]->transition_layout(
-        idx, runtime::graphics::resource_state::render_target, _list);
+        idx, runtime::graphics::resource_state::render_target, _render);
   }
   if (m_has_depth_target) {
     auto idx = m_render_targets.back()->get_index_for_frame(_frame_idx);
     m_render_targets.back()->transition_layout(
-        idx, runtime::graphics::resource_state::depth_target, _list);
+        idx, runtime::graphics::resource_state::depth_target, _render);
   }
 
-  _list->begin_render_pass(m_render_pass.get(), &it->second,
+  _render->begin_render_pass(m_render_pass.get(), &it->second,
       {0, 0, static_cast<uint32_t>(m_width), static_cast<uint32_t>(m_height)},
       clears);
-  // DO STUFF HERE
-  _list->end_render_pass();
+
+  for (auto& renderable : m_renderables) {
+    renderable->render(this, _setup, _render);
+  }
+
+  _render->end_render_pass();
 }
 
 }  // namespace renderer

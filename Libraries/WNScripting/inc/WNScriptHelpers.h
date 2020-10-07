@@ -81,6 +81,13 @@ public:
   size_t size() {
     return size_values[0];
   }
+
+  T* begin() {
+    return _value;
+  }
+  T* end() {
+    return _value + size_values[0] + 1;
+  }
 };
 
 template <typename T, size_t S>
@@ -112,6 +119,12 @@ public:
         reinterpret_cast<uint8_t*>(nT) + size_values[1] * i);
     memory::memory_copy(&new_values[0], &size_values[2], N_Vals - 2);
     return slice<T, S - 1>(nT, new_values);
+  }
+  T* begin() {
+    return _value;
+  }
+  T* end() {
+    return _value + size_values[0] + 1;
   }
 };
 

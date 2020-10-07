@@ -16,7 +16,7 @@
 #include "WNMemory/inc/unique_ptr.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/inc/externals.h"
-#include "WNScripting/inc/resource.h"
+#include "WNScripting/inc/resource_manager.h"
 
 namespace wn {
 namespace scripting {
@@ -332,13 +332,14 @@ public:
   // Although not strictly required, it is generally expected that
   //   multpile calls with the same parameter data will give the
   //   same identifier.
-  bool register_resource_type(const ast_type* _type, resource* resource);
+  bool register_resource_type(
+      const ast_type* _type, resource_manager* resource);
 
   // get_resource tries to find the resource of the given name with the given
   //  resource data.
   // If the name or data is invalid, this is ignored.
   const ast_type* get_resource(containers::string_view resource_name,
-      containers::string_view resource_data, void** data);
+      containers::string_view resource_data, containers::string* data);
 
   struct named_constant {
     containers::string _value;
@@ -423,7 +424,7 @@ private:
 
   struct res_type {
     const ast_type* type;
-    resource* m_resource;
+    resource_manager* m_resource;
   };
 
   containers::hash_map<containers::string, res_type> m_resource_types;

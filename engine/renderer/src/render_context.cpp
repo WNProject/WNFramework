@@ -20,9 +20,13 @@ using wn::scripting::shared_cpp_pointer;
 
 using namespace wn;
 
-// TODO(awoloszyn): Make this configurable.
+// TODO(awoloszyn): Make this configurable, or resizable at least
 const size_t kRendertargetHeapSize =
     1024 * 1024 * 128;  // 128MB rendertarget heap.
+const size_t kGPUBufferHeapSize = 1024 * 1024 * 128;      // 128MB buffer heap;
+const size_t kUploadBufferHeapSize = 1024 * 1024 * 128;   // 128MB upload heap;
+const size_t kTextureBufferHeapSize = 1024 * 1024 * 256;  // 256MB texture heap;
+
 const uint32_t kNumDefaultBackings = 2;
 
 // First let us export the renderer to scripting.
@@ -231,13 +235,16 @@ render_context::render_context(memory::allocator* _allocator,
     m_factory(m_allocator, m_log),
     m_command_allocators(m_allocator),
     m_command_lists(m_allocator),
+    m_setup_command_allocators(m_allocator),
+    m_setup_command_lists(m_allocator),
     m_frame_fences(m_allocator),
     m_swapchain_get_signals(m_allocator),
     m_swapchain_ready_signals(m_allocator),
     m_swapchain_image_initialized(m_allocator),
     m_render_targets(_allocator),
     m_render_passes(_allocator),
-    m_render_pass_names(_allocator) {
+    m_render_pass_names(_allocator),
+    m_renderables(_allocator) {
   if (_window) {
     m_log->log_info("Created Renderer With Window");
   } else {
@@ -261,14 +268,38 @@ render_context::render_context(memory::allocator* _allocator,
   m_arena_properties = m_device->get_arena_properties();
   for (uint32_t i = 0; i < m_arena_properties.size(); ++i) {
     if (m_arena_properties[i].allow_render_targets &&
-        m_arena_properties[i].device_local) {
+        m_arena_properties[i].device_local && !m_render_target_heap) {
       m_render_target_heap = memory::make_unique<gpu_heap>(
           m_allocator, m_allocator, m_device.get(), i, kRendertargetHeapSize);
-      break;
+    }
+    if (m_arena_properties[i].allow_buffers &&
+        m_arena_properties[i].device_local && !m_buffer_heap) {
+      m_buffer_heap = memory::make_unique<gpu_heap>(
+          m_allocator, m_allocator, m_device.get(), i, kGPUBufferHeapSize);
+    }
+    if (m_arena_properties[i].allow_buffers &&
+        m_arena_properties[i].host_visible && !m_upload_heap) {
+      m_upload_heap = memory::make_unique<gpu_heap>(
+          m_allocator, m_allocator, m_device.get(), i, kUploadBufferHeapSize);
+    }
+    if (m_arena_properties[i].allow_images &&
+        m_arena_properties[i].device_local && !m_texture_heap) {
+      m_texture_heap = memory::make_unique<gpu_heap>(
+          m_allocator, m_allocator, m_device.get(), i, kUploadBufferHeapSize);
     }
   }
   if (!m_render_target_heap) {
-    m_log->log_error("Could not create window for adapter", _forced_adapter);
+    m_log->log_error("Could not create RenderTarget Heap", _forced_adapter);
+    return;
+  }
+
+  if (!m_buffer_heap) {
+    m_log->log_error("Could not create Buffer Heap", _forced_adapter);
+    return;
+  }
+  if (!m_upload_heap) {
+    m_log->log_error("Could not create Upload Heap", _forced_adapter);
+    return;
   }
 
   // TODO(awoloszyn): Figure out nil surface (or something),
@@ -298,8 +329,9 @@ render_context::render_context(memory::allocator* _allocator,
 
   for (size_t i = 0; i < kNumDefaultBackings; ++i) {
     m_command_allocators.push_back(m_device->create_command_allocator());
-    m_command_lists.push_back(
-        m_command_allocators.back().create_command_list());
+    m_command_lists.push_back(runtime::graphics::command_list_ptr());
+    m_setup_command_allocators.push_back(m_device->create_command_allocator());
+    m_setup_command_lists.push_back(runtime::graphics::command_list_ptr());
     m_frame_fences.push_back(m_device->create_fence());
     m_swapchain_get_signals.push_back(m_device->create_signal());
     m_swapchain_ready_signals.push_back(m_device->create_signal());
@@ -479,9 +511,41 @@ gpu_allocation render_context::get_allocation_for_render_target(
   return m_render_target_heap->allocate_memory(_size, _alignment);
 }
 
+gpu_allocation render_context::get_allocation_for_buffer(
+    uint64_t _size, uint64_t _alignment) {
+  return m_buffer_heap->allocate_memory(_size, _alignment);
+}
+
+gpu_allocation render_context::get_allocation_for_upload(
+    uint64_t _size, uint64_t _alignment) {
+  return m_upload_heap->allocate_memory(_size, _alignment);
+}
+
+gpu_allocation render_context::get_allocation_for_texture(
+    uint64_t _size, uint64_t _alignment) {
+  return m_texture_heap->allocate_memory(_size, _alignment);
+}
+
 void render_context::add_renderable_to_passes(
-    scripting::shared_cpp_pointer<renderable_object>,
-    scripting::slice<const char*>) {}
+    scripting::shared_cpp_pointer<renderable_object> _obj,
+    scripting::slice<const char*> _passes) {
+  bool added_at_least_once = false;
+  for (auto& i : _passes) {
+    // TODO(awoloszyn): Can do much better here
+    for (size_t rp = 0; rp < m_render_pass_names.size(); ++rp) {
+      if (m_render_pass_names[rp] == i) {
+        auto& pass = m_render_passes[rp];
+        _obj->initialize_for_renderpass(this, &pass);
+        pass.add_renderable_object(_obj);
+        added_at_least_once = true;
+        break;
+      }
+    }
+  }
+  if (added_at_least_once) {
+    m_renderables.push_back(_obj);
+  }
+}
 
 bool render_context::render() {
   // TODO(awoloszyn): I don't like this tick, but it will do for now.
@@ -492,16 +556,28 @@ bool render_context::render() {
     m_frame_fences[backing_idx].reset();
   }
 
-  m_command_lists[backing_idx].reset();
+  // m_command_lists[backing_idx].reset();
   m_command_allocators[backing_idx].reset();
   m_command_lists[backing_idx] =
       m_command_allocators[backing_idx].create_command_list();
 
+  // m_setup_command_lists[backing_idx].reset();
+  m_setup_command_allocators[backing_idx].reset();
+  m_setup_command_lists[backing_idx] =
+      m_setup_command_allocators[backing_idx].create_command_list();
+
+  auto* setup_list = m_setup_command_lists[backing_idx].get();
+  for (auto& renderable : m_renderables) {
+    renderable->update_render_data(backing_idx, setup_list);
+  }
+
   auto* cmd_list = m_command_lists[backing_idx].get();
 
   for (size_t i = 0; i < m_render_passes.size(); ++i) {
-    m_render_passes[i].render(m_frame_num, cmd_list);
+    m_render_passes[i].render(this, m_frame_num, setup_list, cmd_list);
   }
+  setup_list->finalize();
+  m_queue->enqueue_command_lists({setup_list}, {}, nullptr, {});
 
   auto output_img_idx =
       m_render_targets[m_output_rt].get_index_for_frame(m_frame_num);
@@ -550,7 +626,7 @@ bool render_context::render() {
         static_cast<runtime::graphics::image_components>(
             runtime::graphics::image_component::color),
         0, 1, runtime::graphics::resource_state::present,
-        runtime::graphics::resource_state::copy_dest);
+        runtime::graphics::resource_state::blit_dest);
 
   } else {
     m_swapchain_image_initialized[swap_idx] = true;
@@ -558,15 +634,17 @@ bool render_context::render() {
         static_cast<runtime::graphics::image_components>(
             runtime::graphics::image_component::color),
         0, 1, runtime::graphics::resource_state::initial,
-        runtime::graphics::resource_state::copy_dest);
+        runtime::graphics::resource_state::blit_dest);
   }
 
-  cmd_list->copy_image(*output_img, 0, *swap_img, 0);
+  // We use a blit image here in case the swapchain image format does
+  // not match the render image format.
+  cmd_list->blit_image(*output_img, 0, *swap_img, 0);
 
   cmd_list->transition_resource(*swap_img,
       static_cast<runtime::graphics::image_components>(
           runtime::graphics::image_component::color),
-      0, 1, runtime::graphics::resource_state::copy_dest,
+      0, 1, runtime::graphics::resource_state::blit_dest,
       runtime::graphics::resource_state::present);
 
   cmd_list->transition_resource(*output_img,
@@ -588,6 +666,8 @@ bool render_context::render() {
       m_queue.get(), &m_swapchain_ready_signals[backing_idx], swap_idx);
 
   m_frame_num++;
+  m_log->flush();
+
   return false;
 }
 

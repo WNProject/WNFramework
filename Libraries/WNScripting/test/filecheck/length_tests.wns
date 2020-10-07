@@ -25,6 +25,6 @@ Int foo2(Int y) {
 // RUN: bar 22 -> 11
 Int bar(Int y) {
   CString str = "Hello World";
-// CHECK: _return = _ZN3wns11_wns_strlenEiFE(str);
+// CHECK: _return = _ZN3wns11_wns_strlenEiPh(str);
   return length(str);
 }
