@@ -9,6 +9,7 @@
 #include "Rocket/Debugger/Debugger.h"
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNScripting/inc/WNEngine.h"
+#include "WNWindow/inc/WNWindow.h"
 #include "engine_base/inc/context.h"
 #include "ui/inc/ui_data.h"
 #include "ui/inc/ui_rocket_interop.h"
@@ -17,6 +18,99 @@
 
 using namespace wn::engine;
 using namespace wn::runtime::graphics;
+
+namespace {
+
+int get_key_modifier_state(wn::runtime::window::window* _window) {
+  bool ctrl =
+      _window->get_key_state(wn::runtime::window::key_code::key_lctrl) ||
+      _window->get_key_state(wn::runtime::window::key_code::key_rctrl) ||
+      _window->get_key_state(wn::runtime::window::key_code::key_any_ctrl);
+
+  bool alt = _window->get_key_state(wn::runtime::window::key_code::key_lalt) ||
+             _window->get_key_state(wn::runtime::window::key_code::key_ralt) ||
+             _window->get_key_state(wn::runtime::window::key_code::key_any_alt);
+
+  bool shift =
+      _window->get_key_state(wn::runtime::window::key_code::key_lshift) ||
+      _window->get_key_state(wn::runtime::window::key_code::key_rshift) ||
+      _window->get_key_state(wn::runtime::window::key_code::key_any_shift);
+
+  return Rocket::Core::Input::KeyModifier::KM_CTRL * ctrl +
+         Rocket::Core::Input::KeyModifier::KM_ALT * alt +
+         Rocket::Core::Input::KeyModifier::KM_SHIFT * shift;
+}
+
+Rocket::Core::Input::KeyIdentifier key_code_to_key_index(
+    wn::runtime::window::key_code _key_code) {
+  if (_key_code >= wn::runtime::window::key_code::key_0 &&
+      _key_code <= wn::runtime::window::key_code::key_9) {
+    return static_cast<Rocket::Core::Input::KeyIdentifier>(
+        Rocket::Core::Input::KeyIdentifier::KI_0 + static_cast<int>(_key_code) -
+        static_cast<int>(wn::runtime::window::key_code::key_0));
+  }
+  if (_key_code >= wn::runtime::window::key_code::key_a &&
+      _key_code <= wn::runtime::window::key_code::key_z) {
+    return static_cast<Rocket::Core::Input::KeyIdentifier>(
+        Rocket::Core::Input::KeyIdentifier::KI_A + static_cast<int>(_key_code) -
+        static_cast<int>(wn::runtime::window::key_code::key_a));
+  }
+  if (_key_code >= wn::runtime::window::key_code::key_num_0 &&
+      _key_code <= wn::runtime::window::key_code::key_num_9) {
+    return static_cast<Rocket::Core::Input::KeyIdentifier>(
+        Rocket::Core::Input::KeyIdentifier::KI_NUMPAD0 +
+        static_cast<int>(_key_code) -
+        static_cast<int>(wn::runtime::window::key_code::key_num_0));
+  }
+
+  switch (_key_code) {
+    case wn::runtime::window::key_code::key_space:
+      return Rocket::Core::Input::KeyIdentifier::KI_SPACE;
+    case wn::runtime::window::key_code::key_lshift:
+      return Rocket::Core::Input::KeyIdentifier::KI_LSHIFT;
+    case wn::runtime::window::key_code::key_rshift:
+      return Rocket::Core::Input::KeyIdentifier::KI_RSHIFT;
+    case wn::runtime::window::key_code::key_lctrl:
+      return Rocket::Core::Input::KeyIdentifier::KI_LCONTROL;
+    case wn::runtime::window::key_code::key_rctrl:
+      return Rocket::Core::Input::KeyIdentifier::KI_RCONTROL;
+    case wn::runtime::window::key_code::key_lalt:
+      return Rocket::Core::Input::KeyIdentifier::KI_LMENU;
+    case wn::runtime::window::key_code::key_ralt:
+      return Rocket::Core::Input::KeyIdentifier::KI_RMENU;
+    case wn::runtime::window::key_code::key_backspace:
+      return Rocket::Core::Input::KeyIdentifier::KI_BACK;
+    case wn::runtime::window::key_code::key_del:
+      return Rocket::Core::Input::KeyIdentifier::KI_DELETE;
+    case wn::runtime::window::key_code::key_left:
+      return Rocket::Core::Input::KeyIdentifier::KI_LEFT;
+    case wn::runtime::window::key_code::key_right:
+      return Rocket::Core::Input::KeyIdentifier::KI_RIGHT;
+    case wn::runtime::window::key_code::key_up:
+      return Rocket::Core::Input::KeyIdentifier::KI_UP;
+    case wn::runtime::window::key_code::key_down:
+      return Rocket::Core::Input::KeyIdentifier::KI_DOWN;
+    case wn::runtime::window::key_code::key_tab:
+      return Rocket::Core::Input::KeyIdentifier::KI_TAB;
+    default:
+      return Rocket::Core::Input::KeyIdentifier::KI_UNKNOWN;
+  }
+}
+
+int mouse_button_to_index(wn::runtime::window::mouse_button _button) {
+  switch (_button) {
+    case wn::runtime::window::mouse_button::mouse_l:
+      return 0;
+    case wn::runtime::window::mouse_button::mouse_r:
+      return 1;
+    case wn::runtime::window::mouse_button::mouse_m:
+      return 2;
+    default:
+      return -1;
+  }
+}
+
+}  // namespace
 namespace wn {
 namespace engine {
 namespace ui {
@@ -37,7 +131,8 @@ void ui::initialize_for_renderpass(
       allocator, m_context->m_log, m_context->m_file_mapping);
   m_system_interface = memory::make_unique<rocket_system_interface>(
       allocator, m_context->m_log, _renderer->get_window()->underlying());
-
+  m_window = _renderer->get_window()->underlying();
+  m_input_context = m_window->get_input_context();
   Rocket::Core::SetRenderInterface(m_rocket_context.get(), m_renderer.get());
   Rocket::Core::SetSystemInterface(
       m_rocket_context.get(), m_system_interface.get());
@@ -69,6 +164,44 @@ void ui::initialize_for_renderpass(
 }
 
 void ui::update_render_data(size_t _frame_parity, command_list* _cmd_list) {
+  wn::runtime::window::input_event evt;
+  int key_modifier_state = get_key_modifier_state(m_window);
+  while (m_input_context->get_event(&evt)) {
+    switch (evt.type()) {
+      case wn::runtime::window::event_type::key_down:
+        m_document_context->ProcessKeyDown(
+            key_code_to_key_index(evt.get_keycode()), key_modifier_state);
+        if (evt.get_keycode() == runtime::window::key_code::key_l &&
+            m_window->get_key_state(runtime::window::key_code::key_any_ctrl)) {
+          m_debugger_visible ^= true;
+          Rocket::Debugger::SetVisible(
+              m_rocket_context.get(), m_debugger_visible);
+        }
+        break;
+      case wn::runtime::window::event_type::key_up:
+        m_document_context->ProcessKeyUp(
+            key_code_to_key_index(evt.get_keycode()), key_modifier_state);
+        break;
+      case wn::runtime::window::event_type::mouse_down:
+        m_document_context->ProcessMouseButtonDown(
+            mouse_button_to_index(evt.get_mouse_button()), key_modifier_state);
+        break;
+      case wn::runtime::window::event_type::mouse_up:
+        m_document_context->ProcessMouseButtonUp(
+            mouse_button_to_index(evt.get_mouse_button()), key_modifier_state);
+        break;
+      case wn::runtime::window::event_type::mouse_move:
+        m_document_context->ProcessMouseMove(
+            static_cast<int>(evt.get_mouse_x()),
+            static_cast<int>(evt.get_mouse_y()), key_modifier_state);
+        break;
+      case wn::runtime::window::event_type::text_input:
+        m_document_context->ProcessTextInput(
+            static_cast<Rocket::Core::word>(evt.get_character()));
+        break;
+    }
+  }
+
   m_renderer->set_setup_command_list(_cmd_list);
   m_renderer->set_render_command_list(nullptr);
   m_renderer->start_frame(static_cast<size_t>(1) << _frame_parity);

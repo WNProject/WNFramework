@@ -200,38 +200,6 @@ private:
     m_next = nullptr;
     return true;
   }
-
-  WN_FORCE_INLINE partition_node<T_SIZE>* merge_left() {
-    WN_DEBUG_ASSERT(m_next_free, "Cannot merge wiht previous non-free block");
-    if (m_previous && m_previous->m_next_free) {
-      partition_node<T_SIZE>* p = m_previous;
-      m_next_free = m_previous->m_next_free;
-      m_size += m_previous->m_size;
-      m_previous = m_previous->m_previous;
-      if (m_previous) {
-        m_previous->m_next = this;
-      }
-      return p;
-    }
-    return nullptr;
-  }
-
-  partition_node<T_SIZE>* merge_right() {
-    WN_DEBUG_ASSERT(m_next_free, "Cannot merge wiht previous non-free block");
-    if (m_next && m_next->m_next_free) {
-      partition_node<T_SIZE>* n = m_next;
-      m_next_free = m_next->m_next_free;
-      m_size += m_next->m_size;
-
-      m_next = m_next->m_next;
-      if (m_next) {
-        m_next->m_previous = this;
-      }
-
-      return n;
-    }
-    return nullptr;
-  }
 };
 
 template <typename T_SIZE>
@@ -341,16 +309,6 @@ inline void range_partition<NodeAllocator, T_SIZE>::release_interval(
     m_used_space -= token.size();
     token.node->m_next_free = m_free_list;
     m_free_list = token.node;
-    partition_node<T_SIZE>* node;
-    if (0 != (node = m_free_list->merge_left())) {
-      if (!node->m_previous) {
-        m_node = m_free_list;
-      }
-      m_node_allocator.free_node(node);
-    }
-    if (0 != (node = m_free_list->merge_right())) {
-      m_node_allocator.free_node(node);
-    }
   }
   token.list = nullptr;
 }
