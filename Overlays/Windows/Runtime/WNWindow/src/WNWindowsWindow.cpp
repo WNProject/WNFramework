@@ -112,8 +112,14 @@ void windows_window::dispatch_loop(RECT rect) {
   m_signal.increment(1);
 }
 
-void windows_window::process_callback(UINT, LPARAM, WPARAM) {
-  // Handle events here: Resize etc.
+void windows_window::process_callback(UINT wm, WPARAM wp, LPARAM lp) {
+  (void)wp;
+  switch (wm) {
+    case WM_SIZE:
+      m_width = LOWORD(lp);
+      m_height = HIWORD(lp);
+      break;
+  }
 }
 
 inline key_code wm_code_to_keycode(WPARAM wparam) {
@@ -176,7 +182,7 @@ LRESULT CALLBACK windows_window::wnd_proc(
   windows_window* window =
       reinterpret_cast<windows_window*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
   if (window) {
-    window->process_callback(uMsg, lParam, wParam);
+    window->process_callback(uMsg, wParam, lParam);
   }
 
   switch (uMsg) {

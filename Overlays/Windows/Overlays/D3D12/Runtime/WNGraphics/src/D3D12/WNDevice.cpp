@@ -648,7 +648,8 @@ swapchain_ptr d3d12_device::create_swapchain(
 }
 
 swapchain_ptr d3d12_device::recreate_swapchain(surface& _surface,
-    swapchain_ptr _old_swapchain, const swapchain_create_info& _info, queue*) {
+    swapchain_ptr _old_swapchain, const swapchain_create_info& _info,
+    queue* _queue) {
   swapchain_create_info* last_info = &_old_swapchain->m_create_info;
   WN_RELEASE_ASSERT(_info.discard == last_info->discard,
       "Discard mode must match when recreating a swapchain");
@@ -663,6 +664,16 @@ swapchain_ptr d3d12_device::recreate_swapchain(surface& _surface,
   }
   d3d12_swapchain* swp =
       static_cast<d3d12_swapchain_constructable*>(_old_swapchain.get());
+  // In order to recreate the D3D12 swapchain, we first have to
+  // flush any queue on which it may be used, and clear all of the images
+  // in question.
+  fence f = create_fence();
+  _queue->enqueue_fence(f);
+  wait_fence(&f);
+  for (auto& i : swp->m_images) {
+    get_data(&i)->image->Release();
+  }
+
   HRESULT hr = swp->m_swapchain->ResizeBuffers(_info.num_buffers,
       static_cast<uint32_t>(capabilities.width),
       static_cast<uint32_t>(capabilities.height),

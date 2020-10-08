@@ -110,6 +110,13 @@ public:
     acquire();
   }
 
+  shared_script_pointer& operator=(const shared_script_pointer& _other) {
+    val = _other.val;
+    type = _other.type;
+    acquire();
+    return *this;
+  }
+
   shared_script_pointer(shared_script_pointer&& _other)
     : val(_other.val), type(_other.type) {
     _other.val = nullptr;
@@ -402,20 +409,33 @@ public:
   size_t size() const {
     return m_ptr->size();
   }
-  /*
-  T* begin() {
-    if (ptr->size() == 0) {
-      return nullptr;
-    }
-    return &(*ptr)[0];
+};
+
+template <typename T>
+struct wn_array<shared_script_pointer<T>> final {
+public:
+  wn_array(void* v) : m_ptr(reinterpret_cast<wn_array_data<void*>*>(v)) {}
+  wn_array_data<void*>* m_ptr;
+  T* m_type;
+
+  void unsafe_set_type(T* _type) {
+    m_type = _type;
+  }
+  shared_script_pointer<T> operator[](size_t i) {
+    shared_script_pointer<T> t((*m_ptr)[i]);
+    t.unsafe_set_type(m_type);
+    return core::move(t);
   }
 
-  T* end() {
-    if (ptr->size() == 0) {
-      return nullptr;
-    }
-    return &(ptr->[ptr->size() - 1]) + 1;
-  }*/
+  const shared_script_pointer<T> operator[](size_t i) const {
+    shared_script_pointer<T> t((*m_ptr)[i]);
+    t.unsafe_set_type(m_type);
+    return core::move(t);
+  }
+
+  size_t size() const {
+    return m_ptr->size();
+  }
 };
 
 }  // namespace scripting

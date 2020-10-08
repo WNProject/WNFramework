@@ -28,8 +28,8 @@ render_pass::render_pass(memory::allocator* _allocator, logging::log* _log,
       _depth_attachment.format != runtime::graphics::data_format::max;
   // TODO(awoloszyn): Instead of creating framebuffers on-demand,
   //    actually figure out what they should all be before-hand.
-  m_width = m_render_targets[0]->get_image(0)->get_width();
-  m_height = m_render_targets[0]->get_image(0)->get_height();
+  m_width = m_render_targets[0]->get_width();
+  m_height = m_render_targets[0]->get_height();
 
   WN_DEBUG_ASSERT(
       _attachments.size() + m_has_depth_target == m_render_targets.size(),
@@ -39,8 +39,8 @@ render_pass::render_pass(memory::allocator* _allocator, logging::log* _log,
   for (uint32_t i = 0; i < m_render_targets.size() - m_has_depth_target; ++i) {
     color_attachments.push_back(
         {i, runtime::graphics::resource_state::render_target});
-    if (m_render_targets[i]->get_image(0)->get_width() != m_width ||
-        m_render_targets[i]->get_image(0)->get_height() != m_height) {
+    if (m_render_targets[i]->get_width() != m_width ||
+        m_render_targets[i]->get_height() != m_height) {
       _log->log_error(
           "Renderpasses can only act on rendertargets of the same size");
     }
@@ -79,7 +79,7 @@ void render_pass::render(render_context* _context, uint64_t _frame_idx,
 
   for (auto& rt : m_render_targets) {
     auto idx = rt->get_index_for_frame(_frame_idx);
-    views.push_back(rt->get_image_view(idx));
+    views.push_back(rt->get_image_view_for_index(idx));
   }
 
   auto it = m_framebuffers.find(views);
@@ -88,16 +88,50 @@ void render_pass::render(render_context* _context, uint64_t _frame_idx,
         m_render_pass.get(),
         containers::contiguous_range<const runtime::graphics::image_view*>(
             views.data(), views.size()),
-        static_cast<uint32_t>(m_render_targets[0]->get_image(0)->get_width()),
-        static_cast<uint32_t>(m_render_targets[0]->get_image(0)->get_height()),
+        static_cast<uint32_t>(m_render_targets[0]->get_width()),
+        static_cast<uint32_t>(m_render_targets[0]->get_height()),
         1,
     };
 
     runtime::graphics::framebuffer fb = m_device->create_framebuffer(inf);
+
+    containers::dynamic_array<uint64_t> generations(m_allocator);
+    for (auto& rt : m_render_targets) {
+      generations.push_back(rt->get_generation());
+    }
     bool success = false;
-    std::tie(it, success) =
-        m_framebuffers.insert(core::move(views), core::move(fb));
+    std::tie(it, success) = m_framebuffers.insert(core::move(views),
+        framebuffer_data{core::move(generations), core::move(fb)});
     WN_DEBUG_ASSERT(success, "Somehow insertion failed.");
+  } else {
+    bool recreate = false;
+    for (size_t i = 0; i < m_render_targets.size(); ++i) {
+      if (it->second.m_generations[i] !=
+          m_render_targets[i]->get_generation()) {
+        recreate = true;
+        break;
+      }
+    }
+    if (recreate) {
+      m_width = m_render_targets[0]->get_width();
+      m_height = m_render_targets[0]->get_height();
+
+      runtime::graphics::framebuffer_create_info inf = {
+          m_render_pass.get(),
+          containers::contiguous_range<const runtime::graphics::image_view*>(
+              views.data(), views.size()),
+          static_cast<uint32_t>(m_render_targets[0]->get_width()),
+          static_cast<uint32_t>(m_render_targets[0]->get_height()),
+          1,
+      };
+
+      runtime::graphics::framebuffer fb = m_device->create_framebuffer(inf);
+      containers::dynamic_array<uint64_t> generations(m_allocator);
+      for (size_t i = 0; i < m_render_targets.size(); ++i) {
+        it->second.m_generations[i] = m_render_targets[i]->get_generation();
+      }
+      it->second.m_framebuffer = core::move(fb);
+    }
   }
 
   containers::dynamic_array<runtime::graphics::clear_value> clears(m_allocator);
@@ -125,7 +159,7 @@ void render_pass::render(render_context* _context, uint64_t _frame_idx,
         idx, runtime::graphics::resource_state::depth_target, _render);
   }
 
-  _render->begin_render_pass(m_render_pass.get(), &it->second,
+  _render->begin_render_pass(m_render_pass.get(), &it->second.m_framebuffer,
       {0, 0, static_cast<uint32_t>(m_width), static_cast<uint32_t>(m_height)},
       clears);
 

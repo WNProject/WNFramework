@@ -38,6 +38,9 @@ public:
   descriptor_set_layout() : m_device(nullptr) {}
 
   descriptor_set_layout& operator=(descriptor_set_layout&& _other) {
+    if (m_device) {
+      m_device->destroy_descriptor_set_layout(this);
+    }
     m_device = _other.m_device;
     _other.m_device = nullptr;
 
@@ -71,6 +74,9 @@ public:
 
   descriptor_set() : m_device(nullptr) {}
   descriptor_set& operator=(descriptor_set&& _other) {
+    if (m_device) {
+      m_device->destroy_descriptor_set(this);
+    }
     m_device = _other.m_device;
     _other.m_device = nullptr;
     memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
@@ -118,6 +124,9 @@ public:
 
   descriptor_pool() : m_device(nullptr) {}
   descriptor_pool& operator=(descriptor_pool&& _other) {
+    if (m_device) {
+      m_device->destroy_descriptor_pool(this);
+    }
     m_device = _other.m_device;
     _other.m_device = nullptr;
 
@@ -158,6 +167,9 @@ public:
   pipeline_layout() : m_device(nullptr) {}
 
   pipeline_layout& operator=(pipeline_layout&& _other) {
+    if (m_device) {
+      m_device->destroy_pipeline_layout(this);
+    }
     m_device = _other.m_device;
     _other.m_device = nullptr;
     memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));

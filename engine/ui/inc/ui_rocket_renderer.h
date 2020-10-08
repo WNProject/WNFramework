@@ -75,6 +75,9 @@ public:
 
   void start_frame(size_t _parity);
 
+  size_t get_width();
+  size_t get_height();
+
 private:
   memory::allocator* m_allocator;
   Rocket::Core::Context* m_rocket_context;

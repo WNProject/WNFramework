@@ -71,6 +71,8 @@ private:
   Rocket::Core::DocumentContext* m_document_context;
   Rocket::Core::ElementDocument* m_document;
   bool m_debugger_visible = false;
+  int m_width = 0;
+  int m_height = 0;
 };
 
 }  // namespace ui

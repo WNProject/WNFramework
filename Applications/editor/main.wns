@@ -6,32 +6,35 @@ include "renderer/render_data.wns"
 include "renderer/render_description.wns"
 
 class MyPass : PassData {
-  .render_targets = RenderTargetUsage[](
+  .render_targets = shared RenderTargetUsage[](
     RenderTargetUsage(0, clear_mode_clear, store_mode_store)
   );
   .depth_target = RenderTargetUsage(1, clear_mode_clear, store_mode_dont_care);
   .pass_name = "Initial Pass";
 }
 
-class MainTarget: RTDescription(RenderContext renderer) {
+class MainTarget: RTDescription(shared RenderContext rnd) {
   .name = "MainRT";
-  .width = renderer.width();
-  .height = renderer.height();
   .format = format_r8g8b8a8_unorm;
+  shared RenderContext renderer = rnd;
+  override Int get_width() {
+    return renderer.width();
+  }
+  override Int get_height() {
+    return renderer.height();
+  }
 }
 
-class DepthTarget: RTDescription(RenderContext renderer) {
+class DepthTarget: MainTarget(RenderContext rnd) {
   .name = "DepthRT";
-  .width = renderer.width();
-  .height = renderer.height();
   .format = format_d32_float;
   .depth = true;
 }
 
-class MainDesc: RenderDescription(RenderContext renderer) {
-  .render_targets = RTDescription[](
-    MainTarget(renderer),
-    DepthTarget(renderer)
+class MainDesc: RenderDescription(shared RenderContext rnd) {
+  .render_targets = shared RTDescription[](
+    shared MainTarget(rnd),
+    shared DepthTarget(rnd)
   );
   .passes = PassData[](MyPass());
   .output_target = 0;

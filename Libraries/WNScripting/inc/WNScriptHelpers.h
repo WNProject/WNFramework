@@ -291,6 +291,14 @@ inline wn_array<script_pointer<T>>& fixup_return_type(
   return t;
 }
 
+template <typename T>
+inline wn_array<shared_script_pointer<T>>& fixup_return_type(
+    wn_array<shared_script_pointer<T>>& t) {
+  t.unsafe_set_type(reinterpret_cast<T*>(
+      (*g_scripting_tls->_object_types)[core::type_id<T>::value()].get()));
+  return t;
+}
+
 // Simple helper that parses a script and runs any
 // passes that are required to make the AST valid.
 // _handle_include is a callback that is called when an #include

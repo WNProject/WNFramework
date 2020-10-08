@@ -351,6 +351,14 @@ void rocket_renderer::start_frame(size_t _parity) {
   m_last_pipeline_layout = nullptr;
 }
 
+size_t rocket_renderer::get_width() {
+  return m_render_pass->get_width();
+}
+
+size_t rocket_renderer::get_height() {
+  return m_render_pass->get_height();
+}
+
 }  // namespace ui
 }  // namespace engine
 }  // namespace wn

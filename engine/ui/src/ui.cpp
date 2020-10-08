@@ -133,6 +133,9 @@ void ui::initialize_for_renderpass(
       allocator, m_context->m_log, _renderer->get_window()->underlying());
   m_window = _renderer->get_window()->underlying();
   m_input_context = m_window->get_input_context();
+  m_width = static_cast<int>(_render_pass->get_width());
+  m_height = static_cast<int>(_render_pass->get_height());
+
   Rocket::Core::SetRenderInterface(m_rocket_context.get(), m_renderer.get());
   Rocket::Core::SetSystemInterface(
       m_rocket_context.get(), m_system_interface.get());
@@ -143,8 +146,7 @@ void ui::initialize_for_renderpass(
 
   m_document_context =
       Rocket::Core::CreateDocumentContext(m_rocket_context.get(), "main",
-          Rocket::Core::Vector2i(static_cast<int>(_render_pass->get_width()),
-              static_cast<int>(_render_pass->get_height())));
+          Rocket::Core::Vector2i(m_width, m_height));
 
   Rocket::Core::FontDatabase::LoadFontFace(m_rocket_context.get(),
       "assets/fonts/FiraCode-Regular.ttf", "Fira Code",
@@ -205,6 +207,9 @@ void ui::update_render_data(size_t _frame_parity, command_list* _cmd_list) {
   m_renderer->set_setup_command_list(_cmd_list);
   m_renderer->set_render_command_list(nullptr);
   m_renderer->start_frame(static_cast<size_t>(1) << _frame_parity);
+  m_width = static_cast<int>(m_renderer->get_width());
+  m_height = static_cast<int>(m_renderer->get_height());
+  m_document_context->SetDimensions(Rocket::Core::Vector2i(m_width, m_height));
   m_document_context->Update();
   // Just make sure this doesnt get kept there
   m_renderer->set_setup_command_list(nullptr);

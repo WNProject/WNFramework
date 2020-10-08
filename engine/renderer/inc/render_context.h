@@ -86,6 +86,9 @@ private:
   int32_t m_height;
   int32_t m_output_rt;
   uint64_t m_frame_num = 0;
+  uint64_t m_last_up_to_date_frame = 0;
+  int32_t m_last_up_to_date_width = 0;
+  int32_t m_last_up_to_date_height = 0;
 
   runtime::graphics::adapter_ptr m_adapter;
   runtime::graphics::factory m_factory;

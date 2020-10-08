@@ -37,6 +37,9 @@ public:
 
   image_view() : m_device(nullptr) {}
   WN_FORCE_INLINE image_view& operator=(image_view&& _other) {
+    if (m_device) {
+      m_device->destroy_image_view(this);
+    }
     m_device = _other.m_device;
     m_components = _other.m_components;
     _other.m_device = nullptr;

@@ -35,10 +35,10 @@ public:
     m_renderables.push_back(object);
   }
 
-  uint64_t get_width() {
+  size_t get_width() {
     return m_width;
   }
-  uint64_t get_height() {
+  size_t get_height() {
     return m_height;
   }
   runtime::graphics::render_pass* get_render_pass() {
@@ -48,10 +48,13 @@ public:
 private:
   memory::allocator* m_allocator;
   runtime::graphics::device* m_device;
-
+  struct framebuffer_data {
+    containers::dynamic_array<uint64_t> m_generations;
+    runtime::graphics::framebuffer m_framebuffer;
+  };
   containers::hash_map<
       containers::dynamic_array<const runtime::graphics::image_view*>,
-      runtime::graphics::framebuffer,
+      framebuffer_data,
       containers::dynamic_array_hasher<const runtime::graphics::image_view*>,
       containers::dynamic_array_equality<const runtime::graphics::image_view*>>
       m_framebuffers;
