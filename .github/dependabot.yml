@@ -8,3 +8,13 @@ updates:
     labels:
       - auto
       - dependencies
+  - package-ecosystem: gitsubmodule
+    directory: /
+    schedule:
+      interval: daily
+    rebase-strategy: auto
+    labels:
+      - auto
+      - dependencies
+    allow:
+      - dependency-name: '*googletest'
