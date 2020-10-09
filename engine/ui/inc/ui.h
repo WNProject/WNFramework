@@ -8,6 +8,7 @@
 #define __WN_ENGINE_UI_H__
 
 #include "Rocket/Core.h"
+#include "WNWindow/inc/WNInputContext.h"
 #include "renderer/inc/renderable_object.h"
 #include "ui/inc/ui_data.h"
 #include "ui/inc/ui_rocket_interop.h"
@@ -59,6 +60,8 @@ private:
   engine_base::context* m_context;
   scripting::engine* m_engine;
   scripting::shared_script_pointer<ui_data> m_data;
+  runtime::window::window* m_window = nullptr;
+  runtime::window::input_context* m_input_context;
   memory::unique_ptr<rocket_renderer> m_renderer;
   memory::unique_ptr<rocket_file_interface> m_file_interface;
   memory::unique_ptr<rocket_system_interface> m_system_interface;
@@ -67,6 +70,7 @@ private:
   memory::unique_ptr<Rocket::Core::Context> m_rocket_context;
   Rocket::Core::DocumentContext* m_document_context;
   Rocket::Core::ElementDocument* m_document;
+  bool m_debugger_visible = false;
 };
 
 }  // namespace ui

@@ -21,6 +21,7 @@ namespace ui {
 
 class ui_resource {
 public:
+  virtual ~ui_resource() {}
   // returns true if this resource is still in use
   bool remove_from_frame(size_t _frame_parity) {
     frame_parity &= ~_frame_parity;
@@ -33,7 +34,7 @@ public:
 
 private:
   size_t frame_parity = 0;
-};
+};  // namespace ui
 
 // This is specifically an inline texture,
 // not a texture from a file.
@@ -83,6 +84,7 @@ public:
       m_texture(_texture),
       m_num_vertices(_verts),
       m_num_indices(_inds) {}
+  ~ui_geometry() {}
 
   runtime::graphics::buffer& vertex_buffer() {
     return m_vertex_buffer->buffer();

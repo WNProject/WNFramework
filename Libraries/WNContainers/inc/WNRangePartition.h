@@ -201,34 +201,31 @@ private:
     return true;
   }
 
-  WN_FORCE_INLINE partition_node<T_SIZE>* merge_left() {
-    WN_DEBUG_ASSERT(m_next_free, "Cannot merge wiht previous non-free block");
+  WN_FORCE_INLINE partition_node<T_SIZE>* merge_left_and_free() {
+    WN_RELEASE_ASSERT(!m_next_free, "Cannot merge an already free node");
     if (m_previous && m_previous->m_next_free) {
-      partition_node<T_SIZE>* p = m_previous;
-      m_next_free = m_previous->m_next_free;
-      m_size += m_previous->m_size;
-      m_previous = m_previous->m_previous;
-      if (m_previous) {
-        m_previous->m_next = this;
+      WN_DEBUG_ASSERT(m_previous->m_next == this, "This should be impossible");
+      m_previous->m_size += m_size;
+      m_previous->m_next = m_next;
+      if (m_next) {
+        m_next->m_previous = m_previous;
       }
-      return p;
+      return m_previous;
     }
     return nullptr;
   }
 
-  partition_node<T_SIZE>* merge_right() {
-    WN_DEBUG_ASSERT(m_next_free, "Cannot merge wiht previous non-free block");
+  partition_node<T_SIZE>* merge_right_and_free() {
+    WN_RELEASE_ASSERT(!m_next_free, "Cannot merge an already free node");
     if (m_next && m_next->m_next_free) {
-      partition_node<T_SIZE>* n = m_next;
-      m_next_free = m_next->m_next_free;
-      m_size += m_next->m_size;
-
-      m_next = m_next->m_next;
-      if (m_next) {
-        m_next->m_previous = this;
+      WN_DEBUG_ASSERT(m_next->m_previous == this, "This should be impossible");
+      m_next->m_size += m_size;
+      m_next->m_offset = m_offset;
+      m_next->m_previous = m_previous;
+      if (m_previous) {
+        m_previous->m_next = m_next;
       }
-
-      return n;
+      return m_next;
     }
     return nullptr;
   }
@@ -339,17 +336,48 @@ inline void range_partition<NodeAllocator, T_SIZE>::release_interval(
     m_used_space -= token.size();
   } else {
     m_used_space -= token.size();
-    token.node->m_next_free = m_free_list;
-    m_free_list = token.node;
-    partition_node<T_SIZE>* node;
-    if (0 != (node = m_free_list->merge_left())) {
-      if (!node->m_previous) {
-        m_node = m_free_list;
+    partition_node<T_SIZE>* n = token.node->merge_left_and_free();
+    if (n) {
+      m_node_allocator.free_node(token.node);
+      if (n->m_next && n->m_next->m_next_free) {
+        // We want to merge right, but this is the slow path.
+        // We have to remove this node from the free-list.
+        partition_node<T_SIZE>* free = m_free_list;
+        if (free == n) {
+          // free is the first, removal is trivial.
+          m_free_list = n->m_next_free;
+          n->m_next_free = nullptr;
+        } else {
+          // Boo linear scan over the list.
+          // Maybe switch this to be a doubly-linked list.
+          while (free->m_next_free != dummy_partition_node) {
+            if (free->m_next_free == n) {
+              free->m_next_free = n->m_next_free;
+              // This makes sure we will hit an assert
+              // if this was not hit, in merge_right_and_free;
+              n->m_next_free = nullptr;
+              break;
+            }
+            free = free->m_next_free;
+          }
+        }
+
+        partition_node<T_SIZE>* new_node = n->merge_right_and_free();
+        WN_RELEASE_ASSERT(
+            new_node, "This has to be mergable, we already checked");
+        m_node_allocator.free_node(n);
+        if (m_node == n) {
+          m_node = new_node;
+        }
       }
-      m_node_allocator.free_node(node);
-    }
-    if (0 != (node = m_free_list->merge_right())) {
-      m_node_allocator.free_node(node);
+    } else if (nullptr != (n = token.node->merge_right_and_free())) {
+      m_node_allocator.free_node(token.node);
+      if (m_node == token.node) {
+        m_node = n;
+      }
+    } else {
+      token.node->m_next_free = m_free_list;
+      m_free_list = token.node;
     }
   }
   token.list = nullptr;
@@ -411,6 +439,7 @@ range_partition<NodeAllocator, T_SIZE>::get_aligned_interval(
           node_offset = _alignment - node_offset;
         }
         if (free_node->m_size < node_offset + _size) {
+          last_free_node = free_node;
           free_node = free_node->m_next_free;
           continue;
         }
@@ -435,9 +464,9 @@ range_partition<NodeAllocator, T_SIZE>::get_aligned_interval(
         }
         new_node->m_next_free = nullptr;
         return token(this, new_node);
-      } else {
-        free_node = free_node->m_next_free;
       }
+      last_free_node = free_node;
+      free_node = free_node->m_next_free;
     }
     return token();
   }
