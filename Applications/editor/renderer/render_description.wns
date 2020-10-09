@@ -6,11 +6,11 @@ include "renderer/pass_data.wns"
 include "renderer/rt_description.wns"
 
 class RenderDescription {
-  RTDescription[] render_targets = RTDescription[0](RTDescription());
+  shared RTDescription[] render_targets = shared RTDescription[0](shared RTDescription());
   PassData[] passes  = PassData[0](PassData());
   Int output_target = -1;
 
-  RTDescription[] get_render_targets() {
+  shared RTDescription[] get_render_targets() {
     return render_targets;
   }
 

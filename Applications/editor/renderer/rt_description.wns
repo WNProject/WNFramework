@@ -8,10 +8,10 @@ class RTDescription {
     CString get_name() {
         return name;
     }
-    Int get_width() {
+    virtual Int get_width() {
         return width;
     }
-    Int get_height() {
+    virtual Int get_height() {
         return height;
     }
     Int get_format() {

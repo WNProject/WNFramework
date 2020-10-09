@@ -43,6 +43,9 @@ public:
   }
 
   shader_module& operator=(shader_module&& _other) {
+    if (is_valid()) {
+      m_device->destroy_shader_module(this);
+    }
     m_device = _other.m_device;
     _other.m_device = nullptr;
 

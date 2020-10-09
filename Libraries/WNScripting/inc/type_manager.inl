@@ -328,6 +328,18 @@ void type_manager::export_script_type() {
   m_externally_visible_types[core::type_id<wn_array<T>>::value()] =
       get_array_of(t, 0, nullptr, false);
   m_externally_visible_types
+      [core::type_id<wn_array<script_pointer<T>>>::value()] =
+          get_array_of(t, 0, nullptr, false);
+  m_externally_visible_types
+      [core::type_id<wn_array<script_pointer<T>>>::value()] = get_array_of(
+          m_externally_visible_types[core::type_id<script_pointer<T>>::value()],
+          0, nullptr, false);
+  m_externally_visible_types
+      [core::type_id<wn_array<shared_script_pointer<T>>>::value()] =
+          get_array_of(m_externally_visible_types
+                           [core::type_id<shared_script_pointer<T>>::value()],
+              0, nullptr, false);
+  m_externally_visible_types
       [core::type_id<wn_array<script_pointer<T>>>::value()] = get_array_of(
           get_reference_of(t, ast_type_classification::reference, nullptr), 0,
           nullptr, false);

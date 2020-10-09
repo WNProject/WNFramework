@@ -126,7 +126,7 @@ struct render_description : scripting::script_object_type {
   }
 
   wn::scripting::scripting_object_function<render_description,
-      scripting::wn_array<scripting::script_pointer<rt_description>>>
+      scripting::wn_array<scripting::shared_script_pointer<rt_description>>>
       get_render_targets;
   wn::scripting::scripting_object_function<render_description,
       scripting::wn_array<scripting::script_pointer<pass_data>>>

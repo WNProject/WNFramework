@@ -102,7 +102,7 @@ public:
 private:
   void dispatch_loop(RECT data);
 
-  void process_callback(UINT _msg, LPARAM _lparam, WPARAM _wparam);
+  void process_callback(UINT _msg, WPARAM _wparam, LPARAM _lparam);
 
   static LRESULT CALLBACK wnd_proc(
       HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

@@ -27,6 +27,17 @@ public:
     memory::memzero(&_other.m_data, sizeof(opaque_data));
   }
 
+  framebuffer& operator=(framebuffer&& _other) {
+    if (m_device) {
+      m_device->destroy_framebuffer(this);
+    }
+    m_device = _other.m_device;
+    _other.m_device = nullptr;
+    memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
+    memory::memzero(&_other.m_data, sizeof(opaque_data));
+    return *this;
+  }
+
   ~framebuffer() {
     if (m_device) {
       m_device->destroy_framebuffer(this);

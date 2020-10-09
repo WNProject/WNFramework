@@ -38,6 +38,9 @@ public:
   graphics_pipeline() : m_device(nullptr) {}
 
   graphics_pipeline& operator=(graphics_pipeline&& _other) {
+    if (m_device) {
+      m_device->destroy_graphics_pipeline(this);
+    }
     m_device = _other.m_device;
     _other.m_device = nullptr;
 

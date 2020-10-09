@@ -336,6 +336,8 @@ render_context::render_context(memory::allocator* _allocator,
     m_swapchain_get_signals.push_back(m_device->create_signal());
     m_swapchain_ready_signals.push_back(m_device->create_signal());
   }
+  m_last_up_to_date_width = m_width;
+  m_last_up_to_date_height = m_height;
 }
 
 void render_context::register_description(
@@ -555,6 +557,18 @@ bool render_context::render() {
     m_frame_fences[backing_idx].wait();
     m_frame_fences[backing_idx].reset();
   }
+  int32_t new_width = m_window->width();
+  int32_t new_height = m_window->height();
+  if (new_width == m_last_up_to_date_width ||
+      new_height == m_last_up_to_date_height) {
+    m_last_up_to_date_frame = m_frame_num;
+  }
+  m_width = new_width;
+  m_height = new_height;
+
+  for (auto& rt : m_render_targets) {
+    rt.setup_for_frame(this, m_frame_num, true);
+  }
 
   // m_command_lists[backing_idx].reset();
   m_command_allocators[backing_idx].reset();
@@ -581,7 +595,8 @@ bool render_context::render() {
 
   auto output_img_idx =
       m_render_targets[m_output_rt].get_index_for_frame(m_frame_num);
-  auto output_img = m_render_targets[m_output_rt].get_image(output_img_idx);
+  auto output_img =
+      m_render_targets[m_output_rt].get_image_for_index(output_img_idx);
 
   cmd_list->transition_resource(*output_img,
       static_cast<runtime::graphics::image_components>(
@@ -591,7 +606,7 @@ bool render_context::render() {
 
   auto swap_idx = m_swapchain->get_next_backbuffer_index(
       nullptr, &m_swapchain_get_signals[backing_idx]);
-  while (swap_idx == -1) {
+  while (swap_idx == -1 || m_frame_num > m_last_up_to_date_frame + 60) {
     m_log->log_warning("Swapchain out of date, resizing");
 
     runtime::graphics::data_format swapchain_format =
@@ -618,6 +633,9 @@ bool render_context::render() {
     swap_idx = m_swapchain->get_next_backbuffer_index(
         nullptr, &m_swapchain_get_signals[backing_idx]);
     WN_RELEASE_ASSERT(swap_idx >= 0, "Cannot recreate the swapchain");
+    m_last_up_to_date_width = m_width;
+    m_last_up_to_date_height = m_height;
+    m_last_up_to_date_frame = m_frame_num;
   }
 
   auto swap_img = m_swapchain->get_image_for_index(swap_idx);
