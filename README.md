@@ -134,4 +134,4 @@ conventions check the guides below.
 * [C++](documents/coding-conventions/cpp.md)
 
 <!-- external links -->
-[License]: https://img.shields.io/github/license/WNProject/WNFramework
+[License]: https://img.shields.io/github/license/WNProject/WNFramework?label=License
