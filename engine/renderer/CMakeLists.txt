@@ -7,12 +7,14 @@ add_wn_library(
     inc/render_pass.h
     inc/render_target.h
     inc/renderable_object.h
+    inc/texture_manager.h
     src/gpu_heap.cpp
     src/render_context.cpp
     src/render_data.cpp
     src/render_pass.cpp
     src/render_target.cpp
     src/renderable_object.cpp
+    src/texture_manager.cpp
   LIBS
     engine_base
     window

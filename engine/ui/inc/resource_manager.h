@@ -29,6 +29,7 @@ public:
   resource_manager(scripting::engine* _engine, memory::allocator* _allocator);
 
   bool convert_to_function(containers::string_view _resource_name,
+      containers::string_view _resource_data,
       containers::string* _dat) override;
 
   bool get_include_for_resource(
@@ -40,7 +41,7 @@ public:
 
   scripting::convert_type convert_file(logging::log* _log,
       file_system::mapping*, containers::string_view _file_name,
-      containers::string* _out_string) override;
+      containers::string* _out_data, containers::string* _out_string) override;
 
 private:
   memory::allocator* m_allocator;

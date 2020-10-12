@@ -1,0 +1,6 @@
+TestTexture {
+    .width = 1024;
+    .height = 1024;
+    .name = "assets/textures/test.png";
+    .format = format_r8g8b8a8_unorm;
+}

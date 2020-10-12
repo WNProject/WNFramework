@@ -43,7 +43,8 @@ public:
   virtual ~render_context() {
     m_log->log_info("Destroyed Renderer");
   }
-  static void register_scripting(scripting::engine* _engine);
+  static void register_scripting(
+      memory::allocator* _allocator, scripting::engine* _engine);
   static bool resolve_scripting(scripting::engine* _engine);
 
   virtual void register_description(

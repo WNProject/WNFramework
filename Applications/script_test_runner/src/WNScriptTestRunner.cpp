@@ -24,8 +24,8 @@ public:
   test_resource(memory::allocator* _allocator)
     : scripting::resource_manager(
           containers::string(_allocator, "TestResource")) {}
-  bool convert_to_function(
-      containers::string_view, containers::string* dat) override {
+  bool convert_to_function(containers::string_view, containers::string_view,
+      containers::string* dat) override {
     *dat = "dummy_file_foo";
     return true;
   }
@@ -39,7 +39,8 @@ public:
   }
   scripting::convert_type convert_file(logging::log* _log,
       file_system::mapping*, containers::string_view _file_name,
-      containers::string* out_string) override {
+      containers::string* _out_data, containers::string* out_string) override {
+    (void)_out_data;
     if (_file_name != "dummy_file.dummy") {
       _log->log_error("Invalid file name");
       return scripting::convert_type::failed;

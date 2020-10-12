@@ -60,6 +60,7 @@ void render_target::setup_target(render_context* _renderer,
       _renderer->get_allocation_for_render_target(reqs.size, reqs.alignment);
   if (!alloc.is_valid()) {
     m_log->log_error("Could not allocate memory for rendertarget");
+    m_log->flush();
     m_is_valid = false;
     m_targets.clear();
     return;

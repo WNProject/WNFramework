@@ -310,11 +310,15 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
     }
     auto ext_handler =
         m_extension_handlers[_file.substr(pt).to_string(m_allocator)];
-    auto convert_res = ext_handler->convert_file(
-        m_compilation_log, m_file_mapping, _file, &synthetic_contents);
+    containers::string out_data(m_allocator);
+    convert_type convert_res = ext_handler->convert_file(m_compilation_log,
+        m_file_mapping, _file, &out_data, &synthetic_contents);
     if (convert_res == convert_type::failed) {
       m_compilation_log->log_error(
           "Resource file ", _file, " was not handled by resource handler");
+      return parse_error::eWNInvalidFile;
+    }
+    if (!m_type_manager.register_resource_data(_file, out_data)) {
       return parse_error::eWNInvalidFile;
     }
     use_synthetic_contents = convert_res == convert_type::success;

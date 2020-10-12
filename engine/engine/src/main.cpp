@@ -24,6 +24,7 @@ int32_t wn_application_main(
     memory::allocator* scripting_allocator =
         _application_data->system_allocator;
     memory::allocator* ui_allocator = _application_data->system_allocator;
+    memory::allocator* render_allocator = _application_data->system_allocator;
 
     // TODO: If we ever need a logger in file-systems add it here.
     logging::log* scripting_logger = _application_data->default_log;
@@ -43,7 +44,7 @@ int32_t wn_application_main(
     engine_base::register_context(scripting_engine.get());
     engine::window::window::register_scripting(scripting_engine.get());
     engine::renderer::render_context::register_scripting(
-        scripting_engine.get());
+        render_allocator, scripting_engine.get());
     engine::ui::ui::register_scripting(ui_allocator, scripting_engine.get());
 
     scripting::parse_error err = scripting_engine->parse_file("main.wns");

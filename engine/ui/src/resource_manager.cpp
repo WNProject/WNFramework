@@ -40,12 +40,10 @@ resource_manager::resource_manager(
     m_ui_names(_allocator) {}
 
 bool resource_manager::convert_to_function(
-    containers::string_view _resource_name, containers::string* _dat) {
-  auto it = m_ui_names.find(_resource_name.to_string(m_allocator));
-  if (it == m_ui_names.end()) {
-    return false;
-  }
-  _dat->append("getNew").append(it->second);
+    containers::string_view _resource_name,
+    containers::string_view _resource_data, containers::string* _dat) {
+  (void)_resource_name;
+  _dat->append("getNew").append(_resource_data);
   return true;
 }
 
@@ -57,14 +55,13 @@ bool resource_manager::get_include_for_resource(
 
 scripting::convert_type resource_manager::convert_file(logging::log* _log,
     file_system::mapping* _mapping, containers::string_view _file_name,
-    containers::string* _out_string) {
+    containers::string* _out_data, containers::string* _out_string) {
   containers::string _ui_name(m_allocator);
   ui_scripting_parser parser(_log, m_allocator);
   if (!parser.parse_ui(_mapping, _file_name, _out_string, &_ui_name)) {
     return scripting::convert_type::failed;
   }
-  m_ui_names[_file_name.to_string(m_allocator)] = core::move(_ui_name);
-
+  *_out_data = _ui_name;
   return scripting::convert_type::success;
 }
 

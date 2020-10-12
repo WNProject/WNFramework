@@ -85,15 +85,17 @@ parse_error c_translator::translate_file_with_error(
           "Unhandled file extension ", _file.substr(pt));
       return parse_error::eUnsupported;
     }
+    containers::string out_data(m_allocator);
     auto ext_handler =
         m_extension_handlers[_file.substr(pt).to_string(m_allocator)];
-    auto convert_res = ext_handler->convert_file(
-        m_compilation_log, m_source_mapping, _file, &synthetic_contents);
+    convert_type convert_res = ext_handler->convert_file(m_compilation_log,
+        m_source_mapping, _file, &out_data, &synthetic_contents);
     if (convert_res == convert_type::failed) {
       m_compilation_log->log_error(
           "Resource file ", _file, " was not handled by resource handler");
       return parse_error::eWNInvalidFile;
     }
+    m_type_manager.register_resource_data(_file, out_data);
     use_synthetic_contents = convert_res == convert_type::success;
   }
   if (!use_synthetic_contents) {

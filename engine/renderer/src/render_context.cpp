@@ -11,6 +11,7 @@
 #include "renderer/inc/render_data.h"
 #include "renderer/inc/render_target.h"
 #include "renderer/inc/renderable_object.h"
+#include "renderer/inc/texture_manager.h"
 #include "window/inc/window.h"
 
 using namespace wn::engine;
@@ -22,7 +23,7 @@ using namespace wn;
 
 // TODO(awoloszyn): Make this configurable, or resizable at least
 const size_t kRendertargetHeapSize =
-    1024 * 1024 * 128;  // 128MB rendertarget heap.
+    1024 * 1024 * 256;  // 128MB rendertarget heap.
 const size_t kGPUBufferHeapSize = 1024 * 1024 * 128;      // 128MB buffer heap;
 const size_t kUploadBufferHeapSize = 1024 * 1024 * 128;   // 128MB upload heap;
 const size_t kTextureBufferHeapSize = 1024 * 1024 * 256;  // 256MB texture heap;
@@ -195,7 +196,8 @@ void register_graphics_enums(scripting::engine* _engine) {
 }
 }  // namespace
 
-void render_context::register_scripting(scripting::engine* _engine) {
+void render_context::register_scripting(
+    memory::allocator* _allocator, scripting::engine* _engine) {
   register_graphics_enums(_engine);
   rt_description::register_scripting(_engine);
   render_dependency::register_scripting(_engine);
@@ -203,6 +205,7 @@ void render_context::register_scripting(scripting::engine* _engine) {
   pass_data::register_scripting(_engine);
   render_data::register_scripting(_engine);
   renderable_object::register_scripting(_engine);
+  texture_manager::register_scripting(_allocator, _engine);
   _engine->export_script_type<render_description>();
   _engine->register_cpp_type<render_context>();
   _engine->register_function<decltype(&get_attachmentless_render_context),
@@ -221,7 +224,8 @@ bool render_context::resolve_scripting(scripting::engine* _engine) {
          render_dependency::resolve_scripting(_engine) &&
          render_target_usage::resolve_scripting(_engine) &&
          pass_data::resolve_scripting(_engine) &&
-         _engine->resolve_script_type<render_description>();
+         _engine->resolve_script_type<render_description>() &&
+         texture_manager::resolve_scripting(_engine);
 }
 
 render_context::render_context(memory::allocator* _allocator,

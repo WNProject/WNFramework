@@ -28,6 +28,7 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
     m_function_pointer_types(_allocator),
     m_slice_types(_allocator),
     m_resource_types(_allocator),
+    m_resource_data(_allocator),
     m_all_types(_allocator),
     m_struct_definitions(_allocator),
     m_vtables(_allocator),
@@ -825,6 +826,13 @@ bool type_manager::register_resource_type(
   return true;
 }
 
+bool type_manager::register_resource_data(const containers::string_view& _file,
+    const containers::string_view& _data) {
+  auto it = m_resource_data.insert(
+      _file.to_string(m_allocator), _data.to_string(m_allocator));
+  return it.second;
+}
+
 const ast_type* type_manager::get_resource(
     containers::string_view resource_name,
     containers::string_view resource_data, containers::string* data) {
@@ -833,7 +841,13 @@ const ast_type* type_manager::get_resource(
     return nullptr;
   }
 
-  if (!res->second.m_resource->convert_to_function(resource_data, data)) {
+  auto res_data = m_resource_data.find(resource_data.to_string(m_allocator));
+  if (res_data == m_resource_data.end()) {
+    return nullptr;
+  }
+
+  if (!res->second.m_resource->convert_to_function(
+          resource_data, res_data->second, data)) {
     return nullptr;
   }
 
