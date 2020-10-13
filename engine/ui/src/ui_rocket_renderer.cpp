@@ -7,6 +7,7 @@
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNWindow/inc/WNWindow.h"
+#include "renderer/inc/texture.h"
 #include "window/inc/window.h"
 
 namespace {
@@ -28,13 +29,17 @@ namespace ui {
 rocket_renderer::rocket_renderer(memory::allocator* _allocator,
     Rocket::Core::Context* _rocket_context,
     renderer::render_context* _render_context,
-    renderer::render_pass* _render_pass, file_system::mapping* _mapping)
+    renderer::render_pass* _render_pass, file_system::mapping* _mapping,
+    scripting::engine* _engine, logging::log* _log)
   : Rocket::Core::RenderInterface(_rocket_context),
     m_allocator(_allocator),
     m_rocket_context(_rocket_context),
     m_render_context(_render_context),
     m_window(_render_context->get_window()->underlying()),
     m_render_pass(_render_pass),
+    m_mapping(_mapping),
+    m_engine(_engine),
+    m_log(_log),
     m_textures(_allocator),
     m_geometry(_allocator),
     m_cleanup(_allocator),
@@ -181,26 +186,64 @@ void rocket_renderer::SetScissorRegion(int x, int y, int width, int height) {
 bool rocket_renderer::LoadTexture(Rocket::Core::TextureHandle& texture_handle,
     Rocket::Core::Vector2i& texture_dimensions,
     const Rocket::Core::String& source) {
-  (void)texture_handle;
+  containers::string_view resource_name(source.CString(), source.Length());
+  resource_name = resource_name.substr(resource_name.find_first_of("@"));
+  if (!resource_name.starts_with("@Texture(\"")) {
+    m_log->log_error("Invalid texture resource name", resource_name);
+    return false;
+  }
+  resource_name = resource_name.substr(10);
+  size_t ep = resource_name.find_first_of('"');
+  if (ep == containers::string_view::npos) {
+    m_log->log_error("Invalid texture resource name", resource_name);
+    return false;
+  }
+  resource_name = resource_name.substr(0, ep);
+
+  scripting::script_function<
+      scripting::shared_script_pointer<renderer::texture_desc>>
+      get_texture_desc;
+
+  containers::string rn(m_allocator, "getNew");
+  rn += m_engine->get_resource_data(resource_name);
+  rn += "Shared";
+
+  if (!m_engine->get_function(rn, &get_texture_desc)) {
+    m_log->log_error(
+        "INTERNAL ERROR: Could not find script function for texture",
+        resource_name);
+    return false;
+  }
+
+  scripting::shared_script_pointer<renderer::texture_desc> desc =
+      m_engine->invoke(get_texture_desc);
   (void)texture_dimensions;
-  (void)source;
-  return false;
+  memory::unique_ptr<ui_texture> ui_tex =
+      memory::make_unique<ui_texture>(m_allocator, m_render_context,
+          m_setup_command_list, m_mapping, desc, m_log);
+  if (!ui_tex->is_valid()) {
+    return false;
+  }
+  ui_texture* tex = ui_tex.get();
+  m_textures[tex] = core::move(ui_tex);
+  texture_handle = reinterpret_cast<Rocket::Core::TextureHandle>(tex);
+
+  return true;
 }
 
 bool rocket_renderer::GenerateTexture(
     Rocket::Core::TextureHandle& texture_handle,
     const Rocket::Core::byte* source,
     const Rocket::Core::Vector2i& source_dimensions) {
-  auto tb = create_and_initialize_texture(m_allocator, m_render_context,
-      m_setup_command_list, source,
+  memory::unique_ptr<ui_texture> texture = create_and_initialize_texture(
+      m_allocator, m_render_context, m_setup_command_list, source,
       source_dimensions.x * source_dimensions.y * 4, source_dimensions.x,
       source_dimensions.y, runtime::graphics::data_format::r8g8b8a8_unorm,
       runtime::graphics::resource_state::texture);
-  tb.first->use_in_frame(m_frame_parity);
-  m_cleanup.push_back(core::move(tb.first));
-  tb.second->use_in_frame(m_frame_parity);
-  ui_texture* tex = tb.second.get();
-  m_textures[tex] = core::move(tb.second);
+
+  texture->use_in_frame(m_frame_parity);
+  ui_texture* tex = texture.get();
+  m_textures[tex] = core::move(texture);
   texture_handle = reinterpret_cast<Rocket::Core::TextureHandle>(tex);
   return true;
 }
@@ -236,25 +279,22 @@ Rocket::Core::CompiledGeometryHandle rocket_renderer::CompileGeometry(
         ((-2.0f * vertices[i].position.y / static_cast<float>(height)) + 1.0f);
   }
 
-  geometry_data dat = create_and_initialize_geometry(m_allocator,
-      m_render_context, m_setup_command_list, vertices, num_vertices, indices,
-      num_indices, tex);
-  dat.m_data->use_in_frame(m_frame_parity);
-  dat.m_setup->use_in_frame(m_frame_parity);
-  ui_geometry* geo = dat.m_data.get();
-  if (geo->get_texture()) {
-    geo->set() =
+  memory::unique_ptr<ui_geometry> dat = create_and_initialize_geometry(
+      m_allocator, m_render_context, m_setup_command_list, vertices,
+      num_vertices, indices, num_indices, tex);
+  dat->use_in_frame(m_frame_parity);
+  if (dat->get_texture()) {
+    dat->set() =
         m_descriptor_pool.create_descriptor_set(&m_descriptor_set_layout);
     wn::runtime::graphics::sampler_descriptor samp[] = {{0, 0, &m_sampler}};
     wn::runtime::graphics::image_descriptor im[] = {
         {1, 0, wn::runtime::graphics::descriptor_type::sampled_image,
-            &geo->get_texture()->view(),
+            &dat->get_texture()->view(),
             wn::runtime::graphics::resource_state::texture}};
-    geo->set().update_descriptors({}, im, samp);
+    dat->set().update_descriptors({}, im, samp);
   }
-
-  m_geometry[dat.m_data.get()] = core::move(dat.m_data);
-  m_cleanup.push_back(core::move(dat.m_setup));
+  ui_geometry* geo = dat.get();
+  m_geometry[dat.get()] = core::move(dat);
 
   return reinterpret_cast<Rocket::Core::CompiledGeometryHandle>(geo);
 }

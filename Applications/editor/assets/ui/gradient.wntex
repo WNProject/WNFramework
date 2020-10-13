@@ -1,0 +1,6 @@
+GradientTexture {
+    .width = 1;
+    .height = 256;
+    .name = "assets/textures/gradient.png";
+    .format = format_r8g8b8a8_unorm;
+}

@@ -161,6 +161,8 @@ public:
   bool register_named_constant(
       const containers::string_view& name, const T& value);
 
+  inline containers::string get_resource_data(containers::string_view file);
+
   using void_func = script_function<void>;
 
   struct script_importer_base {};

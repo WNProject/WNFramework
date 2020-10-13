@@ -24,6 +24,8 @@ struct script_object_type {
   containers::string_view m_name;
   script_object_type* m_parent;
 };
+template <typename T>
+class shared_script_pointer;
 
 template <typename T>
 class script_pointer {
@@ -71,6 +73,7 @@ public:
 
   script_pointer(void* t) : val(t) {}
   script_pointer(void* _v, T* _t) : val(_v), type(_t) {}
+  script_pointer(const shared_script_pointer<T>& _other);
 
   template <typename Q = T>
   typename core::enable_if<!core::is_same<typename Q::parent_type, void>::value,
@@ -187,7 +190,12 @@ private:
   void* val;
   T* type;
   friend class engine;
+  friend class script_pointer<T>;
 };
+
+template <typename T>
+script_pointer<T>::script_pointer(const shared_script_pointer<T>& _other)
+  : val(_other.val), type(_other.type) {}
 
 template <typename T>
 class shared_cpp_pointer {

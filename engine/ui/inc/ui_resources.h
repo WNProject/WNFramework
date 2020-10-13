@@ -14,6 +14,7 @@
 #include "WNMemory/inc/unique_ptr.h"
 #include "renderer/inc/gpu_heap.h"
 #include "renderer/inc/render_context.h"
+#include "renderer/inc/texture.h"
 
 namespace wn {
 namespace engine {
@@ -44,21 +45,34 @@ public:
       runtime::graphics::data_format _format, uint32_t _width, uint32_t _height,
       runtime::graphics::resource_states _usage);
 
+  ui_texture(renderer::render_context* _context,
+      runtime::graphics::command_list* _setup_list,
+      file_system::mapping* _mapping,
+      scripting::script_pointer<renderer::texture_desc> _desc,
+      logging::log* _log);
+
   const runtime::graphics::image::image_buffer_resource_info&
   get_buffer_info() {
-    return m_texture.get_buffer_requirements(0);
+    return m_texture ? m_texture->image().get_buffer_requirements(0)
+                     : m_image.get_buffer_requirements(0);
   }
+
   runtime::graphics::image& texture() {
-    return m_texture;
+    return m_texture ? m_texture->image() : m_image;
   }
   runtime::graphics::image_view& view() {
-    return m_image_view;
+    return m_texture ? m_texture->view() : m_image_view;
+  }
+  bool is_valid() const {
+    return m_valid;
   }
 
 private:
   renderer::gpu_allocation m_gpu_allocation;
-  runtime::graphics::image m_texture;
+  memory::unique_ptr<renderer::texture> m_texture;
+  runtime::graphics::image m_image;
   runtime::graphics::image_view m_image_view;
+  bool m_valid = false;
 };
 
 class ui_buffer : public ui_resource {
@@ -115,37 +129,33 @@ private:
 };
 
 template <typename T>
-inline core::pair<memory::unique_ptr<ui_buffer>, memory::unique_ptr<ui_buffer>>
-create_and_initialize_gpu_buffer(memory::allocator* _allocator,
-    renderer::render_context* _context,
+inline memory::unique_ptr<ui_buffer> create_and_initialize_gpu_buffer(
+    memory::allocator* _allocator, renderer::render_context* _context,
     runtime::graphics::command_list* _upload_list, const T* _data,
     uint32_t _count, runtime::graphics::resource_state _usage) {
-  const size_t uint32_t = _count * sizeof(T);
-  memory::unique_ptr<ui_buffer> upload_buffer =
-      memory::make_unique<ui_buffer>(m_allocator, true, _context, size,
-          runtime::graphics::resource_state::host_write |
-              runtime::graphics::resource_state::copy_source);
+  const size_t data_size = _count * sizeof(T);
+  runtime::graphics::buffer* upload_buffer =
+      _context->create_temporary_upload_buffer(data_size);
   memory::unique_ptr<ui_buffer> gpu_buffer =
-      memory::make_unique<ui_buffer>(m_allocator, false, _context, size,
+      memory::make_unique<ui_buffer>(m_allocator, false, _context, data_size,
           _usage | runtime::graphics::resource_state::copy_dest);
-  void* data = upload_buffer->buffer().map();
+  void* data = upload_buffer->map();
   wn::memory::memcpy(data, _data, size);
-  upload_buffer->buffer().unmap();
+  upload_buffer->unmap();
   _upload_list->transition_resource(ui_buffer->get_buffer(),
       runtime::graphics::resource_state::host_write,
       runtime::graphics::resource_state::copy_source);
   _upload_list->transition_resource(gpu_buffer->get_buffer(),
       runtime::graphics::resource_state::initial,
       runtime::graphics::resource_state::copy_dest);
-  _upload_list->copy_buffer(upload_buffer->buffer(), 0, gpu_buffer, 0, size);
+  _upload_list->copy_buffer(*upload_buffer, 0, gpu_buffer, 0, size);
   _upload_list->transition_resource(gpu_buffer->get_buffer(),
       runtime::graphics::resource_state::copy_dest, _usage);
-  return core::make_pair(core::move(upload_buffer), core::move(gpu_buffer));
+  return core::move(gpu_buffer);
 }
 
-inline core::pair<memory::unique_ptr<ui_buffer>, memory::unique_ptr<ui_texture>>
-create_and_initialize_texture(memory::allocator* _allocator,
-    renderer::render_context* _context,
+inline memory::unique_ptr<ui_texture> create_and_initialize_texture(
+    memory::allocator* _allocator, renderer::render_context* _context,
     runtime::graphics::command_list* _upload_list, const void* _data,
     uint32_t count, uint32_t _width, uint32_t _height,
     runtime::graphics::data_format _format,
@@ -155,10 +165,9 @@ create_and_initialize_texture(memory::allocator* _allocator,
           _height, _usage | runtime::graphics::resource_state::copy_dest);
   auto buffer_reqs = gpu_texture->get_buffer_info();
 
-  memory::unique_ptr<ui_buffer> upload_buffer = memory::make_unique<ui_buffer>(
-      _allocator, true, _context, buffer_reqs.total_memory_required,
-      runtime::graphics::resource_state::host_write |
-          runtime::graphics::resource_state::copy_source);
+  runtime::graphics::buffer* upload_buffer =
+      _context->create_temporary_upload_buffer(
+          buffer_reqs.total_memory_required);
 
   // This was just a quick and dirty test to make sure that the data size
   // seemed reasonable. This is likely wrong and needs to be fixed for any
@@ -170,7 +179,7 @@ create_and_initialize_texture(memory::allocator* _allocator,
                         count,
       "Invalid data count");
   const char* src = static_cast<const char*>(_data);
-  char* dst = static_cast<char*>(upload_buffer->buffer().map());
+  char* dst = static_cast<char*>(upload_buffer->map());
   const uint32_t row_size = static_cast<uint32_t>(
       (_width / buffer_reqs.block_width) * buffer_reqs.block_size);
   for (size_t i = 0; i < _height / buffer_reqs.block_height; ++i) {
@@ -178,8 +187,8 @@ create_and_initialize_texture(memory::allocator* _allocator,
     src += row_size;
     dst += buffer_reqs.row_pitch_in_bytes;
   }
-  upload_buffer->buffer().unmap();
-  _upload_list->transition_resource(upload_buffer->buffer(),
+  upload_buffer->unmap();
+  _upload_list->transition_resource(*upload_buffer,
       runtime::graphics::resource_state::host_write,
       runtime::graphics::resource_state::copy_source);
   _upload_list->transition_resource(gpu_texture->texture(),
@@ -188,20 +197,15 @@ create_and_initialize_texture(memory::allocator* _allocator,
       0, 1, runtime::graphics::resource_state::initial,
       runtime::graphics::resource_state::copy_dest);
   _upload_list->copy_buffer_to_image(
-      upload_buffer->buffer(), 0, gpu_texture->texture(), 0);
+      *upload_buffer, 0, gpu_texture->texture(), 0);
   _upload_list->transition_resource(gpu_texture->texture(),
       static_cast<wn::runtime::graphics::image_components>(
           runtime::graphics::image_component::color),
       0, 1, runtime::graphics::resource_state::copy_dest, _usage);
-  return core::make_pair(core::move(upload_buffer), core::move(gpu_texture));
+  return core::move(gpu_texture);
 }
 
-struct geometry_data {
-  memory::unique_ptr<ui_buffer> m_setup;
-  memory::unique_ptr<ui_geometry> m_data;
-};
-
-inline geometry_data create_and_initialize_geometry(
+inline memory::unique_ptr<ui_geometry> create_and_initialize_geometry(
     memory::allocator* _allocator, renderer::render_context* _context,
     runtime::graphics::command_list* _upload_list,
     Rocket::Core::Vertex* _vertices, int _num_vertices, int* _indices,
@@ -218,17 +222,15 @@ inline geometry_data create_and_initialize_geometry(
           runtime::graphics::resource_state::copy_dest |
               runtime::graphics::resource_state::index_buffer);
 
-  memory::unique_ptr<ui_buffer> upload_buffer = memory::make_unique<ui_buffer>(
-      _allocator, true, _context, vertex_size + index_size,
-      runtime::graphics::resource_state::host_write |
-          runtime::graphics::resource_state::copy_source);
+  runtime::graphics::buffer* upload_buffer =
+      _context->create_temporary_upload_buffer(vertex_size + index_size);
 
-  char* vd = static_cast<char*>(upload_buffer->buffer().map());
+  char* vd = static_cast<char*>(upload_buffer->map());
   wn::memory::memcpy(vd, _vertices, vertex_size);
   wn::memory::memcpy(vd + vertex_size, _indices, index_size);
-  upload_buffer->buffer().unmap();
+  upload_buffer->unmap();
 
-  _upload_list->transition_resource(upload_buffer->buffer(),
+  _upload_list->transition_resource(*upload_buffer,
       runtime::graphics::resource_state::host_write,
       runtime::graphics::resource_state::copy_source);
   _upload_list->transition_resource(vertex_buffer->buffer(),
@@ -239,10 +241,10 @@ inline geometry_data create_and_initialize_geometry(
       runtime::graphics::resource_state::copy_dest);
 
   _upload_list->copy_buffer(
-      upload_buffer->buffer(), 0, vertex_buffer->buffer(), 0, vertex_size);
+      *upload_buffer, 0, vertex_buffer->buffer(), 0, vertex_size);
 
-  _upload_list->copy_buffer(upload_buffer->buffer(), vertex_size,
-      index_buffer->buffer(), 0, index_size);
+  _upload_list->copy_buffer(
+      *upload_buffer, vertex_size, index_buffer->buffer(), 0, index_size);
 
   _upload_list->transition_resource(vertex_buffer->buffer(),
       runtime::graphics::resource_state::copy_dest,
@@ -251,11 +253,8 @@ inline geometry_data create_and_initialize_geometry(
       runtime::graphics::resource_state::copy_dest,
       runtime::graphics::resource_state::index_buffer);
 
-  return geometry_data{
-      core::move(upload_buffer),
-      memory::make_unique<ui_geometry>(_allocator, core::move(vertex_buffer),
-          core::move(index_buffer), _texture, _num_vertices, _num_indices),
-  };
+  return memory::make_unique<ui_geometry>(_allocator, core::move(vertex_buffer),
+      core::move(index_buffer), _texture, _num_vertices, _num_indices);
 }
 
 }  // namespace ui

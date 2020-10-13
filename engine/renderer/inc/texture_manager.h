@@ -14,27 +14,6 @@ namespace wn {
 namespace engine {
 namespace renderer {
 
-struct texture_desc : scripting::script_object_type {
-  using parent_type = void;
-
-  void export_type(
-      scripting::engine::script_type_importer<texture_desc>* _importer) {
-    _importer->register_function("get_name", &get_name);
-    _importer->register_function("get_width", &get_width);
-    _importer->register_function("get_height", &get_height);
-    _importer->register_function("get_format", &get_format);
-  }
-
-  static wn::containers::string_view exported_name() {
-    return "TextureDescription";
-  }
-
-  scripting::scripting_object_function<texture_desc, const char*> get_name;
-  scripting::scripting_object_function<texture_desc, int32_t> get_width;
-  scripting::scripting_object_function<texture_desc, int32_t> get_height;
-  scripting::scripting_object_function<texture_desc, int32_t> get_format;
-};
-
 struct texture_manager : scripting::resource_manager {
   static void register_scripting(
       memory::allocator* _allocator, scripting::engine* _engine);
