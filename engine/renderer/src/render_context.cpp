@@ -24,10 +24,11 @@ using namespace wn;
 // TODO(awoloszyn): Make this configurable, or resizable at least
 const size_t kRendertargetHeapSize =
     1024 * 1024 * 256;  // 128MB rendertarget heap.
-const size_t kGPUBufferHeapSize = 1024 * 1024 * 128;      // 128MB buffer heap;
-const size_t kUploadBufferHeapSize = 1024 * 1024 * 128;   // 128MB upload heap;
-const size_t kTextureBufferHeapSize = 1024 * 1024 * 256;  // 256MB texture heap;
-
+const size_t kGPUBufferHeapSize = 1024 * 1024 * 128;     // 128MB buffer heap;
+const size_t kUploadBufferHeapSize = 1024 * 1024 * 128;  // 128MB upload heap;
+const size_t kTextureHeapSize = 1024 * 1024 * 256;       // 256MB texture heap;
+const size_t kTemporaryTextureHeapSize =
+    1024 * 1024 * 32;  // 32MB for texture uploads;
 const uint32_t kNumDefaultBackings = 2;
 
 // First let us export the renderer to scripting.
@@ -248,7 +249,10 @@ render_context::render_context(memory::allocator* _allocator,
     m_render_targets(_allocator),
     m_render_passes(_allocator),
     m_render_pass_names(_allocator),
-    m_renderables(_allocator) {
+    m_renderables(_allocator),
+    m_temporary_buffers(_allocator),
+    m_temporary_images(_allocator),
+    m_pending_renderables(_allocator) {
   if (_window) {
     m_log->log_info("Created Renderer With Window");
   } else {
@@ -289,7 +293,9 @@ render_context::render_context(memory::allocator* _allocator,
     if (m_arena_properties[i].allow_images &&
         m_arena_properties[i].device_local && !m_texture_heap) {
       m_texture_heap = memory::make_unique<gpu_heap>(
-          m_allocator, m_allocator, m_device.get(), i, kUploadBufferHeapSize);
+          m_allocator, m_allocator, m_device.get(), i, kTextureHeapSize);
+      m_temporary_texture_heap = memory::make_unique<gpu_heap>(m_allocator,
+          m_allocator, m_device.get(), i, kTemporaryTextureHeapSize);
     }
   }
   if (!m_render_target_heap) {
@@ -339,6 +345,11 @@ render_context::render_context(memory::allocator* _allocator,
     m_frame_fences.push_back(m_device->create_fence());
     m_swapchain_get_signals.push_back(m_device->create_signal());
     m_swapchain_ready_signals.push_back(m_device->create_signal());
+
+    m_temporary_buffers.push_back(
+        containers::list<temporary_buffer>(m_allocator));
+    m_temporary_images.push_back(
+        containers::list<temporary_image>(m_allocator));
   }
   m_last_up_to_date_width = m_width;
   m_last_up_to_date_height = m_height;
@@ -485,6 +496,9 @@ void render_context::register_description(
     m_render_pass_names.push_back(containers::string(m_allocator, pass_name));
     all_rp_descs.push_back(core::move(rp_attachments));
     all_rts.push_back(core::move(rts));
+    m_pending_renderables.push_back(
+        containers::list<scripting::shared_cpp_pointer<renderable_object>>(
+            m_allocator));
   }
 
   for (size_t i = 0; i < num_backings.size(); ++i) {
@@ -535,21 +549,14 @@ gpu_allocation render_context::get_allocation_for_texture(
 void render_context::add_renderable_to_passes(
     scripting::shared_cpp_pointer<renderable_object> _obj,
     scripting::slice<const char*> _passes) {
-  bool added_at_least_once = false;
   for (auto& i : _passes) {
     // TODO(awoloszyn): Can do much better here
     for (size_t rp = 0; rp < m_render_pass_names.size(); ++rp) {
       if (m_render_pass_names[rp] == i) {
-        auto& pass = m_render_passes[rp];
-        _obj->initialize_for_renderpass(this, &pass);
-        pass.add_renderable_object(_obj);
-        added_at_least_once = true;
+        m_pending_renderables[rp].push_back(_obj);
         break;
       }
     }
-  }
-  if (added_at_least_once) {
-    m_renderables.push_back(_obj);
   }
 }
 
@@ -560,6 +567,8 @@ bool render_context::render() {
     // Wait for the previous frame to be done:
     m_frame_fences[backing_idx].wait();
     m_frame_fences[backing_idx].reset();
+    m_temporary_buffers[backing_idx].clear();
+    m_temporary_images[backing_idx].clear();
   }
   int32_t new_width = m_window->width();
   int32_t new_height = m_window->height();
@@ -585,6 +594,24 @@ bool render_context::render() {
       m_setup_command_allocators[backing_idx].create_command_list();
 
   auto* setup_list = m_setup_command_lists[backing_idx].get();
+  {
+    containers::hash_set<renderable_object*> m_added(m_allocator);
+    for (size_t i = 0; i < m_pending_renderables.size(); ++i) {
+      render_pass& pass = m_render_passes[i];
+      for (wn::scripting::shared_cpp_pointer<
+               wn::engine::renderer::renderable_object>& obj :
+          m_pending_renderables[i]) {
+        obj->initialize_for_renderpass(this, &pass, setup_list);
+        pass.add_renderable_object(obj);
+        if (m_added.find(obj.get()) != m_added.end()) {
+          continue;
+        }
+        m_added.insert(obj.get());
+      }
+      m_pending_renderables[i].clear();
+    }
+  }
+
   for (auto& renderable : m_renderables) {
     renderable->update_render_data(backing_idx, setup_list);
   }
@@ -691,6 +718,57 @@ bool render_context::render() {
   m_log->flush();
 
   return false;
+}
+
+runtime::graphics::image* render_context::create_temporary_image(
+    runtime::graphics::image_create_info* _create_info) {
+  runtime::graphics::clear_value c{};
+  runtime::graphics::image img = m_device->create_image(*_create_info, c);
+  runtime::graphics::image_memory_requirements reqs =
+      img.get_memory_requirements();
+  gpu_allocation alloc =
+      m_temporary_texture_heap->allocate_memory(reqs.size, reqs.alignment);
+  if (!alloc.is_valid()) {
+    m_log->log_error("Could not allocate memory for temporary texture");
+    return nullptr;
+  }
+  img.bind_memory(alloc.arena(), alloc.offset());
+
+  size_t backing_idx = m_frame_num % kNumDefaultBackings;
+
+  m_temporary_images[backing_idx].push_back(
+      temporary_image(core::move(img), core::move(alloc)));
+
+  return m_temporary_images[backing_idx].rbegin()->image();
+}
+
+runtime::graphics::buffer* render_context::create_temporary_upload_buffer(
+    size_t _size) {
+  runtime::graphics::buffer buff = m_device->create_buffer(
+      _size, runtime::graphics::resource_state::copy_source |
+                 runtime::graphics::resource_state::host_write);
+  runtime::graphics::buffer_memory_requirements reqs =
+      buff.get_memory_requirements();
+  gpu_allocation alloc =
+      m_upload_heap->allocate_memory(reqs.size, reqs.alignment);
+  if (!alloc.is_valid()) {
+    m_log->log_error("Could not allocate memory for temporary buffer");
+    return nullptr;
+  }
+  buff.bind_memory(alloc.arena(), alloc.offset());
+
+  size_t backing_idx = m_frame_num % kNumDefaultBackings;
+  m_temporary_buffers[backing_idx].push_back(
+      temporary_buffer(core::move(buff), core::move(alloc)));
+  return m_temporary_buffers[backing_idx].rbegin()->buffer();
+}
+
+memory::unique_ptr<texture> render_context::load_texture(
+    runtime::graphics::command_list* _setup_command_list,
+    file_system::mapping* _mapping, scripting::script_pointer<texture_desc> tex,
+    logging::log* _log) {
+  return memory::make_unique<texture>(
+      m_allocator, this, _mapping, _setup_command_list, tex, _log);
 }
 
 }  // namespace renderer

@@ -337,6 +337,13 @@ public:
 
   bool register_resource_data(const containers::string_view& _file,
       const containers::string_view& _res_name);
+  containers::string get_resoruce_data(const containers::string_view& _file) {
+    auto it = m_resource_data.find(_file.to_string(m_allocator));
+    if (it != m_resource_data.end()) {
+      return containers::string(m_allocator, it->second);
+    }
+    return containers::string();
+  }
 
   // get_resource tries to find the resource of the given name with the given
   //  resource data.

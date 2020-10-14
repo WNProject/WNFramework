@@ -1,7 +1,7 @@
 
 .foo {
   background-decorator: image;
-  background-image: textures/gradient.png;
+  background-image: @Texture("assets/ui/gradient.wntex");
 }
 .bar {
   border-color: #000000;

@@ -7,6 +7,7 @@
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNScripting/inc/WNEngine.h"
 #include "WNScripting/inc/forward.h"
+#include "renderer/inc/texture.h"
 
 namespace wn {
 namespace engine {
@@ -84,15 +85,22 @@ scripting::convert_type texture_manager::convert_file(logging::log* _log,
   *_out_string += " : TextureDescription";
   *_out_string +=
       v.substr(texture_name.data() - v.data() + texture_name.size());
-  *_out_string += "shared ";
+  *_out_string += "shared TextureDescription";
+  *_out_string += " getNew";
+  *_out_string += texture_name;
+  *_out_string += "Shared() { shared TextureDescription";
+  *_out_string += " x = shared ";
+  *_out_string += texture_name;
+  *_out_string += "();\n return x; }\n";
+
   *_out_string += texture_name;
   *_out_string += " getNew";
   *_out_string += texture_name;
-  *_out_string += "() { shared ";
+  *_out_string += "() { ";
   *_out_string += texture_name;
-  *_out_string += " x = shared ";
+  *_out_string += " x = ";
   *_out_string += texture_name;
-  *_out_string += "(); return x; }\n";
+  *_out_string += "();\n return x; }\n";
 
   *_out_data = texture_name;
   return scripting::convert_type::success;

@@ -116,8 +116,9 @@ namespace engine {
 namespace ui {
 ui::~ui() {}
 
-void ui::initialize_for_renderpass(
-    renderer::render_context* _renderer, renderer::render_pass* _render_pass) {
+void ui::initialize_for_renderpass(renderer::render_context* _renderer,
+    renderer::render_pass* _render_pass,
+    runtime::graphics::command_list* _setup_list) {
   WN_RELEASE_ASSERT(
       !m_rocket_context, "Cannot add ui to more than one renderpass");
 
@@ -126,7 +127,8 @@ void ui::initialize_for_renderpass(
 
   m_renderer = memory::make_unique<rocket_renderer>(allocator, allocator,
       m_rocket_context.get(), _renderer, _render_pass,
-      m_context->m_file_mapping);
+      m_context->m_file_mapping, m_engine, m_context->m_log);
+  m_renderer->set_setup_command_list(_setup_list);
   m_file_interface = memory::make_unique<rocket_file_interface>(
       allocator, m_context->m_log, m_context->m_file_mapping);
   m_system_interface = memory::make_unique<rocket_system_interface>(

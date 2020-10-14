@@ -1,5 +1,7 @@
 add_wn_library(
   renderer
+  INCLUDES
+    ${WNFramework_SOURCE_DIR}/Externals/stb
   SOURCES
     inc/gpu_heap.h
     inc/render_context.h
@@ -8,6 +10,7 @@ add_wn_library(
     inc/render_target.h
     inc/renderable_object.h
     inc/texture_manager.h
+    inc/texture.h
     src/gpu_heap.cpp
     src/render_context.cpp
     src/render_data.cpp
@@ -15,10 +18,12 @@ add_wn_library(
     src/render_target.cpp
     src/renderable_object.cpp
     src/texture_manager.cpp
+    src/texture.cpp
   LIBS
     engine_base
     window
     WNFileSystem
     WNGraphics
     WNScripting
+    stb
 )

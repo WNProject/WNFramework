@@ -7,6 +7,7 @@
 #ifndef __WN_ENGINE_RENDERER_RENDER_CONTEXT_H__
 #define __WN_ENGINE_RENDERER_RENDER_CONTEXT_H__
 
+#include "WNContainers/inc/WNList.h"
 #include "WNContainers/inc/WNRangePartition.h"
 #include "WNGraphics/inc/WNAdapter.h"
 #include "WNGraphics/inc/WNCommandAllocator.h"
@@ -26,12 +27,18 @@
 #include "renderer/inc/render_data.h"
 #include "renderer/inc/render_pass.h"
 #include "renderer/inc/render_target.h"
+#include "renderer/inc/temporary_objects.h"
+#include "renderer/inc/texture.h"
 
 namespace wn {
+namespace file_system {
+class mapping;
+}
 namespace engine {
 namespace window {
 class window;
 }
+
 namespace renderer {
 class renderable_object;
 class render_context {
@@ -79,6 +86,17 @@ public:
     return m_window;
   }
 
+  runtime::graphics::image* create_temporary_image(
+      runtime::graphics::image_create_info* _create_info);
+  runtime::graphics::buffer* create_temporary_upload_buffer(size_t _size);
+
+  // TODO(awoloszyn): Turn this into a managed/cached resource.
+  //    But for now, just return a unique_ptr.
+  memory::unique_ptr<texture> load_texture(
+      runtime::graphics::command_list* _setup_command_list,
+      file_system::mapping* _mapping,
+      scripting::script_pointer<texture_desc> _tex, logging::log* _log);
+
 private:
   logging::log* m_log;
   window::window* m_window;
@@ -119,6 +137,7 @@ private:
   memory::unique_ptr<gpu_heap> m_buffer_heap;
   memory::unique_ptr<gpu_heap> m_upload_heap;
   memory::unique_ptr<gpu_heap> m_texture_heap;
+  memory::unique_ptr<gpu_heap> m_temporary_texture_heap;
 
   // Keep the render targets below the render target heap, we need the
   // targets to be cleaned up before the heap.
@@ -129,6 +148,13 @@ private:
   containers::dynamic_array<scripting::shared_cpp_pointer<renderable_object>>
       m_renderables;
 
+  containers::dynamic_array<containers::list<temporary_buffer>>
+      m_temporary_buffers;
+  containers::dynamic_array<containers::list<temporary_image>>
+      m_temporary_images;
+  containers::dynamic_array<
+      containers::list<scripting::shared_cpp_pointer<renderable_object>>>
+      m_pending_renderables;
   friend class render_target;
 };
 

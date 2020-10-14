@@ -49,7 +49,8 @@ public:
     : m_context(_context), m_engine(_engine), m_data(_data) {}
   virtual ~ui();
   void initialize_for_renderpass(renderer::render_context* _renderer,
-      renderer::render_pass* _renderpass) override;
+      renderer::render_pass* _renderpass,
+      runtime::graphics::command_list* _setup_list) override;
   void render(renderer::render_pass* _render_pass,
       runtime::graphics::command_list* _setup_cmd_list,
       runtime::graphics::command_list* cmd_list) override;

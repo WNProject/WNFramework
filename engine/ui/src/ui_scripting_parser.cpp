@@ -41,8 +41,12 @@ public:
 class dummy_tiled_image_instancer
   : public Rocket::Core::DecoratorTiledImageInstancer {
 public:
-  dummy_tiled_image_instancer(Rocket::Core::Context* _context)
-    : Rocket::Core::DecoratorTiledImageInstancer(_context) {}
+  dummy_tiled_image_instancer(Rocket::Core::Context* _context,
+      memory::allocator* _allocator,
+      containers::dynamic_array<containers::string>* _includes)
+    : Rocket::Core::DecoratorTiledImageInstancer(_context),
+      m_allocator(_allocator),
+      m_includes(_includes) {}
 
   Rocket::Core::Decorator* InstanceDecorator(
       const Rocket::Core::String& ROCKET_UNUSED_PARAMETER(name),
@@ -51,7 +55,18 @@ public:
     Rocket::Core::String texture_name;
     Rocket::Core::String rcss_path;
     GetTileProperties(tile, texture_name, rcss_path, _properties, "image");
-    // TextureName
+    containers::string_view resource_name(
+        texture_name.CString(), texture_name.Length());
+    if (!resource_name.starts_with("@Texture(\"")) {
+      return false;
+    }
+    resource_name = resource_name.substr(10);
+    size_t ep = resource_name.find_first_of('"');
+    if (ep == containers::string_view::npos) {
+      return false;
+    }
+    resource_name = resource_name.substr(0, ep);
+    m_includes->push_back(resource_name.to_string(m_allocator));
     return new dummy_decorator(m_context);
   }
 
@@ -60,6 +75,8 @@ public:
   }
   // Releases the instancer.
   void Release() override {}
+  memory::allocator* m_allocator;
+  containers::dynamic_array<containers::string>* m_includes;
 };
 // TODO(awoloszyn): Extend this with instancers for other things that take
 // images
@@ -295,7 +312,7 @@ bool ui_scripting_parser::parse_ui(file_system::mapping* _mapping,
       &context, "body", &base_instancer)
       ->RemoveReference();
 
-  dummy_tiled_image_instancer image_instancer(&context);
+  dummy_tiled_image_instancer image_instancer(&context, m_allocator, &includes);
   Rocket::Core::Factory::RegisterDecoratorInstancer(
       &context, "image", &image_instancer)
       ->RemoveReference();

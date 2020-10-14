@@ -21,6 +21,9 @@
 #include "ui/inc/ui_resources.h"
 
 namespace wn {
+namespace scripting {
+class engine;
+}
 namespace memory {
 class allocator;
 }
@@ -43,7 +46,8 @@ public:
   rocket_renderer(memory::allocator* _allocator,
       Rocket::Core::Context* _rocket_context,
       renderer::render_context* _render_context,
-      renderer::render_pass* _render_pass, file_system::mapping* _mapping);
+      renderer::render_pass* _render_pass, file_system::mapping* _mapping,
+      scripting::engine* _engine, logging::log* _log);
 
   void RenderGeometry(Rocket::Core::Vertex* vertices, int num_vertices,
       int* indices, int num_indices, Rocket::Core::TextureHandle texture,
@@ -84,6 +88,9 @@ private:
   renderer::render_context* m_render_context;
   runtime::window::window* m_window;
   renderer::render_pass* m_render_pass;
+  file_system::mapping* m_mapping;
+  scripting::engine* m_engine;
+  logging::log* m_log;
 
   // Graphics resources
   runtime::graphics::shader_module m_vertex_shader;
