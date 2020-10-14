@@ -294,6 +294,10 @@ render_context::render_context(memory::allocator* _allocator,
         m_arena_properties[i].device_local && !m_texture_heap) {
       m_texture_heap = memory::make_unique<gpu_heap>(
           m_allocator, m_allocator, m_device.get(), i, kTextureHeapSize);
+    }
+    if (m_arena_properties[i].allow_images &&
+        m_arena_properties[i].allow_render_targets &&
+        !m_temporary_texture_heap) {
       m_temporary_texture_heap = memory::make_unique<gpu_heap>(m_allocator,
           m_allocator, m_device.get(), i, kTemporaryTextureHeapSize);
     }
@@ -572,7 +576,7 @@ bool render_context::render() {
   }
   int32_t new_width = m_window->width();
   int32_t new_height = m_window->height();
-  if (new_width == m_last_up_to_date_width ||
+  if (new_width == m_last_up_to_date_width &&
       new_height == m_last_up_to_date_height) {
     m_last_up_to_date_frame = m_frame_num;
   }
@@ -607,6 +611,7 @@ bool render_context::render() {
           continue;
         }
         m_added.insert(obj.get());
+        m_renderables.push_back(core::move(obj));
       }
       m_pending_renderables[i].clear();
     }

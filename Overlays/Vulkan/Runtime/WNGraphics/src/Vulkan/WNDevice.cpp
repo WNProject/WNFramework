@@ -1870,7 +1870,7 @@ void* vulkan_device::map_buffer(buffer* _buffer) {
       nullptr,                                // pNext
       bdata->bound_arena,                     // memory
       bdata->offset,                          // offset
-      _buffer->size()                         // size
+      VK_WHOLE_SIZE                           // size
   };
 
   if (vkInvalidateMappedMemoryRanges(m_device, 1, &memory_range) !=
@@ -1897,7 +1897,7 @@ void vulkan_device::unmap_buffer(buffer* _buffer) {
       nullptr,                                // pNext
       bdata->bound_arena,                     // memory
       bdata->offset,                          // offset
-      _buffer->size()                         // size
+      VK_WHOLE_SIZE                           // size
   };
 
   if (vkFlushMappedMemoryRanges(m_device, 1, &memory_range) != VK_SUCCESS) {

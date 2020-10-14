@@ -120,13 +120,11 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
   const char* instance_extensions[] = {VK_KHR_SURFACE_EXTENSION_NAME,
       VK_SURFACE_EXTENSION, "VK_EXT_debug_report"};
   uint32_t num_layers = 0;
-  const char* layers[] = {"VK_LAYER_GOOGLE_threading",
-      "VK_LAYER_LUNARG_parameter_validation", "VK_LAYER_LUNARG_object_tracker",
-      "VK_LAYER_LUNARG_core_validation", "VK_LAYER_GOOGLE_unique_objects"};
+  const char* layers[] = {"VK_LAYER_KHRONOS_validation"};
 
 #ifdef _WN_GRAPHICS_ALLOW_DEBUG_MODE
   num_extensions = 3;
-  num_layers = 5;
+  num_layers = 1;
   bool has_debug_layers = true;
 #endif
 

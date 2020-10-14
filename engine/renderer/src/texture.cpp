@@ -52,19 +52,13 @@ texture::texture(render_context* _render_context,
         "], runtime resizing will occur");
     needs_resizing = true;
   }
-  runtime::graphics::buffer* upload =
-      _render_context->create_temporary_upload_buffer(x * y * chans);
-  void* v = upload->map();
-  memcpy(v, data, x * y * chans);
-  upload->unmap();
-  stbi_image_free(data);
 
+  // Create the image resource
   runtime::graphics::image_create_info create_info{static_cast<size_t>(width),
       static_cast<size_t>(height),
       static_cast<runtime::graphics::data_format>(fmt),
       runtime::graphics::resource_state::texture |
-          (needs_resizing ? runtime::graphics::resource_state::blit_dest
-                          : runtime::graphics::resource_state::copy_dest),
+          runtime::graphics::resource_state::copy_dest,
       1};
   runtime::graphics::clear_value c{};
   m_image = _render_context->get_device()->create_image(create_info, c);
@@ -77,22 +71,43 @@ texture::texture(render_context* _render_context,
     return;
   }
   m_image.bind_memory(m_allocation.arena(), m_allocation.offset());
-  runtime::graphics::image* upload_image = &m_image;
 
+  runtime::graphics::image* upload_image = &m_image;
+  runtime::graphics::image* temp_image = nullptr;
   if (needs_resizing) {
+    create_info.m_valid_resource_states =
+        runtime::graphics::resource_state::copy_source |
+        runtime::graphics::resource_state::blit_dest;
+    temp_image = _render_context->create_temporary_image(&create_info);
+    if (!temp_image) {
+      _log->log_error("Could not create temporary image, (oom?)");
+      return;
+    }
     create_info.m_width = x;
     create_info.m_height = y;
     create_info.m_valid_resource_states =
         runtime::graphics::resource_state::copy_dest |
         runtime::graphics::resource_state::blit_source;
-    runtime::graphics::image* temp_image =
-        _render_context->create_temporary_image(&create_info);
-    if (!temp_image) {
+    upload_image = _render_context->create_temporary_image(&create_info);
+    if (!upload_image) {
       _log->log_error("Could not create temporary image, (oom?)");
       return;
     }
-    upload_image = temp_image;
   }
+
+  // Create the buffer
+  runtime::graphics::image::image_buffer_resource_info buffer_reqs =
+      upload_image->get_buffer_requirements(0);
+  runtime::graphics::buffer* upload =
+      _render_context->create_temporary_upload_buffer(
+          buffer_reqs.total_memory_required);
+  uint8_t* v = static_cast<uint8_t*>(upload->map());
+  for (size_t i = 0; i < y; ++i) {
+    memcpy(v, data + (i * chans * x), chans * x);
+    v += buffer_reqs.row_pitch_in_bytes;
+  }
+  upload->unmap();
+  stbi_image_free(data);
 
   _setup_list->transition_resource(*upload_image,
       static_cast<runtime::graphics::image_components>(
@@ -110,16 +125,27 @@ texture::texture(render_context* _render_context,
             runtime::graphics::image_component::color),
         0, 1, runtime::graphics::resource_state::copy_dest,
         runtime::graphics::resource_state::blit_source);
-    _setup_list->transition_resource(m_image,
+    _setup_list->transition_resource(*temp_image,
         static_cast<runtime::graphics::image_components>(
             runtime::graphics::image_component::color),
         0, 1, runtime::graphics::resource_state::initial,
         runtime::graphics::resource_state::blit_dest);
-    _setup_list->blit_image(*upload_image, 0, m_image, 0);
-    _setup_list->transition_resource(m_image,
+    _setup_list->blit_image(*upload_image, 0, *temp_image, 0);
+    _setup_list->transition_resource(*temp_image,
         static_cast<runtime::graphics::image_components>(
             runtime::graphics::image_component::color),
         0, 1, runtime::graphics::resource_state::blit_dest,
+        runtime::graphics::resource_state::copy_source);
+    _setup_list->transition_resource(m_image,
+        static_cast<runtime::graphics::image_components>(
+            runtime::graphics::image_component::color),
+        0, 1, runtime::graphics::resource_state::initial,
+        runtime::graphics::resource_state::copy_dest);
+    _setup_list->copy_image(*temp_image, 0, m_image, 0);
+    _setup_list->transition_resource(m_image,
+        static_cast<runtime::graphics::image_components>(
+            runtime::graphics::image_component::color),
+        0, 1, runtime::graphics::resource_state::copy_dest,
         runtime::graphics::resource_state::texture);
   } else {
     _setup_list->transition_resource(*upload_image,
