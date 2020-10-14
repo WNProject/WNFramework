@@ -200,17 +200,6 @@ void d3d12_command_list::blit_image(const image& _src, uint32_t _src_mip_level,
   const auto& src = get_data((const image*)&_src);
   const auto& dst = get_data((const image*)&_dst);
 
-  D3D12_TEXTURE_COPY_LOCATION source = {
-      src->image.Get(),                           // pResource
-      D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,  // Type
-      UINT{_src_mip_level}                        // SubresourceIndex
-  };
-
-  D3D12_TEXTURE_COPY_LOCATION dest = {
-      dst->image.Get(),                           // pResource
-      D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,  // Type
-      UINT{_dst_mip_level}                        // SubresourceIndex
-  };
   DXGI_FORMAT fmt =
       image_format_to_dxgi_format(_src.m_resource_info[_src_mip_level].format);
   auto ptr = m_resource_cache->get_blit_pipeline(fmt);

@@ -5,6 +5,12 @@
 include "renderer/render_data.wns"
 include "renderer/render_description.wns"
 
+// Temphack: For now we need this included
+//   somewhere for compilation.
+// TODO(awoloszyn): Have resources defined what
+//   files they need included.
+include "renderer/texture_description.wns"
+
 class MyPass : PassData {
   .render_targets = shared RenderTargetUsage[](
     RenderTargetUsage(0, clear_mode_clear, store_mode_store)
@@ -50,6 +56,9 @@ Int main(Context ctx) {
   shared MainGUI main_gui = @UIResource("assets/ui/main.rml");
   context.add_renderable_to_passes(get_renderer(ctx, main_gui), CString[]("Initial Pass"){0:1});
   
+  shared TextureDescription tex = 
+    @Texture("assets/ui/test_texture.wntex");
+
   while(true) {
     context.render();
   }

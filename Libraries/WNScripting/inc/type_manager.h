@@ -335,6 +335,9 @@ public:
   bool register_resource_type(
       const ast_type* _type, resource_manager* resource);
 
+  bool register_resource_data(const containers::string_view& _file,
+      const containers::string_view& _res_name);
+
   // get_resource tries to find the resource of the given name with the given
   //  resource data.
   // If the name or data is invalid, this is ignored.
@@ -428,6 +431,8 @@ private:
   };
 
   containers::hash_map<containers::string, res_type> m_resource_types;
+  containers::hash_map<containers::string, containers::string> m_resource_data;
+
   containers::deque<ast_type*> m_all_types;
 
   struct struct_definition_data {
