@@ -41,7 +41,7 @@ containers::string get_temp_path(
               path += '/';
             }
 
-            return core::move(path);
+            return path;
           }
         }
       }

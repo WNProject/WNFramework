@@ -35,7 +35,7 @@ memory::unique_ptr<window> window_factory::create_window(window_type _type,
   if (wnd->initialize() != window_error::ok) {
     return nullptr;
   }
-  return core::move(wnd);
+  return wnd;
 }
 
 }  // namespace window

@@ -122,7 +122,7 @@ device_ptr vulkan_adapter::make_device(memory::allocator* _allocator,
     }
   }
 
-  return core::move(ptr);
+  return ptr;
 }
 
 void vulkan_adapter::initialize_device() {

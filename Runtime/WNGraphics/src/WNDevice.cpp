@@ -30,7 +30,7 @@ command_allocator device::create_command_allocator() {
 
   initialize_command_allocator(&new_command_allocator);
 
-  return core::move(new_command_allocator);
+  return new_command_allocator;
 }
 
 fence device::create_fence() {
@@ -38,13 +38,13 @@ fence device::create_fence() {
 
   initialize_fence(&new_fence);
 
-  return core::move(new_fence);
+  return new_fence;
 }
 
 signal device::create_signal() {
   signal new_signal(this);
   initialize_signal(&new_signal);
-  return core::move(new_signal);
+  return new_signal;
 }
 
 image device::create_image(
@@ -57,14 +57,14 @@ image device::create_image(
 sampler device::create_sampler(const sampler_create_info& _info) {
   sampler new_sampler(this);
   initialize_sampler(_info, &new_sampler);
-  return core::move(new_sampler);
+  return new_sampler;
 }
 
 shader_module device::create_shader_module(
     const containers::contiguous_range<const uint8_t>& _bytes) {
   shader_module s(this);
   initialize_shader_module(&s, _bytes);
-  return core::move(s);
+  return s;
 }
 
 descriptor_set_layout device::create_descriptor_set_layout(
@@ -72,7 +72,7 @@ descriptor_set_layout device::create_descriptor_set_layout(
         _layout) {
   descriptor_set_layout layout(this);
   initialize_descriptor_set_layout(&layout, _layout);
-  return core::move(layout);
+  return layout;
 }
 
 descriptor_pool device::create_descriptor_pool(
@@ -94,7 +94,7 @@ descriptor_pool device::create_descriptor_pool(
 #endif
   descriptor_pool pool(this);
   initialize_descriptor_pool(&pool, _pool_data);
-  return core::move(pool);
+  return pool;
 }
 
 pipeline_layout device::create_pipeline_layout(
@@ -104,7 +104,7 @@ pipeline_layout device::create_pipeline_layout(
         _push_constants) {
   pipeline_layout layout(this);
   initialize_pipeline_layout(&layout, _descriptor_sets, _push_constants);
-  return core::move(layout);
+  return layout;
 }
 
 render_pass device::create_render_pass(
@@ -114,7 +114,7 @@ render_pass device::create_render_pass(
     const containers::contiguous_range<const subpass_dependency>& _deps) {
   render_pass pass(this);
   initialize_render_pass(&pass, _attachments, _subpasses, _deps);
-  return core::move(pass);
+  return pass;
 }
 
 image_view device::create_image_view(const image* _image,
@@ -122,7 +122,7 @@ image_view device::create_image_view(const image* _image,
     image_components _components) {
   image_view view(this, _components);
   initialize_image_view(&view, _image, _base_mip_level, _num_mip_levels);
-  return core::move(view);
+  return view;
 }
 
 arena device::create_arena(const size_t _index, const uint64_t _size) {
@@ -137,14 +137,14 @@ arena device::create_arena(
     new_arena.m_device = this;
   }
 
-  return core::move(new_arena);
+  return new_arena;
 }
 
 framebuffer device::create_framebuffer(
     const framebuffer_create_info& _create_info) {
   framebuffer fb(this);
   initialize_framebuffer(&fb, _create_info);
-  return core::move(fb);
+  return fb;
 }
 
 graphics_pipeline device::create_graphics_pipeline(
@@ -154,7 +154,7 @@ graphics_pipeline device::create_graphics_pipeline(
   graphics_pipeline pipeline(this);
   initialize_graphics_pipeline(
       &pipeline, _create_info, _layout, _renderpass, _subpass);
-  return core::move(pipeline);
+  return pipeline;
 }
 
 buffer device::create_buffer(const size_t _size, const resource_states _usage) {
@@ -168,7 +168,7 @@ buffer device::create_buffer(const size_t _size, const resource_states _usage) {
     new_buffer.m_memory_size = reqs.size;
   }
 
-  return core::move(new_buffer);
+  return new_buffer;
 }
 
 }  // namespace graphics

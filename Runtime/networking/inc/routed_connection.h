@@ -251,7 +251,7 @@ public:
 
     m_sender->add_message(_signal, _ranges, _route,
         message_type::multipart_start, 0, t->multipart_id);
-    return core::move(t);
+    return t;
   }
 
   template <typename T>
@@ -265,7 +265,7 @@ public:
     multi_tasking::job_pool::this_job_pool()->add_job(_signal,
         &routed_connection::send_internal<T>, this, core::move(_tval), _route,
         message_type::multipart_start, 0, t->multipart_id);
-    return core::move(t);
+    return t;
   }
 
   message_token continue_multipart_message(multi_tasking::job_signal* _signal,

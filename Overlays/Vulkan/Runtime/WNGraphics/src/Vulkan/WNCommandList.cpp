@@ -12,6 +12,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanCommandListContext.h"
 #include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNFramebuffer.h"
+#include "WNGraphics/inc/WNGraphicsPipelineDescription.h"
 #include "WNGraphics/inc/WNImage.h"
 #include "WNGraphics/inc/WNRenderPass.h"
 

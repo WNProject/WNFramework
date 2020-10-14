@@ -43,7 +43,7 @@ containers::string get_scratch_path(memory::allocator* _allocator,
       containers::string path(temp_path + "scratch." + name_template + "/");
 
       if (::mkdir(path.data(), S_IRWXU | S_IRGRP | S_IXGRP) == 0) {
-        return core::move(path);
+        return path;
       } else if (errno == EEXIST) {
         continue;
       }
