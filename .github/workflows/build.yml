@@ -1,0 +1,41 @@
+name: Build
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+jobs:
+  build-linux:
+    name: >
+      Build Linux (${{matrix.generator}}, ${{matrix.build-type}},
+      ${{matrix.compiler}}-${{matrix.version}})
+    runs-on: ubuntu-latest
+    container:
+      ghcr.io/wnproject/build-linux:${{matrix.compiler}}-${{matrix.version}}
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [clang, gcc]
+        version: [9, 10]
+        generator: [Unix Makefiles, Ninja]
+        build-type: [Debug, Release]
+    steps:
+      - name: Set up build environment
+        run: mkdir build
+      - name: Checkout code
+        uses: actions/checkout@v2.3.3
+        with:
+          path: ./source
+          submodules: true
+      - name: Run configuration
+        working-directory: ./build
+        run: >
+          cmake
+          -G'${{matrix.generator}}'
+          -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
+          ../source
+      - name: Run build
+        working-directory: ./build
+        run: cmake --build .
+      - name: Report build size
+        run: du -hs ./build
