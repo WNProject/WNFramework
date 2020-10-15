@@ -34,6 +34,7 @@ class pipeline_layout;
 struct render_area;
 union clear_value;
 struct viewport;
+struct scissor;
 
 namespace internal {
 namespace vulkan {

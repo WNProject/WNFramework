@@ -55,7 +55,7 @@ public:
   int GetColumn();
 
 protected:
-  virtual void ProcessEvent(Core::Event& event);
+  virtual void ProcessEvent(Core::Event& event) override;
 
 private:
   int column;

@@ -92,12 +92,13 @@ private:
         m_allocation(core::move(_other.m_allocation)),
         m_layout(core::move(_other.m_layout)),
         m_out_of_date(_other.m_out_of_date) {}
-    render_target_data operator=(render_target_data&& _other) {
+    render_target_data& operator=(render_target_data&& _other) {
       m_image = core::move(_other.m_image);
       m_image_view = core::move(_other.m_image_view);
       m_allocation = core::move(_other.m_allocation);
       m_layout = core::move(_other.m_layout);
       m_out_of_date = _other.m_out_of_date;
+      return *this;
     }
     render_target_data() = default;
     runtime::graphics::image m_image;

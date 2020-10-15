@@ -62,7 +62,7 @@ public:
   virtual void Release() = 0;
 
 private:
-  virtual void OnReferenceDeactivate();
+  virtual void OnReferenceDeactivate() override;
 };
 }  // namespace Core
 }  // namespace Rocket

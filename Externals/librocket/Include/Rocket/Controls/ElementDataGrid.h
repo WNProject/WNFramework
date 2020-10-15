@@ -132,13 +132,13 @@ public:
   ElementDataGridRow* GetRow(int index) const;
 
 protected:
-  virtual void OnUpdate();
+  virtual void OnUpdate() override;
 
-  virtual void ProcessEvent(Core::Event& event);
+  virtual void ProcessEvent(Core::Event& event) override;
 
   /// Gets the markup and content of the element.
   /// @param content[out] The content of the element.
-  virtual void GetInnerRML(Rocket::Core::String& content) const;
+  virtual void GetInnerRML(Rocket::Core::String& content) const override;
 
 private:
   typedef std::vector<Column> ColumnList;

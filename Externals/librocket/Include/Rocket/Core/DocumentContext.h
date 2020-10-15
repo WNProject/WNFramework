@@ -275,7 +275,7 @@ public:
   void SetInstancer(DocumentContextInstancer* instancer);
 
 protected:
-  virtual void OnReferenceDeactivate();
+  virtual void OnReferenceDeactivate() override;
 
 private:
   String name;

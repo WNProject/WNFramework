@@ -99,7 +99,7 @@ protected:
       PropertySpecification::ShorthandType type = PropertySpecification::AUTO);
 
   // Releases the instancer.
-  virtual void OnReferenceDeactivate();
+  virtual void OnReferenceDeactivate() override;
 
 private:
   PropertySpecification properties;

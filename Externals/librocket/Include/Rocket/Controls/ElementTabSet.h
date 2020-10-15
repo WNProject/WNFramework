@@ -91,18 +91,18 @@ public:
   int GetActiveTab() const;
 
   /// Process the incoming event.
-  void ProcessEvent(Core::Event& event);
+  virtual void ProcessEvent(Core::Event& event) override;
 
   /// Called when the listener has been attached to a new Element
-  void OnAttach(Element* element);
+  virtual void OnAttach(Element* element) override;
 
   /// Called when the listener has been detached from a Element
-  void OnDetach(Element* element);
+  virtual void OnDetach(Element* element) override;
 
 protected:
   // Catch child add/removes so we can correctly set up their events.
-  virtual void OnChildAdd(Core::Element* child);
-  virtual void OnChildRemove(Core::Element* child);
+  virtual void OnChildAdd(Core::Element* child) override;
+  virtual void OnChildRemove(Core::Element* child) override;
 
 private:
   Core::Element* GetChildByTag(const Rocket::Core::String& tag);

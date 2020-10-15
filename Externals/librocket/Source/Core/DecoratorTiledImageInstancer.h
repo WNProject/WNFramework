@@ -46,12 +46,12 @@ public:
 
   /// Instances an image decorator.
   virtual Decorator* InstanceDecorator(
-      const String& name, const PropertyDictionary& properties);
+      const String& name, const PropertyDictionary& properties) override;
   /// Releases the given decorator.
-  virtual void ReleaseDecorator(Decorator* decorator);
+  virtual void ReleaseDecorator(Decorator* decorator) override;
 
   /// Releases the instancer.
-  virtual void Release();
+  virtual void Release() override;
 };
 }  // namespace Core
 }  // namespace Rocket

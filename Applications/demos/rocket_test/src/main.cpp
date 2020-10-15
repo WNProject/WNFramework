@@ -97,8 +97,8 @@ public:
   dce(Rocket::Core::Context* _ctx, const Rocket::Core::String& tag)
     : Rocket::Core::ElementDocument(_ctx, tag) {}
 
-  void LoadScript(
-      Rocket::Core::Stream* stream, const Rocket::Core::String& source_name) {
+  void LoadScript(Rocket::Core::Stream* stream,
+      const Rocket::Core::String& source_name) override {
     (void)stream;
     (void)source_name;
   }
@@ -1356,7 +1356,7 @@ int32_t wn_application_main(
   }
 
   // Lets set up Rocket
-  wn::file_system::factory fs_factory(allocator, _data->executable_data);
+  wn::file_system::factory fs_factory(allocator, _data->executable_data, log);
   wn::file_system::mapping_ptr file_system = fs_factory.make_mapping(
       allocator, wn::file_system::mapping_type::memory_backed);
   file_system->initialize_files(rocket_assets::get_files());

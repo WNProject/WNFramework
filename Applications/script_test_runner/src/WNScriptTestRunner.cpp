@@ -263,12 +263,12 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
     tests_to_run = static_cast<uint8_t>(test_types::c);
   }
 
-  wn::file_system::factory fs_factory(&allocator, _executable_data);
+  wn::file_system::factory fs_factory(&allocator, _executable_data, log.log());
 
   file_system::mapping_ptr files = fs_factory.make_mapping(&allocator,
       has_data_dir ? data_dir : fs_factory.get_current_working_path());
   wn::file_system::mapping_ptr output_mapping =
-      wn::file_system::factory(&allocator, _executable_data)
+      wn::file_system::factory(&allocator, _executable_data, log.log())
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
   output_mapping->create_directory("/");

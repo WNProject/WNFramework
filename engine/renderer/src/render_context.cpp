@@ -40,8 +40,8 @@ struct exported_script_type<renderer::render_context> {
     return "RenderContext";
   }
 
-  template <typename T>
-  static void export_type(T* _exporter) {
+  static void export_type(
+      wn::scripting::exporter<renderer::render_context>* _exporter) {
     _exporter->register_virtual<int32_t>()
         .register_virtual<&renderer::render_context::width>("width");
     _exporter->register_virtual<int32_t>()
@@ -49,7 +49,7 @@ struct exported_script_type<renderer::render_context> {
     _exporter->register_virtual<bool>()
         .register_virtual<&renderer::render_context::render>("render");
     _exporter
-        ->register_virtual<void,
+        ->template register_virtual<void,
             shared_cpp_pointer<renderer::renderable_object>,
             slice<const char*>>()
         .register_virtual<&renderer::render_context::add_renderable_to_passes>(

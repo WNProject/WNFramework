@@ -59,10 +59,10 @@ public:
   /// regardless of whether it has been selected / checked (as appropriate for
   /// the control).
   /// @return The value of the form control.
-  virtual Rocket::Core::String GetValue() const;
+  virtual Rocket::Core::String GetValue() const override;
   /// Sets the current value of the form control.
   /// @param[in] value The new value of the form control.
-  virtual void SetValue(const Rocket::Core::String& value);
+  virtual void SetValue(const Rocket::Core::String& value) override;
 
   /// Sets the number of characters visible across the text area. Note that this
   /// will only be precise when using
@@ -99,27 +99,28 @@ public:
   /// Returns the control's inherent size, based on the length of the input
   /// field and the current font size.
   /// @return True.
-  virtual bool GetIntrinsicDimensions(Rocket::Core::Vector2f& dimensions);
+  virtual bool GetIntrinsicDimensions(
+      Rocket::Core::Vector2f& dimensions) override;
 
 protected:
   /// Updates the control's widget.
-  void OnUpdate();
+  virtual void OnUpdate() override;
   /// Renders the control's widget.
-  void OnRender();
+  virtual void OnRender() override;
   /// Formats the element.
-  void OnLayout();
+  virtual void OnLayout() override;
 
   /// Called when attributes on the element are changed.
   virtual void OnAttributeChange(
-      const Core::AttributeNameList& changed_attributes);
+      const Core::AttributeNameList& changed_attributes) override;
   /// Called when properties on the control are changed.
   /// @param[in] changed_properties The properties changed on the element.
   virtual void OnPropertyChange(
-      const Core::PropertyNameList& changed_properties);
+      const Core::PropertyNameList& changed_properties) override;
 
   /// Returns the text content of the element.
   /// @param[out] content The content of the element.
-  virtual void GetInnerRML(Rocket::Core::String& content) const;
+  virtual void GetInnerRML(Rocket::Core::String& content) const override;
 
 private:
   WidgetTextInput* widget;

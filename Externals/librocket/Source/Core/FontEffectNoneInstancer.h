@@ -52,13 +52,13 @@ public:
   /// @return The font effect if it was instanced successfully, NULL if an error
   /// occured.
   virtual FontEffect* InstanceFontEffect(Context* _context, const String& name,
-      const PropertyDictionary& properties);
+      const PropertyDictionary& properties) override;
   /// Releases the none effect.
   /// @param[in] font_effect Font effect to release.
-  virtual void ReleaseFontEffect(FontEffect* font_effect);
+  virtual void ReleaseFontEffect(FontEffect* font_effect) override;
 
   /// Releases the instancer.
-  virtual void Release();
+  virtual void Release() override;
 };
 }  // namespace Core
 }  // namespace Rocket

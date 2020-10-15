@@ -27,12 +27,12 @@ public:
       Rocket::Core::Element*) override {
     return 1;
   }
-  void ReleaseElementData(Rocket::Core::DecoratorDataHandle) {
+  void ReleaseElementData(Rocket::Core::DecoratorDataHandle) override {
     return;
   }
 
   void RenderElement(
-      Rocket::Core::Element*, Rocket::Core::DecoratorDataHandle) {
+      Rocket::Core::Element*, Rocket::Core::DecoratorDataHandle) override {
     return;
   }
   void Release() {}
@@ -50,7 +50,7 @@ public:
 
   Rocket::Core::Decorator* InstanceDecorator(
       const Rocket::Core::String& ROCKET_UNUSED_PARAMETER(name),
-      const Rocket::Core::PropertyDictionary& _properties) {
+      const Rocket::Core::PropertyDictionary& _properties) override {
     Rocket::Core::DecoratorTiled::Tile tile;
     Rocket::Core::String texture_name;
     Rocket::Core::String rcss_path;
@@ -58,19 +58,19 @@ public:
     containers::string_view resource_name(
         texture_name.CString(), texture_name.Length());
     if (!resource_name.starts_with("@Texture(\"")) {
-      return false;
+      return nullptr;
     }
     resource_name = resource_name.substr(10);
     size_t ep = resource_name.find_first_of('"');
     if (ep == containers::string_view::npos) {
-      return false;
+      return nullptr;
     }
     resource_name = resource_name.substr(0, ep);
     m_includes->push_back(resource_name.to_string(m_allocator));
     return new dummy_decorator(m_context);
   }
 
-  void ReleaseDecorator(Rocket::Core::Decorator* _decorator) {
+  void ReleaseDecorator(Rocket::Core::Decorator* _decorator) override {
     delete _decorator;
   }
   // Releases the instancer.
@@ -134,8 +134,8 @@ public:
       m_includes(_includes),
       m_out_string(_out_string) {}
 
-  void LoadScript(
-      Rocket::Core::Stream* stream, const Rocket::Core::String& source_name);
+  void LoadScript(Rocket::Core::Stream* stream,
+      const Rocket::Core::String& source_name) override;
 
   memory::allocator* m_allocator;
   containers::dynamic_array<containers::string>* m_includes;
@@ -263,7 +263,7 @@ public:
       const Rocket::Core::Vector2i&) override {
     return false;
   }
-  void ReleaseTexture() {}
+  void ReleaseTexture(Rocket::Core::TextureHandle) override {}
   Rocket::Core::CompiledGeometryHandle CompileGeometry(Rocket::Core::Vertex*,
       int, int*, int, Rocket::Core::TextureHandle) override {
     return 0;
@@ -271,7 +271,7 @@ public:
   void RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle,
       const Rocket::Core::Vector2f&) override {}
   void ReleaseCompiledGeometry(Rocket::Core::CompiledGeometryHandle) override {}
-  float GetPixelsPerInch() {
+  float GetPixelsPerInch() override {
     return 1.0f;
   }
 };

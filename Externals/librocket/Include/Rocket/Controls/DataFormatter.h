@@ -73,7 +73,7 @@ public:
 private:
   Rocket::Core::String name;
 };
-}
-}
+}  // namespace Controls
+}  // namespace Rocket
 
 #endif

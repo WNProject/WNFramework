@@ -121,7 +121,7 @@ public:
 
 protected:
   /// Releases the effect through its instancer.
-  virtual void OnReferenceDeactivate();
+  virtual void OnReferenceDeactivate() override;
 
 private:
   FontEffectInstancer* instancer;

@@ -49,14 +49,14 @@ public:
   /// Instances a context.
   /// @param[in] name Name of this context.
   /// @return The instanced context.
-  virtual DocumentContext* InstanceContext(const String& name);
+  virtual DocumentContext* InstanceContext(const String& name) override;
 
   /// Releases a context previously created by this context.
   /// @param[in] context The context to release.
-  virtual void ReleaseContext(DocumentContext* context);
+  virtual void ReleaseContext(DocumentContext* context) override;
 
   /// Releases this context instancer.
-  virtual void Release();
+  virtual void Release() override;
 
   Context* m_context;
 };

@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNApplicationData/inc/WNApplicationData.h"
+#include "WNApplicationEntry/inc/WNApplicationEntry.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNScripting/inc/WNFactory.h"
 #include "engine/inc/script_export.h"
@@ -30,11 +31,11 @@ int32_t wn_application_main(
     logging::log* scripting_logger = _application_data->default_log;
 
     file_system::mapping_ptr mapping =
-        file_system::factory(
-            file_system_allocator, _application_data->executable_data)
+        file_system::factory(file_system_allocator,
+            _application_data->executable_data, _application_data->default_log)
             .make_mapping(file_system_allocator,
                 wn::file_system::mapping_type::development_assets);
-
+    _application_data->default_log->flush();
     memory::unique_ptr<scripting::engine> scripting_engine =
         scripting::factory().get_engine(scripting_allocator,
             scripting::scripting_engine_type::jit_engine, mapping.get(),

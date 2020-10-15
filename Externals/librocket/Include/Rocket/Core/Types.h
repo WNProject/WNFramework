@@ -119,15 +119,15 @@ typedef Dictionary ElementAttributes;
     return &dummy;                                                             \
   }                                                                            \
                                                                                \
-  virtual void* GetClassIdentifier() const {                                   \
+  virtual void* GetClassIdentifier() const override {                          \
     return GetStaticClassIdentifier();                                         \
   }                                                                            \
                                                                                \
-  virtual bool IsExactClass(void* type_identifier) const {                     \
+  virtual bool IsExactClass(void* type_identifier) const override {            \
     return type_identifier == GetStaticClassIdentifier();                      \
   }                                                                            \
                                                                                \
-  virtual bool IsClass(void* type_identifier) const {                          \
+  virtual bool IsClass(void* type_identifier) const override {                 \
     return type_identifier == GetStaticClassIdentifier() ||                    \
            _PARENT_::IsClass(type_identifier);                                 \
   }                                                                            \

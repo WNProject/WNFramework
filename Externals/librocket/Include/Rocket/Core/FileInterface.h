@@ -88,9 +88,9 @@ public:
   virtual void Release();
 
 protected:
-  virtual void OnReferenceDeactivate();
+  virtual void OnReferenceDeactivate() override;
 };
-}
-}
+}  // namespace Core
+}  // namespace Rocket
 
 #endif

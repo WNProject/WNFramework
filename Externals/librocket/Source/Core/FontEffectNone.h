@@ -54,7 +54,7 @@ public:
   /// Ignores all calls.
   virtual void GenerateGlyphTexture(byte* destination_data,
       const Vector2i& destination_dimensions, int destination_stride,
-      const FontGlyph& glyph) const;
+      const FontGlyph& glyph) const override;
 };
 }  // namespace Core
 }  // namespace Rocket

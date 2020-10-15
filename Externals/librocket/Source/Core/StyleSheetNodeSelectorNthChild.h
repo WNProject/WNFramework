@@ -46,7 +46,7 @@ public:
 
   // Returns true if the element index is (n * a) + b for a given integer value
   // of n.
-  virtual bool IsApplicable(const Element* element, int a, int b);
+  virtual bool IsApplicable(const Element* element, int a, int b) override;
 };
 }
 }

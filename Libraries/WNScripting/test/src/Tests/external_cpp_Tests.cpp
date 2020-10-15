@@ -178,7 +178,7 @@ TEST(scripting_engine_factory, external) {
   wn::logging::log* log = slog.log();
 
   wn::file_system::mapping_ptr mapping =
-      wn::file_system::factory(&allocator, wn::testing::k_executable_data)
+      wn::file_system::factory(&allocator, wn::testing::k_executable_data, log)
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
   mapping->initialize_files(external_test_assets::get_files());

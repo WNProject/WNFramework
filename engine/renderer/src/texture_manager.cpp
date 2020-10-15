@@ -27,8 +27,8 @@ bool texture_manager::resolve_scripting(scripting::engine* _engine) {
 texture_manager::texture_manager(
     scripting::engine* _engine, memory::allocator* _allocator)
   : scripting::resource_manager(containers::string(_allocator, "Texture")),
-    m_engine(_engine),
-    m_allocator(_allocator) {}
+    m_allocator(_allocator),
+    m_engine(_engine) {}
 
 bool texture_manager::convert_to_function(
     containers::string_view _resource_name,

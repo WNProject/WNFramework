@@ -137,19 +137,20 @@ inline memory::unique_ptr<ui_buffer> create_and_initialize_gpu_buffer(
   runtime::graphics::buffer* upload_buffer =
       _context->create_temporary_upload_buffer(data_size);
   memory::unique_ptr<ui_buffer> gpu_buffer =
-      memory::make_unique<ui_buffer>(m_allocator, false, _context, data_size,
+      memory::make_unique<ui_buffer>(_allocator, false, _context, data_size,
           _usage | runtime::graphics::resource_state::copy_dest);
   void* data = upload_buffer->map();
-  wn::memory::memcpy(data, _data, size);
+  wn::memory::memcpy(data, _data, data_size);
   upload_buffer->unmap();
-  _upload_list->transition_resource(ui_buffer->get_buffer(),
+  _upload_list->transition_resource(*upload_buffer,
       runtime::graphics::resource_state::host_write,
       runtime::graphics::resource_state::copy_source);
-  _upload_list->transition_resource(gpu_buffer->get_buffer(),
+  _upload_list->transition_resource(gpu_buffer->buffer(),
       runtime::graphics::resource_state::initial,
       runtime::graphics::resource_state::copy_dest);
-  _upload_list->copy_buffer(*upload_buffer, 0, gpu_buffer, 0, size);
-  _upload_list->transition_resource(gpu_buffer->get_buffer(),
+  _upload_list->copy_buffer(
+      *upload_buffer, 0, gpu_buffer->buffer(), 0, data_size);
+  _upload_list->transition_resource(gpu_buffer->buffer(),
       runtime::graphics::resource_state::copy_dest, _usage);
   return core::move(gpu_buffer);
 }

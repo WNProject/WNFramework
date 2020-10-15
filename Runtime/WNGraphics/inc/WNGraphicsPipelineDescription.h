@@ -24,15 +24,6 @@ namespace graphics {
 
 class shader_module;
 
-struct viewport {
-  float x;
-  float y;
-  float width;
-  float height;
-  float min_depth;
-  float max_depth;
-};
-
 struct stencil_desc {
   stencil_op fail = stencil_op::keep;
   stencil_op pass = stencil_op::keep;

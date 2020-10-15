@@ -81,22 +81,22 @@ public:
   void Render();
 
   /// Called when Rocket shuts down.
-  virtual void OnShutdown();
+  virtual void OnShutdown() override;
 
   /// Called whenever a Rocket context is destroyed.
   /// @param[in] context The destroyed context.
-  virtual void OnContextDestroy(Core::DocumentContext* context);
+  virtual void OnContextDestroy(Core::DocumentContext* context) override;
 
   /// Called whenever an element is created.
   /// @param[in] element The created element.
-  virtual void OnElementCreate(Core::Element* element);
+  virtual void OnElementCreate(Core::Element* element) override;
   /// Called whenever an element is destroyed.
   /// @param[in] element The destroyed element.
-  virtual void OnElementDestroy(Core::Element* element);
+  virtual void OnElementDestroy(Core::Element* element) override;
 
   /// Event handler for events from the debugger elements.
   /// @param[in] event The event to process.
-  virtual void ProcessEvent(Core::Event& event);
+  virtual void ProcessEvent(Core::Event& event) override;
 
   /// Access the singleton instance of the debugger
   /// @return NULL or an instance of the plugin

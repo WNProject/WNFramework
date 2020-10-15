@@ -50,7 +50,7 @@ public:
   virtual ~ElementDataGridExpandButton();
 
 protected:
-  void ProcessEvent(Core::Event& event);
+  virtual void ProcessEvent(Core::Event& event) override;
 };
 }  // namespace Controls
 }  // namespace Rocket

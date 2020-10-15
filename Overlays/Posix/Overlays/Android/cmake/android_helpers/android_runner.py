@@ -331,7 +331,7 @@ class Runner:
             has_started = False
             pid = 0
             while(True):
-                line = p.stdout.readline()
+                line = p.stdout.readline().decode('utf-8', 'ignore')
                 original_line = line
 
                 if not line:
