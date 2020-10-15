@@ -264,7 +264,7 @@ protected:
   bool initialize_buffer(buffer* _buffer, const size_t _size,
       const resource_states _usage) WN_GRAPHICS_OVERRIDE_FINAL;
   bool bind_buffer(buffer* _buffer, arena* _arena,
-      const size_t _offset) WN_GRAPHICS_OVERRIDE_FINAL;
+      const uint64_t _offset) WN_GRAPHICS_OVERRIDE_FINAL;
   void* map_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
   void unmap_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;

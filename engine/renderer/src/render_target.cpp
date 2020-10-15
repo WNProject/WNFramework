@@ -127,7 +127,7 @@ runtime::graphics::image* render_target::get_image_for_index(size_t i) {
 }
 
 void render_target::setup_for_frame(
-    render_context* _renderer, size_t _frame, bool _check_dimensions) {
+    render_context* _renderer, uint64_t _frame, bool _check_dimensions) {
   size_t index = get_index_for_frame(_frame);
   if (_check_dimensions) {
     size_t new_width =

@@ -7,8 +7,8 @@ on:
 jobs:
   build-linux:
     name: >
-      Build Linux (${{matrix.generator}}, ${{matrix.build-type}},
-      ${{matrix.compiler}}-${{matrix.version}})
+      Build (Linux, Ninja, x86-64, ${{matrix.compiler}}-${{matrix.version}},
+      ${{matrix.build-type}})
     runs-on: ubuntu-latest
     container:
       ghcr.io/wnproject/build-linux:${{matrix.compiler}}-${{matrix.version}}
@@ -17,7 +17,6 @@ jobs:
       matrix:
         compiler: [clang, gcc]
         version: [9, 10]
-        generator: [Ninja]
         build-type: [Debug, Release]
     steps:
       - name: Set up build environment
@@ -29,13 +28,68 @@ jobs:
           submodules: true
       - name: Run configuration
         working-directory: ./build
-        run: >
-          cmake
-          -G'${{matrix.generator}}'
-          -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
-          ../source
+        run: cmake -GNinja -DCMAKE_BUILD_TYPE=${{matrix.build-type}} ../source
       - name: Run build
         working-directory: ./build
         run: cmake --build .
-      - name: Report build size
-        run: du -hs ./build
+      - name: Report build details
+        run: du -hbcs ./source ./build
+  build-windows:
+    name: >
+      Build (Windows, Ninja, ${{matrix.architecture}}, msvc-${{matrix.version}},
+      ${{matrix.build-type}})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        version: [15]
+        architecture: [x86, x86-64]
+        build-type: [Debug, Release]
+    env:
+      PACKAGE: ghcr.io/${{github.repository_owner}}/build-windows
+    steps:
+      - name: Determine additional info
+        id: info
+        run: |
+          if ("${{matrix.architecture}}" -eq 'x86-64') {
+            $cmake_host = 'x64'
+            $cmake_architecture = $cmake_host
+            $vs_arch = 'amd64'
+          } else {
+            $cmake_host = "${{matrix.architecture}}"
+            $cmake_architecture = 'Win32'
+            $vs_arch = "${{matrix.architecture}}"
+          }
+          $docker_image = "${{env.PACKAGE}}:msvc-${{matrix.version}}".ToLower()
+          echo "::set-output name=cmake_host::$cmake_host"
+          echo "::set-output name=cmake_architecture::$cmake_architecture"
+          echo "::set-output name=vs_arch::$vs_arch"
+          echo "::set-output name=docker_image::$docker_image"
+      - name: Set up build environment
+        run: mkdir build
+      - name: Checkout code
+        uses: actions/checkout@v2.3.3
+        with:
+          path: ./source
+          submodules: true
+      - name: Pull container
+        run: docker pull ${{steps.info.outputs.docker_image}}
+      - name: Run configuration
+        run: >
+          docker run --rm
+          -e VS_ARCH=${{steps.info.outputs.vs_arch}}
+          -v ${{github.workspace}}:C:\workspace
+          ${{steps.info.outputs.docker_image}}
+          cmake -GNinja -S C:\workspace\source -B C:\workspace\build
+          -DWN_MSVC_DISABLE_INCREMENTAL_LINKING=ON
+          -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
+      - name: Run build
+        run: >
+          docker run --rm
+          -e VS_ARCH=${{steps.info.outputs.vs_arch}}
+          -v ${{github.workspace}}:C:\workspace
+          ${{steps.info.outputs.docker_image}}
+          cmake --build C:\workspace\build
+      - name: Report build details
+        shell: bash
+        run: du -hbcs ./source ./build
