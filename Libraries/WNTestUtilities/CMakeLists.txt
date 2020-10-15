@@ -1,13 +1,13 @@
+set(WN_TEST_UTILITIES_CXX_FLAGS)
+
 enable_overlay_directory()
 
-add_wn_externals(googletest
+add_wn_externals(
+  googletest
   DIRECTORY
     ${WNFramework_SOURCE_DIR}/Externals/googletest
-  TARGETS
-    gtest
-    gtest_main
-    gmock
-    gmock_main
+  CXX_FLAGS
+    ${WN_TEST_UTILITIES_CXX_FLAGS}
 )
 
 add_wn_library(WNTestUtilities
