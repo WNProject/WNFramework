@@ -236,7 +236,7 @@ struct get_thunk_passed_type<U,
   static inline U unwrap(typename U::value_type* _u) {
     U u(_u);
     fixup_return_type(u);
-    return core::move(u);
+    return u;
   }
 };
 
@@ -253,7 +253,7 @@ struct get_thunk_passed_type<U,
   static inline U unwrap(void* _u) {
     U u(_u);
     fixup_return_type(u);
-    return core::move(u);
+    return u;
   }
 };
 

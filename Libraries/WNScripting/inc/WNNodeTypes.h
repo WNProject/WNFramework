@@ -405,7 +405,7 @@ public:
   memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
     auto t = memory::make_unique<type>(_allocator, _allocator);
     t->copy_underlying_from(_allocator, this);
-    return core::move(t);
+    return t;
   }
 
   void copy_underlying_from(memory::allocator* _allocator, const type* _other) {
@@ -460,7 +460,7 @@ public:
     t->copy_underlying_from(_allocator, this);
     t->m_size = clone_node(_allocator, m_size.get());
     t->m_subtype = clone_node(_allocator, m_subtype.get());
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -503,7 +503,7 @@ public:
     t->copy_underlying_from(_allocator, this);
     t->m_dimensions = m_dimensions;
     t->m_subtype = clone_node(_allocator, m_subtype.get());
-    return core::move(t);
+    return t;
   }
 
   uint32_t dimensions() const {
@@ -543,7 +543,7 @@ public:
     auto t = memory::make_unique<runtime_array_type>(_allocator, _allocator);
     t->copy_underlying_from(_allocator, this);
     t->m_subtype = clone_node(_allocator, m_subtype.get());
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -661,7 +661,7 @@ public:
     t->m_init_mode = m_init_mode;
     t->m_levels = m_levels;
     t->m_is_runtime = m_is_runtime;
-    return core::move(t);
+    return t;
   }
 
   void set_inline_initializers(arg_list* _list) {
@@ -720,7 +720,7 @@ public:
     t->m_lhs = clone_node(_allocator, m_lhs.get());
     t->m_rhs = clone_node(_allocator, m_rhs.get());
     t->m_arith_type = m_arith_type;
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -755,7 +755,7 @@ public:
     t->m_lhs = clone_node(_allocator, m_lhs.get());
     t->m_rhs = clone_node(_allocator, m_rhs.get());
     t->m_condition = clone_node(_allocator, m_condition.get());
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -802,7 +802,7 @@ public:
     t->copy_underlying_from(_allocator, this);
     t->m_type_classification = m_type_classification;
     t->m_text = containers::string(_allocator, m_text);
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -836,7 +836,7 @@ public:
     auto t = memory::make_unique<id_expression>(_allocator, _allocator);
     t->copy_underlying_from(_allocator, this);
     t->m_name = containers::string(_allocator, m_name);
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -856,7 +856,7 @@ public:
     auto t = memory::make_unique<null_allocation_expression>(
         m_allocator, m_allocator);
     t->copy_underlying_from(_allocator, this);
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -917,7 +917,7 @@ public:
     t->copy_underlying_from(_allocator, this);
     t->m_array_access = clone_node(_allocator, m_array_access.get());
     t->m_is_construction = m_is_construction;
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -965,7 +965,7 @@ public:
     t->copy_underlying_from(_allocator, this);
     t->m_index_0 = clone_node(_allocator, m_index_0.get());
     t->m_index_1 = clone_node(_allocator, m_index_1.get());
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -1010,7 +1010,7 @@ public:
     t->m_lhs = clone_node(_allocator, m_lhs.get());
     t->m_rhs = clone_node(_allocator, m_rhs.get());
     t->m_ss_type = m_ss_type;
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -1049,7 +1049,7 @@ public:
         memory::make_unique<member_access_expression>(_allocator, _allocator);
     t->copy_underlying_from(_allocator, this);
     t->m_member = containers::string(_allocator, m_member);
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -1079,7 +1079,7 @@ public:
     auto t = memory::make_unique<post_unary_expression>(_allocator, _allocator);
     t->copy_underlying_from(_allocator, this);
     t->m_unary_type = m_unary_type;
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -1120,7 +1120,7 @@ public:
     auto t = memory::make_unique<cast_expression>(_allocator, _allocator);
     t->copy_underlying_from(_allocator, this);
     t->m_expression = clone_node(_allocator, m_expression.get());
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -1142,7 +1142,7 @@ struct function_expression {
     auto t = memory::make_unique<function_expression>(_allocator, _allocator);
     t->m_expr = clone_node(_allocator, m_expr.get());
     t->m_hand_ownership = m_hand_ownership;
-    return core::move(t);
+    return t;
   }
 
   memory::unique_ptr<expression> m_expr;
@@ -1185,7 +1185,7 @@ public:
     for (auto& i : m_expression_list) {
       t->m_expression_list.push_back(i->clone(_allocator));
     }
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -1228,7 +1228,7 @@ public:
     t->copy_underlying_from(_allocator, this);
     t->m_resource_type = containers::string(_allocator, m_resource_type);
     t->m_string = containers::string(_allocator, m_string);
-    return core::move(t);
+    return t;
   }
 
   const containers::deque<memory::unique_ptr<function_expression>>&
@@ -1300,7 +1300,7 @@ public:
     t->m_copy_initializer = clone_node(_allocator, m_copy_initializer.get());
     t->m_init_mode = m_init_mode;
     t->m_args = clone_node(_allocator, m_args.get());
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -1340,7 +1340,7 @@ public:
     t->copy_underlying_from(_allocator, this);
     t->m_root_expression = clone_node(_allocator, m_root_expression.get());
     t->m_unary_type = m_unary_type;
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -1386,7 +1386,7 @@ public:
     t->copy_underlying_from(_allocator, this);
     t->m_root_expression = clone_node(_allocator, m_root_expression.get());
     t->m_unary_type = m_unary_type;
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -1450,7 +1450,7 @@ struct expression_instruction : public instruction {
         memory::make_unique<expression_instruction>(_allocator, _allocator);
     t->copy_underlying_from(_allocator, this);
     t->m_expression = clone_node(_allocator, m_expression.get());
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -1500,7 +1500,7 @@ public:
     for (auto& i : m_instructions) {
       t->m_instructions.push_back(clone_node(_allocator, i.get()));
     }
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -1554,7 +1554,7 @@ public:
         memory::make_unique<function_call_expression>(_allocator, _allocator);
     t->copy_underlying_from(_allocator, this);
     t->m_args = clone_node(_allocator, m_args.get());
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -1609,7 +1609,7 @@ public:
     t->m_type = clone_node(_allocator, m_type.get());
     t->m_name = containers::string(_allocator, m_name);
     t->m_is_for_empty_function = m_is_for_empty_function;
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -1681,7 +1681,7 @@ public:
     t->m_expression = clone_node(_allocator, m_expression.get());
     t->m_is_default_initialization = m_is_default_initialization;
     t->m_is_inherited = m_is_inherited;
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -1731,7 +1731,7 @@ public:
     for (auto& m : m_parameters) {
       t->m_parameters.push_back(clone_node(_allocator, m.get()));
     }
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -1826,7 +1826,7 @@ public:
       t->m_struct_functions.push_back(clone_node(_allocator, m.get()));
     }
 
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -1919,7 +1919,7 @@ public:
     t->m_body = clone_node(_allocator, m_body.get());
     t->m_is_override = m_is_override;
     t->m_is_virtual = m_is_virtual;
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -1953,7 +1953,7 @@ public:
     auto t = memory::make_unique<lvalue>(_allocator, _allocator);
     t->copy_underlying_from(_allocator, this);
     t->m_expression = clone_node(_allocator, m_expression.get());
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -2045,7 +2045,7 @@ public:
     t->m_assign_type = m_assign_type;
     t->m_assign_expression = clone_node(_allocator, m_assign_expression.get());
     t->m_in_constructor = m_in_constructor;
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -2068,7 +2068,7 @@ public:
   memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
     auto t = memory::make_unique<break_instruction>(_allocator, _allocator);
     t->copy_underlying_from(_allocator, this);
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -2086,7 +2086,7 @@ public:
   memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
     auto t = memory::make_unique<continue_instruction>(_allocator, _allocator);
     t->copy_underlying_from(_allocator, this);
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -2130,7 +2130,7 @@ public:
     t->copy_underlying_from(_allocator, this);
     t->m_condition = clone_node(_allocator, m_condition.get());
     t->m_body = clone_node(_allocator, m_body.get());
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -2168,7 +2168,7 @@ public:
     t->copy_underlying_from(_allocator, this);
     t->m_condition = clone_node(_allocator, m_condition.get());
     t->m_body = clone_node(_allocator, m_body.get());
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -2235,7 +2235,7 @@ public:
       t->m_else_if_nodes.push_back(clone_node(_allocator, e.get()));
     }
 
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -2291,7 +2291,7 @@ public:
     t->m_post_op = clone_node(_allocator, m_post_op.get());
     t->m_body = clone_node(_allocator, m_body.get());
 
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -2324,7 +2324,7 @@ public:
     t->copy_underlying_from(_allocator, this);
     t->m_expression = clone_node(_allocator, m_expression.get());
 
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -2362,7 +2362,7 @@ public:
     t->m_condition = clone_node(_allocator, m_condition.get());
     t->m_body = clone_node(_allocator, m_body.get());
 
-    return core::move(t);
+    return t;
   }
 
 private:
@@ -2460,7 +2460,7 @@ public:
               containers::string(_allocator, f.second)));
     }
 
-    return core::move(t);
+    return t;
   }
 
 private:

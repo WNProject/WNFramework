@@ -24,7 +24,7 @@ parse_ast_convertor::convertor_context::make_cast(
   ret->m_base_expression = core::move(from);
   ret->m_type = _type;
 
-  return core::move(ret);
+  return ret;
 }
 
 memory::unique_ptr<ast_expression>
@@ -44,7 +44,7 @@ parse_ast_convertor::convertor_context::make_implicit_cast(
   ret->m_base_expression = core::move(from);
   ret->m_type = _type;
 
-  return core::move(ret);
+  return ret;
 }
 memory::unique_ptr<ast_statement>
 parse_ast_convertor::convertor_context::evaluate_expression(
@@ -54,7 +54,7 @@ parse_ast_convertor::convertor_context::evaluate_expression(
   ret->m_source_location = _expr->m_source_location;
   ret->m_expr = core::move(_expr);
 
-  return core::move(ret);
+  return ret;
 }
 
 memory::unique_ptr<ast_function_call_expression>
@@ -102,7 +102,7 @@ parse_ast_convertor::convertor_context::get_id(
         id_expr->m_declaration = decl;
         id_expr->m_type = decl->m_type;
 
-        return core::move(id_expr);
+        return id_expr;
       }
     }
   }
@@ -112,7 +112,7 @@ parse_ast_convertor::convertor_context::get_id(
       id_expr->m_function_parameter = &parameter;
       id_expr->m_type = parameter.m_type;
 
-      return core::move(id_expr);
+      return id_expr;
     }
   }
 
@@ -134,7 +134,7 @@ parse_ast_convertor::convertor_context::get_id(
         mae->m_member_name = core::move(_name);
         mae->m_type = m->m_type;
 
-        return core::move(mae);
+        return mae;
       }
 
       num++;
@@ -151,7 +151,7 @@ parse_ast_convertor::convertor_context::get_id(
         mae->m_member_name = core::move(_name);
         mae->m_type = m_type_manager->function_t(&m_used_types);
 
-        return core::move(mae);
+        return mae;
       }
     }
   }
@@ -160,7 +160,7 @@ parse_ast_convertor::convertor_context::get_id(
     id_expr->m_function_name = core::move(_name);
     id_expr->m_type = m_type_manager->function_t(&m_used_types);
 
-    return core::move(id_expr);
+    return id_expr;
   }
 
   if (!_can_fail) {
@@ -180,7 +180,7 @@ parse_ast_convertor::convertor_context::make_temp_declaration(
       memory::make_unique<ast_declaration>(m_allocator, _location);
   decl->m_name = containers::string(m_allocator, _name);
   decl->m_type = _type;
-  return core::move(decl);
+  return decl;
 }
 
 memory::unique_ptr<ast_id> parse_ast_convertor::convertor_context::id_to(
@@ -189,7 +189,7 @@ memory::unique_ptr<ast_id> parse_ast_convertor::convertor_context::id_to(
       memory::make_unique<ast_id>(m_allocator, _location);
   id->m_declaration = _decl;
   id->m_type = _decl->m_type;
-  return core::move(id);
+  return id;
 }
 
 }  // namespace scripting

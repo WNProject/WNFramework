@@ -640,9 +640,9 @@ bool render_context::render() {
       0, 1, runtime::graphics::resource_state::render_target,
       runtime::graphics::resource_state::copy_source);
 
-  auto swap_idx = m_swapchain->get_next_backbuffer_index(
+  uint32_t swap_idx = m_swapchain->get_next_backbuffer_index(
       nullptr, &m_swapchain_get_signals[backing_idx]);
-  while (swap_idx == -1 || m_frame_num > m_last_up_to_date_frame + 60) {
+  while (m_frame_num > m_last_up_to_date_frame + 60) {
     m_log->log_warning("Swapchain out of date, resizing");
 
     runtime::graphics::data_format swapchain_format =

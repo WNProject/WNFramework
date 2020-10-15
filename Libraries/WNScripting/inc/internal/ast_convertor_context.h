@@ -125,7 +125,7 @@ struct parse_ast_convertor::convertor_context {
     containers::string str =
         containers::string(m_allocator, prefix ? prefix : "_wns_temp");
     str += buff;
-    return core::move(str);
+    return str;
   }
   memory::unique_ptr<ast_statement> evaluate_expression(
       memory::unique_ptr<ast_expression> _expr);
