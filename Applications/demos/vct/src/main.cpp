@@ -50,7 +50,7 @@ int32_t wn_application_main(
   static logging::static_log<logging::log_level::max, 1024> log(
       &logger, verbose ? logging::log_level::max : logging::log_level::info);
 
-  file_system::factory fs_factory(alloc, _data->executable_data);
+  file_system::factory fs_factory(alloc, _data->executable_data, log.log());
 
   file_system::mapping_ptr files =
       has_data_dir ? fs_factory.make_mapping(alloc, data_dir)

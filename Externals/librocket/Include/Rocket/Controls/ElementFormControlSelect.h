@@ -58,10 +58,10 @@ public:
 
   /// Returns a string representation of the current value of the form control.
   /// @return The value of the form control.
-  virtual Rocket::Core::String GetValue() const;
+  virtual Rocket::Core::String GetValue() const override;
   /// Sets the current value of the form control.
   /// @param[in] value The new value of the form control.
-  virtual void SetValue(const Rocket::Core::String& value);
+  virtual void SetValue(const Rocket::Core::String& value) override;
 
   /// Sets the index of the selection. If the new index lies outside of the
   /// bounds, it will be clamped.
@@ -103,12 +103,12 @@ public:
 
 protected:
   /// Moves all children to be under control of the widget.
-  virtual void OnUpdate();
+  virtual void OnUpdate() override;
   /// Updates the layout of the widget's elements.
-  virtual void OnRender();
+  virtual void OnRender() override;
 
   /// Forces an internal layout.
-  virtual void OnLayout();
+  virtual void OnLayout() override;
 
   /// Returns true to mark this element as replaced.
   /// @param[out] intrinsic_dimensions Set to the arbitrary dimensions of 128 x
@@ -116,7 +116,7 @@ protected:
   /// properties.
   /// @return True.
   virtual bool GetIntrinsicDimensions(
-      Rocket::Core::Vector2f& intrinsic_dimensions);
+      Rocket::Core::Vector2f& intrinsic_dimensions) override;
 
   WidgetDropDown* widget;
 };

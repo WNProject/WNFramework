@@ -63,7 +63,7 @@ public:
   void ProcessHeader(const DocumentHeader* header);
 
   /// Returns itself as the current document
-  virtual ElementDocument* GetOwnerDocument();
+  virtual ElementDocument* GetOwnerDocument() override;
 
   /// Returns the document's context.
   /// @return The context this document exists within.
@@ -85,7 +85,7 @@ public:
   void SetStyleSheet(StyleSheet* style_sheet);
   /// Returns the document's style sheet.
   /// @return The document's style sheet.
-  virtual StyleSheet* GetStyleSheet() const;
+  virtual StyleSheet* GetStyleSheet() const override;
 
   /// Brings the document to the front of the document stack.
   void PullToFront();
@@ -134,25 +134,26 @@ public:
   void UpdatePosition();
 
   /// Increment/Decrement the layout lock
-  void LockLayout(bool lock);
+  virtual void LockLayout(bool lock) override;
 
 protected:
   /// Refreshes the document layout if required.
-  virtual void OnUpdate();
+  virtual void OnUpdate() override;
 
   /// Repositions the document if necessary.
-  virtual void OnPropertyChange(const PropertyNameList& changed_properties);
+  virtual void OnPropertyChange(
+      const PropertyNameList& changed_properties) override;
 
   /// Sets the dirty flag on the layout so the document will format its children
   /// before the next render.
-  virtual void DirtyLayout();
+  virtual void DirtyLayout() override;
 
   /// Returns true if the document has been marked as needing a re-layout.
-  virtual bool IsLayoutDirty();
+  virtual bool IsLayoutDirty() override;
 
   /// Processes the 'onpropertychange' event, checking for a change in position
   /// or size.
-  virtual void ProcessEvent(Event& event);
+  virtual void ProcessEvent(Event& event) override;
 
 private:
   // Find the next element to focus, starting at the current element

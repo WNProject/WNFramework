@@ -51,17 +51,17 @@ public:
   /// @param[in] parameters The parameters defined for this property.
   /// @return True if the value was validated successfully, false otherwise.
   virtual bool ParseValue(Property& property, const String& value,
-      const ParameterMap& parameters) const;
+      const ParameterMap& parameters) const override;
 
   // Destroys the parser.
-  void Release();
+  virtual void Release() override;
 
 private:
   // Stores a list of the numerical units and their suffixes.
   typedef std::pair<Property::Unit, String> UnitSuffix;
   std::vector<UnitSuffix> unit_suffixes;
 };
-}
-}
+}  // namespace Core
+}  // namespace Rocket
 
 #endif

@@ -15,7 +15,8 @@ TEST_P(factory, make_mapping) {
   wn::testing::allocator allocator;
 
   {
-    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data,
+        wn::logging::get_null_logger());
     const wn::file_system::mapping_ptr mp =
         f.make_mapping(&allocator, GetParam());
 
@@ -83,7 +84,8 @@ TEST(factory, make_mapping_from_path) {
 
     ASSERT_FALSE(path.empty());
 
-    wn::file_system::factory f(&allocator, wn::testing::k_executable_data);
+    wn::file_system::factory f(&allocator, wn::testing::k_executable_data,
+        wn::logging::get_null_logger());
     const wn::file_system::mapping_ptr mp = f.make_mapping(&allocator, path);
 
     ASSERT_NE(mp, nullptr);

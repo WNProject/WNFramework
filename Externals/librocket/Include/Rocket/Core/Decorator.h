@@ -99,7 +99,7 @@ public:
 
 protected:
   /// Releases the decorator through its instancer.
-  virtual void OnReferenceDeactivate();
+  virtual void OnReferenceDeactivate() override;
 
   /// Attempts to load a texture into the list of textures in use by the
   /// decorator.

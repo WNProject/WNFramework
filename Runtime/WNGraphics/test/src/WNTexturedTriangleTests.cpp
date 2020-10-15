@@ -3,6 +3,7 @@
 // found in the LICENSE.txt file.
 
 #include "WNApplicationData/inc/WNApplicationData.h"
+#include "WNGraphics/inc/WNGraphicsPipelineDescription.h"
 #include "WNGraphics/inc/WNSampler.h"
 #include "WNGraphics/test/inc/WNPixelTestFixture.h"
 #include "WNMultiTasking/inc/job_pool.h"

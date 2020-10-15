@@ -57,26 +57,27 @@ public:
 
   /// Get the number of seconds elapsed since the start of the application.
   /// @return Elapsed time, in seconds.
-  virtual float GetElapsedTime();
+  virtual float GetElapsedTime() override;
 
   /// Translate the input string into the translated string.
   /// @param[out] translated Translated string ready for display.
   /// @param[in] input String as received from XML.
   /// @return Number of translations that occured.
   virtual int TranslateString(
-      Core::String& translated, const Core::String& input);
+      Core::String& translated, const Core::String& input) override;
 
   /// Log the specified message.
   /// @param[in] type Type of log message, ERROR, WARNING, etc.
   /// @param[in] message Message to log.
   /// @return True to continue execution, false to break into the debugger.
-  virtual bool LogMessage(Core::Log::Type type, const Core::String& message);
+  virtual bool LogMessage(
+      Core::Log::Type type, const Core::String& message) override;
 
   /// Activate keyboard (for touchscreen devices)
-  virtual void ActivateKeyboard();
+  virtual void ActivateKeyboard() override;
 
   /// Deactivate keyboard (for touchscreen devices)
-  virtual void DeactivateKeyboard();
+  virtual void DeactivateKeyboard() override;
 
 private:
   Core::SystemInterface* application_interface;

@@ -729,7 +729,7 @@ protected:
   /// form.
   virtual void GetRML(String& content);
 
-  virtual void OnReferenceDeactivate();
+  virtual void OnReferenceDeactivate() override;
 
   Context* m_context;
 

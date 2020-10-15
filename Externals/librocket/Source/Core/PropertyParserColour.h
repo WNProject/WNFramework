@@ -52,16 +52,16 @@ public:
   /// for this parser.
   /// @return True if the value was parsed successfully, false otherwise.
   virtual bool ParseValue(Property& property, const String& value,
-      const ParameterMap& parameters) const;
+      const ParameterMap& parameters) const override;
 
   /// Destroys the parser.
-  virtual void Release();
+  virtual void Release() override;
 
 private:
   typedef std::map<String, Colourb, StringUtilities::StringComparei> ColourMap;
   ColourMap html_colours;
 };
-}
-}
+}  // namespace Core
+}  // namespace Rocket
 
 #endif

@@ -107,7 +107,7 @@ public:
   const Dictionary* GetParameters() const;
 
   /// Release this event.
-  virtual void OnReferenceDeactivate();
+  virtual void OnReferenceDeactivate() override;
 
 protected:
   String type;

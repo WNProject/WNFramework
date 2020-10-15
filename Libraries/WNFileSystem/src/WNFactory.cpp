@@ -9,6 +9,7 @@
 #include "WNFileSystem/src/WNSystemPaths.h"
 #include "WNFileSystem/src/WNSystemUtilities.h"
 #include "WNFileSystem/src/WNUtilities.h"
+#include "WNLogging/inc/WNLog.h"
 
 namespace wn {
 namespace file_system {
@@ -33,6 +34,7 @@ mapping_ptr factory::make_mapping(
     case mapping_type::scratch_directory: {
       containers::string path(
           internal::get_scratch_path(_allocator, m_system_data));
+      m_log->log_info("Creating get_scratch_path mapping: ", path);
 
       if (!path.empty()) {
         return memory::make_unique<internal::system_mapping>(
@@ -44,6 +46,7 @@ mapping_ptr factory::make_mapping(
     case mapping_type::executable_directory: {
       containers::string path(
           internal::get_executable_path(_allocator, m_system_data));
+      m_log->log_info("Creating executable_directory mapping: ", path);
 
       if (!path.empty()) {
         return memory::make_unique<internal::system_mapping>(
@@ -55,7 +58,7 @@ mapping_ptr factory::make_mapping(
     case mapping_type::current_working_directory: {
       containers::string path(
           internal::get_current_working_path(_allocator, m_system_data));
-
+      m_log->log_info("Creating current_working_directory mapping: ", path);
       if (!path.empty()) {
         return memory::make_unique<internal::system_mapping>(
             _allocator, _allocator, core::move(path), false);
@@ -64,7 +67,7 @@ mapping_ptr factory::make_mapping(
     case mapping_type::development_assets: {
       containers::string path(
           internal::get_dev_assets_path(_allocator, m_system_data));
-
+      m_log->log_info("Creating development assets mapping: ", path);
       if (!path.empty()) {
         return memory::make_unique<internal::system_mapping>(
             _allocator, _allocator, core::move(path), false);

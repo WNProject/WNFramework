@@ -51,12 +51,12 @@ public:
   /// @param[in] parameters The parameters defined for this property.
   /// @return True if the value was validated successfully, false otherwise.
   virtual bool ParseValue(Property& property, const String& value,
-      const ParameterMap& parameters) const;
+      const ParameterMap& parameters) const override;
 
   // Destroys the parser.
-  void Release();
+  virtual void Release() override;
 };
-}
-}
+}  // namespace Core
+}  // namespace Rocket
 
 #endif

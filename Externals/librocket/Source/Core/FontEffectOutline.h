@@ -56,7 +56,7 @@ public:
 
   /// Returns true.
   /// @return True.
-  virtual bool HasUniqueTexture() const;
+  virtual bool HasUniqueTexture() const override;
 
   /// Resizes and repositions the glyph to fit the outline.
   /// @param[out] origin The desired origin of the effect's glyph bitmap, as a
@@ -67,8 +67,8 @@ public:
   /// @param[in] glyph The glyph the effect is being asked to size.
   /// @return False if the effect is not providing support for the glyph, true
   /// otherwise.
-  virtual bool GetGlyphMetrics(
-      Vector2i& origin, Vector2i& dimensions, const FontGlyph& glyph) const;
+  virtual bool GetGlyphMetrics(Vector2i& origin, Vector2i& dimensions,
+      const FontGlyph& glyph) const override;
 
   /// Expands the original glyph texture for the outline.
   /// @param[out] destination_data The top-left corner of the glyph's 32-bit,
@@ -81,7 +81,7 @@ public:
   /// texture for.
   virtual void GenerateGlyphTexture(byte* destination_data,
       const Vector2i& destination_dimensions, int destination_stride,
-      const FontGlyph& glyph) const;
+      const FontGlyph& glyph) const override;
 
 private:
   int width;

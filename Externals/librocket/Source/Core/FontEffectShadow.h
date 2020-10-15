@@ -54,7 +54,7 @@ public:
 
   /// Returns false.
   /// @return False.
-  virtual bool HasUniqueTexture() const;
+  virtual bool HasUniqueTexture() const override;
 
   /// Repositions the glyph by the offset.
   /// @param[out] origin The desired origin of the effect's glyph bitmap, as a
@@ -66,7 +66,7 @@ public:
   /// @return False if the effect is not providing support for the glyph, true
   /// otherwise.
   virtual bool GetGlyphMetrics(
-      Vector2i& origin, Vector2i& dimensions, const FontGlyph& glyph) const;
+      Vector2i& origin, Vector2i& dimensions, const FontGlyph& glyph) const override;
 
 private:
   Vector2i offset;

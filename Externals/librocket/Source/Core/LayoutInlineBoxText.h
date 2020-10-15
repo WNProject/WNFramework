@@ -53,7 +53,7 @@ public:
   /// Returns true if this box is capable of overflowing, or if it must be
   /// rendered on a single line.
   /// @return True if this box can overflow, false otherwise.
-  virtual bool CanOverflow() const;
+  virtual bool CanOverflow() const override;
 
   /// Flows the inline box's content into its parent line.
   /// @param[in] first_box True if this box is the first box containing content
@@ -65,8 +65,8 @@ public:
   /// then the entire width can be used.
   /// @return The overflow box containing any content that spilled over from the
   /// flow. This must be NULL if no overflow occured.
-  virtual LayoutInlineBox* FlowContent(
-      bool first_box, float available_width, float right_spacing_width);
+  virtual LayoutInlineBox* FlowContent(bool first_box, float available_width,
+      float right_spacing_width) override;
 
   /// Computes and sets the vertical position of this element, relative to its
   /// parent inline box (or block box,
@@ -75,16 +75,16 @@ public:
   /// its children.
   /// @param descender[out] The maximum descender of this inline box and all of
   /// its children.
-  virtual void CalculateBaseline(float& ascender, float& descender);
+  virtual void CalculateBaseline(float& ascender, float& descender) override;
   /// Offsets the baseline of this box, and all of its children, by the ascender
   /// of the parent line box.
   /// @param ascender[in] The ascender of the line box.
-  virtual void OffsetBaseline(float ascender);
+  virtual void OffsetBaseline(float ascender) override;
 
   /// Positions the inline box's element.
-  virtual void PositionElement();
+  virtual void PositionElement() override;
   /// Sizes the inline box's element.
-  virtual void SizeElement(bool split);
+  virtual void SizeElement(bool split) override;
 
 private:
   /// Returns the box's element as a text element.

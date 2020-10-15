@@ -36,6 +36,15 @@ struct render_area {
   uint32_t height;
 };
 
+struct viewport {
+  float x;
+  float y;
+  float width;
+  float height;
+  float min_depth;
+  float max_depth;
+};
+
 struct image_create_info {
   static image_create_info default_texture(size_t _width, size_t _height) {
     return image_create_info{_width, _height, data_format::r8g8b8a8_unorm,

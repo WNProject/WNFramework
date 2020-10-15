@@ -45,9 +45,9 @@ public:
   virtual ~StyleSheetNodeSelectorLastChild();
 
   // Returns true if the element is the last DOM child in its parent.
-  virtual bool IsApplicable(const Element* element, int a, int b);
+  virtual bool IsApplicable(const Element* element, int a, int b) override;
 };
-}
-}
+}  // namespace Core
+}  // namespace Rocket
 
 #endif

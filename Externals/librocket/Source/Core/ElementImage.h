@@ -85,22 +85,24 @@ public:
   /// Returns the element's inherent size.
   /// @param[out] The element's intrinsic dimensions.
   /// @return True.
-  bool GetIntrinsicDimensions(Vector2f& dimensions);
+  virtual bool GetIntrinsicDimensions(Vector2f& dimensions) override;
 
 protected:
   /// Renders the image.
-  virtual void OnRender();
+  virtual void OnRender() override;
 
   /// Checks for changes to the image's source or dimensions.
   /// @param[in] changed_attributes A list of attributes changed on the element.
-  virtual void OnAttributeChange(const AttributeNameList& changed_attributes);
+  virtual void OnAttributeChange(
+      const AttributeNameList& changed_attributes) override;
   /// Called when properties on the element are changed.
   /// @param[in] changed_properties The properties changed on the element.
-  virtual void OnPropertyChange(const PropertyNameList& changed_properties);
+  virtual void OnPropertyChange(
+      const PropertyNameList& changed_properties) override;
 
   /// Regenerates the element's geometry on a resize event.
   /// @param[in] event The event to process.
-  virtual void ProcessEvent(Event& event);
+  virtual void ProcessEvent(Event& event) override;
 
 private:
   // Generates the element's geometry.

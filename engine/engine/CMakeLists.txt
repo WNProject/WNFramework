@@ -1,3 +1,5 @@
+enable_overlay_directory()
+
 add_wn_application(
   engine
   SOURCES
@@ -11,3 +13,5 @@ add_wn_application(
     window
     ui
 )
+
+post_enable_overlay_directory()

@@ -94,18 +94,18 @@ public:
   ElementDataGrid* GetParentGrid();
 
 protected:
-  virtual void OnDataSourceDestroy(DataSource* data_source);
+  virtual void OnDataSourceDestroy(DataSource* data_source) override;
   virtual void OnRowAdd(DataSource* data_source,
       const Rocket::Core::String& table, int first_row_added,
-      int num_rows_added);
+      int num_rows_added) override;
   virtual void OnRowRemove(DataSource* data_source,
       const Rocket::Core::String& table, int first_row_removed,
-      int num_rows_removed);
+      int num_rows_removed) override;
   virtual void OnRowChange(DataSource* data_source,
       const Rocket::Core::String& table, int first_row_changed,
-      int num_rows_changed);
+      int num_rows_changed) override;
   virtual void OnRowChange(
-      DataSource* data_source, const Rocket::Core::String& table);
+      DataSource* data_source, const Rocket::Core::String& table) override;
 
 private:
   typedef std::queue<ElementDataGridRow*> RowQueue;

@@ -54,14 +54,14 @@ public:
   /// @param tag Name of the element to instance
   /// @param attributes vector of name value pairs
   virtual Element* InstanceElement(Core::Context* _context, Element* parent,
-      const String& tag, const XMLAttributes& attributes);
+      const String& tag, const XMLAttributes& attributes) override;
 
   /// Releases the given element
   /// @param element to release
-  virtual void ReleaseElement(Element* element);
+  virtual void ReleaseElement(Element* element) override;
 
   /// Release the instancer
-  virtual void Release();
+  virtual void Release() override;
 };
 
 #include "ElementInstancerGeneric.inl"

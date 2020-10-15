@@ -10,6 +10,7 @@
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNFileSystem/inc/WNMapping.h"
+#include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
 
 namespace wn {
@@ -32,8 +33,8 @@ enum class mapping_type {
 class factory {
 public:
   WN_FORCE_INLINE factory(memory::allocator* _allocator,
-      const executable::executable_data* _executable_data)
-    : m_system_data(_executable_data), m_allocator(_allocator) {}
+      const executable::executable_data* _executable_data, logging::log* _log)
+    : m_system_data(_executable_data), m_allocator(_allocator), m_log(_log) {}
 
   virtual containers::string get_executable_path() const;
   virtual containers::string get_current_working_path() const;
@@ -57,6 +58,7 @@ public:
 private:
   const executable::executable_data* m_system_data;
   memory::allocator* m_allocator;
+  logging::log* m_log;
 };
 
 }  // namespace file_system

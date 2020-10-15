@@ -5,6 +5,7 @@
 #pragma once
 #ifndef __WN_ENGINE_RENDERABLE_OBJECT_H__
 #define __WN_ENGINE_RENDERABLE_OBJECT_H__
+#include <cstdint>
 
 namespace wn {
 namespace scripting {
