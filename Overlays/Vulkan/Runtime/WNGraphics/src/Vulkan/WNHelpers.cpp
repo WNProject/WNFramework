@@ -196,7 +196,7 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
         context->instance, &callbackCreateInfo, nullptr, &cb);
   }
 #endif
-  return wn::core::move(context);
+  return context;
 }
 
 void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,

@@ -1175,7 +1175,7 @@ public:
           wn::containers::deque<wn::runtime::graphics::arena>(m_allocator);
       m_texture_upload_buffers =
           wn::containers::deque<wn::runtime::graphics::buffer>(m_allocator);
-      return wn::core::move(r);
+      return r;
     }
     return resource_init_res{};
   }

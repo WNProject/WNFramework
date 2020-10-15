@@ -275,7 +275,7 @@ queue_ptr vulkan_device::create_queue() {
     ptr->initialize(this, m_allocator, &m_queue_context, q);
   }
 
-  return core::move(ptr);
+  return ptr;
 }
 
 void vulkan_device::destroy_queue(queue* _queue) {
@@ -379,7 +379,7 @@ command_list_ptr vulkan_device::create_command_list(command_allocator* _alloc) {
     ptr->initialize(m_allocator, buffer, pool, &m_command_list_context);
   }
 
-  return core::move(ptr);
+  return ptr;
 }
 
 void vulkan_device::initialize_image(
@@ -660,7 +660,7 @@ swapchain_ptr vulkan_device::create_swapchain(
   swp->set_create_info(info);
   swp->initialize(m_allocator, this, static_cast<uint32_t>(capabilities.width),
       static_cast<uint32_t>(capabilities.height), info, swapchain);
-  return core::move(swp);
+  return swp;
 }
 
 swapchain_ptr vulkan_device::recreate_swapchain(surface& _surface,
@@ -751,7 +751,7 @@ swapchain_ptr vulkan_device::recreate_swapchain(surface& _surface,
   swp->set_create_info(info);
   swp->initialize(m_allocator, this, static_cast<uint32_t>(capabilities.width),
       static_cast<uint32_t>(capabilities.height), info, swapchain);
-  return core::move(swp);
+  return swp;
 }
 
 void vulkan_device::initialize_shader_module(shader_module* s,
@@ -1081,7 +1081,7 @@ void vulkan_device::initialize_pipeline_layout(pipeline_layout* _layout,
 
 void vulkan_device::destroy_pipeline_layout(pipeline_layout* _layout) {
   memory::unique_ptr<pipeline_layout_data> layout =
-      wn::core::move(get_data(_layout));
+      core::move(get_data(_layout));
   vkDestroyPipelineLayout(m_device, layout->layout, nullptr);
 }
 

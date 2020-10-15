@@ -33,6 +33,7 @@ class descriptor_set;
 class pipeline_layout;
 struct render_area;
 union clear_value;
+struct viewport;
 
 namespace internal {
 namespace vulkan {

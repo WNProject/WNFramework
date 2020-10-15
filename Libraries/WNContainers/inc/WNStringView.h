@@ -343,7 +343,7 @@ public:
     dynamic_array<string_view> return_split(_allocator);
 
     if (empty()) {
-      return core::move(return_split);
+      return return_split;
     }
 
     size_type b = 0;
@@ -359,12 +359,12 @@ public:
             return_split.push_back("");
           }
 
-          return core::move(return_split);
+          return return_split;
         }
 
         return_split.push_back(substr(b, s));
 
-        return core::move(return_split);
+        return return_split;
       }
 
       if (n - b == 0 && _delimiters.find(at(b)) != npos) {
@@ -381,7 +381,7 @@ public:
       b = n + 1;
     }
 
-    return core::move(return_split);
+    return return_split;
   }
 
   string_view substr(

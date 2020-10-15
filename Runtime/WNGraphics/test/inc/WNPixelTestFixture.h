@@ -119,7 +119,7 @@ inline std::string get_image_filename() {
   file_path +=
       test_info->test_case_name() + std::string(".") + test_info->name();
   file_path += ".png";
-  return core::move(file_path);
+  return file_path;
 }
 
 template <size_t width = 100, size_t height = 100,
@@ -426,7 +426,7 @@ created_buffer create_and_fill_buffer(wn::runtime::graphics::device* _device,
   void* raw_memory = c.buffer.map();
   wn::memory::memcpy(raw_memory, values, sizeof(T) * N);
   c.buffer.unmap();
-  return wn::core::move(c);
+  return c;
 }
 
 }  // namespace testing

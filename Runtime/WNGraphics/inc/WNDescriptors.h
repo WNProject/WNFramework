@@ -112,7 +112,7 @@ public:
   descriptor_set create_descriptor_set(descriptor_set_layout* _layout) {
     descriptor_set set(m_device);
     m_device->initialize_descriptor_set(&set, this, _layout);
-    return core::move(set);
+    return set;
   }
   WN_FORCE_INLINE descriptor_pool(descriptor_pool&& _other)
     : m_device(_other.m_device) {
