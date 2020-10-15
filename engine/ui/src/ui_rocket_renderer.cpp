@@ -112,6 +112,7 @@ rocket_renderer::rocket_renderer(memory::allocator* _allocator,
           .set_index_type(wn::runtime::graphics::index_type::u32)
           .set_cull_mode(wn::runtime::graphics::cull_mode::none)
           .add_color_output(0)
+          .set_depth_buffer_enabled(true)
           .set_shader(wn::runtime::graphics::shader_stage::vertex,
               &m_vertex_shader, "main")
           .set_shader(wn::runtime::graphics::shader_stage::pixel,
@@ -139,6 +140,7 @@ rocket_renderer::rocket_renderer(memory::allocator* _allocator,
           .set_index_type(wn::runtime::graphics::index_type::u32)
           .set_cull_mode(wn::runtime::graphics::cull_mode::none)
           .add_color_output(0)
+          .set_depth_buffer_enabled(true)
           .set_shader(wn::runtime::graphics::shader_stage::vertex,
               &m_vertex_shader, "main")
           .set_shader(wn::runtime::graphics::shader_stage::pixel,

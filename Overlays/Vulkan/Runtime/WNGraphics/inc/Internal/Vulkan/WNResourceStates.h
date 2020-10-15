@@ -187,6 +187,12 @@ static WN_FORCE_INLINE VkImageUsageFlags resources_states_to_usage_bits(
   if (_state & static_cast<uint32_t>(resource_state::texture)) {
     usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
   }
+  if (_state & static_cast<uint32_t>(resource_state::blit_source)) {
+    usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+  }
+  if (_state & static_cast<uint32_t>(resource_state::blit_dest)) {
+    usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+  }
   return VkImageUsageFlags(usage);
 }
 

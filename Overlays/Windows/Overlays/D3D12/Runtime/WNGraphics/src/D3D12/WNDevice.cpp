@@ -1175,8 +1175,9 @@ void d3d12_device::initialize_graphics_pipeline(graphics_pipeline* _pipeline,
       D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF};
 
   pipeline_desc.DepthStencilState = {
-      _create_info.m_depth_enabled,  // DepthEnable
-      _create_info.m_depth_write_enabled
+      _create_info.m_depth_enabled &&
+          _create_info.m_depth_test_enabled,  // DepthEnable
+      (_create_info.m_depth_enabled && _create_info.m_depth_write_enabled)
           ? D3D12_DEPTH_WRITE_MASK_ALL
           : D3D12_DEPTH_WRITE_MASK_ZERO,  // DepthWriteMask
       comparison_op_to_d3d12(_create_info.m_depth_comparison),  // DepthFunc
