@@ -12,17 +12,24 @@ public class @WN_ACTIVITY_NAME@ extends android.app.NativeActivity {
       super.onCreate(savedInstanceState);
      // setContentView(R.layout.main);
   }
-
+  boolean showing = false;
   void ShowKeyboard() {
-    InputMethodManager imm = (InputMethodManager)   getSystemService(Context.INPUT_METHOD_SERVICE);
-    imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+    if (!showing) {
+      showing = true;
+      InputMethodManager imm = (InputMethodManager)   getSystemService(Context.INPUT_METHOD_SERVICE);
+      imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
+    }
   }
 
   void HideKeyboard() {
-    InputMethodManager imm = (InputMethodManager)getSystemService(
-      Context.INPUT_METHOD_SERVICE);
-    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY,0);
+    if (showing) {
+      showing = false;
+      InputMethodManager imm = (InputMethodManager) getSystemService(
+              Context.INPUT_METHOD_SERVICE);
+      imm.toggleSoftInput(0, InputMethodManager.HIDE_IMPLICIT_ONLY);
+    }
   }
+
 
   public String GetEventString(long down, long event,
             int action, int key, int repeat, int meta,
