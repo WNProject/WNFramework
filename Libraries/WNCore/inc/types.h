@@ -14,5 +14,6 @@
 #include <type_traits>
 
 using signed_t = std::make_signed<size_t>::type;
+using nullptr_t = decltype(nullptr);
 
 #endif  // __WN_CORE_TYPES_H__
