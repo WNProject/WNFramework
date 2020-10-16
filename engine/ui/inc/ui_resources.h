@@ -152,7 +152,7 @@ inline memory::unique_ptr<ui_buffer> create_and_initialize_gpu_buffer(
       *upload_buffer, 0, gpu_buffer->buffer(), 0, data_size);
   _upload_list->transition_resource(gpu_buffer->buffer(),
       runtime::graphics::resource_state::copy_dest, _usage);
-  return core::move(gpu_buffer);
+  return gpu_buffer;
 }
 
 inline memory::unique_ptr<ui_texture> create_and_initialize_texture(
@@ -203,7 +203,7 @@ inline memory::unique_ptr<ui_texture> create_and_initialize_texture(
       static_cast<wn::runtime::graphics::image_components>(
           runtime::graphics::image_component::color),
       0, 1, runtime::graphics::resource_state::copy_dest, _usage);
-  return core::move(gpu_texture);
+  return gpu_texture;
 }
 
 inline memory::unique_ptr<ui_geometry> create_and_initialize_geometry(

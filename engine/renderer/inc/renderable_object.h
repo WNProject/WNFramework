@@ -3,8 +3,11 @@
 // found in the LICENSE.txt file.
 
 #pragma once
+
 #ifndef __WN_ENGINE_RENDERABLE_OBJECT_H__
 #define __WN_ENGINE_RENDERABLE_OBJECT_H__
+
+#include <cstddef>
 #include <cstdint>
 
 namespace wn {

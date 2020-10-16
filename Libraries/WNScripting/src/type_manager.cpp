@@ -530,7 +530,7 @@ type_manager::get_initialialization_order(memory::allocator* _allocator,
       init.push_back(it);
     }
   }
-  return core::move(init);
+  return init;
 }
 
 ast_function* type_manager::add_external(

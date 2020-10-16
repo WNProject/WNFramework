@@ -33,7 +33,7 @@ resolve_value_override(memory::allocator* _allocator,
     }
   }
 
-  return core::move(m_value_overrides);
+  return m_value_overrides;
 }
 
 ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(

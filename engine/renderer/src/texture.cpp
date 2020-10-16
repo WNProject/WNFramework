@@ -102,7 +102,7 @@ texture::texture(render_context* _render_context,
       _render_context->create_temporary_upload_buffer(
           buffer_reqs.total_memory_required);
   uint8_t* v = static_cast<uint8_t*>(upload->map());
-  for (size_t i = 0; i < y; ++i) {
+  for (size_t i = 0; i < static_cast<size_t>(y); ++i) {
     memcpy(v, data + (i * chans * x), chans * x);
     v += buffer_reqs.row_pitch_in_bytes;
   }
