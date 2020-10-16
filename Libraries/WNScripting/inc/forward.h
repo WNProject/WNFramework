@@ -405,13 +405,13 @@ public:
   script_pointer<T> operator[](size_t i) {
     script_pointer<T> t((*m_ptr)[i]);
     t.unsafe_set_type(m_type);
-    return core::move(t);
+    return t;
   }
 
   const script_pointer<T> operator[](size_t i) const {
     script_pointer<T> t((*m_ptr)[i]);
     t.unsafe_set_type(m_type);
-    return core::move(t);
+    return t;
   }
 
   size_t size() const {
@@ -432,13 +432,13 @@ public:
   shared_script_pointer<T> operator[](size_t i) {
     shared_script_pointer<T> t((*m_ptr)[i]);
     t.unsafe_set_type(m_type);
-    return core::move(t);
+    return t;
   }
 
   const shared_script_pointer<T> operator[](size_t i) const {
     shared_script_pointer<T> t((*m_ptr)[i]);
     t.unsafe_set_type(m_type);
-    return core::move(t);
+    return t;
   }
 
   size_t size() const {

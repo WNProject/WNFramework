@@ -108,19 +108,19 @@ parse_ast_convertor::convertor_context::get_constant(
   if (_type == m_type_manager->integral(32, nullptr)) {
     long long val = atoll(value.c_str());
     c->m_node_value.m_integer = static_cast<int32_t>(val);
-    return core::move(c);
+    return c;
   } else if (_type == m_type_manager->nullptr_t(nullptr)) {
     c->m_node_value.m_integer = static_cast<int32_t>(0);
-    return core::move(c);
+    return c;
   } else if (_type == m_type_manager->floating(32, nullptr)) {
     double val = atof(value.c_str());
     c->m_node_value.m_float = static_cast<float>(val);
-    return core::move(c);
+    return c;
   } else if (_type == m_type_manager->integral(8, nullptr)) {
     c->m_node_value.m_char = c->m_string_value[1];
-    return core::move(c);
+    return c;
   } else if (_type == m_type_manager->cstr_t(nullptr)) {
-    return core::move(c);
+    return c;
   } else if (_type == m_type_manager->bool_t(nullptr)) {
     if (value == "true") {
       c->m_node_value.m_bool = true;
@@ -131,7 +131,7 @@ parse_ast_convertor::convertor_context::get_constant(
       m_log->log_error("Unknown boolean constant: ", value);
       return nullptr;
     }
-    return core::move(c);
+    return c;
   }
   WN_RELEASE_ASSERT(false, "Unhandled: Custom constants");
   return nullptr;
@@ -379,7 +379,7 @@ parse_ast_convertor::convertor_context::resolve_unary_expression(
     }
   }
 
-  return core::move(expr);
+  return expr;
 }
 
 memory::unique_ptr<ast_unary_expression>
@@ -427,7 +427,7 @@ parse_ast_convertor::convertor_context::resolve_post_unary_expression(
     return nullptr;
   }
 
-  return core::move(expr);
+  return expr;
 }
 
 memory::unique_ptr<ast_expression>
@@ -863,7 +863,7 @@ parse_ast_convertor::convertor_context::resolve_array_allocation_expression(
     m_declaration_succeeded = true;
   }
 
-  return core::move(assigned_declaration);
+  return assigned_declaration;
 }
 
 struct p_functions {
@@ -1065,7 +1065,7 @@ parse_ast_convertor::convertor_context::resolve_function_call(
     expr->m_expr = core::move(function_call);
     ret_id->initialized_setup_statements(m_allocator)
         .push_back(core::move(expr));
-    return core::move(ret_id);
+    return ret_id;
   }
 
   if (function_call->m_function->m_return_type->m_classification ==
@@ -1097,10 +1097,10 @@ parse_ast_convertor::convertor_context::resolve_function_call(
         ->initialized_cleanup(m_allocator)
         .push_back(core::move(expression_statement));
 
-    return core::move(id);
+    return id;
   }
 
-  return core::move(function_call);
+  return function_call;
 }
 
 memory::unique_ptr<ast_expression>
@@ -1188,7 +1188,7 @@ parse_ast_convertor::convertor_context::resolve_slice_expression(
         get_slice_of(outer_expr->m_type->m_implicitly_contained_type, 1);
   }
   slice->m_array = core::move(outer_expr);
-  return core::move(slice);
+  return slice;
 }
 
 memory::unique_ptr<ast_expression>
@@ -1255,7 +1255,7 @@ parse_ast_convertor::convertor_context::resolve_array_access_expression(
   array_access->m_index = core::move(inner_expr);
   array_access->m_array = core::move(outer_expr);
 
-  return core::move(array_access);
+  return array_access;
 }
 
 memory::unique_ptr<ast_expression>
@@ -1460,7 +1460,7 @@ parse_ast_convertor::convertor_context::resolve_struct_allocation_expression(
     return nullptr;
   }
 
-  return core::move(init);
+  return init;
 }
 
 memory::unique_ptr<ast_expression>
@@ -1479,7 +1479,7 @@ parse_ast_convertor::convertor_context::resolve_builtin_unary_expression(
         fncall->m_function = m_type_manager->strlen(&m_used_builtins);
         fncall->initialized_parameters(m_allocator).push_back(core::move(c));
         fncall->m_type = fncall->m_function->m_return_type;
-        return core::move(fncall);
+        return fncall;
       } else {
         if (c->m_type->m_classification !=
                 ast_type_classification::static_array &&
@@ -1496,7 +1496,7 @@ parse_ast_convertor::convertor_context::resolve_builtin_unary_expression(
         builtin->m_builtin_type = builtin_expression_type::array_length;
         builtin->initialized_expressions(m_allocator).push_back(core::move(c));
         builtin->m_type = m_type_manager->integral(32, &m_used_types);
-        return core::move(builtin);
+        return builtin;
       }
     }
     default:
@@ -1678,7 +1678,7 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
     m_declaration_succeeded = true;
   }
 
-  return core::move(declared_target);
+  return declared_target;
 }
 
 memory::unique_ptr<ast_expression>
@@ -1719,14 +1719,14 @@ parse_ast_convertor::convertor_context::resolve_member_access_expression(
   if (child_pos != struct_type->m_structure_members.size()) {
     member->m_member_offset = child_pos;
     member->m_type = struct_type->m_structure_members[child_pos]->m_type;
-    return core::move(member);
+    return member;
   }
   // Try to find a member function with this name instead.
   for (auto it : struct_type->m_member_functions) {
     if (it->m_name == member->m_member_name) {
       // At least one member function exists
       member->m_type = m_type_manager->function_t(&m_used_types);
-      return core::move(member);
+      return member;
     }
   }
 
@@ -1735,13 +1735,13 @@ parse_ast_convertor::convertor_context::resolve_member_access_expression(
   if (extern_it != struct_type->m_contained_external_types.end()) {
     member->m_member_offset = extern_it->second.order;
     member->m_type = extern_it->second.type;
-    return core::move(member);
+    return member;
   }
 
   for (auto& it : struct_type->m_external_member_functions) {
     if (it->m_name == member->m_member_name) {
       member->m_type = m_type_manager->function_t(&m_used_types);
-      return core::move(member);
+      return member;
     }
   }
 

@@ -209,8 +209,8 @@ void ui::update_render_data(size_t _frame_parity, command_list* _cmd_list) {
   m_renderer->set_setup_command_list(_cmd_list);
   m_renderer->set_render_command_list(nullptr);
   m_renderer->start_frame(static_cast<size_t>(1) << _frame_parity);
-  if (m_width != m_renderer->get_width() ||
-      m_height != m_renderer->get_height()) {
+  if (static_cast<size_t>(m_width) != m_renderer->get_width() ||
+      static_cast<size_t>(m_height) != m_renderer->get_height()) {
     m_width = static_cast<int>(m_renderer->get_width());
     m_height = static_cast<int>(m_renderer->get_height());
 

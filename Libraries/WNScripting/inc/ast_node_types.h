@@ -163,7 +163,7 @@ protected:
         containers::deque<const ast_function*>(_allocator);
     other->m_declared_functions.insert(other->m_declared_functions.begin(),
         m_declared_functions.begin(), m_declared_functions.end());
-    return core::move(other);
+    return other;
   }
 
 public:
@@ -639,7 +639,7 @@ struct ast_declaration : public ast_statement {
     d->m_indirected_on_this = m_indirected_on_this;
     d->m_is_scope_bound = m_is_scope_bound;
     d->m_indirected_offset = m_indirected_offset;
-    return core::move(d);
+    return d;
   }
 };
 
@@ -658,7 +658,7 @@ struct ast_binary_expression : public ast_expression {
     d->m_binary_type = this->m_binary_type;
     d->m_lhs = clone_ast_node(_allocator, m_lhs.get());
     d->m_rhs = clone_ast_node(_allocator, m_rhs.get());
-    return core::move(d);
+    return d;
   }
 };
 
@@ -772,7 +772,7 @@ struct ast_function : public ast_node {
       params.emplace_back(
           containers::string(_allocator, param.m_name), param.m_type);
     }
-    return core::move(d);
+    return d;
   }
 };
 
@@ -821,7 +821,7 @@ struct ast_id : public ast_expression {
     d->copy_underlying_from(_allocator, this);
     d->m_declaration = m_declaration;
     d->m_function_parameter = m_function_parameter;
-    return core::move(d);
+    return d;
   }
 };
 
@@ -836,7 +836,7 @@ struct ast_array_access_expression : public ast_expression {
     d->copy_underlying_from(_allocator, this);
     d->m_array = clone_ast_node(_allocator, m_array.get());
     d->m_index = clone_ast_node(_allocator, m_index.get());
-    return core::move(d);
+    return d;
   }
 
   memory::unique_ptr<ast_expression> m_array;
@@ -854,7 +854,7 @@ struct ast_slice_expression : public ast_expression {
     d->m_array = clone_ast_node(_allocator, m_array.get());
     d->m_index_0 = clone_ast_node(_allocator, m_index_0.get());
     d->m_index_1 = clone_ast_node(_allocator, m_index_1.get());
-    return core::move(d);
+    return d;
   }
 
   memory::unique_ptr<ast_expression> m_array;
@@ -878,7 +878,7 @@ struct ast_member_access_expression : public ast_expression {
     d->m_member_name = containers::string(_allocator, m_member_name);
     d->m_base_expression = clone_ast_node(_allocator, m_base_expression.get());
     d->m_member_offset = m_member_offset;
-    return core::move(d);
+    return d;
   }
 };
 
@@ -892,7 +892,7 @@ struct ast_unary_expression : public ast_expression {
     d->copy_underlying_from(_allocator, this);
     d->m_base_expression = clone_ast_node(_allocator, m_base_expression.get());
     d->m_unary_type = m_unary_type;
-    return core::move(d);
+    return d;
   }
 
   memory::unique_ptr<ast_expression> m_base_expression;
@@ -909,7 +909,7 @@ struct ast_cast_expression : public ast_expression {
     auto d = memory::make_unique<ast_cast_expression>(_allocator, nullptr);
     d->copy_underlying_from(_allocator, this);
     d->m_base_expression = clone_ast_node(_allocator, m_base_expression.get());
-    return core::move(d);
+    return d;
   }
 };
 
@@ -925,7 +925,7 @@ struct ast_function_pointer_expression : public ast_expression {
         _allocator, nullptr);
     d->copy_underlying_from(_allocator, this);
     d->m_function = m_function;
-    return core::move(d);
+    return d;
   }
 };
 
@@ -950,7 +950,7 @@ struct ast_builtin_statement : public ast_statement {
           .push_back(clone_ast_node(_allocator, e.get()));
     }
     d->m_break_loop = m_break_loop;
-    return core::move(d);
+    return d;
   }
 
   containers::deque<memory::unique_ptr<ast_expression>>&
@@ -995,7 +995,7 @@ struct ast_builtin_expression : public ast_expression {
     }
     d->m_builtin_type = m_builtin_type;
 
-    return core::move(d);
+    return d;
   }
 
   containers::deque<const ast_type*>& initialized_extra_types(
@@ -1075,7 +1075,7 @@ struct ast_scope_block : public ast_statement {
     for (auto& decl : m_declarations) {
       d->initialized_declarations(_allocator).push_back(decl);
     }
-    return core::move(d);
+    return d;
   }
 };
 
@@ -1088,7 +1088,7 @@ struct ast_evaluate_expression : public ast_statement {
     auto d = memory::make_unique<ast_evaluate_expression>(_allocator, nullptr);
     d->copy_underlying_from(_allocator, this);
     d->m_expr = clone_ast_node(_allocator, m_expr.get());
-    return core::move(d);
+    return d;
   }
 
   memory::unique_ptr<ast_expression> m_expr;
@@ -1117,7 +1117,7 @@ struct ast_function_call_expression : public ast_expression {
     for (auto& p : m_parameters) {
       params.push_back(clone_ast_node(_allocator, p.get()));
     }
-    return core::move(d);
+    return d;
   }
 
   containers::deque<memory::unique_ptr<ast_expression>> m_parameters;
@@ -1149,7 +1149,7 @@ struct ast_assignment : public ast_statement {
     d->copy_underlying_from(_allocator, this);
     d->m_lhs = clone_ast_node(_allocator, m_lhs.get());
     d->m_rhs = clone_ast_node(_allocator, m_rhs.get());
-    return core::move(d);
+    return d;
   }
 };
 
@@ -1168,7 +1168,7 @@ struct ast_loop : public ast_statement {
         clone_ast_node(_allocator, m_increment_statements.get());
     d->m_post_condition = clone_ast_node(_allocator, m_post_condition.get());
     d->m_pre_condition = clone_ast_node(_allocator, m_pre_condition.get());
-    return core::move(d);
+    return d;
   }
 
   memory::unique_ptr<ast_expression> m_post_condition;
@@ -1206,7 +1206,7 @@ struct ast_if_block : public ast_statement {
     d->m_body = clone_ast_node(_allocator, m_body.get());
     d->m_condition = clone_ast_node(_allocator, m_condition.get());
     d->m_returns = m_returns;
-    return core::move(d);
+    return d;
   }
 };
 
@@ -1221,7 +1221,7 @@ struct ast_return_instruction : public ast_statement {
     d->copy_underlying_from(_allocator, this);
     d->m_return_expr = clone_ast_node(_allocator, m_return_expr.get());
 
-    return core::move(d);
+    return d;
   }
 };
 
