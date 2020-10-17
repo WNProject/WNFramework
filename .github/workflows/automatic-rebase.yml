@@ -20,7 +20,7 @@ jobs:
               repo: context.repo.repo,
               comment_id: context.payload.comment.id,
               content: '+1'
-            })
+            });
       - name: Checkout code
         uses: actions/checkout@v2.3.3
         with:
@@ -36,11 +36,15 @@ jobs:
         with:
           github-token: ${{secrets.AUTOMATIC_REBASE_TOKEN}}
           script: |
+            const url =
+              'https://github.com/${{github.repository}}/runs/' +
+              '${{github.run_id}}?check_suite_focus=true';
+            const body =
+              'Uh oh...😧 something went wrong when rebasing! ' +
+              `Check the [log](${url}) for more details`;
             github.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '😧 something went wrong when rebasing! Check the [log](${{env.WORKFLOW_URL}}) for more details'
-            })
-        env:
-          WORKFLOW_URL: https://github.com/${{github.repository}}/runs/${{github.run_id}}?check_suite_focus=true
+              body
+            });
