@@ -191,7 +191,7 @@ private:
 
   struct send_message {
     bool stop = false;
-    multi_tasking::job_signal* sent_signal;
+    multi_tasking::job_signal* sent_signal = nullptr;
     containers::dynamic_array<send_range> send_data;
     // This multipart header is just the outer header.
     // If this is not a multi-part message only the message will be read/sent.
