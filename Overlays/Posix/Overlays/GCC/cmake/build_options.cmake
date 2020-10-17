@@ -1,6 +1,16 @@
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-conversion-null")
+
 add_compile_options(-Wno-error=unused-function)
+add_compile_options(-Wno-error=stringop-truncation)
+add_compile_options(-Wno-error=uninitialized)
+add_compile_options(-Wno-stringop-truncation)
 add_compile_options(-Wno-unused-function)
 add_compile_options(-Wno-unused-variable)
 add_compile_options(-Wno-strict-aliasing)
 add_compile_options(-Wno-nonnull-compare)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-conversion-null")
+
+if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 9)
+  add_compile_options(-Wno-error=maybe-uninitialized)
+  add_compile_options(-Wno-maybe-uninitialized)
+  add_compile_options(-Wno-error=class-memaccess)
+endif()
