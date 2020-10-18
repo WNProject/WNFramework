@@ -19,13 +19,16 @@ for that host.
 
 The following packages are required.
 
-* build-essential
+* gcc
+* g++
+* git
 * clang
+* make
 * cmake
+* ninja-build
+* python3
 * libx11-xcb-dev
 * libxcb-keysyms1-dev
-* ninja-build
-* python
 
 ### Configuration
 
@@ -52,9 +55,9 @@ have more then a single version installed and want to target a certain version.
 
 ```sh
 cmake \
-  -G[Ninja|"Visual Studio 14 2015 Win64"|"Visual Studio 15 2017 Win64"|"Visual Studio 16 2019"] \
+  -G[Ninja|"Visual Studio 14 2015 Win64"|"Visual Studio 15 2017"|"Visual Studio 16 2019"] \
   -Thost=[x86|x64] \
-  -A[Win32|x64] \ # only needed when using Visual Studio 16 2019
+  -A[Win32|x64] \ # only with Visual Studio 15 2017 or Visual Studio 16 2019 generators
   -DCMAKE_BUILD_TYPE=[Debug|Release] \ # only needed when using Ninja
   ../
 ```
