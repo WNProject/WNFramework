@@ -194,15 +194,14 @@ void android_window::handle_key_event(AInputEvent* _event) {
   int32_t action_type = AKeyEvent_getAction(_event);
   key_code code = android_keycode_to_keycode(AKeyEvent_getKeyCode(_event));
 
-  if (code == key_code::key_max) {
-    return;
-  }
-  if (action_type == AKEY_EVENT_ACTION_DOWN) {
+  if (action_type == AKEY_EVENT_ACTION_DOWN && code != key_code::key_max) {
     m_key_states[static_cast<uint32_t>(code)] = true;
     dispatch_input(input_event::key_event(event_type::key_down, code));
   } else if (action_type == AKEY_EVENT_ACTION_UP) {
-    m_key_states[static_cast<uint32_t>(code)] = false;
-    dispatch_input(input_event::key_event(event_type::key_up, code));
+    if (code != key_code::key_max) {
+      m_key_states[static_cast<uint32_t>(code)] = false;
+      dispatch_input(input_event::key_event(event_type::key_up, code));
+    }
     // Try to get a text event from this as well
     {
       ANativeActivity* activity =
@@ -243,10 +242,6 @@ void android_window::handle_key_event(AInputEvent* _event) {
 }
 
 void android_window::show_keyboard() {
-  if (m_keyboard_showing) {
-    return;
-  }
-
   ANativeActivity* activity =
       m_app_data->executable_data->host_data->android_app->activity;
   JNIEnv* env = 0;
@@ -257,13 +252,9 @@ void android_window::show_keyboard() {
   env->CallVoidMethod(activity->clazz, methodID);
 
   activity->vm->DetachCurrentThread();
-  m_keyboard_showing = true;
 }
 
 void android_window::hide_keyboard() {
-  if (!m_keyboard_showing) {
-    return;
-  }
   ANativeActivity* activity =
       m_app_data->executable_data->host_data->android_app->activity;
   JNIEnv* env = 0;
@@ -274,7 +265,6 @@ void android_window::hide_keyboard() {
   env->CallVoidMethod(activity->clazz, methodID);
 
   activity->vm->DetachCurrentThread();
-  m_keyboard_showing = false;
 }
 
 uint32_t android_window::get_dpi() const {

@@ -56,8 +56,7 @@ public:
       m_width(_width),
       m_height(_height),
       m_creation_signal(_creation_signal),
-      m_destroy_signal(_job_pool, 0),
-      m_keyboard_showing(false) {
+      m_destroy_signal(_job_pool, 0) {
     m_job_pool->add_job(&m_destroy_signal,
         &android_window::wait_for_window_loop, this, nullptr);
     m_callback_tok =
@@ -146,7 +145,6 @@ private:
   utilities::WNAndroidEventPump::input_callback_tok m_callback_tok;
 
   int32_t m_activated_pointer_id = -1;
-  bool m_keyboard_showing;
 };
 
 }  // namespace window
