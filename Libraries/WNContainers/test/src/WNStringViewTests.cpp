@@ -445,7 +445,7 @@ TEST(string_view, rfind) {
 
   pos = v.rfind("x");
 
-  EXPECT_EQ(pos, wn::containers::string_view::npos);
+  EXPECT_EQ(pos, static_cast<size_t>(wn::containers::string_view::npos));
 }
 
 TEST(string_view, find_first_of) {
@@ -475,7 +475,7 @@ TEST(string_view, find_first_of) {
 
   pos = v.find_first_of("x");
 
-  EXPECT_EQ(pos, wn::containers::string_view::npos);
+  EXPECT_EQ(pos, static_cast<size_t>(wn::containers::string_view::npos));
 }
 
 TEST(string_view, find_last_of) {
@@ -494,7 +494,7 @@ TEST(string_view, find_last_of) {
 
   pos = v1.find_last_of('s', pos - 1);
 
-  EXPECT_EQ(pos, wn::containers::string_view::npos);
+  EXPECT_EQ(pos, static_cast<size_t>(wn::containers::string_view::npos));
 
   pos = v1.find_last_of("tr");
 
@@ -506,7 +506,7 @@ TEST(string_view, find_last_of) {
 
   pos = v1.find_last_of("xyz");
 
-  EXPECT_EQ(pos, wn::containers::string_view::npos);
+  EXPECT_EQ(pos, static_cast<size_t>(wn::containers::string_view::npos));
 }
 
 TEST(string_view, find_first_not_of) {
@@ -529,7 +529,7 @@ TEST(string_view, find_first_not_of) {
 
   pos = v.find_first_not_of(" string");
 
-  EXPECT_EQ(pos, wn::containers::string_view::npos);
+  EXPECT_EQ(pos, static_cast<size_t>(wn::containers::string_view::npos));
 }
 
 TEST(string_view, find_last_not_of) {
@@ -552,5 +552,5 @@ TEST(string_view, find_last_not_of) {
 
   pos = v.find_last_not_of(" string");
 
-  EXPECT_EQ(pos, wn::containers::string_view::npos);
+  EXPECT_EQ(pos, static_cast<size_t>(wn::containers::string_view::npos));
 }

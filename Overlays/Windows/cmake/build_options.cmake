@@ -41,6 +41,10 @@ foreach(lang CMAKE_CXX_FLAGS CMAKE_C_FLAGS
   if(${lang} MATCHES "/MD")
     string(REGEX REPLACE "/MD" "" ${lang} "${${lang}}")
   endif()
+  if (USE_SCCACHE)
+    string(REGEX REPLACE "/Zi" "/Z7" ${lang} "${${lang}}")
+    string(REGEX REPLACE "-Zi" "-Z7" ${lang} "${${lang}}")
+  endif()
 endforeach()
 add_compile_options(/W4) # Adjust warnings to level 4
 add_compile_options(/WX) # Enable warnings as errors

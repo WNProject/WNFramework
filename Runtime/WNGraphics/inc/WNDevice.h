@@ -72,6 +72,7 @@ class render_pass;
 class sampler;
 class signal;
 class graphics_pipeline;
+class graphics_pipeline_description;
 
 struct buffer_memory_requirements;
 struct image_memory_requirements;
