@@ -130,10 +130,6 @@ if (NOT WN_DISABLE_CXX)
     set(LLVM_CONFIGURED TRUE CACHE INTERNAL "llvm has been configured" FORCE)
   endif()
 
-  add_custom_target(llvm_target
-      COMMAND ${CMAKE_COMMAND} --build . ${WN_LLVM_ADDITIONAL_BUILD_FLAGS}
-      WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/Externals/llvm-project/llvm)
-
   include(${WNFramework_BINARY_DIR}/Externals/llvm-project/llvm/lib/cmake/llvm/LLVMConfig.cmake)
 
   set(WNScriptingLLVMComponents codegen mcjit native)
@@ -142,6 +138,10 @@ if (NOT WN_DISABLE_CXX)
   option(WN_BUILD_LLVM_MANUALLY
     "Do not automatically build llvm when a dependency is built"
     ${WN_BUILD_LLVM_MANUALLY})
+  
+  add_custom_target(llvm_target
+      COMMAND ${CMAKE_COMMAND} --build . ${WN_LLVM_ADDITIONAL_BUILD_FLAGS} ${WNScriptingLLVMLibs}
+      WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/Externals/llvm-project/llvm)
 
   if (NOT ${WN_BUILD_LLVM_MANUALLY})
     llvm_expand_dependencies(l ${WNScriptingLLVMLibs})
