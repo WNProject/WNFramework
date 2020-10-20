@@ -497,7 +497,7 @@ TEST(string, rfind) {
 
     pos = s.rfind("x");
 
-    EXPECT_EQ(pos, wn::containers::string::npos);
+    EXPECT_EQ(pos, static_cast<size_t>(wn::containers::string::npos));
   }
 }
 
@@ -531,7 +531,7 @@ TEST(string, find_first_of) {
 
     pos = s.find_first_of("x");
 
-    EXPECT_EQ(pos, wn::containers::string::npos);
+    EXPECT_EQ(pos, static_cast<size_t>(wn::containers::string::npos));
   }
 }
 
@@ -562,6 +562,6 @@ TEST(string, find_last_of) {
 
     pos = s.find_last_of("xyz");
 
-    EXPECT_EQ(pos, wn::containers::string::npos);
+    EXPECT_EQ(pos, static_cast<size_t>(wn::containers::string::npos));
   }
 }

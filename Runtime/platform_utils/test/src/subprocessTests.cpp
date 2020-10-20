@@ -45,6 +45,6 @@ TEST(subprocess, input) {
   ASSERT_EQ(wn::runtime::platform_utils::subprocess_error::ok, ret.err);
   ASSERT_EQ(0u, ret.return_code);
   ASSERT_LE(static_cast<size_t>(strlen("Hello World")), ret.std_out.size());
-  ASSERT_NE(
-      wn::containers::string::npos, ret.std_out.find_first_of("Hello World"));
+  ASSERT_NE(static_cast<size_t>(wn::containers::string::npos),
+      ret.std_out.find_first_of("Hello World"));
 }
