@@ -51,11 +51,11 @@ cmake \
   ../
 ```
 
-If `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILE` are omitted **CMake** will
-configure against the default system configured compilers. You can also specify
-specific versions of `gcc` or `clang` (`gcc-5.0`, `clang++-4.0`, etc.) if you
-have more then a single version installed and want to target a certain version.
-Note that `Ninja` is the only offically supported generator for **Linux**.
+Note that `Ninja` is the only offically supported generator for **Linux**. If
+`CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILE` are omitted **CMake** will configure
+against the default system configured compilers. You can also specify specific
+versions of `gcc` or `clang` (`gcc-5.0`, `clang++-4.0`, etc.) if you have more
+then a single version installed and want to target a certain version.
 
 #### Windows
 
@@ -68,15 +68,16 @@ cmake \
   ../
 ```
 
-In order to use the **32-bit** variants of the **Visual Studio** generators
-simply omit the `Win64` from the end. For **Visual Studio 2019** you must
-specify the architecture through the `-A` command. The `CMAKE_BUILD_TYPE` is
-only needed if using `Ninja` as the generator type. For the `Ninja` generator
-you will also need to run the appropriate **Visual Studio** environment setup
-script (`vcvarsall`) in the same command prompt you intend to use for
-configuration before running a configuration. After you have completed
-configuration you don't need to re-run this script for subsequent commands. See
-below scripts for each supported **Visual Studio** version.
+Note that `Ninja` is the only offically supported generator for **Windows**. In
+order to use the **32-bit** variants of the **Visual Studio** generators simply
+omit the `Win64` from the end. For **Visual Studio 2019** you must specify the
+architecture through the `-A` command. The `CMAKE_BUILD_TYPE` is only needed if
+using `Ninja` as the generator type. For the `Ninja` generator you will also
+need to run the appropriate **Visual Studio** environment setup script
+(`vcvarsall`) in the same command prompt you intend to use for configuration
+before running a configuration. After you have completed configuration you don't
+need to re-run this script for subsequent commands. See below scripts for each
+supported **Visual Studio** version.
 
 * 2015: `%ProgramFiles(x86)%\Microsoft Visual Studio 14.0\VC\vcvarsall.bat [x86|amd64]`
 * 2017: `%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat [x86|amd64]`
