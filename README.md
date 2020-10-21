@@ -23,12 +23,16 @@ The following packages are required.
 * g++
 * git
 * clang
-* make
 * cmake
 * ninja-build
 * python3
 * libx11-xcb-dev
 * libxcb-keysyms1-dev
+
+If you want to use **Unix Makefiles** as a generator you will also need the
+following.
+
+* make
 
 ### Configuration
 
@@ -50,6 +54,7 @@ If `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILE` are omitted **CMake** will
 configure against the default system configured compilers. You can also specify
 specific versions of `gcc` or `clang` (`gcc-5.0`, `clang++-4.0`, etc.) if you
 have more then a single version installed and want to target a certain version.
+Note that `Ninja` is the only offically supported generator for **Linux**.
 
 #### Windows
 
