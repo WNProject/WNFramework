@@ -308,7 +308,7 @@ private:
   virtual bool initialize_buffer(
       buffer* _buffer, const size_t _size, const resource_states _usage) = 0;
   virtual bool bind_buffer(
-      buffer* _buffer, arena* _arena, const size_t _offset) = 0;
+      buffer* _buffer, arena* _arena, const uint64_t _offset) = 0;
   virtual void* map_buffer(buffer* _buffer) = 0;
   virtual void unmap_buffer(buffer* _buffer) = 0;
   virtual void destroy_buffer(buffer* _buffer) = 0;

@@ -1847,7 +1847,7 @@ bool vulkan_device::initialize_buffer(
 }
 
 bool vulkan_device::bind_buffer(
-    buffer* _buffer, arena* _arena, const size_t _offset) {
+    buffer* _buffer, arena* _arena, const uint64_t _offset) {
   memory::unique_ptr<buffer_info>& bdata = get_data(_buffer);
   const arena_data& adata = get_data(_arena);
 

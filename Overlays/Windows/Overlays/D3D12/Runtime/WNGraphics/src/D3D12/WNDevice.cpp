@@ -1541,7 +1541,7 @@ bool d3d12_device::initialize_buffer(
 }
 
 bool d3d12_device::bind_buffer(
-    buffer* _buffer, arena* _arena, const size_t _offset) {
+    buffer* _buffer, arena* _arena, const uint64_t _offset) {
   memory::unique_ptr<buffer_info>& buffer_data = get_data(_buffer);
   Microsoft::WRL::ComPtr<ID3D12Heap>& heap = get_data(_arena);
   Microsoft::WRL::ComPtr<ID3D12Resource> new_resource;

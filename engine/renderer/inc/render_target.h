@@ -63,7 +63,7 @@ public:
     return m_is_valid;
   }
   void setup_for_frame(
-      render_context* _renderer, size_t _frame, bool _check_dimensions);
+      render_context* _renderer, uint64_t _frame, bool _check_dimensions);
 
   runtime::graphics::image_view* get_image_view_for_index(size_t i);
   runtime::graphics::image* get_image_for_index(size_t i);

@@ -1,5 +1,11 @@
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
+option(
+  WN_MSVC_DISABLE_INCREMENTAL_LINKING
+  "Disable incremental linking (reduces build size at the cost of link time)"
+  ${WN_MSVC_DISABLE_INCREMENTAL_LINKING}
+)
+
 if(MSVC)
   # Fix for LLVM Visual Studio 2015 RC issue
   if(MSVC_VERSION GREATER 1800)
@@ -41,7 +47,7 @@ foreach(lang CMAKE_CXX_FLAGS CMAKE_C_FLAGS
   if(${lang} MATCHES "/MD")
     string(REGEX REPLACE "/MD" "" ${lang} "${${lang}}")
   endif()
-  if (USE_SCCACHE)
+  if(USE_SCCACHE)
     string(REGEX REPLACE "/Zi" "/Z7" ${lang} "${${lang}}")
     string(REGEX REPLACE "-Zi" "-Z7" ${lang} "${${lang}}")
   endif()
@@ -76,6 +82,7 @@ foreach(type EXE SHARED STATIC)
     set(CMAKE_${type}_LINKER_FLAGS_RELEASE
       "${CMAKE_${type}_LINKER_FLAGS_RELEASE} /LTCG")
   endif()
+
   if(NOT "${type}" STREQUAL "STATIC")
     # Adjust to remove unreferenced code
     if("${CMAKE_${type}_LINKER_FLAGS_RELEASE}" MATCHES "/OPT:NOREF")
@@ -86,6 +93,7 @@ foreach(type EXE SHARED STATIC)
       set(CMAKE_${type}_LINKER_FLAGS_RELEASE
         "${CMAKE_${type}_LINKER_FLAGS_RELEASE} /OPT:REF")
     endif()
+
     # Adjust to enable COMDAT folding
     if("${CMAKE_${type}_LINKER_FLAGS_RELEASE}" MATCHES "/OPT:NOICF")
       string(REGEX REPLACE "/OPT:NOICF" "/OPT:ICF"
@@ -94,6 +102,29 @@ foreach(type EXE SHARED STATIC)
     elseif(NOT "${CMAKE_${type}_LINKER_FLAGS_RELEASE}" MATCHES "/OPT:ICF")
       set(CMAKE_${type}_LINKER_FLAGS_RELEASE
         "${CMAKE_${type}_LINKER_FLAGS_RELEASE} /OPT:ICF")
+    endif()
+
+    # disable incremental linking
+    if(WN_MSVC_DISABLE_INCREMENTAL_LINKING)
+      message(STATUS "Disable incremental linking: ${type}")
+
+      if("${CMAKE_${type}_LINKER_FLAGS_DEBUG}" MATCHES "/INCREMENTAL")
+        string(REGEX REPLACE "/INCREMENTAL" "/INCREMENTAL:NO "
+          CMAKE_${type}_LINKER_FLAGS_DEBUG
+          "${CMAKE_${type}_LINKER_FLAGS_DEBUG}")
+      elseif(NOT "${CMAKE_${type}_LINKER_FLAGS_DEBUG}" MATCHES "/INCREMENTAL:NO")
+        set(CMAKE_${type}_LINKER_FLAGS_DEBUG
+          "${CMAKE_${type}_LINKER_FLAGS_DEBUG} /INCREMENTAL:NO")
+      endif()
+
+      if("${CMAKE_${type}_LINKER_FLAGS_RELWITHDEBINFO}" MATCHES "/INCREMENTAL")
+        string(REGEX REPLACE "/INCREMENTAL" "/INCREMENTAL:NO"
+          CMAKE_${type}_LINKER_FLAGS_RELWITHDEBINFO
+          "${CMAKE_${type}_LINKER_FLAGS_RELWITHDEBINFO}")
+      elseif(NOT "${CMAKE_${type}_LINKER_FLAGS_RELWITHDEBINFO}" MATCHES "/INCREMENTAL:NO")
+        set(CMAKE_${type}_LINKER_FLAGS_RELWITHDEBINFO
+          "${CMAKE_${type}_LINKER_FLAGS_RELWITHDEBINFO} /INCREMENTAL:NO")
+      endif()
     endif()
   endif()
 endforeach()
