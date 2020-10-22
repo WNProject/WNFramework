@@ -574,8 +574,6 @@ private:
       }
     }
     self_thread->m_blocked_semaphore.wait();
-    // Make sure that memory is coherent again.
-    _signal->value.load(std::memory_order_acquire);
   }
 
   void notify_blocking() override {

@@ -40,6 +40,7 @@
 
 #include <d3d12.h>
 #include <dxgi1_4.h>
+#include <functional>
 
 namespace blit_shader_vs {
 #include "WNGraphics/inc/Internal/D3D12/blit_shader.vs.h"

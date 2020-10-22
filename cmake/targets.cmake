@@ -447,6 +447,7 @@ function(wn_filesystem_files name)
     add_custom_target(${name} DEPENDS 
        ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR}/${name}.h
        ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR}/${name}.cpp)
+    overlay_named_file(cmake/target_functions/post_filesystem_files.cmake)
   endif()
 endfunction()
 

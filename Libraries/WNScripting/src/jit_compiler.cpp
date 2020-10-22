@@ -21,6 +21,7 @@
 #pragma warning(disable : 4324)
 #pragma warning(disable : 4245)
 #pragma warning(disable : 4702)
+#pragma warning(disable : 4459)
 #endif
 
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
@@ -276,7 +277,7 @@ bool internal::jit_compiler_context::forward_declare_function(
     f->setLinkage(llvm::GlobalValue::LinkageTypes::ExternalLinkage);
   }
   if (_function->m_is_builtin) {
-    f->setLinkage(llvm::GlobalValue::LinkageTypes::LinkOnceAnyLinkage);
+    f->setLinkage(llvm::GlobalValue::LinkageTypes::InternalLinkage);
   }
 #if defined(_WN_WINDOWS) && defined(_WN_X86) && !defined(_WN_64_BIT)
   if (_function->m_is_non_scripting && _function->m_is_member_function &&
@@ -865,13 +866,19 @@ llvm::Value* internal::jit_compiler_context::get_function_call(
   // We cannot name void values, so split this based on return type.
   if (get_type(_bin->m_type) != m_void_t &&
       !_bin->m_type->m_pass_by_reference) {
-    llvm::CallInst* ci = m_function_builder->CreateCall(fn,
+    llvm::CallInst* ci = m_function_builder->CreateCall(
+        llvm::dyn_cast<llvm::FunctionType>(
+            fn->getType()->getPointerElementType()),
+        fn,
         llvm::ArrayRef<llvm::Value*>(expressions.data(), expressions.size()),
         _bin->m_function->m_name.c_str());
     ci->setCallingConv(conv);
     return ci;
   } else {
-    llvm::CallInst* ci = m_function_builder->CreateCall(fn,
+    llvm::CallInst* ci = m_function_builder->CreateCall(
+        llvm::dyn_cast<llvm::FunctionType>(
+            fn->getType()->getPointerElementType()),
+        fn,
         llvm::ArrayRef<llvm::Value*>(expressions.data(), expressions.size()));
     ci->setCallingConv(conv);
     return ci;
