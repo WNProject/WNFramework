@@ -1,6 +1,7 @@
 # WNFramework
 
 [![License]](LICENSE)
+[![Build][Build Badge]][Build Workflow]
 
 A set of cross platform libraries and tools built for game development.
 
@@ -143,3 +144,5 @@ conventions check the guides below.
 
 <!-- external links -->
 [License]: https://img.shields.io/github/license/WNProject/WNFramework?label=License
+[Build Badge]: https://github.com/WNProject/WNFramework/workflows/Build/badge.svg?branch=master
+[Build Workflow]: https://github.com/WNProject/WNFramework/actions?query=workflow%3ABuild+branch%3Amaster
