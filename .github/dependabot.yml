@@ -16,5 +16,3 @@ updates:
     labels:
       - auto
       - dependencies
-    allow:
-      - dependency-name: '*googletest'
