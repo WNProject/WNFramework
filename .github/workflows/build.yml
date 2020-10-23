@@ -42,7 +42,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: [15]
+        version: [15, 16]
         architecture: [x86, x86-64]
         build-type: [Debug, Release]
     env:
