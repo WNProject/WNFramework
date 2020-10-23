@@ -49,7 +49,7 @@ public:
 class jit_engine : public engine {
 public:
   jit_engine(memory::allocator* _allocator, file_system::mapping* _mapping,
-      logging::log* _log);
+      logging::log* _log, memory::allocator* _support_allocator = nullptr);
   ~jit_engine();
   parse_error parse_file(const containers::string_view file) override;
   void free_shared(void* v) const override;

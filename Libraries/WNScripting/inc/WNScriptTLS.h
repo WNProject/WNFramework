@@ -19,6 +19,7 @@ struct scripting_tls_data final {
   containers::hash_map<uintptr_t, memory::unique_ptr<script_object_type>>*
       _object_types;
   logging::log* _log;
+  memory::allocator* _support_allocator;
 };
 
 extern thread_local const scripting_tls_data* g_scripting_tls;

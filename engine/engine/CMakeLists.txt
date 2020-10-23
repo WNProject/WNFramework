@@ -9,6 +9,7 @@ add_wn_application(
   LIBS
     WNScripting
     engine_base
+    support
     renderer
     window
     ui
