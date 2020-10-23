@@ -25,7 +25,7 @@
 [submodule "Externals/llvm-project"]
 	path = Externals/llvm-project
 	url = https://github.com/llvm/llvm-project.git
-	branch = release/10.x
+	branch = release/11.x
 	ignore = dirty
 	shallow = true
 [submodule "Externals/stb"]

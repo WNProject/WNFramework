@@ -21,6 +21,7 @@
 #pragma warning(disable : 4324)
 #pragma warning(disable : 4456)
 #pragma warning(disable : 4245)
+#pragma warning(disable : 4459)
 #endif
 
 #include <llvm/ExecutionEngine/ExecutionEngine.h>
@@ -187,7 +188,7 @@ public:
             llvm::JITSymbolFlags::Exported);
       }
     }
-
+    m_log->log_error("Could not resolve ", Name.c_str(), ".");
     return llvm::JITSymbol(0, llvm::JITSymbolFlags::Exported);
   }
 
