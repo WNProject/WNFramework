@@ -5,6 +5,19 @@ on:
     branches:
       - master
 jobs:
+  check-code-formatting-c-cpp:
+    name: Check code formatting (C/C++)
+    runs-on: ubuntu-latest
+    container: ghcr.io/wnproject/clang-format
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.3.3
+      - name: Check code format
+        run: >
+          find . -type f
+          -iregex '^.*\.\(c\|cpp\|h\|hpp\)$' -and -not
+          -iregex '^\.\/\(externals\|build.*\).*$' |
+          xargs clang-format --dry-run --Werror --verbose
   build-linux:
     name: >
       Build (Linux, Ninja, x86-64, ${{matrix.compiler}}-${{matrix.version}},
