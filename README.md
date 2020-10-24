@@ -94,6 +94,7 @@ cmake \
   -DCMAKE_TOOLCHAIN_FILE=[WNFramework Root]\Overlays\Posix\Overlays\Android\android.toolchain.cmake \
   -DWN_ANDROID_ABIS=[arm|arm64|x86] \
   -DWN_ANDROID_SDK=[Android SDK Root] \
+  -DCMAKE_BUILD_TYPE=[Debug|Release] \
   ../
 ```
 
