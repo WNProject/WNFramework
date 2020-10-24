@@ -37,8 +37,8 @@ jobs:
           github-token: ${{secrets.AUTOMATIC_REBASE_TOKEN}}
           script: |
             const url =
-              'https://github.com/${{github.repository}}/runs/' +
-              '${{github.run_id}}?check_suite_focus=true';
+              'https://github.com/${{github.repository}}/actions/' +
+              'runs/${{github.run_id}}';
             const body =
               'Uh oh...😧 something went wrong when rebasing! ' +
               `Check the [log](${url}) for more details`;
