@@ -39,12 +39,9 @@ if (WN_OVERLAY_IS_ENABLED AND NOT WN_DISABLE_CXX)
     "-DLLVM_EXPORT_SYMBOLS_FOR_PLUGINS=OFF")
   append_to_overlay_var(WN_LLVM_EXTRA_FLAGS
     "-DCMAKE_CXX_FLAGS=-D__ANDROID_NDK__")
-  find_program(PYTHON python)
-
-  append_to_overlay_var(WN_LLVM_EXTRA_FLAGS
-    "-DPYTHON_EXECUTABLE=${PYTHON}")
   set_overlay_var(WN_LLVM_TOOLCHAIN
     "${CMAKE_CURRENT_LIST_DIR}/build_tools/wn_android_llvm.toolchain.cmake")
+  find_program(PYTHON python)
   append_to_overlay_var(WN_LLVM_WRAPPER
     ${PYTHON})
   append_to_overlay_var(WN_LLVM_WRAPPER

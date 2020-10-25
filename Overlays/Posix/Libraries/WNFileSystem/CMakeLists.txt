@@ -42,12 +42,6 @@ wn_check_include_file("fcntl.h" WN_HAS_FCNTL_H)
 
 set(WN_HAS_FTRUNCATE_ALTERNATIVE false)
 
-wn_check_symbol_exists(open "fcntl.h" WN_HAS_OPEN_SYMBOL)
-
-if (NOT WN_HAS_OPEN_SYMBOL)
-  wn_fail_bad_symbol("unable to locate required symbol open")
-endif()
-
 set(CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
 
 wn_check_symbol_exists(fallocate "fcntl.h" WN_HAS_FALLOCATE_SYMBOL)
