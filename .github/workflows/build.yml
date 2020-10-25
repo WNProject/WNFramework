@@ -78,6 +78,7 @@ jobs:
         run: >
           docker run --rm
           -e VS_ARCH=${{steps.info.outputs.vs_arch}}
+          -e DEBUG=1
           -v ${{github.workspace}}:C:\workspace
           ${{steps.info.outputs.docker_image}}
           cmake -GNinja -S C:\workspace\source -B C:\workspace\build
@@ -87,6 +88,7 @@ jobs:
         run: >
           docker run --rm
           -e VS_ARCH=${{steps.info.outputs.vs_arch}}
+          -e DEBUG=1
           -v ${{github.workspace}}:C:\workspace
           ${{steps.info.outputs.docker_image}}
           cmake --build C:\workspace\build
