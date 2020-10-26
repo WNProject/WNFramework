@@ -94,6 +94,7 @@ add_compile_options(/D_WN_WINDOWS)
 # Linker options
 foreach(type EXE SHARED STATIC)
   set(CMAKE_${type}_LINKER_FLAGS "${CMAKE_${type}_LINKER_FLAGS} /ignore:4221")
+  set(CMAKE_${type}_LINKER_FLAGS "${CMAKE_${type}_LINKER_FLAGS} /WX")
 
   # Enable link time code generation
   if(NOT "${CMAKE_${type}_LINKER_FLAGS_RELEASE}" MATCHES "/LTCG")
