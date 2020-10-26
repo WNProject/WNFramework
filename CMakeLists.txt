@@ -3,6 +3,12 @@ cmake_minimum_required(VERSION 3.16.3)
 project(WNFramework VERSION 1.0.0)
 
 option(USE_SCCACHE "Setup for use with sccache" ${USE_SCCACHE})
+option(
+    WN_LOW_RESOURCE_MODE
+    "Turn on low resource related options"
+    ${WN_LOW_RESOURCE_MODE}
+)
+
 if (USE_SCCACHE)
     if (NOT CMAKE_CXX_COMPILER_LAUNCHER)
         set(CMAKE_CXX_COMPILER_LAUNCHER sccache)
