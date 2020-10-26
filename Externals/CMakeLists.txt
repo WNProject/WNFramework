@@ -64,13 +64,4 @@ add_wn_library(
     effcee
 )
 
-add_wn_library(
-  xxhash
-  SOURCES
-    xxhash/xxhash.h
-    xxhash/xxhash.c
-  INCLUDES
-    xxhash
-)
-
 add_subdirectory(librocket)
