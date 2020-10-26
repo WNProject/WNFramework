@@ -1,10 +1,26 @@
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 
+if(WN_LOW_RESOURCE_MODE)
+  set(WN_MSVC_DISABLE_INCREMENTAL_LINKING ON)
+  set(WN_MSVC_DISABLE_LINK_PARALLELIZATION ON)
+endif()
+
 option(
   WN_MSVC_DISABLE_INCREMENTAL_LINKING
   "Disable incremental linking (reduces build size at the cost of link time)"
   ${WN_MSVC_DISABLE_INCREMENTAL_LINKING}
 )
+option(
+  WN_MSVC_DISABLE_LINK_PARALLELIZATION
+  "Disable parallel link operations"
+  ${WN_MSVC_DISABLE_LINK_PARALLELIZATION}
+)
+
+if(WN_MSVC_DISABLE_LINK_PARALLELIZATION)
+  message(STATUS "Disable link parallelization")
+  set_property(GLOBAL APPEND PROPERTY JOB_POOLS link_job_pool=1)
+  set(CMAKE_JOB_POOL_LINK link_job_pool)
+endif()
 
 if(MSVC)
   # Fix for LLVM Visual Studio 2015 RC issue
