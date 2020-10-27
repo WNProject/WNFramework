@@ -21,6 +21,7 @@ graphics_error surface::get_surface_capabilities(
     surface_capabilities* _capabilities) {
   return m_adapter->get_surface_capabilities(this, _capabilities);
 }
+
 }  // namespace graphics
 }  // namespace runtime
 }  // namespace wn
