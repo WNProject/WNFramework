@@ -82,8 +82,8 @@ jobs:
           -v ${{github.workspace}}:C:\workspace
           ${{steps.info.outputs.docker_image}}
           cmake -GNinja -S C:\workspace\source -B C:\workspace\build
-          -DWN_MSVC_DISABLE_INCREMENTAL_LINKING=ON
           -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
+          -DWN_LOW_RESOURCE_MODE=ON
       - name: Run build
         run: >
           docker run --rm
