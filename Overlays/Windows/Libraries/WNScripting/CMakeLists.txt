@@ -29,3 +29,15 @@ foreach(configuration ${BUILD_TYPES})
     append_to_overlay_var(WN_LLVM_EXTRA_FLAGS "-DLLVM_USE_CRT_RELWITHDEBINFO=MT")
   endif()
 endforeach()
+
+if(WN_LOW_RESOURCE_MODE)
+  foreach(lang WN_CXX_FLAGS WN_CMAKE_C_FLAGS
+              WN_CXX_FLAGS_RELEASE WN_CMAKE_C_FLAGS_RELEASE
+              WN_CXX_FLAGS_DEBUG WN_CMAKE_C_FLAGS_DEBUG
+              WN_CXX_FLAGS_RELWITHDEBINFO WN_CMAKE_C_FLAGS_RELWITHDEBINFO
+              WN_CXX_FLAGS_MINSIZEREL WN_CMAKE_C_FLAGS_MINSIZEREL)
+    string(REGEX REPLACE "/Z7" "" ${lang} "${${lang}}")
+    string(REGEX REPLACE "-Z7" "" ${lang} "${${lang}}")  
+    set_overlay_var(${lang} "${${lang}}")
+  endforeach()
+endif()

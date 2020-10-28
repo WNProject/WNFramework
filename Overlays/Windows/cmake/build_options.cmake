@@ -63,7 +63,7 @@ foreach(lang CMAKE_CXX_FLAGS CMAKE_C_FLAGS
   if(${lang} MATCHES "/MD")
     string(REGEX REPLACE "/MD" "" ${lang} "${${lang}}")
   endif()
-  if(USE_SCCACHE)
+  if(WN_USE_SCCACHE)
     string(REGEX REPLACE "/Zi" "/Z7" ${lang} "${${lang}}")
     string(REGEX REPLACE "-Zi" "-Z7" ${lang} "${${lang}}")
   endif()
