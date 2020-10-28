@@ -18,3 +18,4 @@ updates:
       - dependencies
     allow:
       - dependency-name: '*googletest'
+      - dependency-name: '*xxhash'
