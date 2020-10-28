@@ -1,4 +1,4 @@
-set(WN_TEST_UTILITIES_CXX_FLAGS)
+set(WN_TEST_UTILITIES_GOOGLETEST_COMPILE_OPTIONS)
 
 enable_overlay_directory()
 
@@ -6,8 +6,8 @@ add_wn_externals(
   googletest
   DIRECTORY
     ${WNFramework_SOURCE_DIR}/Externals/googletest
-  CXX_FLAGS
-    ${WN_TEST_UTILITIES_CXX_FLAGS}
+  COMPILE_OPTIONS
+    ${WN_TEST_UTILITIES_GOOGLETEST_COMPILE_OPTIONS}
 )
 
 add_wn_library(WNTestUtilities
