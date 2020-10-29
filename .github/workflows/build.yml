@@ -7,8 +7,8 @@ on:
 jobs:
   build-linux:
     name: >
-      Build (Linux, Ninja, x86-64, ${{matrix.compiler}}-${{matrix.version}},
-      ${{matrix.build-type}})
+      Build (Linux:
+      x86-64/${{matrix.compiler}}-${{matrix.version}}/${{matrix.build-type}})
     runs-on: ubuntu-latest
     container:
       ghcr.io/wnproject/build-linux:${{matrix.compiler}}-${{matrix.version}}
@@ -36,8 +36,8 @@ jobs:
         run: du -hbcs ./source ./build
   build-windows:
     name: >
-      Build (Windows, Ninja, ${{matrix.architecture}}, msvc-${{matrix.version}},
-      ${{matrix.build-type}})
+      Build (Windows:
+      ${{matrix.architecture}}/msvc-${{matrix.version}}/${{matrix.build-type}})
     runs-on: windows-latest
     strategy:
       fail-fast: false
@@ -107,4 +107,3 @@ jobs:
       - name: Report build details
         shell: bash
         run: du -hbcs ./source ./build
-
