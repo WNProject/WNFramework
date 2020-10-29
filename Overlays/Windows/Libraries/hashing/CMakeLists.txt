@@ -1,0 +1,5 @@
+append_to_overlay_var(WN_HASHING_XXHASH_COMPILE_OPTIONS /wd4255)
+append_to_overlay_var(WN_HASHING_XXHASH_COMPILE_OPTIONS /wd4668)
+append_to_overlay_var(WN_HASHING_XXHASH_COMPILE_OPTIONS /wd4711)
+append_to_overlay_var(WN_HASHING_XXHASH_COMPILE_OPTIONS /wd4820)
+append_to_overlay_var(WN_HASHING_XXHASH_COMPILE_OPTIONS /wd5045)

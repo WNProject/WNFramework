@@ -20,18 +20,18 @@ function(add_wn_externals name)
       PARSED_ARGS
       ""
       "DIRECTORY"
-      "CXX_FLAGS"
+      "COMPILE_OPTIONS"
       ${ARGN}
     )
 
     add_subdirectory(${PARSED_ARGS_DIRECTORY} ${name})
     get_all_added_targets(EXTERNAL_TARGETS)
 
-    if (PARSED_ARGS_CXX_FLAGS)
+    if (PARSED_ARGS_COMPILE_OPTIONS)
       foreach(EXTERNAL_TARGET ${EXTERNAL_TARGETS})
         target_compile_options(
-          ${EXTERNAL_TARGET}
-          PRIVATE ${PARSED_ARGS_CXX_FLAGS}
+          ${EXTERNAL_TARGET} PRIVATE
+          ${PARSED_ARGS_COMPILE_OPTIONS}
         )
       endforeach()
     endif()
