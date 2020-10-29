@@ -19,3 +19,4 @@ updates:
     allow:
       - dependency-name: '*googletest'
       - dependency-name: '*xxhash'
+      - dependency-name: '*stb'
