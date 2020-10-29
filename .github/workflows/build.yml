@@ -19,12 +19,9 @@ jobs:
           -iregex '^\.\/\(externals\|build.*\).*$' |
           xargs clang-format --dry-run --Werror --verbose
   build-linux:
-    name: >
-      Build (Linux:
-      x86-64/${{matrix.compiler}}-${{matrix.version}}/${{matrix.build-type}})
+    name: 'Build (Linux: x86-64/${{matrix.compiler}}-${{matrix.version}}/${{matrix.build-type}})'
     runs-on: ubuntu-latest
-    container:
-      ghcr.io/wnproject/build-linux:${{matrix.compiler}}-${{matrix.version}}
+    container: ghcr.io/wnproject/build-linux:${{matrix.compiler}}-${{matrix.version}}
     strategy:
       fail-fast: false
       matrix:
@@ -48,9 +45,7 @@ jobs:
       - name: Report build details
         run: du -hbcs ./source ./build
   build-windows:
-    name: >
-      Build (Windows:
-      ${{matrix.architecture}}/msvc-${{matrix.version}}/${{matrix.build-type}})
+    name: 'Build (Windows: ${{matrix.architecture}}/msvc-${{matrix.version}}/${{matrix.build-type}})'
     runs-on: windows-latest
     strategy:
       fail-fast: false
