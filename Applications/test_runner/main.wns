@@ -1,0 +1,16 @@
+// Temphack: For now we need this included
+//   somewhere for compilation.
+include "renderer/render_data.wns"
+include "renderer/render_description.wns"
+include "renderer/texture_description.wns"
+include "ui/renderable_ui.wns"
+
+Int main(Context ctx) {
+    shared Regex re = make_regex(".*");
+    shared String str = make_string("asdf");
+    CString[] args = CString[]("/c", "echo", "Hello World");
+    Int ret = call_subprocess(
+        "C:\\Windows\\System32\\cmd.exe", args{0:length(args)}
+    );
+    return ret;
+}

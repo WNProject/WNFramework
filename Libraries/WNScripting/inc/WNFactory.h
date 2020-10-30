@@ -36,7 +36,7 @@ public:
   // with the given allocator.
   virtual memory::unique_ptr<engine> get_engine(memory::allocator* _allocator,
       scripting_engine_type _type, file_system::mapping* _file_mapping,
-      logging::log* _log);
+      logging::log* _log, memory::allocator* _support_allocator = nullptr);
 
   // Returns a wn::scripting::translator of the given type.
   // The translator will be constructed with the given allocator,

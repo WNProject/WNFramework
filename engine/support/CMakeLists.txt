@@ -1,0 +1,14 @@
+add_wn_library(
+  support
+  SOURCES
+    inc/regex.h
+    inc/string.h
+    inc/subprocess.h
+    src/regex.cpp
+    src/string.cpp
+    src/subprocess.cpp
+  LIBS
+    platform_utils
+    WNScripting
+    WNRe2
+)

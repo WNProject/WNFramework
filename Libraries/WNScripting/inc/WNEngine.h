@@ -87,7 +87,8 @@ private:
 // C++.
 class engine {
 public:
-  engine(memory::allocator* _allocator, logging::log* _log)
+  engine(memory::allocator* _allocator, logging::log* _log,
+      memory::allocator* _support_allocator)
     : m_num_warnings(0),
       m_num_errors(0),
       m_allocator(_allocator),
@@ -106,6 +107,7 @@ public:
     m_tls_data._engine = this;
     m_tls_data._object_types = &m_object_types;
     m_tls_data._log = m_log;
+    m_tls_data._support_allocator = _support_allocator;
   }
 
   virtual ~engine() {}

@@ -12,11 +12,11 @@ namespace scripting {
 
 memory::unique_ptr<engine> factory::get_engine(memory::allocator* _allocator,
     scripting_engine_type _type, file_system::mapping* _file_mapping,
-    logging::log* _log) {
+    logging::log* _log, memory::allocator* _support_allocator) {
   switch (_type) {
     case scripting_engine_type::jit_engine:
       return memory::make_unique<jit_engine>(
-          _allocator, _allocator, _file_mapping, _log);
+          _allocator, _allocator, _file_mapping, _log, _support_allocator);
     default:
       return nullptr;
   }
