@@ -18,6 +18,39 @@ jobs:
           -iregex '^.*\.\(c\|cpp\|h\|hpp\)$' -and -not
           -iregex '^\.\/\(externals\|build.*\).*$' |
           xargs clang-format --dry-run --Werror --verbose
+  build-android:
+    name: 'Build (Android: ${{matrix.architecture}}/${{matrix.build-type}})'
+    runs-on: ubuntu-latest
+    container: ghcr.io/wnproject/build-android
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: [arm, arm64, x86]
+        build-type: [Debug, Release]
+    steps:
+      - name: Set up build environment
+        run: mkdir build
+      - name: Checkout code
+        uses: actions/checkout@v2.3.3
+        with:
+          path: ./source
+          submodules: true
+      - name: Run configuration
+        working-directory: ./build
+        run: >
+          cmake -GNinja
+          -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
+          -DCMAKE_TOOLCHAIN_FILE=${OVERLAY}/android.toolchain.cmake
+          -DWN_ANDROID_ABIS=${{matrix.architecture}}
+          -DWN_ANDROID_SDK=/opt/android-sdk
+          ../source
+        env:
+          OVERLAY: ${{github.workspace}}/source/Overlays/Posix/Overlays/Android
+      - name: Run build
+        working-directory: ./build
+        run: cmake --build .
+      - name: Report build details
+        run: du -hbcs ./source ./build
   build-linux:
     name: 'Build (Linux: x86-64/${{matrix.compiler}}-${{matrix.version}}/${{matrix.build-type}})'
     runs-on: ubuntu-latest
