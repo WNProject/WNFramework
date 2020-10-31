@@ -10,7 +10,8 @@ if (WN_ANDROID_WRAPPER)
     execute_process(
         COMMAND ${CMAKE_COMMAND}
             -G ${CMAKE_GENERATOR} ${WNFramework_SOURCE_DIR}
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DCMAKE_BUILD_TYPE=Release
+            -DWN_LOW_RESOURCE_MODE=${WN_LOW_RESOURCE_MODE}
         WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/host
     )
 

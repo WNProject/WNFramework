@@ -25,7 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        architecture: [arm, arm64, x86]
+        architecture: [armeabi-v7a, arm64-v8a, x86]
         build-type: [Debug, Release]
     steps:
       - name: Set up build environment
@@ -43,10 +43,17 @@ jobs:
           -DCMAKE_TOOLCHAIN_FILE=${OVERLAY}/android.toolchain.cmake
           -DWN_ANDROID_ABIS=${{matrix.architecture}}
           -DWN_ANDROID_SDK=/opt/android-sdk
+          -DWN_LOW_RESOURCE_MODE=ON
           ../source
         env:
           OVERLAY: ${{github.workspace}}/source/Overlays/Posix/Overlays/Android
-      - name: Run build
+      - name: Run build - host_tools
+        working-directory: ./build/host/Externals/llvm-project/llvm
+        run: cmake --build . --target llvm-tblgen
+      - name: Run build - arch
+        working-directory: ./build/${{matrix.architecture}}
+        run: cmake --build .
+      - name: Run build - apks
         working-directory: ./build
         run: cmake --build .
       - name: Report build details

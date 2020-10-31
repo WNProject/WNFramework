@@ -49,6 +49,21 @@ if (WN_OVERLAY_IS_ENABLED AND NOT WN_DISABLE_CXX)
   string(REPLACE "\\" "/" CMAKE_TOOLCHAIN_FILE ${CMAKE_TOOLCHAIN_FILE})
   append_to_overlay_var(WN_LLVM_WRAPPER
     "${CMAKE_TOOLCHAIN_FILE}")
+
+  if(WN_LOW_RESOURCE_MODE)
+    foreach(lang WN_CXX_FLAGS WN_CMAKE_C_FLAGS
+                WN_CXX_FLAGS_RELEASE WN_CMAKE_C_FLAGS_RELEASE
+                WN_CXX_FLAGS_DEBUG WN_CMAKE_C_FLAGS_DEBUG
+                WN_CXX_FLAGS_RELWITHDEBINFO WN_CMAKE_C_FLAGS_RELWITHDEBINFO
+                WN_CXX_FLAGS_MINSIZEREL WN_CMAKE_C_FLAGS_MINSIZEREL)
+      string(REGEX REPLACE "-ggdb" "" ${lang} "${${lang}}")
+      string(REGEX REPLACE "-g" "" ${lang} "${${lang}}")  
+      string(REGEX REPLACE "-gdwarf" "" ${lang} "${${lang}}")  
+      string(REGEX REPLACE "-gdwarf" "" ${lang} "${${lang}}")  
+      set_overlay_var(${lang} "${${lang}}")
+    endforeach()
+  endif()
+
 elseif(WN_OVERLAY_IS_ENABLED)
   append_to_overlay_var(SUB_BUILD_TARGET_DEPS llvm-host-tblgen)
   add_custom_target(llvm-host-tblgen
