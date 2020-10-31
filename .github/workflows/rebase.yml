@@ -1,10 +1,10 @@
-name: Automatic rebase
+name: Rebase
 on:
   issue_comment:
     types: [created]
 jobs:
   automatic-rebase:
-    name: Automatic rebase
+    name: Rebase
     if: >
       github.event.issue.pull_request &&
       startsWith(github.event.comment.body, '/rebase')
@@ -13,7 +13,7 @@ jobs:
       - name: Respond to comment
         uses: actions/github-script@v3.0.0
         with:
-          github-token: ${{secrets.AUTOMATIC_REBASE_TOKEN}}
+          github-token: ${{secrets.REBASE_TOKEN}}
           script: |
             github.reactions.createForIssueComment({
               owner: context.repo.owner,
@@ -26,15 +26,15 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Automatic rebase
+      - name: Run rebase
         uses: cirrus-actions/rebase@1.3.1
         env:
-          GITHUB_TOKEN: ${{secrets.AUTOMATIC_REBASE_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.REBASE_TOKEN}}
       - name: Comment on failure
         if: failure()
         uses: actions/github-script@v3.0.0
         with:
-          github-token: ${{secrets.AUTOMATIC_REBASE_TOKEN}}
+          github-token: ${{secrets.REBASE_TOKEN}}
           script: |
             const url =
               'https://github.com/${{github.repository}}/actions/' +
