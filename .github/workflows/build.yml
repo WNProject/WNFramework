@@ -43,6 +43,7 @@ jobs:
         working-directory: ./build
         run: cmake --build .
       - name: Report build details
+        if: success() || failure()
         run: du -hbcs ./source ./build
   build-windows:
     name: 'Build (Windows: ${{matrix.architecture}}/msvc-${{matrix.version}}/${{matrix.build-type}})'
@@ -113,5 +114,6 @@ jobs:
           ${{steps.info.outputs.docker_image}}
           cmake --build C:\workspace\build
       - name: Report build details
+        if: success() || failure()
         shell: bash
         run: du -hbcs ./source ./build
