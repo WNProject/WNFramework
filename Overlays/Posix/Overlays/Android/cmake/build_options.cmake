@@ -23,3 +23,31 @@ if (NOT WN_ANDROID_SDK)
 endif()
 
 find_program(WN_PYTHON Python)
+
+if(WN_LOW_RESOURCE_MODE)
+  set(WN_GRADLE_DISABLE_PARALLELIZATION ON)
+  set(WN_ANDROID_DISABLE_LINK_PARALLELIZATION ON)
+endif()
+
+option(
+  WN_GRADLE_DISABLE_PARALLELIZATION
+  "Disable gradle parrallelization. Disables multiple gradle caches(size) at a cost of increased build time"
+  ${WN_GRADLE_DISABLE_PARALLELIZATION}
+)
+
+option(
+  WN_ANDROID_DISABLE_LINK_PARALLELIZATION
+  "Disable parallel link operations"
+  ${WN_ANDROID_DISABLE_LINK_PARALLELIZATION}
+)
+
+if(WN_ANDROID_DISABLE_LINK_PARALLELIZATION)
+  message(STATUS "Disable link parallelization")
+  set_property(GLOBAL APPEND PROPERTY JOB_POOLS link_job_pool=1)
+  set(CMAKE_JOB_POOL_LINK link_job_pool)
+endif()
+
+if(WN_GRADLE_DISABLE_PARALLELIZATION)
+  message(STATUS "Disable link parallelization")
+  set_property(GLOBAL APPEND PROPERTY JOB_POOLS gradle_job_pool=1)
+endif()

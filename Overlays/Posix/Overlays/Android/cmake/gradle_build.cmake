@@ -167,12 +167,20 @@ function(add_application name)
     set(GRADLE_COMMAND_POSTFIX ".bat")
   endif()
 
+  if (WN_GRADLE_DISABLE_PARALLELIZATION)
+    set(ADDITIONAL_GRADLE_ARGS)
+    set(ADDITIONAL_CUSTOM_COMMAND_ARGS JOB_POOL gradle_job_pool)
+  else()
+    set(ADDITIONAL_GRADLE_ARGS  -g ${WNFramework_BINARY_DIR}/apps/${name}/.gradle_home)
+    set(ADDITIONAL_CUSTOM_COMMAND_ARGS)
+  endif()
+
   add_custom_command(
     OUTPUT ${WNFramework_BINARY_DIR}/apps/${name}-debug.apk
              ${WNFramework_BINARY_DIR}/apps/${name}-unsigned.apk
       ${ALL_LIBS}
     COMMAND
-      ${GRADLE_COMMAND_PREFIX}gradlew${GRADLE_COMMAND_POSTFIX} -g ${WNFramework_BINARY_DIR}/apps/${name}/.gradle_home build
+      ${GRADLE_COMMAND_PREFIX}gradlew${GRADLE_COMMAND_POSTFIX} ${ADDITIONAL_GRADLE_ARGS} build
     COMMAND
       ${CMAKE_COMMAND} -E copy
         ${WNFramework_BINARY_DIR}/apps/${name}/app/build/outputs/apk/debug/app-debug.apk
@@ -182,13 +190,14 @@ function(add_application name)
         ${WNFramework_BINARY_DIR}/apps/${name}/app/build/outputs/apk/release/app-release-unsigned.apk
         ${WNFramework_BINARY_DIR}/apps/${name}-unsigned.apk
     WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/apps/${name}
+    ${ADDITIONAL_CUSTOM_COMMAND_ARGS}
     DEPENDS
       ${all_sources}
       ${LIBS}
   )
 
-  add_custom_target(
-    build-${app}-apk
-    DEPENDS  ${WNFramework_BINARY_DIR}/apps/${name}-debug.apk
-             ${WNFramework_BINARY_DIR}/apps/${name}-unsigned.apk)
+    add_custom_target(
+      build-${app}-apk
+      DEPENDS  ${WNFramework_BINARY_DIR}/apps/${name}-debug.apk
+              ${WNFramework_BINARY_DIR}/apps/${name}-unsigned.apk)
 endfunction()
