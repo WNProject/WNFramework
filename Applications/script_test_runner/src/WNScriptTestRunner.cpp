@@ -7,11 +7,12 @@
 #include "WNLogging/inc/WNConsoleLogger.h"
 #include "WNMemory/inc/allocation_tracker.h"
 #include "WNMemory/inc/basic_allocator.h"
-#include "WNRe2/inc/re2.h"
 #include "WNScripting/inc/WNFactory.h"
-#include "effcee/effcee.h"
 #include "executable_data/inc/executable_data.h"
 #include "executable_entry/inc/executable_entry.h"
+
+#include <effcee/effcee.h>
+#include <re2/re2.h>
 
 using namespace wn;
 

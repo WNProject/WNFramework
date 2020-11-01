@@ -7,8 +7,10 @@ add_wn_library(
     src/regex.cpp
     src/string.cpp
     src/subprocess.cpp
+  INCLUDES
+    ${WNFramework_SOURCE_DIR}/Externals/re2
   LIBS
-    platform_utils
     WNScripting
-    WNRe2
+    platform_utils
+    re2
 )

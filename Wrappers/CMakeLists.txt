@@ -3,4 +3,3 @@ foreach(overlay ${WN_ENABLED_OVERLAYS})
 endforeach()
 
 wn_add_subdirectory(stb)
-wn_add_subdirectory(WNRe2)

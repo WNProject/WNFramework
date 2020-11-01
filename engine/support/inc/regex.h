@@ -7,9 +7,10 @@
 #ifndef __WN_SUPPORT_REGEX_H__
 #define __WN_SUPPORT_REGEX_H__
 
-#include "WNRe2/inc/re2.h"
 #include "WNScripting/inc/WNEngine.h"
 #include "WNScripting/inc/resource_manager.h"
+
+#include <re2/re2.h>
 
 namespace wn {
 namespace support {
