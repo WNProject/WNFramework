@@ -12,7 +12,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2.3.3
+      - name: Determine should skip
+        id: skip
+        run: >
+          echo "##[set-output name=result;]$(
+            git diff --name-only master..HEAD '***.{c,cpp,h,hpp,inl}' | wc -l
+          )"
       - name: Check code format
+        if: steps.skip.outputs.result != 0
         run: >
           find . -type f
           -iregex '^.*\.\(c\|cpp\|h\|hpp\)$' -and -not
