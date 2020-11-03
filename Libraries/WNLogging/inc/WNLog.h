@@ -153,6 +153,8 @@ public:
   template <typename Arg>
   void do_log_log(const Arg& _0);
 
+  void do_log_log();
+
 private:
   log_impl& operator=(const log_impl& _other) = delete;
   WN_FORCE_INLINE void log_header(log_level);

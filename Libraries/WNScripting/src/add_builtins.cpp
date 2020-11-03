@@ -220,8 +220,8 @@ void type_manager::add_release_shared() {
 
   auto const_1 = memory::make_unique<ast_constant>(m_allocator, nullptr);
   const_1->m_string_value = containers::string(m_allocator, "1");
+  const_1->m_node_value.m_size_t = 1;
   const_1->m_type = m_size_t.get();
-  const_1->m_node_value.m_integer = 1;
 
   auto is_1 = memory::make_unique<ast_binary_expression>(m_allocator, nullptr);
   is_1->m_lhs = core::move(dec);

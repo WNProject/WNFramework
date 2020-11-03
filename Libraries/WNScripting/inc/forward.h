@@ -266,6 +266,11 @@ public:
     return val;
   }
 
+  shared_cpp_pointer unsafe_release() {
+    header()->m_ref_count--;
+    return *this;
+  }
+
 private:
   static void destroy(T* t) {
     (t->T::~T)();

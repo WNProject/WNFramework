@@ -1,9 +1,11 @@
 add_wn_library(
   support
   SOURCES
+    inc/log.h
     inc/regex.h
     inc/string.h
     inc/subprocess.h
+    src/log.cpp
     src/regex.cpp
     src/string.cpp
     src/subprocess.cpp

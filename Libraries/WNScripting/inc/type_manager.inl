@@ -38,9 +38,8 @@ struct exporter : public exporter_base {
       functional::function<void(containers::string_view _mangled_name,
           void* _ptr, bool _is_virtual)>* _cb)
     : exporter_base(_type, _allocator, _manager, _cb) {}
-  template <typename V,
-      typename = core::enable_if_t<core::is_object<V>::value>> void
-          register_member(containers::string_view _name, V T::*_member) {
+  template <typename V>
+  void register_member(containers::string_view _name, V T::*_member) {
     size_t offset =
         reinterpret_cast<size_t>(
             &(reinterpret_cast<T*>(static_cast<size_t>(100))->*_member)) -
