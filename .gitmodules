@@ -40,3 +40,9 @@
 	branch = release
 	ignore = dirty
 	shallow = true
+[submodule "Externals/rapidjson"]
+	path = Externals/rapidjson
+	url = https://github.com/Tencent/rapidjson.git
+	branch = master
+	ignore = dirty
+	shallow = true
