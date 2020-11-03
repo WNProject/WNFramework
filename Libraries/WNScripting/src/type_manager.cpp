@@ -834,20 +834,22 @@ bool type_manager::register_resource_data(const containers::string_view& _file,
 }
 
 const ast_type* type_manager::get_resource(
-    containers::string_view resource_name,
-    containers::string_view resource_data, containers::string* data) {
-  auto res = m_resource_types.find(resource_name.to_string(m_allocator));
+    containers::string_view _resource_name,
+    containers::string_view _resource_data, containers::string* _data,
+    core::optional<uintptr_t>* _user_data) {
+  auto res = m_resource_types.find(_resource_name.to_string(m_allocator));
   if (res == m_resource_types.end()) {
     return nullptr;
   }
 
-  auto res_data = m_resource_data.find(resource_data.to_string(m_allocator));
-  if (res_data == m_resource_data.end()) {
-    return nullptr;
+  auto res_data = m_resource_data.find(_resource_data.to_string(m_allocator));
+  containers::string_view rd;
+  if (res_data != m_resource_data.end()) {
+    rd = res_data->second;
   }
 
   if (!res->second.m_resource->convert_to_function(
-          resource_data, res_data->second, data)) {
+          _resource_data, rd, _data, _user_data)) {
     return nullptr;
   }
 

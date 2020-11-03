@@ -9,6 +9,7 @@
 
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
+#include "WNCore/inc/optional.h"
 #include "WNLogging/inc/WNLog.h"
 
 namespace wn {
@@ -23,7 +24,8 @@ public:
   explicit resource_manager(containers::string _name)
     : m_name(core::move(_name)) {}
   virtual bool convert_to_function(containers::string_view,
-      containers::string_view, containers::string*) = 0;
+      containers::string_view, containers::string*,
+      core::optional<uintptr_t>*) = 0;
   virtual containers::string_view get_file_extension() const {
     return "";
   }

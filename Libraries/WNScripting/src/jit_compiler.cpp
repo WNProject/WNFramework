@@ -1367,7 +1367,7 @@ llvm::Value* internal::jit_compiler_context::get_constant(
   } else if (t == m_bool_t) {
     return llvm::ConstantInt::get(t, _const->m_node_value.m_bool ? 1 : 0);
   } else if (t == m_size_t) {
-    return llvm::ConstantInt::get(t, _const->m_node_value.m_integer);
+    return llvm::ConstantInt::get(t, _const->m_node_value.m_size_t);
   }
   if (t == m_c_string_t) {
     return m_function_builder->CreateGlobalStringPtr(llvm::StringRef(
