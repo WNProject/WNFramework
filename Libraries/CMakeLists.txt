@@ -1,7 +1,7 @@
 include(test_helper.cmake)
 
 include_directories(${WNFramework_BINARY_DIR}/Libraries)
-include_directories(${WNFramework_BINARY_DIR}/Wrappers)
+include_directories(${WNFramework_BINARY_DIR}/wrappers)
 
 set(REVERSE_OVERLAYS ${WN_ENABLED_OVERLAYS})
 
@@ -9,11 +9,11 @@ list(REVERSE REVERSE_OVERLAYS)
 
 foreach(overlay ${REVERSE_OVERLAYS})
   include_directories(${overlay}/Libraries)
-  include_directories(${overlay}/Wrappers)
+  include_directories(${overlay}/wrappers)
 endforeach()
 
 include_directories(${WNFramework_SOURCE_DIR}/Libraries)
-include_directories(${WNFramework_SOURCE_DIR}/Wrappers)
+include_directories(${WNFramework_SOURCE_DIR}/wrappers)
 
 # These must be before all the below in order for it to work
 wn_add_subdirectory(executable_data)

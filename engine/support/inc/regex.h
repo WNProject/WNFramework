@@ -7,6 +7,8 @@
 #ifndef __WN_SUPPORT_REGEX_H__
 #define __WN_SUPPORT_REGEX_H__
 
+#include "WNContainers/inc/WNHashMap.h"
+#include "WNMemory/inc/unique_ptr.h"
 #include "WNScripting/inc/WNEngine.h"
 #include "WNScripting/inc/resource_manager.h"
 
@@ -17,15 +19,28 @@ namespace support {
 
 class regex {
 public:
+  explicit regex(const char* val);
+  ~regex();
+  bool is_valid() const;
+
+private:
+  re2::RE2 m_regex;
+};
+
+struct regex_manager : scripting::resource_manager {
   static void register_scripting(
       memory::allocator* _allocator, scripting::engine* _engine);
   static bool resolve_scripting(scripting::engine* _engine);
 
-  explicit regex(const char* val);
-  ~regex();
+  regex_manager(memory::allocator* _allocator);
+
+  bool convert_to_function(containers::string_view _resource_name,
+      containers::string_view _resource_data, containers::string* _dat,
+      core::optional<uintptr_t>* _user_data) override;
 
 private:
-  re2::RE2 m_regex;
+  memory::allocator* m_allocator;
+  containers::hash_map<containers::string, memory::unique_ptr<regex>> m_regexes;
 };
 
 }  // namespace support

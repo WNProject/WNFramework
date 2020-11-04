@@ -185,7 +185,7 @@ public:
     (*this) = _other;
   }
 
-  dynamic_array(dynamic_array&& _other) : dynamic_array() {
+  dynamic_array(dynamic_array&& _other) noexcept : dynamic_array() {
     (*this) = core::move(_other);
   }
 
@@ -299,7 +299,7 @@ public:
     return *this;
   }
 
-  dynamic_array& operator=(dynamic_array&& _other) {
+  dynamic_array& operator=(dynamic_array&& _other) noexcept {
     if (&_other == this) {
       return *this;
     }
@@ -681,8 +681,9 @@ private:
 
     if (m_capacity < (m_size + _count)) {
       iterator startPt = iterator(m_data + (_pos - begin()));
-      const size_type new_capacity = static_cast<size_type>(
-          (m_size + _count) * (1 + (_ExpandPercentage / 100.0f)));
+      const size_type new_capacity =
+          (m_size + _count) *
+          static_cast<size_type>(1 + (_ExpandPercentage / 100.0f));
       void* memory = allocate(sizeof(T), new_capacity);
 
       m_capacity = new_capacity;

@@ -444,6 +444,7 @@ add_wn_header_library(
     inc/base.h
     inc/endian.h
     inc/macros.h
+    inc/optional.h
     inc/pair.h
     inc/tuple.h
     inc/types.h

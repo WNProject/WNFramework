@@ -5,8 +5,8 @@ add_wn_library(
   INCLUDES
     ${WNFramework_SOURCE_DIR}/Externals/stb
   SOURCES
-    stb_image.c
-    stb_truetype.c
+    src/stb_image.c
+    src/stb_truetype.c
 )
 
 post_enable_overlay_directory()

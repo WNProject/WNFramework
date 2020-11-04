@@ -71,11 +71,12 @@ parse_ast_convertor::convertor_context::resolve_resource(
     const resource_expression* _resource) {
   containers::string fn_call_name(m_allocator);
   containers::string_view data = _resource->get_string();
+  core::optional<uintptr_t> user_data;
   if (data.size() > 2) {
     data = data.substr(1, data.size() - 2);
   }
-  const ast_type* t =
-      m_type_manager->get_resource(_resource->get_type(), data, &fn_call_name);
+  const ast_type* t = m_type_manager->get_resource(
+      _resource->get_type(), data, &fn_call_name, &user_data);
   if (t == nullptr) {
     _resource->log_line(m_log, logging::log_level::error);
     m_log->log_error("Invalid resource: ", _resource->get_type());
@@ -91,6 +92,31 @@ parse_ast_convertor::convertor_context::resolve_resource(
       m_allocator, m_allocator, fn_call_name.c_str());
   ide->copy_location_from(fce.get());
   fce->add_base_expression(core::move(ide));
+  if (user_data) {
+    char data_val[16];
+    data_val[15] = '\0';
+    uintptr_t d = user_data.value();
+    size_t offset = 14;
+    while (d) {
+      data_val[offset] = '0' + (d % 10);
+      d /= 10;
+      offset -= 1;
+    }
+    if (offset == 14) {
+      data_val[offset] = '0';
+      offset -= 1;
+    }
+    ++offset;
+
+    memory::unique_ptr<constant_expression> eparam =
+        memory::make_unique<constant_expression>(m_allocator, m_allocator,
+            type_classification::size_type, &data_val[offset]);
+    eparam->copy_location_from(fce.get());
+    memory::unique_ptr<function_expression> expr =
+        memory::make_unique<function_expression>(
+            m_allocator, core::move(eparam), false);
+    fce->get_expressions().push_back(core::move(expr));
+  }
   for (auto& expr : _resource->get_expressions()) {
     fce->get_expressions().push_back(expr->clone(m_allocator));
   }
@@ -108,6 +134,10 @@ parse_ast_convertor::convertor_context::get_constant(
   if (_type == m_type_manager->integral(32, nullptr)) {
     long long val = atoll(value.c_str());
     c->m_node_value.m_integer = static_cast<int32_t>(val);
+    return c;
+  } else if (_type == m_type_manager->size_t_t(nullptr)) {
+    unsigned long long val = ::strtoull(value.c_str(), nullptr, 0);
+    c->m_node_value.m_size_t = static_cast<size_t>(val);
     return c;
   } else if (_type == m_type_manager->nullptr_t(nullptr)) {
     c->m_node_value.m_integer = static_cast<int32_t>(0);
@@ -164,6 +194,10 @@ parse_ast_convertor::convertor_context::resolve_constant(
     }
     case static_cast<uint32_t>(type_classification::bool_type): {
       const_type = m_type_manager->bool_t(&m_used_types);
+      break;
+    }
+    case static_cast<uint32_t>(type_classification::size_type): {
+      const_type = m_type_manager->size_t_t(&m_used_types);
       break;
     }
     default:
