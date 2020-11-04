@@ -36,8 +36,7 @@ void log_impl<MAX_LOG_LEVEL>::do_log_log(const Arg1& _0, const Args&... args) {
 }
 
 template <log_level MAX_LOG_LEVEL>
-void log_impl<MAX_LOG_LEVEL>::do_log_log() {
-}
+void log_impl<MAX_LOG_LEVEL>::do_log_log() {}
 
 template <log_level MAX_LOG_LEVEL>
 template <typename Arg>
