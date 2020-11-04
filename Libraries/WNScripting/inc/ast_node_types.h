@@ -313,7 +313,7 @@ public:
         m_mangled_name += m_implicitly_contained_type->m_mangled_name;
         return;
       case ast_type_classification::extern_type:
-        m_mangled_name = containers::string(_allocator, "P");
+        m_mangled_name = containers::string(_allocator, "E");
         break;
       case ast_type_classification::struct_type:
         break;
@@ -671,6 +671,7 @@ struct ast_constant : public ast_expression {
     float m_float;
     bool m_bool;
     uint8_t m_char;
+    size_t m_size_t;
     ast_vtable* m_vtable;
   } m_node_value;
 

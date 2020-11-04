@@ -41,7 +41,7 @@ public:
 
   deque_iterator() : m_deque(nullptr), m_element(0) {}
 
-  deque_iterator(deque_iterator&& _other)
+  deque_iterator(deque_iterator&& _other) noexcept
     : m_deque(core::move(_other.m_deque)),
       m_element(core::move(_other.m_element)) {
     _other.clear();
@@ -253,7 +253,7 @@ public:
     }
   }
 
-  deque(deque&& _other)
+  deque(deque&& _other) noexcept
     : m_allocator(core::move(_other.m_allocator)),
       m_block_list(core::move(_other.m_block_list)),
       m_used_blocks(core::move(_other.m_used_blocks)),
@@ -314,7 +314,7 @@ public:
     }
   }
 
-  deque& operator=(deque&& _other) {
+  deque& operator=(deque&& _other) noexcept {
     clear();
     clean_blocks();
     m_allocator = core::move(_other.m_allocator);

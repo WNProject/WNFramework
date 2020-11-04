@@ -26,7 +26,8 @@ public:
     : scripting::resource_manager(
           containers::string(_allocator, "TestResource")) {}
   bool convert_to_function(containers::string_view, containers::string_view,
-      containers::string* dat) override {
+      containers::string* dat, core::optional<uintptr_t>* _user_data) override {
+    (void)_user_data;
     *dat = "dummy_file_foo";
     return true;
   }

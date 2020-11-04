@@ -6,7 +6,7 @@ include "renderer/texture_description.wns"
 include "ui/renderable_ui.wns"
 
 Int main(Context ctx) {
-    shared Regex re = make_regex(".*");
+    Regex re = @Regex(".*");
     shared String str = make_string("asdf");
     CString[] args = CString[]("/c", "echo", "Hello World");
     Int ret = call_subprocess(

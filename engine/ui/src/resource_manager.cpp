@@ -41,8 +41,10 @@ resource_manager::resource_manager(
 
 bool resource_manager::convert_to_function(
     containers::string_view _resource_name,
-    containers::string_view _resource_data, containers::string* _dat) {
+    containers::string_view _resource_data, containers::string* _dat,
+    core::optional<uintptr_t>* _user_data) {
   (void)_resource_name;
+  (void)_user_data;
   _dat->append("getNew").append(_resource_data);
   return true;
 }

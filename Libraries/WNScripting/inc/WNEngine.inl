@@ -351,7 +351,7 @@ R inline engine::invoke(
       _function, core::forward<Args>(_args)...);
 }
 containers::string engine::get_resource_data(containers::string_view _file) {
-  return m_type_manager.get_resoruce_data(_file);
+  return m_type_manager.get_resource_data(_file);
 }
 
 }  // namespace scripting
