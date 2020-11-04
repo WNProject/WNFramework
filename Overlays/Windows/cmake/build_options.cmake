@@ -88,6 +88,10 @@ add_compile_options($<$<CONFIG:Release>:/Gm->) # Disable minimal rebuild
 
 # HACK remove once googletest stops using tr1 namespace
 add_compile_options(/D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
+# Silence some C++17 warnings.
+add_compile_options(/D_SILENCE_CXX17_IS_LITERAL_TYPE_DEPRECATION_WARNING)
+add_compile_options(/D_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING)
+add_compile_options(/D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 
 add_compile_options(/D_WN_WINDOWS)
 

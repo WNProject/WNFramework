@@ -61,7 +61,7 @@ int32_t wn_application_main(
     engine::ui::ui::register_scripting(ui_allocator, scripting_engine.get());
 
     if (enable_support) {
-      support::regex::register_scripting(
+      support::regex_manager::register_scripting(
           support_allocator, scripting_engine.get());
       support::string::register_scripting(
           support_allocator, scripting_engine.get());
@@ -83,7 +83,7 @@ int32_t wn_application_main(
       return -1;
     }
     if (enable_support) {
-      if (!support::regex::resolve_scripting(scripting_engine.get())) {
+      if (!support::regex_manager::resolve_scripting(scripting_engine.get())) {
         _application_data->default_log->log_critical(
             "Could not resolve needed script types for regex");
         return -1;

@@ -455,7 +455,8 @@ private:
 
       // If we are expanding past 10 buckets then we should probably
       // pick some exponential factor. (1.5 for now).
-      size_t exponential_buckets = static_cast<size_t>(m_buckets.size() * 1.5f);
+      size_t exponential_buckets =
+          static_cast<size_t>(static_cast<float>(m_buckets.size()) * 1.5f);
       size_t num_new_buckets =
           i > exponential_buckets ? i : exponential_buckets;
       rehash(num_new_buckets);

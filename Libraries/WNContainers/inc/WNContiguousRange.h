@@ -44,7 +44,8 @@ public:
   WN_FORCE_INLINE contiguous_range_iterator()
     : m_owner(nullptr), m_pointer(nullptr) {}
 
-  WN_FORCE_INLINE contiguous_range_iterator(contiguous_range_iterator&& _other)
+  WN_FORCE_INLINE contiguous_range_iterator(
+      contiguous_range_iterator&& _other) noexcept
     : m_owner(core::move(_other.m_owner)),
       m_pointer(core::move(_other.m_pointer)) {
     _other.clear();
@@ -104,7 +105,7 @@ public:
 #endif
 
   WN_FORCE_INLINE contiguous_range_iterator& operator=(
-      contiguous_range_iterator&& _other) {
+      contiguous_range_iterator&& _other) noexcept {
     contiguous_range_iterator(core::move(_other)).swap(*this);
 
     return *this;
@@ -423,7 +424,7 @@ public:
   WN_FORCE_INLINE contiguous_range(const contiguous_range<U>& _other)
     : contiguous_range(_other.data(), _other.size()) {}
 
-  WN_FORCE_INLINE contiguous_range(contiguous_range&& _other)
+  WN_FORCE_INLINE contiguous_range(contiguous_range&& _other) noexcept
     : contiguous_range(_other.m_begin, _other.m_end) {
     _other = nullptr;
   }

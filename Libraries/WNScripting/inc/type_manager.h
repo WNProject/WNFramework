@@ -10,6 +10,7 @@
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNHashSet.h"
 #include "WNContainers/inc/WNString.h"
+#include "WNCore/inc/optional.h"
 #include "WNFunctional/inc/WNFunction.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
@@ -337,7 +338,7 @@ public:
 
   bool register_resource_data(const containers::string_view& _file,
       const containers::string_view& _res_name);
-  containers::string get_resoruce_data(const containers::string_view& _file) {
+  containers::string get_resource_data(const containers::string_view& _file) {
     auto it = m_resource_data.find(_file.to_string(m_allocator));
     if (it != m_resource_data.end()) {
       return containers::string(m_allocator, it->second);
@@ -349,7 +350,8 @@ public:
   //  resource data.
   // If the name or data is invalid, this is ignored.
   const ast_type* get_resource(containers::string_view resource_name,
-      containers::string_view resource_data, containers::string* data);
+      containers::string_view resource_data, containers::string* data,
+      core::optional<uintptr_t>* _user_data);
 
   struct named_constant {
     containers::string _value;

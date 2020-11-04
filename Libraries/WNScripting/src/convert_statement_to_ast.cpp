@@ -280,7 +280,9 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
       type->m_classification == ast_type_classification::reference;
 
   // If this is a raw struct, we can forgo creating an extra variable.
-  if (is_object && !type->m_implicitly_contained_type->m_struct_is_class) {
+  if (is_object && !type->m_implicitly_contained_type->m_struct_is_class &&
+      type->m_implicitly_contained_type->m_classification !=
+          ast_type_classification::extern_type) {
     type = type->m_implicitly_contained_type;
   }
 
