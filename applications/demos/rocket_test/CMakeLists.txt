@@ -1,6 +1,6 @@
 enable_overlay_directory()
 
-include_directories(${WNFramework_BINARY_DIR}/Applications/demos)
+include_directories(${WNFramework_BINARY_DIR}/applications/demos)
 include_directories(${WNFramework_SOURCE_DIR}/externals/librocket/Include)
 
 wn_filesystem_files(rocket_assets

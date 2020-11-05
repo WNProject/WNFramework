@@ -32,7 +32,7 @@ wn_create_executable_tests_from_list(TEST_PREFIX WNScripting
 wn_create_call_test(
   ScriptingFileCheck
     WORKING_DIRECTORY
-      ${WNFramework_BINARY_DIR}/Applications/script_test_runner/
+      ${WNFramework_BINARY_DIR}/applications/script_test_runner/
     APPLICATION
       script_test_runner
     COMMAND_PRE_DIR
