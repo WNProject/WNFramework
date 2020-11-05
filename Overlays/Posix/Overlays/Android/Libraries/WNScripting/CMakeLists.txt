@@ -57,9 +57,9 @@ if (WN_OVERLAY_IS_ENABLED AND NOT WN_DISABLE_CXX)
                 WN_CXX_FLAGS_RELWITHDEBINFO WN_CMAKE_C_FLAGS_RELWITHDEBINFO
                 WN_CXX_FLAGS_MINSIZEREL WN_CMAKE_C_FLAGS_MINSIZEREL)
       string(REGEX REPLACE "-ggdb" "" ${lang} "${${lang}}")
-      string(REGEX REPLACE "-g" "" ${lang} "${${lang}}")  
-      string(REGEX REPLACE "-gdwarf" "" ${lang} "${${lang}}")  
-      string(REGEX REPLACE "-gdwarf" "" ${lang} "${${lang}}")  
+      string(REGEX REPLACE "-g" "" ${lang} "${${lang}}")
+      string(REGEX REPLACE "-gdwarf" "" ${lang} "${${lang}}")
+      string(REGEX REPLACE "-gdwarf" "" ${lang} "${${lang}}")
       set_overlay_var(${lang} "${${lang}}")
     endforeach()
   endif()
@@ -68,12 +68,12 @@ elseif(WN_OVERLAY_IS_ENABLED)
   append_to_overlay_var(SUB_BUILD_TARGET_DEPS llvm-host-tblgen)
   add_custom_target(llvm-host-tblgen
     WORKING_DIRECTORY
-      ${WNFramework_BINARY_DIR}/host/Externals/llvm-project/llvm)
+      ${WNFramework_BINARY_DIR}/host/externals/llvm-project/llvm)
   add_custom_command(TARGET llvm-host-tblgen
     COMMAND
       ${CMAKE_COMMAND} --build . --target llvm-tblgen
     WORKING_DIRECTORY
-      ${WNFramework_BINARY_DIR}/host/Externals/llvm-project/llvm/)
+      ${WNFramework_BINARY_DIR}/host/externals/llvm-project/llvm/)
 endif()
 
 

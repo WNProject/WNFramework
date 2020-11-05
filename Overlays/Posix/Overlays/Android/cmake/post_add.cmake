@@ -21,7 +21,7 @@ if (WN_ANDROID_WRAPPER)
                 -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${WNFramework_BINARY_DIR}/${BUILD_ABI}/bin
                 -DANDROID_NATIVE_API_LEVEL=${WN_ANDROID_NATIVE_API_LEVEL}
                 -DWN_LOW_RESOURCE_MODE=${WN_LOW_RESOURCE_MODE}
-                -DWN_ANDROID_LLVM_TBLGEN=${WNFramework_BINARY_DIR}/host/Externals/llvm-project/llvm/bin/llvm-tblgen${CMAKE_EXECUTABLE_SUFFIX}
+                -DWN_ANDROID_LLVM_TBLGEN=${WNFramework_BINARY_DIR}/host/externals/llvm-project/llvm/bin/llvm-tblgen${CMAKE_EXECUTABLE_SUFFIX}
             WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/${BUILD_ABI}
         )
 

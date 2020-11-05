@@ -25,7 +25,7 @@ if (NOT WN_DISABLE_CXX)
   endif()
 
   set(WN_LLVM_SOURCE_DIR
-      ${WNFramework_SOURCE_DIR}/Externals/llvm-project/llvm
+      ${WNFramework_SOURCE_DIR}/externals/llvm-project/llvm
       CACHE STRING "Location of the llvm source checkout"
   )
 
@@ -57,9 +57,9 @@ if (NOT WN_DISABLE_CXX)
 
     execute_process(
      COMMAND ${CMAKE_COMMAND} -E make_directory
-      ${WNFramework_BINARY_DIR}/Externals/llvm-project/llvm
+      ${WNFramework_BINARY_DIR}/externals/llvm-project/llvm
       COMMAND ${CMAKE_COMMAND} -E make_directory
-      ${WNFramework_BINARY_DIR}/Externals/llvm-project/llvm
+      ${WNFramework_BINARY_DIR}/externals/llvm-project/llvm
     )
 
     get_property(JOB_POOLS GLOBAL PROPERTY JOB_POOLS)
@@ -116,7 +116,7 @@ if (NOT WN_DISABLE_CXX)
       "-G ${CMAKE_GENERATOR} "
       "${WN_LLVM_EXTRA_FLAGS} "
       "${WN_LLVM_SOURCE_DIR} "
-      "WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/Externals/llvm-project/llvm"
+      "WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/externals/llvm-project/llvm"
     )
 
     execute_process(
@@ -171,12 +171,12 @@ if (NOT WN_DISABLE_CXX)
       -G ${CMAKE_GENERATOR}
       ${WN_LLVM_EXTRA_FLAGS}
       ${WN_LLVM_SOURCE_DIR}
-      WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/Externals/llvm-project/llvm
+      WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/externals/llvm-project/llvm
     )
     set(LLVM_CONFIGURED TRUE CACHE INTERNAL "llvm has been configured" FORCE)
   endif()
 
-  include(${WNFramework_BINARY_DIR}/Externals/llvm-project/llvm/lib/cmake/llvm/LLVMConfig.cmake)
+  include(${WNFramework_BINARY_DIR}/externals/llvm-project/llvm/lib/cmake/llvm/LLVMConfig.cmake)
 
   set(WNScriptingLLVMComponents codegen mcjit native)
   llvm_map_components_to_libnames(WNScriptingLLVMLibs ${WNScriptingLLVMComponents})
@@ -187,7 +187,7 @@ if (NOT WN_DISABLE_CXX)
 
   add_custom_target(llvm_target
         COMMAND ${CMAKE_COMMAND} --build . ${WN_LLVM_ADDITIONAL_BUILD_FLAGS} --target ${WNScriptingLLVMLibs}
-      WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/Externals/llvm-project/llvm)
+      WORKING_DIRECTORY ${WNFramework_BINARY_DIR}/externals/llvm-project/llvm)
 
   if (NOT ${WN_BUILD_LLVM_MANUALLY})
     llvm_expand_dependencies(l ${WNScriptingLLVMLibs})
@@ -270,9 +270,9 @@ add_wn_library(WNScripting
     WNLogging
     ${WNScriptingLLVMLibs}
   INCLUDES
-    ${CMAKE_SOURCE_DIR}/Externals/antlr
+    ${CMAKE_SOURCE_DIR}/externals/antlr
     ${LLVM_SOURCE_DIR_CMAKE_PATH}/include
-    ${CMAKE_BINARY_DIR}/Externals/llvm-project/llvm/include
+    ${CMAKE_BINARY_DIR}/externals/llvm-project/llvm/include
 )
 
 set_source_files_properties(lang/WNScriptAST.g

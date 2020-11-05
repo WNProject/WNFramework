@@ -1,7 +1,7 @@
 enable_overlay_directory()
 
 include_directories(${WNFramework_BINARY_DIR}/Applications/demos)
-include_directories(${WNFramework_SOURCE_DIR}/Externals/librocket/Include)
+include_directories(${WNFramework_SOURCE_DIR}/externals/librocket/Include)
 
 wn_filesystem_files(rocket_assets
   OUTPUT_DIR
@@ -23,7 +23,7 @@ wn_filesystem_files(rocket_assets
 
 add_wn_application(rocket_test
   INCLUDES
-     ${WNFramework_SOURCE_DIR}/Externals/stb
+     ${WNFramework_SOURCE_DIR}/externals/stb
   SOURCES
     src/main.cpp
     ${CMAKE_CURRENT_BINARY_DIR}/inc/rocket_assets.h

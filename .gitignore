@@ -7,7 +7,7 @@
 .vs/
 .vscode/
 .ycm_extra_conf.py*
-Externals/*/*
+externals/*/*
 build*/
 ipch/
 last_clobber.txt

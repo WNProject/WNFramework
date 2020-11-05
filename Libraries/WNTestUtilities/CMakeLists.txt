@@ -5,7 +5,7 @@ enable_overlay_directory()
 add_wn_externals(
   googletest
   DIRECTORY
-    ${WNFramework_SOURCE_DIR}/Externals/googletest
+    ${WNFramework_SOURCE_DIR}/externals/googletest
   COMPILE_OPTIONS
     ${WN_TEST_UTILITIES_GOOGLETEST_COMPILE_OPTIONS}
 )

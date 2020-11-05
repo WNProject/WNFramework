@@ -1,7 +1,7 @@
 add_wn_library(
   renderer
   INCLUDES
-    ${WNFramework_SOURCE_DIR}/Externals/stb
+    ${WNFramework_SOURCE_DIR}/externals/stb
   SOURCES
     inc/gpu_heap.h
     inc/render_context.h

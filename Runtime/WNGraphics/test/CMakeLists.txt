@@ -33,7 +33,7 @@ macro(add_pixel_test name)
     SOURCES
       ${PIXEL_TEST_SOURCES}
     INCLUDES
-      ${WNFramework_SOURCE_DIR}/Externals/stb
+      ${WNFramework_SOURCE_DIR}/externals/stb
     LIBS
       executable_test
       WNGraphics

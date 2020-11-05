@@ -48,7 +48,7 @@ jobs:
         env:
           OVERLAY: ${{github.workspace}}/source/Overlays/Posix/Overlays/Android
       - name: Run build - host_tools
-        working-directory: ./build/host/Externals/llvm-project/llvm
+        working-directory: ./build/host/externals/llvm-project/llvm
         run: cmake --build . --target llvm-tblgen
       - name: Run build - arch
         working-directory: ./build/${{matrix.architecture}}

@@ -5,8 +5,8 @@ add_wn_executable(
   SOURCES
     src/WNScriptTestRunner.cpp
   INCLUDES
-    ${WNFramework_SOURCE_DIR}/Externals/effcee
-    ${WNFramework_SOURCE_DIR}/Externals/re2
+    ${WNFramework_SOURCE_DIR}/externals/effcee
+    ${WNFramework_SOURCE_DIR}/externals/re2
   LIBS
     WNScripting
     executable_entry
