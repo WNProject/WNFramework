@@ -438,13 +438,13 @@ function(wn_filesystem_files name)
     add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR}/${name}.h
                               ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR}/${name}.cpp
       COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR}
-      COMMAND python ${WNFramework_SOURCE_DIR}/Utilities/compile_file_directory.py
+      COMMAND python ${WNFramework_SOURCE_DIR}/utilities/compile_file_directory.py
         --output-directory ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR} ${PYTHON_ARGS}
         --prefix ${name}
-      DEPENDS ${WNFramework_SOURCE_DIR}/Utilities/compile_file_directory.py
+      DEPENDS ${WNFramework_SOURCE_DIR}/utilities/compile_file_directory.py
         ${${name}_OVERLAY_SOURCES}
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-    add_custom_target(${name} DEPENDS 
+    add_custom_target(${name} DEPENDS
        ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR}/${name}.h
        ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR}/${name}.cpp)
     overlay_named_file(cmake/target_functions/post_filesystem_files.cmake)
