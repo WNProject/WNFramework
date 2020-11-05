@@ -5,5 +5,5 @@ set_target_properties(
   llvm_target
   omp_gen
   PROPERTIES
-  FOLDER "Externals/llvm"
+  FOLDER "externals/llvm"
 )

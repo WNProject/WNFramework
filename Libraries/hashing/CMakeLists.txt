@@ -9,7 +9,7 @@ set(XXHASH_BUILD_XXHSUM OFF CACHE BOOL "" FORCE)
 add_wn_externals(
   xxhash
   DIRECTORY
-    ${WNFramework_SOURCE_DIR}/Externals/xxhash/cmake_unofficial
+    ${WNFramework_SOURCE_DIR}/externals/xxhash/cmake_unofficial
   COMPILE_OPTIONS
     ${WN_HASHING_XXHASH_COMPILE_OPTIONS}
 )
@@ -20,7 +20,7 @@ add_wn_library(
     inc/hash.h
     src/dummy.cpp
   INCLUDES
-    ${WNFramework_SOURCE_DIR}/Externals
+    ${WNFramework_SOURCE_DIR}/externals
   LIBS
     WNLogging
     xxhash

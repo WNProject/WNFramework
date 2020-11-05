@@ -10,7 +10,7 @@ add_wn_library(
     src/string.cpp
     src/subprocess.cpp
   INCLUDES
-    ${WNFramework_SOURCE_DIR}/Externals/re2
+    ${WNFramework_SOURCE_DIR}/externals/re2
   LIBS
     WNScripting
     platform_utils
