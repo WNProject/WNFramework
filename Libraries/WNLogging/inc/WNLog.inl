@@ -36,6 +36,10 @@ void log_impl<MAX_LOG_LEVEL>::do_log_log(const Arg1& _0, const Args&... args) {
 }
 
 template <log_level MAX_LOG_LEVEL>
+void log_impl<MAX_LOG_LEVEL>::do_log_log() {
+}
+
+template <log_level MAX_LOG_LEVEL>
 template <typename Arg>
 void log_impl<MAX_LOG_LEVEL>::do_log_log(const Arg& _0) {
   log_param(_0);
@@ -55,7 +59,7 @@ WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::log_params(
   if ((_flags & static_cast<size_t>(log_flags::no_header)) == 0) {
     log_header(_level);
   }
-  do_log_log<Args...>(args...);
+  do_log_log(args...);
 
   if ((_flags & static_cast<size_t>(log_flags::no_newline)) == 0) {
     log_newline();

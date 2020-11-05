@@ -9,6 +9,7 @@
 #include "engine/inc/script_export.h"
 #include "engine_base/inc/context.h"
 #include "renderer/inc/render_context.h"
+#include "support/inc/log.h"
 #include "support/inc/regex.h"
 #include "support/inc/string.h"
 #include "support/inc/subprocess.h"
@@ -67,6 +68,8 @@ int32_t wn_application_main(
           support_allocator, scripting_engine.get());
       support::subprocess::register_scripting(
           support_allocator, scripting_engine.get());
+      support::log::register_scripting(
+          support_allocator, scripting_engine.get());
     }
 
     scripting::parse_error err = scripting_engine->parse_file("main.wns");
@@ -95,7 +98,12 @@ int32_t wn_application_main(
       }
       if (!support::subprocess::resolve_scripting(scripting_engine.get())) {
         _application_data->default_log->log_critical(
-            "Could not resolve needed script types for regex");
+            "Could not resolve needed script types for subprocess");
+        return -1;
+      }
+      if (!support::log::resolve_scripting(scripting_engine.get())) {
+        _application_data->default_log->log_critical(
+            "Could not resolve needed script types for logging");
         return -1;
       }
     }
