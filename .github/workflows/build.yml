@@ -15,8 +15,8 @@ jobs:
       - name: Check code format
         run: >
           find . -type f
-          -iregex '^.*\.\(c\|cpp\|h\|hpp\)$' -and -not
-          -iregex '^\.\/\(externals\|build.*\).*$' |
+          -iregex '^.*\.\(c\|cpp\|h\|hpp\|inl\)$' -and -not
+          -iregex '^\.\/externals.*$' |
           xargs clang-format --dry-run --Werror --verbose
   build-android:
     name: 'Build (Android: ${{matrix.architecture}}/${{matrix.build-type}})'
