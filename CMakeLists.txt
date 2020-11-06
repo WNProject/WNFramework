@@ -24,7 +24,7 @@ add_subdirectory(externals)
 add_subdirectory(wrappers)
 add_subdirectory(Libraries)
 add_subdirectory(Runtime)
-add_subdirectory(Applications)
+add_subdirectory(applications)
 add_subdirectory(engine)
 
 include(cmake/post_add.cmake)
