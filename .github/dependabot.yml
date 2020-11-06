@@ -17,5 +17,5 @@ updates:
       - auto
       - dependencies
     allow:
-      - dependency-name: '*googletest'
-      - dependency-name: '*xxhash'
+      - dependency-name: googletest
+      - dependency-name: xxhash
