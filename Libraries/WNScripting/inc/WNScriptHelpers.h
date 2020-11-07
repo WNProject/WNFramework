@@ -309,7 +309,8 @@ inline wn_array<shared_script_pointer<T>>& fixup_return_type(
 memory::unique_ptr<ast_script_file> parse_script(memory::allocator* _allocator,
     const containers::string_view file_name, containers::string_view view,
     functional::function<bool(containers::string_view)> _handle_include,
-    functional::function<bool(containers::string_view, containers::string_view)>
+    functional::function<bool(
+        containers::string_view, containers::string_view, bool instantiated)>
         _handle_resource,
     type_manager* _type_manager, bool _print_ast_on_failure, logging::log* _log,
     size_t* _num_warnings, size_t* _num_errors);

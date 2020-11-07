@@ -119,17 +119,32 @@ parse_error c_translator::translate_file_with_error(
                        : false;
           }),
       functional::function<bool(
-          containers::string_view, containers::string_view)>(m_allocator,
+          containers::string_view, containers::string_view, bool)>(m_allocator,
           [this, _dump_ast_on_failure](containers::string_view resource_type,
-              containers::string_view resource_name) {
+              containers::string_view resource_name, bool instantiated) {
             auto it = m_resources.find(resource_type.to_string(m_allocator));
             if (it == m_resources.end()) {
               return true;
             }
+            if (it->second->must_be_instantiated() && !instantiated) {
+              m_compilation_log->log_error("Resource ", resource_type,
+                  " can only be used in an instantiated context");
+              return false;
+            }
+            if (!it->second->can_be_instantiated() && instantiated) {
+              m_compilation_log->log_error("Resource ", resource_type,
+                  " can only not be used in an instantiated context");
+              return false;
+            }
             containers::string str(m_allocator);
-            if (!it->second->get_include_for_resource(resource_name, &str)) {
+            if (!it->second->setup_resource(
+                    resource_name, &str)) {
+              return false;
+            }
+            if (str.empty()) {
               return true;
             }
+
             return translate_file_with_error(str, _dump_ast_on_failure) ==
                            scripting::parse_error::ok
                        ? true

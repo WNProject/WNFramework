@@ -849,7 +849,7 @@ const ast_type* type_manager::get_resource(
   }
 
   if (!res->second.m_resource->convert_to_function(
-          _resource_data, rd, _data, _user_data)) {
+          _resource_data, rd, m_log, _data, _user_data)) {
     return nullptr;
   }
 

@@ -1,16 +1,20 @@
 add_wn_library(
   support
   SOURCES
+    inc/command_line.h
+    inc/command_line.inl
     inc/log.h
     inc/regex.h
     inc/string.h
     inc/subprocess.h
+    src/command_line.cpp
     src/log.cpp
     src/regex.cpp
     src/string.cpp
     src/subprocess.cpp
   INCLUDES
     ${WNFramework_SOURCE_DIR}/externals/re2
+     ${WNFramework_SOURCE_DIR}/externals/rapidjson/include
   LIBS
     WNScripting
     platform_utils

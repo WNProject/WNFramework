@@ -9,6 +9,7 @@
 #include "engine/inc/script_export.h"
 #include "engine_base/inc/context.h"
 #include "renderer/inc/render_context.h"
+#include "support/inc/command_line.h"
 #include "support/inc/log.h"
 #include "support/inc/regex.h"
 #include "support/inc/string.h"
@@ -22,13 +23,6 @@ int32_t wn_application_main(
     const runtime::application::application_data* _application_data) {
   _application_data->default_log->set_log_level(logging::log_level::debug);
   _application_data->default_log->log_info("Engine startup.");
-  bool enable_support = false;
-  for (int32_t i = 0; i < _application_data->executable_data->argc; ++i) {
-    if (containers::string_view("--enable_support") ==
-        _application_data->executable_data->argv[i]) {
-      enable_support = true;
-    }
-  }
 
   int32_t ret = 0;
   {
@@ -39,9 +33,11 @@ int32_t wn_application_main(
     memory::allocator* ui_allocator = _application_data->system_allocator;
     memory::allocator* render_allocator = _application_data->system_allocator;
     memory::allocator* support_allocator = _application_data->system_allocator;
-
     // TODO: If we ever need a logger in file-systems add it here.
     logging::log* scripting_logger = _application_data->default_log;
+
+    support::command_line_manager command_line_mgr(
+        scripting_allocator, scripting_logger);
 
     file_system::mapping_ptr mapping =
         file_system::factory(file_system_allocator,
@@ -61,7 +57,7 @@ int32_t wn_application_main(
         render_allocator, scripting_engine.get());
     engine::ui::ui::register_scripting(ui_allocator, scripting_engine.get());
 
-    if (enable_support) {
+    {
       support::regex_manager::register_scripting(
           support_allocator, scripting_engine.get());
       support::string::register_scripting(
@@ -69,6 +65,8 @@ int32_t wn_application_main(
       support::subprocess::register_scripting(
           support_allocator, scripting_engine.get());
       support::log::register_scripting(
+          support_allocator, scripting_engine.get());
+      command_line_mgr.register_scripting(
           support_allocator, scripting_engine.get());
     }
 
@@ -85,7 +83,7 @@ int32_t wn_application_main(
           "Could not resolve needed script types");
       return -1;
     }
-    if (enable_support) {
+    {
       if (!support::regex_manager::resolve_scripting(scripting_engine.get())) {
         _application_data->default_log->log_critical(
             "Could not resolve needed script types for regex");
@@ -106,24 +104,31 @@ int32_t wn_application_main(
             "Could not resolve needed script types for logging");
         return -1;
       }
+      if (!command_line_mgr.resolve_scripting(scripting_engine.get())) {
+        _application_data->default_log->log_critical(
+            "Could not resolve needed script types for command_line");
+        return -1;
+      }
     }
-
-    wn::scripting::script_function<int32_t, engine_base::context*> main;
-    scripting_engine->get_function("main", &main);
-    if (!main) {
-      _application_data->default_log->log_critical(
-          "Could not find Int main(Context ctx)");
-      return -1;
-    }
-
+    command_line_mgr.set_global_program_name(
+        _application_data->executable_data->argv[0]);
     engine_base::context ctx;
     ctx.m_allocator = _application_data->system_allocator;
     ctx.m_application_data = _application_data;
     ctx.m_engine = scripting_engine.get();
     ctx.m_log = _application_data->default_log;
     ctx.m_file_mapping = mapping.get();
-
-    ret = scripting_engine->invoke(main, &ctx);
+    bool cmd_err = false;
+    for (int32_t i = 1; i < _application_data->executable_data->argc; ++i) {
+      if (!command_line_mgr.insert_global_param(
+              _application_data->executable_data->argv[i])) {
+        cmd_err = true;
+        break;
+      }
+    }
+    if (!cmd_err) {
+      ret = command_line_mgr.run_application(scripting_engine.get(), &ctx);  
+    } 
   }
   _application_data->default_log->log_info("Engine shutdown.");
 

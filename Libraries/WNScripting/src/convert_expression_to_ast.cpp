@@ -72,11 +72,16 @@ parse_ast_convertor::convertor_context::resolve_resource(
   containers::string fn_call_name(m_allocator);
   containers::string_view data = _resource->get_string();
   core::optional<uintptr_t> user_data;
-  if (data.size() > 2) {
-    data = data.substr(1, data.size() - 2);
+  containers::string decoded(m_allocator);
+  
+  if (!decode_string(data, &decoded)) {
+    _resource->log_line(m_log, logging::log_level::error);
+    m_log->log_error("Invalid resource: ", _resource->get_type());
+    m_log->log_error(decoded);
+    return nullptr;
   }
   const ast_type* t = m_type_manager->get_resource(
-      _resource->get_type(), data, &fn_call_name, &user_data);
+      _resource->get_type(), decoded, &fn_call_name, &user_data);
   if (t == nullptr) {
     _resource->log_line(m_log, logging::log_level::error);
     m_log->log_error("Invalid resource: ", _resource->get_type());
@@ -121,7 +126,7 @@ parse_ast_convertor::convertor_context::resolve_resource(
     fce->get_expressions().push_back(expr->clone(m_allocator));
   }
   return resolve_function_call(fce.get());
-}
+}  // namespace scripting
 
 memory::unique_ptr<ast_constant>
 parse_ast_convertor::convertor_context::get_constant(
@@ -150,6 +155,11 @@ parse_ast_convertor::convertor_context::get_constant(
     c->m_node_value.m_char = c->m_string_value[1];
     return c;
   } else if (_type == m_type_manager->cstr_t(nullptr)) {
+    c->m_string_value.clear();
+    if (!decode_string(value, &c->m_string_value)) {
+      _node->log_line(m_log, logging::log_level::error);
+      m_log->log_error(c->m_string_value);
+    }
     return c;
   } else if (_type == m_type_manager->bool_t(nullptr)) {
     if (value == "true") {

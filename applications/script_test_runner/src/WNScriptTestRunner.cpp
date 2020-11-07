@@ -26,12 +26,13 @@ public:
     : scripting::resource_manager(
           containers::string(_allocator, "TestResource")) {}
   bool convert_to_function(containers::string_view, containers::string_view,
-      containers::string* dat, core::optional<uintptr_t>* _user_data) override {
+      logging::log*, containers::string* dat,
+      core::optional<uintptr_t>* _user_data) override {
     (void)_user_data;
     *dat = "dummy_file_foo";
     return true;
   }
-  bool get_include_for_resource(containers::string_view /*_res*/,
+  bool setup_resource(containers::string_view /*_res*/,
       containers::string* _out_string) override {
     *_out_string = "dummy_file.dummy";
     return true;

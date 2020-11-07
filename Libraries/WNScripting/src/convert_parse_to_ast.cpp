@@ -31,7 +31,8 @@ memory::unique_ptr<ast_script_file>
 parse_ast_convertor::convert_parse_tree_to_ast(memory::allocator* _allocator,
     type_manager* _type_manager, wn::logging::log* _log,
     functional::function<bool(containers::string_view)> _handle_includes,
-    functional::function<bool(containers::string_view, containers::string_view)>
+    functional::function<bool(
+        containers::string_view, containers::string_view, bool instantiated)>
         _handle_resources,
     const script_file* _file) const {
   convertor_context context(_allocator, _log, _type_manager, this);
@@ -41,11 +42,14 @@ parse_ast_convertor::convert_parse_tree_to_ast(memory::allocator* _allocator,
     }
   }
   for (auto& inc : _file->get_resources()) {
-    containers::string_view res_data = inc.second.to_string_view();
-    if (res_data.size() > 2) {
-      res_data = res_data.substr(1, res_data.size() - 2);
+    containers::string res_str(_allocator);
+
+    if (!decode_string(inc.m_string.to_string_view(), &res_str)) {
+      return nullptr;
     }
-    if (!_handle_resources(inc.first.to_string_view(), res_data)) {
+
+    if (!_handle_resources(
+            inc.m_type.to_string_view(), res_str, inc.m_instantiated)) {
       return nullptr;
     }
   }

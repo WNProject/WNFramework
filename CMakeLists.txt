@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16.3)
 project(WNFramework VERSION 1.0.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+set(BUILD_SHARED_LIBS OFF)
 option(WN_USE_SCCACHE "Setup for use with sccache" ${WN_USE_SCCACHE})
 option(
     WN_LOW_RESOURCE_MODE
