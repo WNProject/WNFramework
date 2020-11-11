@@ -205,5 +205,4 @@ TEST(raw_connection, multi_send) {
 }
 
 INSTANTIATE_TEST_SUITE_P(all_ip_types, connection_tests,
-    ::testing::Values(
-        wn::networking::ip_protocol::ipv4, wn::networking::ip_protocol::ipv6));
+    ::testing::Values(wn::networking::ip_protocol::ipv4));

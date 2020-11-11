@@ -3,9 +3,9 @@ enable_overlay_directory()
 set(CMAKE_TEST_IMAGE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/golden_images)
 configure_file(inc/WNPixelTestConfig.h.in inc/WNPixelTestConfig.h)
 
-wn_create_executable_tests_from_list(TEST_PREFIX WNGraphics
+wn_create_executable_tests_from_list(
+  TEST_PREFIX WNGraphics
   SOURCE_DIR src
-  SYSTEMS_TEST
   SOURCES
     WNArena
     WNBuffer
@@ -26,10 +26,13 @@ wn_create_executable_tests_from_list(TEST_PREFIX WNGraphics
     shaders/textured_pipeline.vs.hlsl.h
   LIBS
     WNGraphics
+  LABELS
+    REQUIRES_HARDWARE
 )
 
 macro(add_pixel_test name)
-  add_wn_executable(${name}
+  add_wn_executable(
+    ${name}
     SOURCES
       ${PIXEL_TEST_SOURCES}
     INCLUDES
@@ -43,13 +46,15 @@ macro(add_pixel_test name)
 
   wn_create_call_test(
     ${name}
-      WORKING_DIRECTORY
-        ${WNFramework_BINARY_DIR}
-      APPLICATION
-        ${name}
-      COMMAND_PRE_DIR
-        -image_path
-      COMMAND_DIR ${CMAKE_CURRENT_SOURCE_DIR}/golden_images
+    WORKING_DIRECTORY
+      ${WNFramework_BINARY_DIR}
+    APPLICATION
+      ${name}
+    COMMAND_PRE_DIR
+      -image_path
+    COMMAND_DIR ${CMAKE_CURRENT_SOURCE_DIR}/golden_images
+    LABELS
+      REQUIRES_HARDWARE
   )
 endmacro()
 
@@ -152,6 +157,8 @@ wn_create_application_tests_from_list(
   LIBS
     WNGraphics
     WNWindow
+  LABELS
+    REQUIRES_HARDWARE
 )
 
 post_enable_overlay_directory()

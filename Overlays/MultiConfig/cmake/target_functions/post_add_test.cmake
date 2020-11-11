@@ -1,6 +1,6 @@
 cmake_parse_arguments(
     PARSED_ARGS
-    "SYSTEMS_TEST"
+    ""
     "TEST_NAME;RUN_WRAPPER;TEST_PREFIX"
     "SOURCES;ADDITIONAL_INCLUDES;LIBS"
     ${ARGN})
