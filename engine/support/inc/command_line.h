@@ -24,6 +24,9 @@ struct command_line_param_base {
     return name == _other.name && short_name == _other.short_name &&
            description == _other.description && type == _other.type;
   }
+
+  virtual ~command_line_param_base() = default;
+
   virtual bool parse(const char* v) = 0;
   virtual const char* get_name_text() = 0;
   containers::string name;
