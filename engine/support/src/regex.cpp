@@ -37,7 +37,7 @@ bool regex_manager::resolve_scripting(scripting::engine*) {
 }
 
 bool regex_manager::convert_to_function(containers::string_view _resource_data,
-    containers::string_view, containers::string* _dat,
+    containers::string_view, logging::log*, containers::string* _dat,
     core::optional<uintptr_t>* _user_data) {
   *_dat = "_get_regex";
   containers::string str = _resource_data.to_string(m_allocator);

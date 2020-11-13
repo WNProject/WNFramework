@@ -19,7 +19,8 @@ namespace scripting {
 memory::unique_ptr<ast_script_file> parse_script(memory::allocator* _allocator,
     const containers::string_view _file_name, containers::string_view view,
     functional::function<bool(containers::string_view)> _handle_include,
-    functional::function<bool(containers::string_view, containers::string_view)>
+    functional::function<bool(
+        containers::string_view, containers::string_view, bool instantiated)>
         _handle_resource,
     type_manager* _type_manager, bool _dump_ast_on_failure, logging::log* _log,
     size_t* _num_warnings, size_t* _num_errors) {

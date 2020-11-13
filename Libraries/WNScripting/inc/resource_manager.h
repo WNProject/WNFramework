@@ -24,11 +24,21 @@ public:
   explicit resource_manager(containers::string _name)
     : m_name(core::move(_name)) {}
   virtual bool convert_to_function(containers::string_view,
-      containers::string_view, containers::string*,
-      core::optional<uintptr_t>*) = 0;
+      containers::string_view, logging::log*, containers::string*,
+      core::optional<uintptr_t>*) {
+    return false;
+  }
   virtual containers::string_view get_file_extension() const {
     return "";
   }
+
+  bool must_be_instantiated() const {
+    return m_must_be_instantiated;
+  }
+  bool can_be_instantiated() const {
+    return m_can_be_instantiated;
+  }
+
   virtual convert_type convert_file(logging::log* _log, file_system::mapping*,
       containers::string_view _file_name, containers::string* _out_data,
       containers::string* _out_string) {
@@ -38,9 +48,9 @@ public:
     _log->log_error("Invalid use of default resource convert_file");
     return convert_type::failed;
   }
-  virtual bool get_include_for_resource(
+  virtual bool setup_resource(
       containers::string_view /*_res*/, containers::string* /*_out*/) {
-    return false;
+    return true;
   }
 
   containers::string_view get_name() const {
@@ -49,6 +59,10 @@ public:
 
 private:
   containers::string m_name;
+
+protected:
+  bool m_must_be_instantiated = true;
+  bool m_can_be_instantiated = true;
 };
 
 }  // namespace scripting

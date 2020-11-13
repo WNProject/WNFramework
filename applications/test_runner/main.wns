@@ -7,11 +7,37 @@ include "ui/renderable_ui.wns"
 
 Int main(Context ctx) {
     Regex re = @Regex(".*");
-    log_error().o("Hello World ").o(32).end();
+    BoolParam b = @BoolParam("{\"name\":\"foo2\",\"short\":\"f2\", \"description\": \"does shit\"}");
+    for (Int i = 0; i < b.get_num_params(); i = i+1) {
+        if (b.get_param(i)) {
+            log_error().o("????").end();
+        } else {
+            log_error().o("!!!!").end();
+        }
+    }
+    IntParam x = @IntParam("{\"name\":\"foo\",\"short\":\"f\", \"description\": \"does shit\"}");
+    log_error().o("Hello Main").o(x.get_param()).end();
+    for (Int i = 0; i < x.get_num_params(); i = i+1) {
+        log_error().o("Hello World ").o(x.get_param(i)).end();
+    }
+    
     shared String str = make_string("asdf");
     CString[] args = CString[]("/c", "echo", "Hello World");
     Int ret = call_subprocess(
         "C:\\Windows\\System32\\cmd.exe", args{0:length(args)}
     );
     return ret;
+}
+
+@Verb("{\"name\":\"do_thing\", \"description\": \"Do the thing\", \"function\": \"main2\"}")
+Int main2(Context ctx) {
+    IntParam x = @IntParam("{\"name\":\"foo\",\"short\":\"f\", \"description\": \"does shit\", \"verb\" : [\"do_thing\"] }");
+    log_error().o("Hello Main2 ").o(x.get_param()).end();
+    return x.get_param();
+}
+
+@Verb("{\"name\":\"do_thing2\", \"description\": \"Do the thing2\", \"function\": \"main3\", \"verb\": [\"do_thing\"]}")
+Int main3(Context ctx) {
+    log_error().o("Hello Main3 ").end();
+    return main2(ctx);
 }

@@ -26,8 +26,8 @@ Int test3(ExternalStruct s) {
 
 // CHECK: {{test4.*\(ExternalStruct\* s\) {}}
 Int test4(ExternalStruct s) {
-// CHECK: _ZN3wns14ExternalStruct11increment_iEvPP14ExternalStruct(s);
-// CHECK: _ZN3wns14ExternalStruct11increment_xEvPP14ExternalStruct(s);
+// CHECK: _ZN3wns14ExternalStruct11increment_iEvPE14ExternalStruct(s);
+// CHECK: _ZN3wns14ExternalStruct11increment_xEvPE14ExternalStruct(s);
     s.increment_i();
     s.increment_x();
     return s.i;
@@ -35,8 +35,8 @@ Int test4(ExternalStruct s) {
 
 // CHECK: {{test5.*\(ExternalStructChild\* s\) {}}
 Int test5(ExternalStructChild s) {
-// CHECK: _ZN3wns14ExternalStruct11increment_iEvPP14ExternalStruct(((ExternalStruct*)(s)));
-// CHECK: _ZN3wns14ExternalStruct11increment_xEvPP14ExternalStruct(((ExternalStruct*)(s)));
+// CHECK: _ZN3wns14ExternalStruct11increment_iEvPE14ExternalStruct(((ExternalStruct*)(s)));
+// CHECK: _ZN3wns14ExternalStruct11increment_xEvPE14ExternalStruct(((ExternalStruct*)(s)));
     s.increment_i();
     s.increment_x();
     return s.i;

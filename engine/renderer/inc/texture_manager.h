@@ -22,10 +22,10 @@ struct texture_manager : scripting::resource_manager {
   texture_manager(scripting::engine* _engine, memory::allocator* _allocator);
 
   bool convert_to_function(containers::string_view _resource_name,
-      containers::string_view _resource_data, containers::string* _dat,
-      core::optional<uintptr_t>* _user_data) override;
+      containers::string_view _resource_data, logging::log*,
+      containers::string* _dat, core::optional<uintptr_t>* _user_data) override;
 
-  bool get_include_for_resource(
+  bool setup_resource(
       containers::string_view _res, containers::string* _out) override;
 
   containers::string_view get_file_extension() const override {

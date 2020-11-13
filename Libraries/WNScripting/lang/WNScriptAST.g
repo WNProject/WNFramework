@@ -610,8 +610,8 @@ non_array_prim_ex returns[scripting::expression* node]
 }
     :   ID { node = m_allocator->construct<scripting::id_expression>(m_allocator, $ID.text.c_str()); SET_LOCATION(node, $ID);}
     |   ba=LBRACKET a=expr bb=RBRACKET {node = $a.node; SET_LOCATION(node, $ba); SET_END_LOCATION(node, $bb); }
-    |   RESOURCE rlb=LBRACKET rls=STRING rrb=RBRACKET { auto n = m_allocator->construct<scripting::resource_expression>(m_allocator, $RESOURCE.text.c_str()+1, $rls.text.c_str()); m_file->add_resource($RESOURCE.text.c_str()+1,$rls.text.c_str()); node = n; SET_LOCATION(node, $RESOURCE); SET_END_LOCATION(node, $rrb); }
-    |   RESOURCE rlb2=LBRACKET rls2=STRING COMMA rla=arglist rrb2=RBRACKET { auto n = m_allocator->construct<scripting::resource_expression>(m_allocator, $RESOURCE.text.c_str()+1, $rls.text.c_str(), $rla.node); m_file->add_resource($RESOURCE.text.c_str()+1,$rls.text.c_str()); node = n; SET_LOCATION(node, $RESOURCE); SET_END_LOCATION(node, $rrb); }
+    |   RESOURCE rlb=LBRACKET rls=STRING rrb=RBRACKET { auto n = m_allocator->construct<scripting::resource_expression>(m_allocator, $RESOURCE.text.c_str()+1, $rls.text.c_str()); m_file->add_resource($RESOURCE.text.c_str()+1,$rls.text.c_str(), true); node = n; SET_LOCATION(node, $RESOURCE); SET_END_LOCATION(node, $rrb); }
+    |   RESOURCE rlb2=LBRACKET rls2=STRING COMMA rla=arglist rrb2=RBRACKET { auto n = m_allocator->construct<scripting::resource_expression>(m_allocator, $RESOURCE.text.c_str()+1, $rls.text.c_str(), $rla.node); m_file->add_resource($RESOURCE.text.c_str()+1,$rls.text.c_str(), true); node = n; SET_LOCATION(node, $RESOURCE); SET_END_LOCATION(node, $rrb); }
     |   b=constant  {node = $b.node; }
     |   c=scalarType ( f=cast) { $f.node->set_type($c.node); node=$f.node; SET_START_LOCATION_FROM_NODE(node, $c.node); }
     |   e=objectType h=structInit { $h.node->set_type($e.node); node=$h.node; SET_START_LOCATION_FROM_NODE(node, $e.node); }
@@ -833,6 +833,13 @@ classDecl returns[scripting::struct_definition* node]
             RBRACE  { SET_END_LOCATION(node, $RBRACE); }
     ;
 
+topLevelRes returns[scripting::top_level_resource* node]
+@init {
+    node = nullptr;
+}
+    : RESOURCE rlb=LBRACKET rls=STRING rrb=RBRACKET { auto n = m_allocator->construct<scripting::top_level_resource>(m_allocator, $RESOURCE.text.c_str()+1, $rls.text.c_str()); m_file->add_resource($RESOURCE.text.c_str()+1,$rls.text.c_str(), false); node = n; SET_LOCATION(node, $RESOURCE); SET_END_LOCATION(node, $rrb); }
+    ;
+
 inc returns[containers::string file]
 @init {
 }
@@ -849,5 +856,6 @@ program returns[scripting::script_file* node]
                 function   { node->add_function($function.node); }
             |   structDecl { node->add_struct($structDecl.node); }
             |   classDecl  { node->add_struct($classDecl.node); }
+            |   topLevelRes { node->add_top_level_resource($topLevelRes.node); }
         )*
     ;

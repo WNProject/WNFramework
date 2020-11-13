@@ -35,8 +35,8 @@ struct regex_manager : scripting::resource_manager {
   regex_manager(memory::allocator* _allocator);
 
   bool convert_to_function(containers::string_view _resource_name,
-      containers::string_view _resource_data, containers::string* _dat,
-      core::optional<uintptr_t>* _user_data) override;
+      containers::string_view _resource_data, logging::log*,
+      containers::string* _dat, core::optional<uintptr_t>* _user_data) override;
 
 private:
   memory::allocator* m_allocator;

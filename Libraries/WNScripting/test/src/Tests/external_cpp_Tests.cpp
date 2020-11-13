@@ -242,7 +242,7 @@ TEST(scripting_engine_factory, external) {
           effcee::StringPiece(input_file.data(), input_file.size()), o);
 
   EXPECT_EQ(effcee::Result::Status::Ok, effceeResult.status())
-      << effceeResult.message();
+      << effceeResult.message() << output_file.data();
 
   wn::scripting::script_function<int32_t, external_struct*> extern_struct_func;
   wn::scripting::script_function<int32_t, external_struct*> extern_struct_func2;
