@@ -40,8 +40,6 @@ jobs:
         shell: bash
         env:
           GCS_KEY: ${{secrets.SCCACHE_GCS_KEY}}
-      - name: Set up sccahe
-        run: echo "/root/.cargo/bin" >> $GITHUB_PATH
       - name: Run configuration
         working-directory: ./build
         run: >
@@ -104,8 +102,6 @@ jobs:
         shell: bash
         env:
           GCS_KEY: ${{secrets.SCCACHE_GCS_KEY}}
-      - name: Set up sccahe
-        run: echo "/root/.cargo/bin" >> $GITHUB_PATH
       - name: Run configuration
         working-directory: ./build
         run: cmake -GNinja -DCMAKE_BUILD_TYPE=${{matrix.build-type}} ../source -DWN_USE_SCCACHE=ON
