@@ -2,9 +2,6 @@ set(BASE_TOOLCHAIN_FILE $ENV{ANDROID_TOOLCHAIN_FILE} CACHE STRING "The toolchain
 
 include(${BASE_TOOLCHAIN_FILE})
 
-foreach(flag_var CMAKE_CXX_FLAGS_DEBUG  CMAKE_C_FLAGS_DEBUG)
-  string(REGEX REPLACE "-DDEBUG" "-DDEB" ${flag_var} "${${flag_var}}")
-endforeach()
 add_compile_options("-fvisibility=hidden")
 add_compile_options("-Wno-unused-lambda-capture")
 
@@ -15,6 +12,9 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
   # Clang on android compiles with -Oz, this breaks the build in
   # subtle ways.
   add_compile_options("-Os")
+endif()
+if (${WN_LOW_RESOURCE_MODE})
+    add_compile_options("-g0")
 endif()
 
 set(CMAKE_MODULE_PATH
