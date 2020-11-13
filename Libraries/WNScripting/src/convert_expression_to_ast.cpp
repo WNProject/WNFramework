@@ -73,7 +73,7 @@ parse_ast_convertor::convertor_context::resolve_resource(
   containers::string_view data = _resource->get_string();
   core::optional<uintptr_t> user_data;
   containers::string decoded(m_allocator);
-  
+
   if (!decode_string(data, &decoded)) {
     _resource->log_line(m_log, logging::log_level::error);
     m_log->log_error("Invalid resource: ", _resource->get_type());

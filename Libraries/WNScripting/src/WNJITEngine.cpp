@@ -352,10 +352,9 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
               m_log->log_error("Cannot find resource ", resource_type);
               return false;
             }
-            if (it->second.resource->must_be_instantiated() && 
-                    !instantiated) {
-              m_log->log_error(
-                  "Resource ", resource_type, " can only be used in an instantiated context");
+            if (it->second.resource->must_be_instantiated() && !instantiated) {
+              m_log->log_error("Resource ", resource_type,
+                  " can only be used in an instantiated context");
               return false;
             }
             if (!it->second.resource->can_be_instantiated() && instantiated) {
@@ -364,11 +363,10 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
               return false;
             }
             containers::string str(m_allocator);
-            if (!it->second.resource->setup_resource(
-                    resource_name, &str)) {
-              m_log->log_error("Resource @", resource_type,
-                  "(", resource_name, ") failed initialization");
-              
+            if (!it->second.resource->setup_resource(resource_name, &str)) {
+              m_log->log_error("Resource @", resource_type, "(", resource_name,
+                  ") failed initialization");
+
               return false;
             }
             if (str.empty()) {

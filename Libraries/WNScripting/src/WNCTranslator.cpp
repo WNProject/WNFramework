@@ -137,8 +137,7 @@ parse_error c_translator::translate_file_with_error(
               return false;
             }
             containers::string str(m_allocator);
-            if (!it->second->setup_resource(
-                    resource_name, &str)) {
+            if (!it->second->setup_resource(resource_name, &str)) {
               return false;
             }
             if (str.empty()) {

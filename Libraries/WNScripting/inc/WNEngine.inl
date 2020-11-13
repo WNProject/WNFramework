@@ -123,7 +123,7 @@ struct member_maker {
   template <R (*fn)(Args...)>
   static typename get_thunk_passed_type<R>::ret_type member_thunk(
       typename get_thunk_passed_type<Args>::type... args) {
-    auto r = (*fn)(get_thunk_passed_type<Args>::unwrap(args)...); 
+    auto r = (*fn)(get_thunk_passed_type<Args>::unwrap(args)...);
     return get_thunk_passed_type<R>::wrap(r);
   }
 
@@ -131,7 +131,7 @@ struct member_maker {
   static void return_member_thunk(
       typename get_thunk_passed_type<Args>::type... args,
       typename get_thunk_passed_type<R>::ret_type* _ret) {
-    auto r = (*fn)(get_thunk_passed_type<Args>::unwrap(args)...); 
+    auto r = (*fn)(get_thunk_passed_type<Args>::unwrap(args)...);
     *_ret = get_thunk_passed_type<R>::wrap(r);
   }
 };

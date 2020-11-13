@@ -127,8 +127,8 @@ int32_t wn_application_main(
       }
     }
     if (!cmd_err) {
-      ret = command_line_mgr.run_application(scripting_engine.get(), &ctx);  
-    } 
+      ret = command_line_mgr.run_application(scripting_engine.get(), &ctx);
+    }
   }
   _application_data->default_log->log_info("Engine shutdown.");
 
