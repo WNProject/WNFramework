@@ -45,8 +45,8 @@ subfolder called `build` within the root of the checked out code-base.
 ```sh
 cmake \
   -G[Ninja|"Unix Makefiles"] \
-  -DCMAKE_C_COMPILER=[gcc|clang] \ # optional
-  -DCMAKE_CXX_COMPILER=[g++|clang++] \ # optional
+  -DCMAKE_C_COMPILER=[gcc|clang] \ # optional, default cc will be used
+  -DCMAKE_CXX_COMPILER=[g++|clang++] \ # optional, default c++ will be used
   -DCMAKE_BUILD_TYPE=[Debug|Release] \
   ../
 ```
@@ -54,34 +54,35 @@ cmake \
 Note that `Ninja` is the only offically supported generator for **Linux**. If
 `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILE` are omitted **CMake** will configure
 against the default system configured compilers. You can also specify specific
-versions of `gcc` or `clang` (`gcc-5.0`, `clang++-4.0`, etc.) if you have more
-then a single version installed and want to target a certain version.
+versions of `gcc` or `clang` (`gcc-9.0`, `clang++-10.0`, etc.) if you have more
+then a single version installed and want to target a certain version. Currently
+only `gcc/g++` **9** and **10** are supported along with `clang` **9** and
+**10**.
 
 #### Windows
 
 ```sh
 cmake \
-  -G[Ninja|"Visual Studio 14 2015 Win64"|"Visual Studio 15 2017"|"Visual Studio 16 2019"] \
-  -Thost=[x86|x64] \
-  -A[Win32|x64] \ # only with Visual Studio 15 2017 or Visual Studio 16 2019 generators
+  -G[Ninja|"Visual Studio 15 2017"|"Visual Studio 16 2019"] \
+  -Thost=x64 \  # Not needed for Ninja generator
+  -Ax64 \ # Not needed for Ninja generator
   -DCMAKE_BUILD_TYPE=[Debug|Release] \ # only needed when using Ninja
   ../
 ```
 
-Note that `Ninja` is the only offically supported generator for **Windows**. In
-order to use the **32-bit** variants of the **Visual Studio** generators simply
-omit the `Win64` from the end. For **Visual Studio 2019** you must specify the
-architecture through the `-A` command. The `CMAKE_BUILD_TYPE` is only needed if
-using `Ninja` as the generator type. For the `Ninja` generator you will also
-need to run the appropriate **Visual Studio** environment setup script
-(`vcvarsall`) in the same command prompt you intend to use for configuration
-before running a configuration. After you have completed configuration you don't
-need to re-run this script for subsequent commands. See below scripts for each
-supported **Visual Studio** version.
+Note that only **64-bit** builds are supported and that `Ninja` is the only
+offically supported generator for **Windows**. For **Visual Studio 15 2017** and
+**Visual Studio 16 2019** you must specify the architecture through the `-A`
+command. The `CMAKE_BUILD_TYPE` is only needed if using `Ninja` as the generator
+type. For the `Ninja` generator you will also need to run the appropriate
+**Visual Studio** environment setup script (`vcvarsall`) in the same command
+prompt you intend to use for configuration before running a configuration. After
+you have completed configuration you don't need to re-run this script for
+subsequent commands. See below scripts for each supported **Visual Studio**
+version.
 
-* 2015: `%ProgramFiles(x86)%\Microsoft Visual Studio 14.0\VC\vcvarsall.bat [x86|amd64]`
-* 2017: `%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat [x86|amd64]`
-* 2019: `%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat [x86|amd64]`
+* 2017: `%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat amd64`
+* 2019: `%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat amd64`
 
 This step may not be required if you only have a single version of
 **Visual Studio** installed.
@@ -99,7 +100,8 @@ cmake \
 ```
 
 Both the `[WNFramework Root]` and `[Android SDK Root]` must be absolute paths.
-The `mips`, `mips64` and `x86-64` toolchains are not currently supported.
+Currently only `x86`, `arm` and `arm64` toolchains for **Android API 22** are
+supported.
 
 ### Build
 
@@ -131,7 +133,7 @@ ctest
 
 #### Visual Studio
 
-If using the command line you will also want to specify `-C [Debug|Release]`.
+If using the command line you will also need to specify `-C [Debug|Release]`.
 If omitted it will run `Debug` by default. Inside the `build` folder generated
 by the [Configuration](#windows) step there is also a `WNFramework.sln` file
 containing a project named `RUN_TESTS` that can be used to run tests but isn't
