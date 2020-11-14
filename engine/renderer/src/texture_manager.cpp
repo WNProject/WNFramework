@@ -32,8 +32,8 @@ texture_manager::texture_manager(
 
 bool texture_manager::convert_to_function(
     containers::string_view _resource_name,
-    containers::string_view _resource_data, containers::string* _dat,
-    core::optional<uintptr_t>* _user_data) {
+    containers::string_view _resource_data, logging::log*,
+    containers::string* _dat, core::optional<uintptr_t>* _user_data) {
   (void)_resource_name;
   (void)_user_data;
   *_dat = "getNew";
@@ -41,7 +41,7 @@ bool texture_manager::convert_to_function(
   return true;
 }
 
-bool texture_manager::get_include_for_resource(
+bool texture_manager::setup_resource(
     containers::string_view _res, containers::string* _out) {
   *_out = _res;
   return true;

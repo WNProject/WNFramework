@@ -66,6 +66,7 @@ enum class node_type {
   lvalue,
   script_file,
   struct_definition,
+  top_level_resource,
   type
 };
 // clang-format on
@@ -98,6 +99,46 @@ memory::unique_ptr<T> clone_node(memory::allocator* _allocator, const T* val) {
   // the allocator may have already been destroyed if you call
   // n.get_allocator()         vvvvv    there
   return memory::unique_ptr<T>(_allocator, static_cast<T*>(n.release()));
+}
+
+inline bool decode_string(
+    containers::string_view input, containers::string* _output) {
+  input = input.substr(1, input.length() - 2);
+  bool escaping = false;
+
+  for (auto it = input.begin(); it != input.end(); ++it) {
+    if (escaping) {
+      switch (*it) {
+        case '\\':
+          *_output += '\\';
+          break;
+        case 'n':
+          *_output += '\n';
+          break;
+        case 'r':
+          *_output += '\r';
+          break;
+        case 't':
+          *_output += '\t';
+          break;
+        case '"':
+          *_output += '"';
+          break;
+        default:
+          *_output = "Unknown escape: ";
+          *_output += *it;
+          return false;
+      }
+      escaping = false;
+      continue;
+    }
+    if (*it == '\\') {
+      escaping = true;
+      continue;
+    }
+    *_output += *it;
+  }
+  return true;
 }
 
 struct print_context {
@@ -309,6 +350,40 @@ void print_context::print_value(
   }
   leave_log_scope();
 }
+
+class top_level_resource : public node {
+public:
+  top_level_resource(
+      memory::allocator* _allocator, const char* _type, const char* _str)
+    : node(_allocator, node_type::top_level_resource),
+      m_resource_type(_allocator, _type),
+      m_string(_allocator, _str) {}
+
+  memory::unique_ptr<node> clone(memory::allocator* _allocator) const override {
+    auto t = memory::make_unique<top_level_resource>(
+        _allocator, _allocator, m_resource_type.c_str(), m_string.c_str());
+    t->copy_underlying_from(_allocator, this);
+    return t;
+  }
+
+  containers::string_view get_type() const {
+    return m_resource_type;
+  }
+  containers::string_view get_string() const {
+    return m_string;
+  }
+
+  void print_node_internal(print_context* c) const override {
+    c->print_header("Resource Expression");
+    c->print_value(m_type, "Type");
+    c->print_value(m_resource_type, "ResourceType");
+    c->print_value(m_string, "String");
+  }
+
+private:
+  containers::string m_resource_type;
+  containers::string m_string;
+};
 
 class type : public node {
 public:
@@ -2372,13 +2447,20 @@ private:
 
 class script_file : public node {
 public:
+  struct referenced_resource {
+    containers::string m_type;
+    containers::string m_string;
+    bool m_instantiated;
+  };
+
   script_file(memory::allocator* _allocator)
     : node(_allocator, node_type::script_file),
       m_functions(_allocator),
       m_external_functions(_allocator),
       m_structs(_allocator),
       m_includes(_allocator),
-      m_resources(_allocator) {}
+      m_resources(_allocator),
+      m_top_level_resources(_allocator) {}
   void add_function(function* _node) {
     m_functions.emplace_back(memory::unique_ptr<function>(m_allocator, _node));
   }
@@ -2390,6 +2472,12 @@ public:
 
   void add_include(containers::string _node) {
     m_includes.push_back(core::move(_node));
+  }
+
+  void add_top_level_resource(top_level_resource* _node) {
+    // Do not call add_resource here, it will already be done for you.
+    m_top_level_resources.emplace_back(
+        memory::unique_ptr<top_level_resource>(m_allocator, _node));
   }
 
   const containers::deque<memory::unique_ptr<function>>&
@@ -2410,13 +2498,13 @@ public:
     return m_includes;
   }
 
-  void add_resource(const char* type, const char* value) {
-    m_resources.push_back(core::make_pair(containers::string(m_allocator, type),
-        containers::string(m_allocator, value)));
+  void add_resource(const char* type, const char* value, bool insantiated) {
+    m_resources.push_back(
+        referenced_resource{containers::string(m_allocator, type),
+            containers::string(m_allocator, value), insantiated});
   }
 
-  const containers::deque<core::pair<containers::string, containers::string>>&
-  get_resources() const {
+  const containers::deque<referenced_resource>& get_resources() const {
     return m_resources;
   }
 
@@ -2450,14 +2538,11 @@ public:
     for (auto& f : m_includes) {
       t->m_includes.push_back(containers::string(_allocator, f));
     }
-    t->m_resources =
-        containers::deque<core::pair<containers::string, containers::string>>(
-            _allocator);
+    t->m_resources = containers::deque<referenced_resource>(_allocator);
     for (auto& f : m_resources) {
       t->m_resources.push_back(
-          core::pair<containers::string, containers::string>(
-              containers::string(_allocator, f.first),
-              containers::string(_allocator, f.second)));
+          referenced_resource{containers::string(_allocator, f.m_type),
+              containers::string(_allocator, f.m_string), f.m_instantiated});
     }
 
     return t;
@@ -2468,8 +2553,9 @@ private:
   containers::deque<memory::unique_ptr<function>> m_external_functions;
   containers::deque<memory::unique_ptr<struct_definition>> m_structs;
   containers::deque<containers::string> m_includes;
-  containers::deque<core::pair<containers::string, containers::string>>
-      m_resources;
+  containers::deque<referenced_resource> m_resources;
+  containers::deque<memory::unique_ptr<top_level_resource>>
+      m_top_level_resources;
 };
 
 }  // namespace scripting

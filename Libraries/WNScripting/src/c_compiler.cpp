@@ -744,7 +744,7 @@ bool c_compiler::write_constant_expression(const ast_constant* _const) {
     // Time to output a bunch of octal.
     // We do this so we can handle arbitrary unicode / escape sequences etc.
     const char* octalChars = "01234567\n";
-    for (size_t i = 1; i < _const->m_string_value.size() - 1; ++i) {
+    for (size_t i = 0; i < _const->m_string_value.size(); ++i) {
       char c = _const->m_string_value[i];
       m_output += '\\';
       m_output += octalChars[(c >> 6) & 0x3];

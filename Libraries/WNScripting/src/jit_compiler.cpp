@@ -1371,7 +1371,7 @@ llvm::Value* internal::jit_compiler_context::get_constant(
   }
   if (t == m_c_string_t) {
     return m_function_builder->CreateGlobalStringPtr(llvm::StringRef(
-        &_const->m_string_value[1], _const->m_string_value.size() - 2));
+        _const->m_string_value.data(), _const->m_string_value.size()));
   }
 
   WN_RELEASE_ASSERT(false, "Unimplemented constant type");

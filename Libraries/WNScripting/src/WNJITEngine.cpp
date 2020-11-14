@@ -344,17 +344,32 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
                                                                      : false;
           }),
       functional::function<bool(
-          containers::string_view, containers::string_view)>(m_allocator,
+          containers::string_view, containers::string_view, bool)>(m_allocator,
           [this](containers::string_view resource_type,
-              containers::string_view resource_name) {
+              containers::string_view resource_name, bool instantiated) {
             auto it = m_resources.find(resource_type.to_string(m_allocator));
             if (it == m_resources.end()) {
-              return true;
+              m_log->log_error("Cannot find resource ", resource_type);
+              return false;
+            }
+            if (it->second.resource->must_be_instantiated() && !instantiated) {
+              m_log->log_error("Resource ", resource_type,
+                  " can only be used in an instantiated context");
+              return false;
+            }
+            if (!it->second.resource->can_be_instantiated() && instantiated) {
+              m_log->log_error("Resource ", resource_type,
+                  " can only not be used in an instantiated context");
+              return false;
             }
             containers::string str(m_allocator);
+            if (!it->second.resource->setup_resource(resource_name, &str)) {
+              m_log->log_error("Resource @", resource_type, "(", resource_name,
+                  ") failed initialization");
 
-            if (!it->second.resource->get_include_for_resource(
-                    resource_name, &str)) {
+              return false;
+            }
+            if (str.empty()) {
               return true;
             }
             return parse_file(str) == scripting::parse_error::ok ? true : false;
