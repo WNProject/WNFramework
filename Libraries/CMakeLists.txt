@@ -24,19 +24,14 @@ wn_add_subdirectory(executable_test)
 macro(wn_create_executable_tests_from_list)
   cmake_parse_arguments(
     PARSED_ARGS
-    "SYSTEMS_TEST"
+    ""
     "RUN_WRAPPER;TEST_PREFIX;SOURCE_DIR"
-    "SOURCES;COMMON_SOURCES;ADDITIONAL_INCLUDES;LIBS"
+    "SOURCES;COMMON_SOURCES;ADDITIONAL_INCLUDES;LIBS;LABELS"
     ${ARGN}
   )
-  set(ST)
-  if (PARSED_ARGS_SYSTEMS_TEST)
-    set(ST "SYSTEMS_TEST")
-  endif()
+
   wn_create_tests_from_list_internal(
-    ${ST}
-    TEST_WRAPPER
-      ${WNExecutableTestWrapper}
+    TEST_WRAPPER ${WNExecutableTestWrapper}
     TEST_PREFIX ${PARSED_ARGS_TEST_PREFIX}
     SOURCE_DIR ${PARSED_ARGS_SOURCE_DIR}
     SOURCES ${PARSED_ARGS_SOURCES}
@@ -44,6 +39,7 @@ macro(wn_create_executable_tests_from_list)
     RUN_WRAPPER ${PARSED_ARGS_RUN_WRAPPER}
     ADDITIONAL_INCLUDES ${PARSED_ARGS_ADDITIONAL_INCLUDES}
     LIBS executable_test ${PARSED_ARGS_LIBS}
+    LABELS ${PARSED_ARGS_LABELS}
   )
 endmacro()
 

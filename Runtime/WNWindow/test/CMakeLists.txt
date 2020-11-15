@@ -7,6 +7,8 @@ wn_create_application_tests_from_list(
     WNWindow
   LIBS
     WNWindow
+  LABELS
+    REQUIRES_HARDWARE
 )
 
 post_enable_overlay_directory()

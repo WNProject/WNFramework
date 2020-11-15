@@ -17,6 +17,8 @@ containers::contiguous_range<const adapter_ptr> factory::query_adapters()
   multi_tasking::call_once(
       m_query_adapter_once_flag, [this]() { query_devices(); });
 
+  WN_RELEASE_ASSERT(m_adapters.size() > 0, "No graphics devices available");
+
   return containers::contiguous_range<const adapter_ptr>(
       m_adapters.data(), m_adapters.size());
 }
@@ -33,8 +35,6 @@ factory::~factory() {
 void factory::query_devices() const {
   FOR_EACH(WN_GRAPHICS_ENUMERATE, unused, _WN_GRAPHICS_TYPE_LIST)
 }
-
-#undef WN_GRAPHICS_ENUMERATE
 
 }  // namespace graphics
 }  // namespace runtime
