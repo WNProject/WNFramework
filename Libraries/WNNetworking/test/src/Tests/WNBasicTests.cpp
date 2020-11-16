@@ -40,16 +40,18 @@ TEST_P(connection_tests, connection) {
         manager.listen_remote_sync(GetParam(), k_starting_port);
     listen_started.notify();
     auto accepted_socket = listen_socket->accept_sync();
-    ASSERT_NE(nullptr, accepted_socket);
+    ASSERT_NE(nullptr, accepted_socket) << "accepted_socket";
     final_semaphore.wait();
   });
 
   wn::multi_tasking::thread t2(&allocator, [&]() {
     listen_started.wait();
+    wn::networking::network_error error;
     auto connect_socket = manager.connect_remote_sync(
         localhost_addresses[static_cast<uint32_t>(GetParam())], GetParam(),
-        k_starting_port, nullptr);
-    ASSERT_NE(nullptr, connect_socket);
+        k_starting_port, &error);
+    printf("%d\n", error);
+    ASSERT_NE(nullptr, connect_socket) << "connect_socket";
     final_semaphore.notify();
   });
 
@@ -205,4 +207,5 @@ TEST(raw_connection, multi_send) {
 }
 
 INSTANTIATE_TEST_SUITE_P(all_ip_types, connection_tests,
-    ::testing::Values(wn::networking::ip_protocol::ipv4));
+    ::testing::Values(
+        wn::networking::ip_protocol::ipv4, wn::networking::ip_protocol::ipv6));

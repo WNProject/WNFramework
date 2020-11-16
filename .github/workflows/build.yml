@@ -88,7 +88,9 @@ jobs:
   build-linux:
     name: 'Build (Linux: x86-64/${{matrix.compiler}}-${{matrix.version}}/${{matrix.build-type}})'
     runs-on: ubuntu-latest
-    container: ghcr.io/wnproject/build-linux:${{matrix.compiler}}-${{matrix.version}}
+    container:
+      image: ghcr.io/wnproject/build-linux:${{matrix.compiler}}-${{matrix.version}}
+      options: --net host
     strategy:
       fail-fast: false
       matrix:
