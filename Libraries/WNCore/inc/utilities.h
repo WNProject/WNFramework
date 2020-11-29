@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2020, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -15,10 +15,39 @@
 namespace wn {
 namespace core {
 
+// standard ////////////////////////////////////////////////////////////////////
+
+// general
+
+using std::index_sequence;
+using std::integer_sequence;
+using std::make_index_sequence;
+using std::make_integer_sequence;
+
+// swap and type operations
+
+using std::as_const;
 using std::declval;
+using std::exchange;
 using std::forward;
 using std::move;
 using std::swap;
+
+// custom //////////////////////////////////////////////////////////////////////
+
+// general
+
+template <bool... Values>
+using bool_sequence = integer_sequence<bool, Values...>;
+
+// swap and type operations
+
+template <typename T>
+inline decay_t<T> decay_copy(T&& value) {
+  return forward<T>(value);
+}
+
+// object bases
 
 class non_copyable {
 protected:
@@ -38,6 +67,8 @@ protected:
   non_constructable& operator=(const non_constructable&) = delete;
 };
 
+// type information
+
 template <typename T>
 struct type_id final : non_constructable {
   static inline uintptr_t value() {
@@ -46,11 +77,6 @@ struct type_id final : non_constructable {
     return reinterpret_cast<uintptr_t>(&dummy);
   }
 };
-
-template <typename T>
-inline decay_t<T> decay_copy(T&& value) {
-  return forward<T>(value);
-}
 
 }  // namespace core
 }  // namespace wn

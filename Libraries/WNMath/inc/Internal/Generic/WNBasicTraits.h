@@ -1,4 +1,4 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2020, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -296,11 +296,7 @@ struct basic_traits_generic : core::non_constructable {
   static WN_FORCE_INLINE
       typename core::enable_if<std::is_floating_point<type>::value, type>::type
       round(const type& _value) {
-#ifdef __WN_HAS_CPP11_STD_ROUND
     return (::round(_value));
-#else
-    return (floor(_value + static_cast<type>(0.5)));
-#endif
   }
 
   template <typename type>
