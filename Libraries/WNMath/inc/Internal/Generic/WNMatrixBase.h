@@ -25,29 +25,24 @@ private:
 public:
   using base::at;
 
-  WN_FORCE_INLINE matrix_base_generic_common() : base() {}
+  inline matrix_base_generic_common() : base() {}
 
-  WN_FORCE_INLINE matrix_base_generic_common(
-      matrix_base_generic_common&& _matrix)
+  inline matrix_base_generic_common(matrix_base_generic_common&& _matrix)
     : base() {
     for (size_t i = 0; i < dimension; ++i) {
       at(i) = core::move(_matrix[i]);
     }
   }
 
-  WN_FORCE_INLINE matrix_base_generic_common(
-      const matrix_base_generic_common& _matrix)
+  inline matrix_base_generic_common(const matrix_base_generic_common& _matrix)
     : base(_matrix.m_values) {}
 
-  WN_FORCE_INLINE explicit matrix_base_generic_common(const T& _value)
-    : base(_value) {}
+  inline explicit matrix_base_generic_common(const T& _value) : base(_value) {}
 
-  WN_FORCE_INLINE explicit matrix_base_generic_common(
-      const T (&_values)[Rows * Columns])
+  inline explicit matrix_base_generic_common(const T (&_values)[Rows * Columns])
     : base(_values) {}
 
-  WN_FORCE_INLINE explicit matrix_base_generic_common(
-      const T (&_values)[Columns][Rows])
+  inline explicit matrix_base_generic_common(const T (&_values)[Columns][Rows])
     : base() {
     for (size_t i = 0; i < Rows; ++i) {
       for (size_t j = 0; j < Columns; ++j) {
@@ -57,18 +52,18 @@ public:
   }
 
   template <typename Itr>
-  WN_FORCE_INLINE matrix_base_generic_common(Itr _begin, Itr _end)
+  inline matrix_base_generic_common(Itr _begin, Itr _end)
     : base(_begin, _end) {}
 
-  WN_FORCE_INLINE T& at(const size_t _row, const size_t _column) {
+  inline T& at(const size_t _row, const size_t _column) {
     return at(_column * Rows + _row);
   }
 
-  WN_FORCE_INLINE const T& at(const size_t _row, const size_t _column) const {
+  inline const T& at(const size_t _row, const size_t _column) const {
     return at(_column * Rows + _row);
   }
 
-  WN_FORCE_INLINE MatrixType<T, Columns, Rows, Precise> transposed() const {
+  inline MatrixType<T, Columns, Rows, Precise> transposed() const {
     MatrixType<T, Columns, Rows, Precise> new_matrix;
 
     for (size_t i = 0; i < Rows; ++i) {
@@ -82,7 +77,7 @@ public:
 
 protected:
   template <size_t OtherColumns, bool OtherPrecise>
-  WN_FORCE_INLINE MatrixType<T, Rows, OtherColumns, Precise> multiply(
+  inline MatrixType<T, Rows, OtherColumns, Precise> multiply(
       const MatrixType<T, Columns, OtherColumns, OtherPrecise>& _matrix) const {
     MatrixType<T, Rows, OtherColumns, Precise> new_matrix;
 
@@ -108,32 +103,31 @@ private:
   using base = matrix_base_generic_common<MatrixType, T, Order, Order, Precise>;
 
 public:
-  WN_FORCE_INLINE matrix_base_generic_square_only() : base() {}
+  inline matrix_base_generic_square_only() : base() {}
 
-  WN_FORCE_INLINE matrix_base_generic_square_only(
+  inline matrix_base_generic_square_only(
       matrix_base_generic_square_only&& _matrix)
     : base(core::move(_matrix)) {}
 
-  WN_FORCE_INLINE matrix_base_generic_square_only(
+  inline matrix_base_generic_square_only(
       const matrix_base_generic_square_only& _matrix)
     : base(_matrix) {}
 
-  WN_FORCE_INLINE matrix_base_generic_square_only(const T& _value)
-    : base(_value) {}
+  inline matrix_base_generic_square_only(const T& _value) : base(_value) {}
 
-  WN_FORCE_INLINE explicit matrix_base_generic_square_only(
+  inline explicit matrix_base_generic_square_only(
       const T (&_values)[Order * Order])
     : base(_values) {}
 
-  WN_FORCE_INLINE explicit matrix_base_generic_square_only(
+  inline explicit matrix_base_generic_square_only(
       const T (&_values)[Order][Order])
     : base(_values) {}
 
   template <typename Itr>
-  WN_FORCE_INLINE matrix_base_generic_square_only(Itr _begin, Itr _end)
+  inline matrix_base_generic_square_only(Itr _begin, Itr _end)
     : base(_begin, _end) {}
 
-  WN_FORCE_INLINE T trace() const {
+  inline T trace() const {
     T sum(0);
 
     for (size_t i = 0; i < Order; ++i) {
@@ -143,7 +137,7 @@ public:
     return sum;
   }
 
-  WN_FORCE_INLINE void transpose() {
+  inline void transpose() {
     for (size_t i = 0; i < Order; ++i) {
       for (size_t j = 0; j < i; ++j) {
         core::swap(base::at(i, j), base::at(j, i));

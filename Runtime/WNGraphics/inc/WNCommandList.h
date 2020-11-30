@@ -39,7 +39,7 @@ using command_list_base = core::non_copyable;
 
 class command_list : public internal::command_list_base {
 public:
-  WN_FORCE_INLINE command_list() : internal::command_list_base() {}
+  inline command_list() : internal::command_list_base() {}
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   virtual ~command_list() = default;

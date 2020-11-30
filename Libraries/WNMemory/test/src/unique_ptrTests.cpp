@@ -16,16 +16,15 @@ TYPED_TEST_SUITE(unique_ptr, unique_ptr_testing_types);
 template <typename T>
 class dummy_destroyer {
 public:
-  WN_FORCE_INLINE dummy_destroyer(uint32_t& test) : m_test(test) {}
+  inline dummy_destroyer(uint32_t& test) : m_test(test) {}
 
-  WN_FORCE_INLINE dummy_destroyer(const dummy_destroyer& d)
-    : m_test(d.m_test) {}
+  inline dummy_destroyer(const dummy_destroyer& d) : m_test(d.m_test) {}
 
-  WN_FORCE_INLINE dummy_destroyer& operator=(const dummy_destroyer& d) {
+  inline dummy_destroyer& operator=(const dummy_destroyer& d) {
     m_test = d.m_test;
   };
 
-  WN_FORCE_INLINE void operator()(T* ptr) const {
+  inline void operator()(T* ptr) const {
     m_test++;
 
     wn::memory::destroy(ptr);

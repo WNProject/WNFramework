@@ -41,26 +41,22 @@ public:
   using reference = typename base::reference;
 
 #ifdef _WN_DEBUG
-  WN_FORCE_INLINE contiguous_range_iterator()
-    : m_owner(nullptr), m_pointer(nullptr) {}
+  inline contiguous_range_iterator() : m_owner(nullptr), m_pointer(nullptr) {}
 
-  WN_FORCE_INLINE contiguous_range_iterator(
-      contiguous_range_iterator&& _other) noexcept
+  inline contiguous_range_iterator(contiguous_range_iterator&& _other) noexcept
     : m_owner(core::move(_other.m_owner)),
       m_pointer(core::move(_other.m_pointer)) {
     _other.clear();
   }
 
-  WN_FORCE_INLINE contiguous_range_iterator(
-      const contiguous_range_iterator& _other)
+  inline contiguous_range_iterator(const contiguous_range_iterator& _other)
     : m_owner(_other.m_owner), m_pointer(_other.m_pointer) {}
 
   template <typename OtherContainer = NonConstContainer,
       typename =
           core::enable_if_t<!core::is_same<Container, OtherContainer>::value>>
-  WN_FORCE_INLINE contiguous_range_iterator(
-      contiguous_range_iterator<OtherContainer, OtherContainer,
-          typename OtherContainer::value_type>&& _other)
+  inline contiguous_range_iterator(contiguous_range_iterator<OtherContainer,
+      OtherContainer, typename OtherContainer::value_type>&& _other)
     : m_owner(core::move(_other.m_owner)),
       m_pointer(core::move(_other.m_pointer)) {
     _other.clear();
@@ -69,28 +65,26 @@ public:
   template <typename OtherContainer = NonConstContainer,
       typename =
           core::enable_if_t<!core::is_same<Container, OtherContainer>::value>>
-  WN_FORCE_INLINE contiguous_range_iterator(
+  inline contiguous_range_iterator(
       const contiguous_range_iterator<OtherContainer, OtherContainer,
           typename OtherContainer::value_type>& _other)
     : m_owner(_other.m_owner), m_pointer(_other.m_pointer) {}
 #else
-  WN_FORCE_INLINE contiguous_range_iterator() : m_pointer(nullptr) {}
+  inline contiguous_range_iterator() : m_pointer(nullptr) {}
 
-  WN_FORCE_INLINE contiguous_range_iterator(contiguous_range_iterator&& _other)
+  inline contiguous_range_iterator(contiguous_range_iterator&& _other)
     : m_pointer(core::move(_other.m_pointer)) {
     _other.clear();
   }
 
-  WN_FORCE_INLINE contiguous_range_iterator(
-      const contiguous_range_iterator& _other)
+  inline contiguous_range_iterator(const contiguous_range_iterator& _other)
     : m_pointer(_other.m_pointer) {}
 
   template <typename OtherContainer = NonConstContainer,
       typename =
           core::enable_if_t<!core::is_same<Container, OtherContainer>::value>>
-  WN_FORCE_INLINE contiguous_range_iterator(
-      contiguous_range_iterator<OtherContainer, OtherContainer,
-          typename OtherContainer::value_type>&& _other)
+  inline contiguous_range_iterator(contiguous_range_iterator<OtherContainer,
+      OtherContainer, typename OtherContainer::value_type>&& _other)
     : m_pointer(core::move(_other.m_pointer)) {
     _other.clear();
   }
@@ -98,20 +92,20 @@ public:
   template <typename OtherContainer = NonConstContainer,
       typename =
           core::enable_if_t<!core::is_same<Container, OtherContainer>::value>>
-  WN_FORCE_INLINE contiguous_range_iterator(
+  inline contiguous_range_iterator(
       const contiguous_range_iterator<OtherContainer, OtherContainer,
           typename OtherContainer::value_type>& _other)
     : m_pointer(_other.m_pointer) {}
 #endif
 
-  WN_FORCE_INLINE contiguous_range_iterator& operator=(
+  inline contiguous_range_iterator& operator=(
       contiguous_range_iterator&& _other) noexcept {
     contiguous_range_iterator(core::move(_other)).swap(*this);
 
     return *this;
   }
 
-  WN_FORCE_INLINE contiguous_range_iterator& operator=(
+  inline contiguous_range_iterator& operator=(
       const contiguous_range_iterator& _other) {
     contiguous_range_iterator(_other).swap(*this);
 
@@ -121,7 +115,7 @@ public:
   template <typename OtherContainer = NonConstContainer,
       typename =
           core::enable_if_t<!core::is_same<Container, OtherContainer>::value>>
-  WN_FORCE_INLINE contiguous_range_iterator& operator=(
+  inline contiguous_range_iterator& operator=(
       contiguous_range_iterator<OtherContainer, OtherContainer,
           typename OtherContainer::value_type>&& _other) {
     contiguous_range_iterator(core::move(_other)).swap(*this);
@@ -132,7 +126,7 @@ public:
   template <typename OtherContainer = NonConstContainer,
       typename =
           core::enable_if_t<!core::is_same<Container, OtherContainer>::value>>
-  WN_FORCE_INLINE contiguous_range_iterator& operator=(
+  inline contiguous_range_iterator& operator=(
       const contiguous_range_iterator<OtherContainer, OtherContainer,
           typename OtherContainer::value_type>& _other) {
     contiguous_range_iterator(_other).swap(*this);
@@ -140,50 +134,46 @@ public:
     return *this;
   }
 
-  WN_FORCE_INLINE difference_type operator-(
+  inline difference_type operator-(
       const contiguous_range_iterator& _other) const {
     WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer - _other.m_pointer);
   }
 
-  WN_FORCE_INLINE contiguous_range_iterator& operator+=(
-      const size_type _count) {
+  inline contiguous_range_iterator& operator+=(const size_type _count) {
     m_pointer += _count;
 
     return *this;
   }
 
-  WN_FORCE_INLINE contiguous_range_iterator& operator-=(
-      const size_type _count) {
+  inline contiguous_range_iterator& operator-=(const size_type _count) {
     m_pointer -= _count;
 
     return *this;
   }
 
-  WN_FORCE_INLINE contiguous_range_iterator operator+(
-      const size_type _count) const {
+  inline contiguous_range_iterator operator+(const size_type _count) const {
     contiguous_range_iterator i(*this);
 
     return (i += _count);
   }
 
-  WN_FORCE_INLINE contiguous_range_iterator operator-(
-      const size_type _count) const {
+  inline contiguous_range_iterator operator-(const size_type _count) const {
     contiguous_range_iterator i(*this);
 
     return (i -= _count);
   }
 
-  WN_FORCE_INLINE reference operator*() const {
+  inline reference operator*() const {
     return *m_pointer;
   }
 
-  WN_FORCE_INLINE pointer operator->() const {
+  inline pointer operator->() const {
     return m_pointer;
   }
 
-  WN_FORCE_INLINE contiguous_range_iterator operator++(int32_t) {
+  inline contiguous_range_iterator operator++(int32_t) {
     contiguous_range_iterator i(*this);
 
     (*this) += 1;
@@ -191,7 +181,7 @@ public:
     return i;
   }
 
-  WN_FORCE_INLINE contiguous_range_iterator operator--(int32_t) {
+  inline contiguous_range_iterator operator--(int32_t) {
     contiguous_range_iterator i(*this);
 
     (*this) -= 1;
@@ -199,51 +189,45 @@ public:
     return i;
   }
 
-  WN_FORCE_INLINE contiguous_range_iterator& operator++() {
+  inline contiguous_range_iterator& operator++() {
     return ((*this) += 1);
   }
 
-  WN_FORCE_INLINE contiguous_range_iterator& operator--() {
+  inline contiguous_range_iterator& operator--() {
     return ((*this) -= 1);
   }
 
-  WN_FORCE_INLINE bool operator==(
-      const contiguous_range_iterator& _other) const {
+  inline bool operator==(const contiguous_range_iterator& _other) const {
     WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer == _other.m_pointer);
   }
 
-  WN_FORCE_INLINE bool operator!=(
-      const contiguous_range_iterator& _other) const {
+  inline bool operator!=(const contiguous_range_iterator& _other) const {
     WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer != _other.m_pointer);
   }
 
-  WN_FORCE_INLINE bool operator>(
-      const contiguous_range_iterator& _other) const {
+  inline bool operator>(const contiguous_range_iterator& _other) const {
     WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer > _other.m_pointer);
   }
 
-  WN_FORCE_INLINE bool operator>=(
-      const contiguous_range_iterator& _other) const {
+  inline bool operator>=(const contiguous_range_iterator& _other) const {
     WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer >= _other.m_pointer);
   }
 
-  WN_FORCE_INLINE bool operator<(
-      const contiguous_range_iterator& _other) const {
+  inline bool operator<(const contiguous_range_iterator& _other) const {
     WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer < _other.m_pointer);
   }
 
-  WN_FORCE_INLINE bool operator<=(
-      const contiguous_range_iterator& _other) const {
+  inline bool operator<=(const contiguous_range_iterator& _other) const {
     WN_DEBUG_ASSERT(m_owner == _other.m_owner, "iterators are incompatible");
 
     return (m_pointer <= _other.m_pointer);
@@ -256,15 +240,14 @@ private:
       const Element>;
 
 #ifdef _WN_DEBUG
-  WN_FORCE_INLINE explicit contiguous_range_iterator(
-      Container* _owner, pointer _pointer)
+  inline explicit contiguous_range_iterator(Container* _owner, pointer _pointer)
     : m_owner(_owner), m_pointer(_pointer) {}
 #else
-  WN_FORCE_INLINE explicit contiguous_range_iterator(pointer _pointer)
+  inline explicit contiguous_range_iterator(pointer _pointer)
     : m_pointer(_pointer) {}
 #endif
 
-  WN_FORCE_INLINE void swap(contiguous_range_iterator& _other) {
+  inline void swap(contiguous_range_iterator& _other) {
 #ifdef _WN_DEBUG
     core::swap(m_owner, _other.m_owner);
 #endif
@@ -272,7 +255,7 @@ private:
     core::swap(m_pointer, _other.m_pointer);
   }
 
-  WN_FORCE_INLINE void clear() {
+  inline void clear() {
 #ifdef _WN_DEBUG
     m_owner = nullptr;
 #endif
@@ -292,7 +275,7 @@ private:
 template <typename T>
 class write_only final {
 public:
-  WN_FORCE_INLINE write_only& operator=(const T& _value) {
+  inline write_only& operator=(const T& _value) {
     m_value = _value;
 
     return *this;
@@ -362,18 +345,18 @@ public:
   typedef std::reverse_iterator<iterator> reverse_iterator;
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-  WN_FORCE_INLINE contiguous_range() : m_begin(nullptr), m_end(nullptr) {}
+  inline contiguous_range() : m_begin(nullptr), m_end(nullptr) {}
 
-  WN_FORCE_INLINE contiguous_range(const nullptr_t) : contiguous_range() {}
+  inline contiguous_range(const nullptr_t) : contiguous_range() {}
 
-  WN_FORCE_INLINE explicit contiguous_range(const nullptr_t, const nullptr_t)
+  inline explicit contiguous_range(const nullptr_t, const nullptr_t)
     : contiguous_range() {}
 
   template <typename U,
       typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
           core::is_same<U, remove_write_only_t<T>>,
           core::is_same<U, core::remove_const_t<T>>>::value>>
-  WN_FORCE_INLINE explicit contiguous_range(U* _begin, U* _end)
+  inline explicit contiguous_range(U* _begin, U* _end)
     : m_begin(reinterpret_cast<T*>(_begin)), m_end(reinterpret_cast<T*>(_end)) {
     WN_DEBUG_ASSERT((m_begin && m_end) || (!m_begin && !m_end),
         "invalid input parameters, both must be null or non-null");
@@ -383,14 +366,14 @@ public:
       typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
           core::is_same<U, remove_write_only_t<T>>,
           core::is_same<U, core::remove_const_t<T>>>::value>>
-  WN_FORCE_INLINE explicit contiguous_range(U* _ptr, const size_type _size)
+  inline explicit contiguous_range(U* _ptr, const size_type _size)
     : contiguous_range(_ptr, _ptr + _size) {}
 
   template <typename U,
       typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
           core::is_same<U, remove_write_only_t<T>>,
           core::is_same<U, core::remove_const_t<T>>>::value>>
-  WN_FORCE_INLINE explicit contiguous_range(
+  inline explicit contiguous_range(
       U* _ptr, const size_type _offset, const size_type _size)
     : contiguous_range(_ptr + _offset, _size) {}
 
@@ -398,7 +381,7 @@ public:
       typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
           core::is_same<U, remove_write_only_t<T>>,
           core::is_same<U, core::remove_const_t<T>>>::value>>
-  WN_FORCE_INLINE contiguous_range(array<U, N>& _array)
+  inline contiguous_range(array<U, N>& _array)
     : contiguous_range(_array.data(), N) {}
 
   template <typename U, const size_t N,
@@ -406,13 +389,13 @@ public:
           core::is_same<core::remove_all_extents_t<U>, remove_write_only_t<T>>,
           core::is_same<core::remove_all_extents_t<U>,
               core::remove_const_t<T>>>::value>>
-  WN_FORCE_INLINE contiguous_range(U (&_ptr)[N]) : contiguous_range(_ptr, N) {}
+  inline contiguous_range(U (&_ptr)[N]) : contiguous_range(_ptr, N) {}
 
   template <typename U,
       typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
           core::is_same<U, remove_write_only_t<T>>,
           core::is_same<U, core::remove_const_t<T>>>::value>>
-  WN_FORCE_INLINE contiguous_range(contiguous_range<U>&& _other)
+  inline contiguous_range(contiguous_range<U>&& _other)
     : contiguous_range(_other.data(), _other.size()) {
     _other = nullptr;
   }
@@ -421,18 +404,18 @@ public:
       typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
           core::is_same<U, remove_write_only_t<T>>,
           core::is_same<U, core::remove_const_t<T>>>::value>>
-  WN_FORCE_INLINE contiguous_range(const contiguous_range<U>& _other)
+  inline contiguous_range(const contiguous_range<U>& _other)
     : contiguous_range(_other.data(), _other.size()) {}
 
-  WN_FORCE_INLINE contiguous_range(contiguous_range&& _other) noexcept
+  inline contiguous_range(contiguous_range&& _other) noexcept
     : contiguous_range(_other.m_begin, _other.m_end) {
     _other = nullptr;
   }
 
-  WN_FORCE_INLINE contiguous_range(const contiguous_range& _other)
+  inline contiguous_range(const contiguous_range& _other)
     : contiguous_range(_other.m_begin, _other.m_end) {}
 
-  WN_FORCE_INLINE contiguous_range& operator=(const nullptr_t) {
+  inline contiguous_range& operator=(const nullptr_t) {
     contiguous_range(nullptr).swap(*this);
 
     return *this;
@@ -442,7 +425,7 @@ public:
       typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
           core::is_same<U, remove_write_only_t<T>>,
           core::is_same<U, core::remove_const_t<T>>>::value>>
-  WN_FORCE_INLINE contiguous_range& operator=(array<U, N>& _array) {
+  inline contiguous_range& operator=(array<U, N>& _array) {
     contiguous_range(_array).swap(*this);
 
     return *this;
@@ -453,7 +436,7 @@ public:
           core::is_same<core::remove_all_extents_t<U>, remove_write_only_t<T>>,
           core::is_same<core::remove_all_extents_t<U>,
               core::remove_const_t<T>>>::value>>
-  WN_FORCE_INLINE contiguous_range& operator=(U (&_ptr)[N]) {
+  inline contiguous_range& operator=(U (&_ptr)[N]) {
     contiguous_range(_ptr, N).swap(*this);
 
     return *this;
@@ -463,7 +446,7 @@ public:
       typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
           core::is_same<U, remove_write_only_t<T>>,
           core::is_same<U, core::remove_const_t<T>>>::value>>
-  WN_FORCE_INLINE contiguous_range& operator=(contiguous_range<U>&& _other) {
+  inline contiguous_range& operator=(contiguous_range<U>&& _other) {
     contiguous_range(core::move(_other)).swap(*this);
 
     return *this;
@@ -473,20 +456,19 @@ public:
       typename = core::enable_if_t<core::disjunction<core::is_same<U, T>,
           core::is_same<U, remove_write_only_t<T>>,
           core::is_same<U, core::remove_const_t<T>>>::value>>
-  WN_FORCE_INLINE contiguous_range& operator=(
-      const contiguous_range<U>& _other) {
+  inline contiguous_range& operator=(const contiguous_range<U>& _other) {
     contiguous_range(_other).swap(*this);
 
     return *this;
   }
 
-  WN_FORCE_INLINE contiguous_range& operator=(contiguous_range&& _other) {
+  inline contiguous_range& operator=(contiguous_range&& _other) {
     contiguous_range(core::move(_other)).swap(*this);
 
     return *this;
   }
 
-  WN_FORCE_INLINE contiguous_range& operator=(const contiguous_range& _other) {
+  inline contiguous_range& operator=(const contiguous_range& _other) {
     contiguous_range(_other).swap(*this);
 
     return *this;
@@ -494,55 +476,55 @@ public:
 
   // element access
 
-  WN_FORCE_INLINE reference operator[](const size_type _pos) {
+  inline reference operator[](const size_type _pos) {
     return at(_pos);
   }
 
-  WN_FORCE_INLINE const_reference operator[](const size_type _pos) const {
+  inline const_reference operator[](const size_type _pos) const {
     return at(_pos);
   }
 
-  WN_FORCE_INLINE reference at(const size_type _pos) {
+  inline reference at(const size_type _pos) {
     WN_DEBUG_ASSERT(m_begin, "invalid contiguous range");
     WN_DEBUG_ASSERT((m_begin + _pos) < m_end, "index out of bounds");
 
     return (*(m_begin + _pos));
   }
 
-  WN_FORCE_INLINE const_reference at(const size_type _pos) const {
+  inline const_reference at(const size_type _pos) const {
     WN_DEBUG_ASSERT(m_begin, "invalid contiguous range");
     WN_DEBUG_ASSERT((m_begin + _pos) < m_end, "index out of bounds");
 
     return (*(m_begin + _pos));
   }
 
-  WN_FORCE_INLINE reference front() {
+  inline reference front() {
     return at(0);
   }
 
-  WN_FORCE_INLINE const_reference front() const {
+  inline const_reference front() const {
     return at(0);
   }
 
-  WN_FORCE_INLINE reference back() {
+  inline reference back() {
     return at(size() - 1);
   }
 
-  WN_FORCE_INLINE const_reference back() const {
+  inline const_reference back() const {
     return at(size() - 1);
   }
 
-  WN_FORCE_INLINE pointer data() {
+  inline pointer data() {
     return m_begin;
   }
 
-  WN_FORCE_INLINE const_pointer data() const {
+  inline const_pointer data() const {
     return m_begin;
   }
 
   // iterators
 
-  WN_FORCE_INLINE iterator begin() {
+  inline iterator begin() {
 #ifdef _WN_DEBUG
     return iterator(this, m_begin);
 #else
@@ -550,11 +532,11 @@ public:
 #endif
   }
 
-  WN_FORCE_INLINE const_iterator begin() const {
+  inline const_iterator begin() const {
     return cbegin();
   }
 
-  WN_FORCE_INLINE const_iterator cbegin() const {
+  inline const_iterator cbegin() const {
 #ifdef _WN_DEBUG
     return const_iterator(this, m_begin);
 #else
@@ -562,7 +544,7 @@ public:
 #endif
   }
 
-  WN_FORCE_INLINE iterator end() {
+  inline iterator end() {
 #ifdef _WN_DEBUG
     return iterator(this, m_end);
 #else
@@ -570,11 +552,11 @@ public:
 #endif
   }
 
-  WN_FORCE_INLINE const_iterator end() const {
+  inline const_iterator end() const {
     return cend();
   }
 
-  WN_FORCE_INLINE const_iterator cend() const {
+  inline const_iterator cend() const {
 #ifdef _WN_DEBUG
     return const_iterator(this, m_end);
 #else
@@ -582,65 +564,65 @@ public:
 #endif
   }
 
-  WN_FORCE_INLINE reverse_iterator rbegin() {
+  inline reverse_iterator rbegin() {
     return reverse_iterator(end());
   }
 
-  WN_FORCE_INLINE const_reverse_iterator rbegin() const {
+  inline const_reverse_iterator rbegin() const {
     return crbegin();
   }
 
-  WN_FORCE_INLINE const_reverse_iterator crbegin() const {
+  inline const_reverse_iterator crbegin() const {
     return const_reverse_iterator(cend());
   }
 
-  WN_FORCE_INLINE reverse_iterator rend() {
+  inline reverse_iterator rend() {
     return reverse_iterator(begin());
   }
 
-  WN_FORCE_INLINE const_reverse_iterator rend() const {
+  inline const_reverse_iterator rend() const {
     return crend();
   }
 
-  WN_FORCE_INLINE const_reverse_iterator crend() const {
+  inline const_reverse_iterator crend() const {
     return const_reverse_iterator(cbegin());
   }
 
   // capacity
 
-  WN_FORCE_INLINE size_type size() const {
+  inline size_type size() const {
     return (m_end - m_begin);
   }
 
-  WN_FORCE_INLINE size_type max_size() const {
+  inline size_type max_size() const {
     return size();
   }
 
-  WN_FORCE_INLINE bool empty() const {
+  inline bool empty() const {
     return (size() == 0);
   }
 
   // modifiers
 
-  WN_FORCE_INLINE void clear() {
+  inline void clear() {
     contiguous_range().swap(*this);
   }
 
-  WN_FORCE_INLINE void remove_prefix(const size_type _count) {
+  inline void remove_prefix(const size_type _count) {
     WN_DEBUG_ASSERT(m_begin, "invalid contiguous range");
     WN_DEBUG_ASSERT((m_begin + _count) <= m_end, "count too large");
 
     m_begin += _count;
   }
 
-  WN_FORCE_INLINE void remove_suffix(const size_type _count) {
+  inline void remove_suffix(const size_type _count) {
     WN_DEBUG_ASSERT(m_begin, "invalid contiguous range");
     WN_DEBUG_ASSERT((m_end - _count) >= m_begin, "count too large");
 
     m_end -= _count;
   }
 
-  WN_FORCE_INLINE void swap(contiguous_range& _other) {
+  inline void swap(contiguous_range& _other) {
     if (&_other != this) {
       core::swap(m_begin, _other.m_begin);
       core::swap(m_end, _other.m_end);
@@ -666,21 +648,21 @@ template <typename T>
 using is_contiguous_range = internal::is_contiguous_range<core::decay_t<T>>;
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator==(
+inline bool operator==(
     const contiguous_range<T>& _lhs, const contiguous_range<U>& _rhs) {
   return (_lhs.data() == _rhs.data() &&
           (_lhs.data() + _lhs.size()) == (_rhs.data() + _rhs.size()));
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator!=(
+inline bool operator!=(
     const contiguous_range<T>& _lhs, const contiguous_range<U>& _rhs) {
   return (_lhs.data() != _rhs.data() ||
           (_lhs.data() + _lhs.size()) != (_rhs.data() + _rhs.size()));
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator<(
+inline bool operator<(
     const contiguous_range<T>& _lhs, const contiguous_range<U>& _rhs) {
   return (_lhs.data() < _rhs.data() ||
           (_lhs.data() == _rhs.data() &&
@@ -688,7 +670,7 @@ WN_FORCE_INLINE bool operator<(
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator<=(
+inline bool operator<=(
     const contiguous_range<T>& _lhs, const contiguous_range<U>& _rhs) {
   return (_lhs.data() < _rhs.data() ||
           (_lhs.data() == _rhs.data() &&
@@ -696,7 +678,7 @@ WN_FORCE_INLINE bool operator<=(
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator>(
+inline bool operator>(
     const contiguous_range<T>& _lhs, const contiguous_range<U>& _rhs) {
   return (_lhs.data() > _rhs.data() ||
           (_lhs.data() == _rhs.data() &&
@@ -704,7 +686,7 @@ WN_FORCE_INLINE bool operator>(
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator>=(
+inline bool operator>=(
     const contiguous_range<T>& _lhs, const contiguous_range<U>& _rhs) {
   return (_lhs.data() > _rhs.data() ||
           (_lhs.data() == _rhs.data() &&
@@ -712,7 +694,7 @@ WN_FORCE_INLINE bool operator>=(
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE typename core::enable_if<
+inline typename core::enable_if<
     core::conjunction<core::is_same_decayed<U, remove_write_only_t<T>>,
         core::is_trivial<U>>::value>::type
 copy_to(contiguous_range<T>* _dest, const U* _src, const size_t _offset,
@@ -728,7 +710,7 @@ copy_to(contiguous_range<T>* _dest, const U* _src, const size_t _offset,
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE typename core::enable_if<
+inline typename core::enable_if<
     core::conjunction<core::is_convertible<U*, remove_write_only_t<T>*>,
         core::negation<core::is_trivial<U>>>::value>::type
 copy_to(contiguous_range<T>* _dest, const U* _src, const size_t _offset,
@@ -747,14 +729,14 @@ copy_to(contiguous_range<T>* _dest, const U* _src, const size_t _offset,
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE typename core::enable_if<
+inline typename core::enable_if<
     core::is_convertible<U*, remove_write_only_t<T>*>::value>::type
 copy_to(contiguous_range<T>* _dest, const U* _src, const size_t _count) {
   copy_to(_dest, _src, 0, _count);
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE typename core::enable_if<
+inline typename core::enable_if<
     core::is_convertible<typename core::remove_const<U>::type*,
         remove_write_only_t<T>*>::value>::type
 copy_to(contiguous_range<T>* _dest, const contiguous_range<U>& _src) {

@@ -30,7 +30,7 @@ namespace logging {
   };                                                                           \
   template <typename BuffType>                                                 \
   struct log_type_helper<type, BuffType> {                                     \
-    WN_FORCE_INLINE static bool do_log(                                        \
+    inline static bool do_log(                                                 \
         const type& _0, BuffType* _buffer, size_t& _bufferLeft) {              \
       int printed = wn::memory::snprintf(                                      \
           _buffer, _bufferLeft, _enc##type<BuffType>::get_val(), _0);          \
@@ -75,7 +75,7 @@ struct _enc_wn_char<wchar_t> {
 #endif
 template <typename BuffType>
 struct log_type_helper<char*, BuffType> {
-  WN_FORCE_INLINE static bool do_log(
+  inline static bool do_log(
       char* const& _0, BuffType* _buffer, size_t& _buffer_left) {
     int printed = wn::memory::snprintf(
         _buffer, _buffer_left, _enc_wn_char<BuffType>::get_val(), _0);
@@ -89,7 +89,7 @@ struct log_type_helper<char*, BuffType> {
 
 template <typename BuffType>
 struct log_type_helper<const char*, BuffType> {
-  WN_FORCE_INLINE static bool do_log(
+  inline static bool do_log(
       const char* const& _0, BuffType* _buffer, size_t& _buffer_left) {
     int printed = wn::memory::snprintf(
         _buffer, _buffer_left, _enc_wn_char<BuffType>::get_val(), _0);
@@ -103,7 +103,7 @@ struct log_type_helper<const char*, BuffType> {
 
 template <size_t N, typename BuffType>
 struct log_type_helper<char[N], BuffType> {
-  WN_FORCE_INLINE static bool do_log(
+  inline static bool do_log(
       const char (&_0)[N], BuffType* _buffer, size_t& _buffer_left) {
     int printed = wn::memory::snprintf(
         _buffer, _buffer_left, _enc_wn_char<BuffType>::get_val(), _0);
@@ -117,7 +117,7 @@ struct log_type_helper<char[N], BuffType> {
 
 template <typename BuffType>
 struct log_type_helper<wn::containers::string_view, BuffType> {
-  WN_FORCE_INLINE static bool do_log(const wn::containers::string_view& _0,
+  inline static bool do_log(const wn::containers::string_view& _0,
       BuffType* _buffer, size_t& _buffer_left) {
     int printed = wn::memory::snprintf(
         _buffer, _buffer_left, "%.*s", (uint32_t)_0.size(), (void*)_0.data());
@@ -131,8 +131,8 @@ struct log_type_helper<wn::containers::string_view, BuffType> {
 
 template <typename BuffType>
 struct log_type_helper<wn::containers::string, BuffType> {
-  WN_FORCE_INLINE static bool do_log(const wn::containers::string& _0,
-      BuffType* _buffer, size_t& _buffer_left) {
+  inline static bool do_log(const wn::containers::string& _0, BuffType* _buffer,
+      size_t& _buffer_left) {
     int printed = wn::memory::snprintf(
         _buffer, _buffer_left, "%.*s", (uint32_t)_0.size(), (void*)_0.data());
     if (printed < 0 || static_cast<size_t>(printed) >= _buffer_left) {
@@ -145,9 +145,8 @@ struct log_type_helper<wn::containers::string, BuffType> {
 
 template <typename T, size_t N, typename BuffType>
 struct log_type_helper<wn::containers::dynamic_array<T, N>, BuffType> {
-  WN_FORCE_INLINE static bool do_log(
-      const wn::containers::dynamic_array<T, N>& _0, BuffType* _buffer,
-      size_t& _buffer_left) {
+  inline static bool do_log(const wn::containers::dynamic_array<T, N>& _0,
+      BuffType* _buffer, size_t& _buffer_left) {
     size_t last_buffer_left = _buffer_left;
     if (!log_type_helper<char[2], BuffType>::do_log(
             "[", _buffer, last_buffer_left)) {

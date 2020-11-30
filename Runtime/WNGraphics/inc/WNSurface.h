@@ -32,7 +32,7 @@ public:
 
   ~surface();
 
-  WN_FORCE_INLINE surface(surface&& _other) {
+  inline surface(surface&& _other) {
     m_adapter = _other.m_adapter;
     _other.m_adapter = nullptr;
     m_width = _other.m_width;
@@ -42,7 +42,7 @@ public:
     memory::memzero(&_other.m_data, sizeof(opaque_data));
   }
 
-  WN_FORCE_INLINE bool is_valid() const {
+  inline bool is_valid() const {
     return (m_adapter != nullptr);
   }
 
@@ -53,18 +53,18 @@ public:
   }
 
 private:
-  WN_FORCE_INLINE void set_invalid() {
+  inline void set_invalid() {
     m_adapter = nullptr;
   }
 
   WN_GRAPHICS_ADD_FRIENDS(adapter)
   WN_GRAPHICS_ADD_FRIENDS(device);
 
-  WN_FORCE_INLINE surface(memory::allocator* _allocator, adapter* _adapter)
+  inline surface(memory::allocator* _allocator, adapter* _adapter)
     : m_data({0}), m_adapter(_adapter), m_valid_formats(_allocator) {}
 
   template <typename T>
-  WN_FORCE_INLINE T& data_as() {
+  inline T& data_as() {
     static_assert(sizeof(opaque_data) >= sizeof(T),
         "invalid cast, target type size does not match opaque data size");
 
@@ -72,7 +72,7 @@ private:
   }
 
   template <typename T>
-  WN_FORCE_INLINE const T& data_as() const {
+  inline const T& data_as() const {
     static_assert(sizeof(opaque_data) >= sizeof(T),
         "invalid cast, target type size does not match opaque data size");
 

@@ -24,32 +24,28 @@ private:
 public:
   using base::assign;
 
-  WN_FORCE_INLINE vector_base_generic_common() : base() {}
+  inline vector_base_generic_common() : base() {}
 
-  WN_FORCE_INLINE vector_base_generic_common(
-      vector_base_generic_common&& _vector)
+  inline vector_base_generic_common(vector_base_generic_common&& _vector)
     : base() {
     for (size_t i = 0; i < Dimension; ++i) {
       base::at(i) = core::move(_vector.at(i));
     }
   }
 
-  WN_FORCE_INLINE vector_base_generic_common(
-      const vector_base_generic_common& _vector)
+  inline vector_base_generic_common(const vector_base_generic_common& _vector)
     : base(_vector.m_values) {}
 
-  WN_FORCE_INLINE explicit vector_base_generic_common(const T& _value)
-    : base(_value) {}
+  inline explicit vector_base_generic_common(const T& _value) : base(_value) {}
 
-  WN_FORCE_INLINE explicit vector_base_generic_common(
-      const T (&_values)[Dimension])
+  inline explicit vector_base_generic_common(const T (&_values)[Dimension])
     : base(_values) {}
 
   template <typename Itr>
-  WN_FORCE_INLINE vector_base_generic_common(Itr _begin, Itr _end)
+  inline vector_base_generic_common(Itr _begin, Itr _end)
     : base(_begin, _end) {}
 
-  WN_FORCE_INLINE T dot(const vector_base_generic_common& _vector) const {
+  inline T dot(const vector_base_generic_common& _vector) const {
     T result(0);
 
     for (size_t i = 0; i < Dimension; ++i) {
@@ -59,15 +55,15 @@ public:
     return result;
   }
 
-  WN_FORCE_INLINE T length_squared() const {
+  inline T length_squared() const {
     return dot(*this);
   }
 
-  WN_FORCE_INLINE T length() const {
+  inline T length() const {
     return sqrt(length_squared());
   }
 
-  WN_FORCE_INLINE void truncate(const T& _length) {
+  inline void truncate(const T& _length) {
     static const T zero(0);
 
     if (_length > zero) {
@@ -83,7 +79,7 @@ public:
     }
   }
 
-  WN_FORCE_INLINE void reverse() {
+  inline void reverse() {
     const size_t adjusted_size = Dimension - 1;
 
     for (size_t i = 0; i < (Dimension / 2); ++i) {
@@ -92,8 +88,7 @@ public:
   }
 
 protected:
-  WN_FORCE_INLINE VectorType<T, Dimension, Precise> multiply(
-      const T& _value) const {
+  inline VectorType<T, Dimension, Precise> multiply(const T& _value) const {
     VectorType<T, Dimension, Precise> new_vector;
 
     for (size_t i = 0; i < Dimension; ++i) {
@@ -103,8 +98,7 @@ protected:
     return new_vector;
   }
 
-  WN_FORCE_INLINE VectorType<T, Dimension, Precise> divide(
-      const T& _value) const {
+  inline VectorType<T, Dimension, Precise> divide(const T& _value) const {
     VectorType<T, Dimension, Precise> new_vector;
 
     for (size_t i = 0; i < Dimension; ++i) {
@@ -114,13 +108,13 @@ protected:
     return new_vector;
   }
 
-  WN_FORCE_INLINE void multiply_assign(const T& _value) {
+  inline void multiply_assign(const T& _value) {
     for (size_t i = 0; i < Dimension; ++i) {
       base::at(i) *= _value;
     }
   }
 
-  WN_FORCE_INLINE void divide_assign(const T& _value) {
+  inline void divide_assign(const T& _value) {
     for (size_t i = 0; i < Dimension; ++i) {
       base::at(i) /= _value;
     }
@@ -135,28 +129,27 @@ private:
   using base = vector_base_generic_common<VectorType, T, Dimension, Precise>;
 
 public:
-  WN_FORCE_INLINE vector_base_generic_signed_only() : base() {}
+  inline vector_base_generic_signed_only() : base() {}
 
-  WN_FORCE_INLINE vector_base_generic_signed_only(
+  inline vector_base_generic_signed_only(
       vector_base_generic_signed_only&& _vector)
     : base(core::move(_vector)) {}
 
-  WN_FORCE_INLINE vector_base_generic_signed_only(
+  inline vector_base_generic_signed_only(
       const vector_base_generic_signed_only& _vector)
     : base(_vector) {}
 
-  WN_FORCE_INLINE explicit vector_base_generic_signed_only(const T& _value)
+  inline explicit vector_base_generic_signed_only(const T& _value)
     : base(_value) {}
 
-  WN_FORCE_INLINE explicit vector_base_generic_signed_only(
-      const T (&_values)[Dimension])
+  inline explicit vector_base_generic_signed_only(const T (&_values)[Dimension])
     : base(_values) {}
 
   template <typename Itr>
-  WN_FORCE_INLINE vector_base_generic_signed_only(Itr _begin, Itr _end)
+  inline vector_base_generic_signed_only(Itr _begin, Itr _end)
     : base(_begin, _end) {}
 
-  WN_FORCE_INLINE VectorType<T, Dimension, Precise> operator-() const {
+  inline VectorType<T, Dimension, Precise> operator-() const {
     VectorType<T, Dimension, Precise> new_vector;
 
     for (size_t i = 0; i < Dimension; ++i) {
@@ -166,7 +159,7 @@ public:
     return new_vector;
   }
 
-  WN_FORCE_INLINE void negate() {
+  inline void negate() {
     for (size_t i = 0; i < Dimension; ++i) {
       base::at(i) = -base::at(i);
     }
@@ -182,37 +175,36 @@ private:
       vector_base_generic_signed_only<VectorType, T, Dimension, Precise>;
 
 public:
-  WN_FORCE_INLINE vector_base_generic_floating_point_only() : base() {}
+  inline vector_base_generic_floating_point_only() : base() {}
 
-  WN_FORCE_INLINE vector_base_generic_floating_point_only(
+  inline vector_base_generic_floating_point_only(
       vector_base_generic_floating_point_only&& _vector)
     : base(core::move(_vector)) {}
 
-  WN_FORCE_INLINE vector_base_generic_floating_point_only(
+  inline vector_base_generic_floating_point_only(
       const vector_base_generic_floating_point_only& _vector)
     : base(_vector) {}
 
-  WN_FORCE_INLINE explicit vector_base_generic_floating_point_only(
-      const T& _value)
+  inline explicit vector_base_generic_floating_point_only(const T& _value)
     : base(_value) {}
 
-  WN_FORCE_INLINE explicit vector_base_generic_floating_point_only(
+  inline explicit vector_base_generic_floating_point_only(
       const T (&_values)[Dimension])
     : base(_values) {}
 
   template <typename Itr>
-  WN_FORCE_INLINE vector_base_generic_floating_point_only(Itr _begin, Itr _end)
+  inline vector_base_generic_floating_point_only(Itr _begin, Itr _end)
     : base(_begin, _end) {}
 
-  WN_FORCE_INLINE T inverse_length() const {
+  inline T inverse_length() const {
     return invsqrt(base::length_squared());
   }
 
-  WN_FORCE_INLINE void normalize() {
+  inline void normalize() {
     base::multiply_assign(inverse_length());
   }
 
-  WN_FORCE_INLINE VectorType<T, Dimension, Precise> normalized() const {
+  inline VectorType<T, Dimension, Precise> normalized() const {
     VectorType<T, Dimension, Precise> v;
     for (size_t i = 0; i < Dimension; ++i) {
       v.at(i) = base::at(i);
@@ -232,29 +224,28 @@ private:
       vector_base_generic_floating_point_only<VectorType, T, Dimension, false>;
 
 public:
-  WN_FORCE_INLINE vector_base_generic_floating_point_only() : base() {}
+  inline vector_base_generic_floating_point_only() : base() {}
 
-  WN_FORCE_INLINE vector_base_generic_floating_point_only(
+  inline vector_base_generic_floating_point_only(
       vector_base_generic_floating_point_only&& _vector)
     : base(core::move(_vector)) {}
 
-  WN_FORCE_INLINE vector_base_generic_floating_point_only(
+  inline vector_base_generic_floating_point_only(
       const vector_base_generic_floating_point_only& _vector)
     : base(_vector) {}
 
-  WN_FORCE_INLINE explicit vector_base_generic_floating_point_only(
-      const T& _value)
+  inline explicit vector_base_generic_floating_point_only(const T& _value)
     : base(_value) {}
 
-  WN_FORCE_INLINE explicit vector_base_generic_floating_point_only(
+  inline explicit vector_base_generic_floating_point_only(
       const T (&_values)[Dimension])
     : base(_values) {}
 
   template <typename Itr>
-  WN_FORCE_INLINE vector_base_generic_floating_point_only(Itr _begin, Itr _end)
+  inline vector_base_generic_floating_point_only(Itr _begin, Itr _end)
     : base(_begin, _end) {}
 
-  WN_FORCE_INLINE void normalize() {
+  inline void normalize() {
     base::divide_assign(base::length());
   }
 };

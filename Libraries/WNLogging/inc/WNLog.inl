@@ -12,7 +12,7 @@ namespace wn {
 namespace logging {
 
 template <log_level MAX_LOG_LEVEL>
-WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::flush() {
+inline void log_impl<MAX_LOG_LEVEL>::flush() {
   if (m_buffer_size != m_buffer_left) {
     m_logger->flush_buffer(m_log_buffer, m_buffer_size - m_buffer_left,
         m_color_elements, m_num_color_elements);
@@ -22,9 +22,8 @@ WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::flush() {
 }
 
 template <log_level MAX_LOG_LEVEL>
-WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::flush_external(
-    const char* _buffer, size_t _bufferSize, const color_element* _colors,
-    size_t _num_colors) {
+inline void log_impl<MAX_LOG_LEVEL>::flush_external(const char* _buffer,
+    size_t _bufferSize, const color_element* _colors, size_t _num_colors) {
   m_logger->flush_buffer(_buffer, _bufferSize, _colors, _num_colors);
 }
 
@@ -46,7 +45,7 @@ void log_impl<MAX_LOG_LEVEL>::do_log_log(const Arg& _0) {
 
 template <log_level MAX_LOG_LEVEL>
 template <typename... Args>
-WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::log_params(
+inline void log_impl<MAX_LOG_LEVEL>::log_params(
     log_level _level, size_t _flags, const Args&... args) {
   if (static_cast<size_t>(_level) > static_cast<size_t>(MAX_LOG_LEVEL)) {
     return;
@@ -70,7 +69,7 @@ WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::log_params(
 
 template <log_level MAX_LOG_LEVEL>
 template <typename T0>
-WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::log_param(const T0& _val) {
+inline void log_impl<MAX_LOG_LEVEL>::log_param(const T0& _val) {
   if (!log_type(_val, m_log_buffer + (m_buffer_size - m_buffer_left),
           m_buffer_left)) {
     flush();
@@ -80,14 +79,14 @@ WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::log_param(const T0& _val) {
 }
 
 template <log_level MAX_LOG_LEVEL>
-WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::log_header(log_level _level) {
+inline void log_impl<MAX_LOG_LEVEL>::log_header(log_level _level) {
   append_color(_level, m_log_buffer + (m_buffer_size - m_buffer_left));
   log_param(klog_messages[static_cast<size_t>(_level)]);
   append_color(log_level::none, m_log_buffer + (m_buffer_size - m_buffer_left));
 }
 
 template <log_level MAX_LOG_LEVEL>
-WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::append_color(
+inline void log_impl<MAX_LOG_LEVEL>::append_color(
     log_level _level, char* _position) {
   if (m_num_color_elements > 0 &&
       m_color_elements[m_num_color_elements - 1].m_position == _position) {
@@ -102,7 +101,7 @@ WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::append_color(
 }
 
 template <log_level MAX_LOG_LEVEL>
-WN_FORCE_INLINE void log_impl<MAX_LOG_LEVEL>::log_newline() {
+inline void log_impl<MAX_LOG_LEVEL>::log_newline() {
   static const char* new_line = "\n";
   log_param(new_line);
 }

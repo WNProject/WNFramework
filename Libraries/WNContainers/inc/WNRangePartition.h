@@ -37,7 +37,7 @@ private:
   // TODO(awoloszyn): If our small-type optimization only misses
   // by a small bit most of the time, consider expanding it.
   static const T_SIZE k_no_allocation_size = sizeof(T_SIZE) * 8;
-  WN_FORCE_INLINE bool small_size() const {
+  inline bool small_size() const {
     return m_num_elements <= k_no_allocation_size;
   }
   partition_node<T_SIZE>* const dummy_partition_node =
@@ -201,7 +201,7 @@ private:
     return true;
   }
 
-  WN_FORCE_INLINE partition_node<T_SIZE>* merge_left_and_free() {
+  inline partition_node<T_SIZE>* merge_left_and_free() {
     WN_RELEASE_ASSERT(!m_next_free, "Cannot merge an already free node");
     if (m_previous && m_previous->m_next_free) {
       WN_DEBUG_ASSERT(m_previous->m_next == this, "This should be impossible");

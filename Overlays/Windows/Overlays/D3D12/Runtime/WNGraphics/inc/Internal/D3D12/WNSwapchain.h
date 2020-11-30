@@ -61,8 +61,7 @@ protected:
   template <typename T>
   typename data_type<const T>::value& get_data(const T* const t) const;
 
-  WN_FORCE_INLINE d3d12_swapchain()
-    : d3d12_swapchain_base(), m_device(nullptr) {}
+  inline d3d12_swapchain() : d3d12_swapchain_base(), m_device(nullptr) {}
 
   void initialize(memory::allocator* _allocator, d3d12_device* _device,
       uint32_t _width, uint32_t _height,

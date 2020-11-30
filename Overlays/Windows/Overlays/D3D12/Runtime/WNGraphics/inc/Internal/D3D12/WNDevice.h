@@ -145,7 +145,7 @@ protected:
   const static size_t k_reserved_samplers_size = 2048;
   const static size_t k_reserved_view_size = 10000;
 
-  WN_FORCE_INLINE d3d12_device()
+  inline d3d12_device()
     : d3d12_device_base(),
       m_allocator(nullptr),
       m_log(nullptr),

@@ -17,7 +17,7 @@ namespace wn {
 namespace file_system {
 namespace internal {
 
-WN_FORCE_INLINE bool exists_file(const containers::string& _path) {
+inline bool exists_file(const containers::string& _path) {
   struct stat fstates;
 
   if (::stat(_path.data(), &fstates) == 0) {
@@ -29,7 +29,7 @@ WN_FORCE_INLINE bool exists_file(const containers::string& _path) {
   return false;
 }
 
-WN_FORCE_INLINE bool exists_directory(const containers::string& _path) {
+inline bool exists_directory(const containers::string& _path) {
   struct stat dstates;
 
   if (::stat(_path.data(), &dstates) == 0) {

@@ -26,21 +26,20 @@ class render_pass final : public base_object<2> {
 public:
   render_pass() : m_device(nullptr) {}
 
-  WN_FORCE_INLINE render_pass(render_pass&& _other)
-    : m_device(_other.m_device) {
+  inline render_pass(render_pass&& _other) : m_device(_other.m_device) {
     _other.m_device = nullptr;
 
     memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
     memory::memzero(&_other.m_data, sizeof(opaque_data));
   }
 
-  WN_FORCE_INLINE ~render_pass() {
+  inline ~render_pass() {
     if (is_valid()) {
       m_device->destroy_render_pass(this);
     }
   }
 
-  WN_FORCE_INLINE bool is_valid() const {
+  inline bool is_valid() const {
     return (m_device != nullptr);
   }
 
@@ -49,7 +48,7 @@ private:
   WN_GRAPHICS_ADD_FRIENDS(device)
   WN_GRAPHICS_ADD_FRIENDS(command_list)
 
-  WN_FORCE_INLINE render_pass(device* _device) : m_device(_device) {}
+  inline render_pass(device* _device) : m_device(_device) {}
 
   device* m_device;
 };

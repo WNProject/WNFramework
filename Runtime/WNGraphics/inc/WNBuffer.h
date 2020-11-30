@@ -31,7 +31,7 @@ private:
   using base = base_object<2>;
 
 public:
-  WN_FORCE_INLINE buffer(buffer&& _other)
+  inline buffer(buffer&& _other)
     : m_device(core::move(_other.m_device)),
       m_size(_other.m_size),
       m_memory_size(_other.m_memory_size),
@@ -45,13 +45,13 @@ public:
     memory::memory_zero(&_other.m_data);
   }
 
-  WN_FORCE_INLINE ~buffer() {
+  inline ~buffer() {
     if (is_valid()) {
       m_device->destroy_buffer(this);
     }
   }
 
-  WN_FORCE_INLINE buffer& operator=(buffer&& _other) {
+  inline buffer& operator=(buffer&& _other) {
     m_device = core::move(_other.m_device);
     m_size = _other.m_size;
     m_memory_size = _other.m_memory_size;
@@ -67,7 +67,7 @@ public:
     return *this;
   }
 
-  WN_FORCE_INLINE bool bind_memory(arena* _arena, const uint64_t _offset) {
+  inline bool bind_memory(arena* _arena, const uint64_t _offset) {
     WN_DEBUG_ASSERT(_offset + size() <= _arena->size(),
         "binding is out of bounds of arena");
 
@@ -76,31 +76,31 @@ public:
     return m_bound;
   }
 
-  WN_FORCE_INLINE bool bind_memory(arena* _arena) {
+  inline bool bind_memory(arena* _arena) {
     return bind_memory(_arena, 0);
   }
 
-  WN_FORCE_INLINE void* map() {
+  inline void* map() {
     return m_device->map_buffer(this);
   }
 
-  WN_FORCE_INLINE void unmap() {
+  inline void unmap() {
     m_device->unmap_buffer(this);
   }
 
-  WN_FORCE_INLINE bool is_valid() const {
+  inline bool is_valid() const {
     return (m_device != nullptr && size() != 0);
   }
 
-  WN_FORCE_INLINE bool is_bound() const {
+  inline bool is_bound() const {
     return (is_valid() && m_bound);
   }
 
-  WN_FORCE_INLINE uint64_t size() const {
+  inline uint64_t size() const {
     return m_size;
   }
 
-  WN_FORCE_INLINE uint64_t memory_size() const {
+  inline uint64_t memory_size() const {
     return m_memory_size;
   }
 
@@ -108,14 +108,13 @@ public:
     return buffer_memory_requirements{m_memory_size, m_memory_alignment};
   }
 
-  WN_FORCE_INLINE buffer()
-    : base(), m_device(nullptr), m_size(0), m_bound(false) {}
+  inline buffer() : base(), m_device(nullptr), m_size(0), m_bound(false) {}
 
 private:
   WN_GRAPHICS_ADD_FRIENDS(device);
   WN_GRAPHICS_ADD_FRIENDS(command_list);
 
-  WN_FORCE_INLINE buffer(device* _device, const size_t _size)
+  inline buffer(device* _device, const size_t _size)
     : base(), m_device(_device), m_size(_size), m_bound(false) {}
 
   device* m_device;

@@ -17,36 +17,36 @@ namespace internal {
 
 class file_descriptor final {
 public:
-  WN_FORCE_INLINE file_descriptor() : m_file_desciptor(-1) {}
+  inline file_descriptor() : m_file_desciptor(-1) {}
 
-  WN_FORCE_INLINE file_descriptor(const int _file_desciptor)
+  inline file_descriptor(const int _file_desciptor)
     : m_file_desciptor(_file_desciptor) {}
 
-  WN_FORCE_INLINE file_descriptor(file_descriptor&& _other)
+  inline file_descriptor(file_descriptor&& _other)
     : m_file_desciptor(_other.m_file_desciptor) {
     _other.m_file_desciptor = -1;
   }
 
-  WN_FORCE_INLINE ~file_descriptor() {
+  inline ~file_descriptor() {
     dispose();
   }
 
-  WN_FORCE_INLINE file_descriptor& operator=(file_descriptor&& _other) {
+  inline file_descriptor& operator=(file_descriptor&& _other) {
     m_file_desciptor = _other.m_file_desciptor;
     _other.m_file_desciptor = -1;
 
     return *this;
   }
 
-  WN_FORCE_INLINE int value() const {
+  inline int value() const {
     return m_file_desciptor;
   }
 
-  WN_FORCE_INLINE bool is_valid() const {
+  inline bool is_valid() const {
     return (m_file_desciptor != -1);
   }
 
-  WN_FORCE_INLINE void dispose() {
+  inline void dispose() {
     if (m_file_desciptor != -1) {
       const int close_result = ::close(m_file_desciptor);
 

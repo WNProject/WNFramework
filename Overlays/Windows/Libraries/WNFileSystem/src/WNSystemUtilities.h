@@ -14,7 +14,7 @@ namespace wn {
 namespace file_system {
 namespace internal {
 
-WN_FORCE_INLINE DWORD get_attributes(const containers::string_view _path) {
+inline DWORD get_attributes(const containers::string_view _path) {
   containers::array<WCHAR, MAX_PATH> unicode_buffer = {0};
   DWORD unicode_buffer_size = MAX_PATH;
 
@@ -25,14 +25,14 @@ WN_FORCE_INLINE DWORD get_attributes(const containers::string_view _path) {
   return ::GetFileAttributesW(unicode_buffer.data());
 }
 
-WN_FORCE_INLINE bool exists_file(const containers::string& _path) {
+inline bool exists_file(const containers::string& _path) {
   const DWORD attributes = get_attributes(_path);
 
   return (attributes != INVALID_FILE_ATTRIBUTES &&
           !(attributes & FILE_ATTRIBUTE_DIRECTORY));
 }
 
-WN_FORCE_INLINE bool exists_directory(const containers::string& _path) {
+inline bool exists_directory(const containers::string& _path) {
   const DWORD attributes = get_attributes(_path);
 
   return (attributes != INVALID_FILE_ATTRIBUTES &&

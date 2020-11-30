@@ -51,8 +51,7 @@ public:
 protected:
   friend class vulkan_device;
 
-  WN_FORCE_INLINE vulkan_swapchain()
-    : vulkan_swapchain_base(), m_device(nullptr) {}
+  inline vulkan_swapchain() : vulkan_swapchain_base(), m_device(nullptr) {}
 
   void initialize(memory::allocator* _allocator, vulkan_device* _device,
       uint32_t _width, uint32_t _height,

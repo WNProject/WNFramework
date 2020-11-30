@@ -24,21 +24,20 @@ class shader_module final : public base_object<2> {
 public:
   shader_module() : m_device(nullptr) {}
 
-  WN_FORCE_INLINE shader_module(shader_module&& _other)
-    : m_device(_other.m_device) {
+  inline shader_module(shader_module&& _other) : m_device(_other.m_device) {
     _other.m_device = nullptr;
 
     memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
     memory::memzero(&_other.m_data, sizeof(opaque_data));
   }
 
-  WN_FORCE_INLINE ~shader_module() {
+  inline ~shader_module() {
     if (is_valid()) {
       m_device->destroy_shader_module(this);
     }
   }
 
-  WN_FORCE_INLINE bool is_valid() const {
+  inline bool is_valid() const {
     return (m_device != nullptr);
   }
 
@@ -57,7 +56,7 @@ public:
 private:
   WN_GRAPHICS_ADD_FRIENDS(device);
 
-  WN_FORCE_INLINE shader_module(device* _device) : m_device(_device) {}
+  inline shader_module(device* _device) : m_device(_device) {}
 
   device* m_device;
 };

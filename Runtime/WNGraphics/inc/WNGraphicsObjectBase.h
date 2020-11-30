@@ -26,7 +26,7 @@ protected:
 
 protected:
   template <typename T>
-  WN_FORCE_INLINE T& data_as() {
+  inline T& data_as() {
     static_assert(sizeof(opaque_data) >= sizeof(T),
         "invalid cast, target type size does not match opaque data size");
 
@@ -34,7 +34,7 @@ protected:
   }
 
   template <typename T>
-  WN_FORCE_INLINE const T& data_as() const {
+  inline const T& data_as() const {
     static_assert(sizeof(opaque_data) >= sizeof(T),
         "invalid cast, target type size does not match opaque data size");
 

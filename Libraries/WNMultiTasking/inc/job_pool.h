@@ -48,7 +48,7 @@ public:
     return m_wait_count;
   }
 
-  WN_FORCE_INLINE job(job_signal* _wait_signal, size_t _wait_count,
+  inline job(job_signal* _wait_signal, size_t _wait_count,
       job_signal* _done_signal, bool _ready = false)
     : m_wait_signal(_wait_signal),
       m_wait_count(_wait_count),
@@ -84,7 +84,7 @@ template <typename C, typename A>
 class synchronized_job : public job {
 public:
   template <typename... FArgs>
-  WN_FORCE_INLINE synchronized_job(job_signal* _wait_signal, size_t _wait_count,
+  inline synchronized_job(job_signal* _wait_signal, size_t _wait_count,
       job_signal* _done_signal, C* _class, A _function, FArgs&&... _args)
     : job(_wait_signal, _wait_count, _done_signal, _wait_signal == nullptr),
       m_function(_function),
@@ -106,7 +106,7 @@ private:
 template <typename F, typename... Args>
 class unsynchronized_job : public job {
 public:
-  WN_FORCE_INLINE unsynchronized_job(
+  inline unsynchronized_job(
       job_signal* _done_signal, F _function, Args&&... _args)
     : job(nullptr, 0, _done_signal, true),
       m_function(_function),
@@ -268,7 +268,7 @@ public:
   }
 
   template <typename Callable, typename... Args>
-  WN_FORCE_INLINE typename core::enable_if<
+  inline typename core::enable_if<
       !core::disjunction<core::is_lvalue_reference<Args>...>::value, void>::type
   add_unsynchronized_job(job_signal* _signal, Callable&& _func, Args... _args) {
     add_job_internal(memory::make_unique<unsynchronized_job<Callable, Args...>>(
@@ -276,7 +276,7 @@ public:
   }
 
   template <typename B, typename T, typename... Args>
-  WN_FORCE_INLINE typename core::enable_if<
+  inline typename core::enable_if<
       core::conjunction<typename multi_tasking::is_synchronized<T>::type,
           core::is_invocable<B, T*, async_function, Args...>>::value,
       void>::type
@@ -288,7 +288,7 @@ public:
   }
 
   template <typename B, typename T, typename... Args>
-  WN_FORCE_INLINE typename core::enable_if<
+  inline typename core::enable_if<
       core::conjunction<typename multi_tasking::is_synchronized<T>::type,
           core::is_invocable<B, T*, async_blocking_function, Args...>>::value,
       void>::type
@@ -300,7 +300,7 @@ public:
   }
 
   template <typename B, typename T, typename... Args>
-  WN_FORCE_INLINE typename core::enable_if<
+  inline typename core::enable_if<
       core::conjunction<typename multi_tasking::is_synchronized<T>::type,
           core::is_invocable<B, T*, async_passthrough, Args...>>::value,
       void>::type
@@ -310,7 +310,7 @@ public:
   }
 
   template <typename B, typename T, typename... Args>
-  WN_FORCE_INLINE typename core::enable_if<
+  inline typename core::enable_if<
       core::conjunction<
           core::negation<typename multi_tasking::is_synchronized<T>::type>,
           core::is_invocable<B, T*, Args...>>::value,
@@ -380,16 +380,15 @@ void unsynchronized_callback<Args...>::enqueue_job(
 }
 
 template <typename C, typename CB, typename... Args>
-WN_FORCE_INLINE const
-    memory::intrusive_ptr<synchronized_callback<C, CB, Args...>>
-    make_callback(memory::allocator* _allocator, C* m_c,
-        void (C::*_function)(CB, Args...)) {
+inline const memory::intrusive_ptr<synchronized_callback<C, CB, Args...>>
+make_callback(
+    memory::allocator* _allocator, C* m_c, void (C::*_function)(CB, Args...)) {
   return memory::make_intrusive<synchronized_callback<C, CB, Args...>>(
       _allocator, m_c, _function);
 }
 
 template <typename... Args>
-WN_FORCE_INLINE memory::intrusive_ptr<unsynchronized_callback<Args...>>
+inline memory::intrusive_ptr<unsynchronized_callback<Args...>>
 make_unsynchronized_callback(memory::allocator* _allocator,
     const functional::function<void(Args...)>& _function) {
   return memory::make_intrusive<unsynchronized_callback<Args...>>(

@@ -92,7 +92,7 @@ using swapchain_ptr = memory::unique_ptr<swapchain>;
 
 class device : public internal::device_base {
 public:
-  WN_FORCE_INLINE device() : internal::device_base() {}
+  inline device() : internal::device_base() {}
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   virtual ~device() = default;

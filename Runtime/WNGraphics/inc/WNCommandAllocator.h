@@ -21,7 +21,7 @@ class command_allocator final : public core::non_copyable {
 public:
   command_allocator() = delete;
 
-  WN_FORCE_INLINE command_allocator(command_allocator&& _other)
+  inline command_allocator(command_allocator&& _other)
     : m_device(_other.m_device) {
     _other.m_device = nullptr;
 
@@ -29,33 +29,32 @@ public:
     memory::memzero(&_other.m_data, sizeof(opaque_data));
   }
 
-  WN_FORCE_INLINE ~command_allocator() {
+  inline ~command_allocator() {
     if (m_device) {
       m_device->destroy_command_allocator(this);
     }
   }
 
-  WN_FORCE_INLINE bool is_valid() const {
+  inline bool is_valid() const {
     return (m_device != nullptr);
   }
 
   // TODO(awoloszyn): Allow secondary command buffers.
-  WN_FORCE_INLINE command_list_ptr create_command_list() {
+  inline command_list_ptr create_command_list() {
     return m_device->create_command_list(this);
   }
 
-  WN_FORCE_INLINE void reset() {
+  inline void reset() {
     return m_device->reset_command_allocator(this);
   }
 
 protected:
   WN_GRAPHICS_ADD_FRIENDS(device)
 
-  WN_FORCE_INLINE command_allocator(device* _device)
-    : m_data({0}), m_device(_device) {}
+  inline command_allocator(device* _device) : m_data({0}), m_device(_device) {}
 
   template <typename T>
-  WN_FORCE_INLINE T& data_as() {
+  inline T& data_as() {
     static_assert(sizeof(opaque_data) >= sizeof(T),
         "invalid cast, target type size does not match opaque data size");
 
@@ -63,7 +62,7 @@ protected:
   }
 
   template <typename T>
-  WN_FORCE_INLINE const T& data_as() const {
+  inline const T& data_as() const {
     static_assert(sizeof(opaque_data) >= sizeof(T),
         "invalid cast, target type size does not match opaque data size");
 

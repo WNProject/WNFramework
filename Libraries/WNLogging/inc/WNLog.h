@@ -50,7 +50,7 @@ public:
 LOGGER_ENCODING_HELPER(ptr, "0x%p");
 template <typename T, typename BuffType>
 struct log_type_helper {
-  WN_FORCE_INLINE static bool do_log(
+  inline static bool do_log(
       const T& _0, BuffType* _buffer, size_t& _buffer_left) {
     int printed = wn::memory::snprintf(
         _buffer, _buffer_left, _encptr<BuffType>::get_val(), _0);
@@ -63,8 +63,7 @@ struct log_type_helper {
 };
 
 template <typename T, typename BuffType>
-WN_FORCE_INLINE bool log_type(
-    const T& _0, BuffType* _buffer, size_t& _buffer_left) {
+inline bool log_type(const T& _0, BuffType* _buffer, size_t& _buffer_left) {
   return (log_type_helper<T, BuffType>::do_log(_0, _buffer, _buffer_left));
 }
 
@@ -86,64 +85,64 @@ public:
   ~log_impl() {
     flush();
   }
-  WN_FORCE_INLINE void set_log_level(log_level _level) {
+  inline void set_log_level(log_level _level) {
     m_current_log_level = _level;
   }
-  WN_FORCE_INLINE void flush();
-  WN_FORCE_INLINE void flush_external(const char* _buffer, size_t _buffer_size,
+  inline void flush();
+  inline void flush_external(const char* _buffer, size_t _buffer_size,
       const color_element* _colors, size_t _num_colors);
 
   template <typename... Args>
-  WN_FORCE_INLINE void log_params(log_level, size_t, const Args&... args);
+  inline void log_params(log_level, size_t, const Args&... args);
 
   template <typename... Args>
-  WN_FORCE_INLINE void log_critical_flags(size_t size, const Args&... args) {
+  inline void log_critical_flags(size_t size, const Args&... args) {
     log_params(log_level::critical, size, args...);
     flush();
   }
   template <typename... Args>
-  WN_FORCE_INLINE void log_error_flags(size_t size, const Args&... args) {
+  inline void log_error_flags(size_t size, const Args&... args) {
     log_params(log_level::error, size, args...);
   }
   template <typename... Args>
-  WN_FORCE_INLINE void log_warning_flags(size_t size, const Args&... args) {
+  inline void log_warning_flags(size_t size, const Args&... args) {
     log_params(log_level::warning, size, args...);
   }
   template <typename... Args>
-  WN_FORCE_INLINE void log_issue_flags(size_t size, const Args&... args) {
+  inline void log_issue_flags(size_t size, const Args&... args) {
     log_params(log_level::issue, size, args...);
   }
   template <typename... Args>
-  WN_FORCE_INLINE void log_info_flags(size_t size, const Args&... args) {
+  inline void log_info_flags(size_t size, const Args&... args) {
     log_params(log_level::info, size, args...);
   }
   template <typename... Args>
-  WN_FORCE_INLINE void log_debug_flags(size_t size, const Args&... args) {
+  inline void log_debug_flags(size_t size, const Args&... args) {
     log_params(log_level::debug, size, args...);
   }
 
   template <typename... Args>
-  WN_FORCE_INLINE void log_critical(const Args&... args) {
+  inline void log_critical(const Args&... args) {
     log_critical_flags(0, args...);
   }
   template <typename... Args>
-  WN_FORCE_INLINE void log_error(const Args&... args) {
+  inline void log_error(const Args&... args) {
     log_error_flags(0, args...);
   }
   template <typename... Args>
-  WN_FORCE_INLINE void log_warning(const Args&... args) {
+  inline void log_warning(const Args&... args) {
     log_warning_flags(0, args...);
   }
   template <typename... Args>
-  WN_FORCE_INLINE void log_issue(const Args&... args) {
+  inline void log_issue(const Args&... args) {
     log_issue_flags(0, args...);
   }
   template <typename... Args>
-  WN_FORCE_INLINE void log_info(const Args&... args) {
+  inline void log_info(const Args&... args) {
     log_info_flags(0, args...);
   }
   template <typename... Args>
-  WN_FORCE_INLINE void log_debug(const Args&... args) {
+  inline void log_debug(const Args&... args) {
     log_debug_flags(0, args...);
   }
 
@@ -157,11 +156,11 @@ public:
 
 private:
   log_impl& operator=(const log_impl& _other) = delete;
-  WN_FORCE_INLINE void log_header(log_level);
-  WN_FORCE_INLINE void log_newline();
-  WN_FORCE_INLINE void append_color(log_level, char*);
+  inline void log_header(log_level);
+  inline void log_newline();
+  inline void append_color(log_level, char*);
   template <typename T0>
-  WN_FORCE_INLINE void log_param(const T0& _val);
+  inline void log_param(const T0& _val);
 
   logger* m_logger;
   char* m_log_buffer;
@@ -174,7 +173,7 @@ private:
 };
 using log = log_impl<>;
 
-WN_FORCE_INLINE log* get_null_logger() {
+inline log* get_null_logger() {
   static log m_null_logger(
       nullptr, 0, nullptr, nullptr, log_level::none, false);
   return &m_null_logger;

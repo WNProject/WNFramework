@@ -27,49 +27,47 @@ private:
   using base = internal::vector_base<wn::math::vector, T, Dimension, Precise>;
 
 public:
-  WN_FORCE_INLINE vector() : base() {}
+  inline vector() : base() {}
 
-  WN_FORCE_INLINE vector(vector&& _vector) : base(core::move(_vector)) {}
+  inline vector(vector&& _vector) : base(core::move(_vector)) {}
 
-  WN_FORCE_INLINE vector(const vector& _vector) : base(_vector) {}
+  inline vector(const vector& _vector) : base(_vector) {}
 
-  WN_FORCE_INLINE explicit vector(const T& _value) : base(_value) {}
+  inline explicit vector(const T& _value) : base(_value) {}
 
-  WN_FORCE_INLINE explicit vector(const T (&_values)[Dimension])
-    : base(_values) {}
+  inline explicit vector(const T (&_values)[Dimension]) : base(_values) {}
 
   template <typename Itr>
-  WN_FORCE_INLINE vector(Itr _begin, Itr _end) : base(_begin, _end) {}
+  inline vector(Itr _begin, Itr _end) : base(_begin, _end) {}
 
-  WN_FORCE_INLINE vector(std::initializer_list<T> _initializer_list)
+  inline vector(std::initializer_list<T> _initializer_list)
     : vector(_initializer_list.begin(), _initializer_list.end()) {}
 
-  WN_FORCE_INLINE vector& operator=(vector&& _vector) {
+  inline vector& operator=(vector&& _vector) {
     assign(core::move(_vector));
 
     return *this;
   }
 
-  WN_FORCE_INLINE vector& operator=(const vector& _vector) {
+  inline vector& operator=(const vector& _vector) {
     assign(_vector);
 
     return *this;
   }
 
-  WN_FORCE_INLINE vector& operator=(const T& _value) {
+  inline vector& operator=(const T& _value) {
     base::assign(_value);
 
     return *this;
   }
 
-  WN_FORCE_INLINE vector& operator=(const T (&_values)[Dimension]) {
+  inline vector& operator=(const T (&_values)[Dimension]) {
     base::assign(_values);
 
     return *this;
   }
 
-  WN_FORCE_INLINE vector& operator=(
-      std::initializer_list<T> _initializer_list) {
+  inline vector& operator=(std::initializer_list<T> _initializer_list) {
     vector(_initializer_list).swap(*this);
 
     return *this;
@@ -77,49 +75,49 @@ public:
 
   using base::assign;
 
-  WN_FORCE_INLINE void assign(vector&& _vector) {
+  inline void assign(vector&& _vector) {
     vector(core::move(_vector)).swap(*this);
   }
 
-  WN_FORCE_INLINE void assign(const vector& _vector) {
+  inline void assign(const vector& _vector) {
     vector(_vector).swap(*this);
   }
 
-  WN_FORCE_INLINE vector operator+() const {
+  inline vector operator+() const {
     return *this;
   }
 
-  WN_FORCE_INLINE vector& operator*=(const T& _value) {
+  inline vector& operator*=(const T& _value) {
     base::multiply_assign(_value);
 
     return *this;
   }
 
-  WN_FORCE_INLINE vector operator*(const T& _value) const {
+  inline vector operator*(const T& _value) const {
     return base::multiply(_value);
   }
 
-  WN_FORCE_INLINE vector& operator/=(const T& _value) {
+  inline vector& operator/=(const T& _value) {
     base::divide_assign(_value);
 
     return *this;
   }
 
-  WN_FORCE_INLINE vector operator/(const T& _value) const {
+  inline vector operator/(const T& _value) const {
     return base::divide(_value);
   }
 
-  WN_FORCE_INLINE void scale(const T& _value) {
+  inline void scale(const T& _value) {
     *this *= _value;
   }
 
-  WN_FORCE_INLINE vector scaled(const T& _value) {
+  inline vector scaled(const T& _value) {
     return (*this * _value);
   }
 };
 
 template <typename T, size_t Dimension, bool Precise>
-WN_FORCE_INLINE vector<T, Dimension, Precise> operator*(
+inline vector<T, Dimension, Precise> operator*(
     const T& _lhs, vector<T, Dimension, Precise>&& _rhs) {
   _rhs *= _lhs;
 
@@ -127,13 +125,13 @@ WN_FORCE_INLINE vector<T, Dimension, Precise> operator*(
 }
 
 template <typename T, size_t Dimension, bool Precise>
-WN_FORCE_INLINE vector<T, Dimension, Precise> operator*(
+inline vector<T, Dimension, Precise> operator*(
     const T& _lhs, const vector<T, Dimension, Precise>& _rhs) {
   return (_rhs * _lhs);
 }
 
 template <typename T, size_t Dimension, bool Precise>
-WN_FORCE_INLINE vector<T, Dimension, Precise> operator/(
+inline vector<T, Dimension, Precise> operator/(
     const T& _lhs, const vector<T, Dimension, Precise>& _rhs) {
   return (vector<T, Dimension, Precise>(_lhs) /= _rhs);
 }

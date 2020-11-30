@@ -58,7 +58,7 @@ public:
   void enqueue_command_list(
       command_list* _command_list) WN_GRAPHICS_OVERRIDE_FINAL;
 
-  WN_FORCE_INLINE bool is_valid() const WN_GRAPHICS_OVERRIDE_FINAL {
+  inline bool is_valid() const WN_GRAPHICS_OVERRIDE_FINAL {
     return (m_device != nullptr);
   }
 
@@ -85,10 +85,9 @@ protected:
   template <typename T>
   typename data_type<const T>::value& get_data(const T* const t);
 
-  WN_FORCE_INLINE d3d12_queue() : d3d12_queue_base(), m_device(nullptr) {}
+  inline d3d12_queue() : d3d12_queue_base(), m_device(nullptr) {}
 
-  WN_FORCE_INLINE void initialize(d3d12_device* _device,
-      memory::allocator* _allocator,
+  inline void initialize(d3d12_device* _device, memory::allocator* _allocator,
       Microsoft::WRL::ComPtr<ID3D12CommandQueue>&& _queue) {
     m_device = _device;
     m_allocator = _allocator;

@@ -48,8 +48,8 @@ public:
           _files);
 
 protected:
-  WN_FORCE_INLINE mapping(memory::allocator* _allocator,
-      containers::string&& _path, const bool _cleanup = false)
+  inline mapping(memory::allocator* _allocator, containers::string&& _path,
+      const bool _cleanup = false)
     : m_root_path(core::move(_path)),
       m_allocator(_allocator),
       m_cleanup(_cleanup) {}

@@ -13,7 +13,7 @@ namespace wn {
 namespace file_system {
 namespace internal {
 
-WN_FORCE_INLINE bool convert_to_unicode(
+inline bool convert_to_unicode(
     const containers::string_view _path, WCHAR* _buffer, DWORD& _buffer_size) {
   const int path_size = static_cast<int>(_buffer_size);
   const int converted_path_size = ::MultiByteToWideChar(CP_UTF8, 0,

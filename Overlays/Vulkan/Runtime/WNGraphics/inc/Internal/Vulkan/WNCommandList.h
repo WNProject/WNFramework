@@ -117,13 +117,13 @@ protected:
   friend class vulkan_device;
   friend class vulkan_queue;
 
-  WN_FORCE_INLINE vulkan_command_list()
+  inline vulkan_command_list()
     : vulkan_command_list_base(),
       m_command_buffer(VK_NULL_HANDLE),
       m_command_pool(VK_NULL_HANDLE),
       m_context(nullptr) {}
 
-  WN_FORCE_INLINE void initialize(memory::allocator* _allocator,
+  inline void initialize(memory::allocator* _allocator,
       VkCommandBuffer _command_buffer, VkCommandPool _command_pool,
       command_list_context* _context) {
     m_command_buffer = _command_buffer;
