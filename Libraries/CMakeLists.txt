@@ -44,7 +44,7 @@ macro(wn_create_executable_tests_from_list)
 endmacro()
 
 wn_add_subdirectory(WNContainers)
-wn_add_subdirectory(WNCore)
+wn_add_subdirectory(core)
 wn_add_subdirectory(WNFileSystem)
 wn_add_subdirectory(WNFunctional)
 wn_add_subdirectory(WNLogging)

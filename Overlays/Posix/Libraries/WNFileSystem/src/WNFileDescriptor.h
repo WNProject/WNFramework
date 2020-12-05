@@ -7,7 +7,7 @@
 #ifndef __WN_FILE_SYSTEM_POSIX_FILE_DESCRIPTOR_H__
 #define __WN_FILE_SYSTEM_POSIX_FILE_DESCRIPTOR_H__
 
-#include "WNCore/inc/assert.h"
+#include "core/inc/assert.h"
 
 #include <unistd.h>
 

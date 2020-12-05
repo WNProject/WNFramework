@@ -7,8 +7,8 @@
 #ifndef __WN_MULTI_TASKING_SEMAPHORE_H__
 #define __WN_MULTI_TASKING_SEMAPHORE_H__
 
-#include "WNCore/inc/assert.h"
 #include "WNMultiTasking/inc/internal/semaphore_base.h"
+#include "core/inc/assert.h"
 
 namespace wn {
 namespace multi_tasking {

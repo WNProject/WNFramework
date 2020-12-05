@@ -7,7 +7,7 @@
 #ifndef __WN_RUNTIME_GRAPHICS_ARENA_PROPERTIES_H__
 #define __WN_RUNTIME_GRAPHICS_ARENA_PROPERTIES_H__
 
-#include "WNCore/inc/base.h"
+#include "core/inc/base.h"
 
 namespace wn {
 namespace runtime {

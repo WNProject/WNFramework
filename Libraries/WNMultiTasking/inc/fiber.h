@@ -7,9 +7,9 @@
 #ifndef __WN_MULTI_TASKING_FIBER_H__
 #define __WN_MULTI_TASKING_FIBER_H__
 
-#include "WNCore/inc/utilities.h"
 #include "WNFunctional/inc/WNFunction.h"
 #include "WNMemory/inc/unique_ptr.h"
+#include "core/inc/utilities.h"
 
 #include <functional>
 

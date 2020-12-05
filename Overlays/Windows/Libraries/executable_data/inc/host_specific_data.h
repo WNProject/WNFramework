@@ -7,7 +7,7 @@
 #ifndef __WN_EXECUTABLE_DATA_WINDOWS_HOST_SPECIFIC_DATA_H__
 #define __WN_EXECUTABLE_DATA_WINDOWS_HOST_SPECIFIC_DATA_H__
 
-#include "WNCore/inc/base.h"
+#include "core/inc/base.h"
 
 namespace wn {
 namespace executable {

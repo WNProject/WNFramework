@@ -8,12 +8,12 @@
 #define __WN_MULTI_TASKING_THREAD_POOL_H__
 
 #include "WNContainers/inc/WNDynamicArray.h"
-#include "WNCore/inc/utilities.h"
 #include "WNMemory/inc/intrusive_ptr.h"
 #include "WNMultiTasking/inc/semaphore.h"
 #include "WNMultiTasking/inc/spin_lock.h"
 #include "WNMultiTasking/inc/thread.h"
 #include "WNMultiTasking/inc/thread_task.h"
+#include "core/inc/utilities.h"
 
 #ifndef _WN_WINDOWS
 #include "WNContainers/inc/WNDeque.h"
@@ -25,7 +25,7 @@ namespace multi_tasking {
 class thread_pool final : public core::non_copyable {
 public:
   enum class result {
-#include "WNCore/inc/internal/errors.inc"
+#include "core/inc/internal/errors.inc"
   };
 
   typedef result result_type;

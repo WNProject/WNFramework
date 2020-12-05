@@ -7,7 +7,7 @@
 #ifndef __WN_MULTI_TASKING_INTERNAL_MUTEX_BASE_H__
 #define __WN_MULTI_TASKING_INTERNAL_MUTEX_BASE_H__
 
-#include "WNCore/inc/WNUtility.h"
+#include "core/inc/WNUtility.h"
 
 #include <mutex>
 

@@ -7,7 +7,7 @@
 #ifndef __WN_RUNTIME_GRAPHICS_ADAPTER_FEATURES_H__
 #define __WN_RUNTIME_GRAPHICS_ADAPTER_FEATURES_H__
 
-#include "WNCore/inc/types.h"
+#include "core/inc/types.h"
 
 namespace wn {
 namespace runtime {

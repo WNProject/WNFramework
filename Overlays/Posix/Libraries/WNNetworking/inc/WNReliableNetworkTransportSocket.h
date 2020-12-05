@@ -7,9 +7,9 @@
 #ifndef __WN_NEWORKING_RELIABLE_CONNECTION_COMM_SOCKET_H__
 #define __WN_NEWORKING_RELIABLE_CONNECTION_COMM_SOCKET_H__
 
-#include "WNCore/inc/base.h"
 #include "WNNetworking/inc/WNNetworkManager.h"
 #include "WNNetworking/inc/WNReliableConnection.h"
+#include "core/inc/base.h"
 
 #include <sys/socket.h>
 #include <unistd.h>

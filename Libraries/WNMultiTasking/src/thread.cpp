@@ -4,11 +4,11 @@
 
 #include "WNMultiTasking/inc/thread.h"
 
-#include "WNCore/inc/assert.h"
-#include "WNCore/inc/utilities.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/intrusive_ptr.h"
 #include "WNMultiTasking/inc/semaphore.h"
+#include "core/inc/assert.h"
+#include "core/inc/utilities.h"
 
 namespace wn {
 namespace multi_tasking {

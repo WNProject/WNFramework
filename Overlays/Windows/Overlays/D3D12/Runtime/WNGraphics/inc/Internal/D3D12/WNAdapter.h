@@ -20,7 +20,7 @@
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNAdapter.h"
 #else
-#include "WNCore/inc/utilities.h"
+#include "core/inc/utilities.h"
 #endif
 
 #include <DXGI1_4.h>

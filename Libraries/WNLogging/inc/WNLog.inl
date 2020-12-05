@@ -4,9 +4,9 @@
 
 #ifndef __WN_LOGGING_LOG_INL__
 #define __WN_LOGGING_LOG_INL__
-#include "WNCore/inc/assert.h"
-#include "WNCore/inc/types.h"
 #include "WNLogging/inc/WNLog.h"
+#include "core/inc/assert.h"
+#include "core/inc/types.h"
 
 namespace wn {
 namespace logging {

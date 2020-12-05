@@ -6,10 +6,10 @@
 #define WN_APPLICATIONS_DEMOS_VCT_TEXTURE_HEADER_H__
 
 #include "WNContainers/inc/WNStringView.h"
-#include "WNCore/inc/endian.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNMemory/inc/allocator.h"
+#include "core/inc/endian.h"
 
 const uint32_t k_astc_format = 1;
 const uint32_t k_bc1_format = 2;

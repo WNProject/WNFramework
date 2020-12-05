@@ -9,8 +9,8 @@
 
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
-#include "WNCore/inc/optional.h"
 #include "WNLogging/inc/WNLog.h"
+#include "core/inc/optional.h"
 
 namespace wn {
 namespace file_system {

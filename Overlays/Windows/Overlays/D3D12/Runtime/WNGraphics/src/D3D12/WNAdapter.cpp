@@ -4,10 +4,10 @@
 
 #include "WNGraphics/inc/Internal/D3D12/WNAdapter.h"
 
-#include "WNCore/inc/utilities.h"
 #include "WNGraphics/inc/WNSurface.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNWindow/inc/WNWindowsWindow.h"
+#include "core/inc/utilities.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/Internal/D3D12/WNDevice.h"

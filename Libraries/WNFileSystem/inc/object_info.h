@@ -7,7 +7,7 @@
 #ifndef __WN_FILE_SYSTEM_INFO_H__
 #define __WN_FILE_SYSTEM_INFO_H__
 
-#include "WNCore/inc/types.h"
+#include "core/inc/types.h"
 
 namespace wn {
 namespace file_system {

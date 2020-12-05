@@ -8,15 +8,15 @@
 #define __WN_RUNTIME_PLATFORM_UTILS_SUBPROCESS_H__
 
 #include "WNContainers/inc/WNString.h"
-#include "WNCore/inc/tuple.h"
 #include "WNMemory/inc/allocator.h"
+#include "core/inc/tuple.h"
 
 namespace wn {
 namespace runtime {
 namespace platform_utils {
 
 enum class subprocess_error {
-#include "WNCore/inc/internal/errors.inc"
+#include "core/inc/internal/errors.inc"
   cannot_create_pipe,
   cannot_create_process,
   process_exited_uncleanly

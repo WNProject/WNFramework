@@ -7,7 +7,7 @@
 #ifndef __WN_CONTAINERS_DATA_BUFFER_H__
 #define __WN_CONTAINERS_DATA_BUFFER_H__
 
-#include "WNCore/inc/types.h"
+#include "core/inc/types.h"
 
 namespace wn {
 namespace containers {

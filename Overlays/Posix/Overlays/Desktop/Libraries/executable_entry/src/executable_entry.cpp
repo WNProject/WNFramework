@@ -4,8 +4,8 @@
 
 #include "executable_entry/inc/executable_entry.h"
 
-#include "WNCore/inc/types.h"
 #include "WNUtilities/inc/WNCrashHandler.h"
+#include "core/inc/types.h"
 #include "executable_data/inc/executable_data.h"
 #include "executable_data/inc/host_specific_data.h"
 

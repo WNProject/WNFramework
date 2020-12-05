@@ -10,7 +10,6 @@
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
-#include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanSurfaceHelper.h"
@@ -21,11 +20,12 @@
 #include "WNMemory/inc/intrusive_ptr.h"
 #include "WNMemory/inc/unique_ptr.h"
 #include "WNWindow/inc/WNWindow.h"
+#include "core/inc/pair.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNAdapter.h"
 #else
-#include "WNCore/inc/utilities.h"
+#include "core/inc/utilities.h"
 #endif
 
 namespace wn {

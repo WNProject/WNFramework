@@ -5,8 +5,8 @@
 #ifndef __WN_LOGGING_LOG_ENUMS_H__
 #define __WN_LOGGING_LOG_ENUMS_H__
 
-#include "WNCore/inc/base.h"
 #include "WNLogging/inc/WNLog.h"
+#include "core/inc/base.h"
 
 #include <vector>
 

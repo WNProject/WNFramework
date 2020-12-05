@@ -7,8 +7,8 @@
 #ifndef __WN_CONTAINERS_SERIALIZER_BASE_H__
 #define __WN_CONTAINERS_SERIALIZER_BASE_H__
 
-#include "WNCore/inc/types.h"
-#include "WNCore/inc/utilities.h"
+#include "core/inc/types.h"
+#include "core/inc/utilities.h"
 
 namespace wn {
 namespace containers {

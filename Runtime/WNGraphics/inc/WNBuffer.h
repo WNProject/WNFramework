@@ -7,10 +7,10 @@
 #ifndef __WN_RUNTIME_GRAPHICS_BUFFER_H__
 #define __WN_RUNTIME_GRAPHICS_BUFFER_H__
 
-#include "WNCore/inc/types.h"
 #include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNGraphicsObjectBase.h"
 #include "WNMemory/inc/string_utility.h"
+#include "core/inc/types.h"
 
 WN_GRAPHICS_FORWARD(device);
 WN_GRAPHICS_FORWARD(command_list);

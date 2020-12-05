@@ -8,11 +8,11 @@
 #define __WN_FILE_SYSTEM_MAPPING_H__
 
 #include "WNContainers/inc/WNStringView.h"
-#include "WNCore/inc/pair.h"
-#include "WNCore/inc/utilities.h"
 #include "WNFileSystem/inc/WNFile.h"
 #include "WNFileSystem/inc/WNResult.h"
 #include "WNMemory/inc/unique_ptr.h"
+#include "core/inc/pair.h"
+#include "core/inc/utilities.h"
 
 namespace wn {
 namespace file_system {

@@ -5,7 +5,7 @@
 #ifndef __WN_SCRIPTING_SOURCE_LOCATION_H__
 #define __WN_SCRIPTING_SOURCE_LOCATION_H__
 
-#include "WNCore/inc/types.h"
+#include "core/inc/types.h"
 
 namespace wn {
 namespace scripting {

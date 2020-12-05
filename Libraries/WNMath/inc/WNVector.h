@@ -7,8 +7,8 @@
 #ifndef __WN_MATH_VECTOR_H__
 #define __WN_MATH_VECTOR_H__
 
-#include "WNCore/inc/type_traits.h"
 #include "WNMath/inc/Internal/WNVectorBase.h"
+#include "core/inc/type_traits.h"
 
 namespace wn {
 namespace math {

@@ -7,9 +7,9 @@
 #ifndef __WN_GRAPHICS_GRAPHICS_ENUMS_H__
 #define __WN_GRAPHICS_GRAPHICS_ENUMS_H__
 
-#include "WNCore/inc/assert.h"
-#include "WNCore/inc/base.h"
-#include "WNCore/inc/types.h"
+#include "core/inc/assert.h"
+#include "core/inc/base.h"
+#include "core/inc/types.h"
 
 #define ADD_BITFIELD_OPS(bitfield)                                             \
   using bitfield##s = uint32_t;                                                \

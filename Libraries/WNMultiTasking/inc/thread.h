@@ -7,11 +7,11 @@
 #ifndef __WN_MULTI_TASKING_THREAD_H__
 #define __WN_MULTI_TASKING_THREAD_H__
 
-#include "WNCore/inc/assert.h"
-#include "WNCore/inc/type_traits.h"
-#include "WNCore/inc/utilities.h"
 #include "WNFunctional/inc/WNFunction.h"
 #include "WNMultiTasking/inc/internal/thread_base.h"
+#include "core/inc/assert.h"
+#include "core/inc/type_traits.h"
+#include "core/inc/utilities.h"
 
 #include <chrono>
 #include <functional>

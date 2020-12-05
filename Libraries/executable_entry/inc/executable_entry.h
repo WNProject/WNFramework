@@ -7,7 +7,7 @@
 #ifndef __WN_EXECUTABLE_ENTRY_EXECUTABLE_ENTRY_H__
 #define __WN_EXECUTABLE_ENTRY_EXECUTABLE_ENTRY_H__
 
-#include "WNCore/inc/base.h"
+#include "core/inc/base.h"
 
 namespace wn {
 namespace executable {

@@ -7,10 +7,10 @@
 #ifndef __WN_MATH_BASIC_H__
 #define __WN_MATH_BASIC_H__
 
-#include "WNCore/inc/type_traits.h"
-#include "WNCore/inc/types.h"
 #include "WNMath/inc/Internal/WNBasicTraits.h"
 #include "WNMath/inc/WNConstants.h"
+#include "core/inc/type_traits.h"
+#include "core/inc/types.h"
 
 namespace wn {
 namespace math {

@@ -7,8 +7,8 @@
 #ifndef __WN_MEMORY_MANIPULATION_H__
 #define __WN_MEMORY_MANIPULATION_H__
 
-#include "WNCore/inc/type_traits.h"
-#include "WNCore/inc/types.h"
+#include "core/inc/type_traits.h"
+#include "core/inc/types.h"
 
 #include <cstring>
 

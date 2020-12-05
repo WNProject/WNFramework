@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include "WNCore/inc/base.h"
 #include "WNLogging/inc/WNLog.h"
+#include "core/inc/base.h"
 
 namespace wn {
 namespace logging {

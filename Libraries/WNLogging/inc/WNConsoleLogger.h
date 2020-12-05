@@ -5,8 +5,8 @@
 #ifndef __WN_LOGGING_CONSOLE_LOGGER_H__
 #define __WN_LOGGING_CONSOLE_LOGGER_H__
 
-#include "WNCore/inc/base.h"
 #include "WNLogging/inc/WNLog.h"
+#include "core/inc/base.h"
 
 namespace wn {
 namespace logging {

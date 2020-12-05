@@ -8,10 +8,10 @@
 #define __WN_ENGINE_UI_RESOURCES_H__
 
 #include "Rocket/Core.h"
-#include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNMemory/inc/unique_ptr.h"
+#include "core/inc/pair.h"
 #include "renderer/inc/gpu_heap.h"
 #include "renderer/inc/render_context.h"
 #include "renderer/inc/texture.h"

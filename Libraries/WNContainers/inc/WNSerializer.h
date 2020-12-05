@@ -9,11 +9,11 @@
 
 #include "WNContainers/inc/WNDataBuffer.h"
 #include "WNContainers/inc/WNSerializerBase.h"
-#include "WNCore/inc/assert.h"
-#include "WNCore/inc/endian.h"
-#include "WNCore/inc/types.h"
 #include "WNMemory/inc/WNBasic.h"
 #include "WNMemory/inc/string_utility.h"
+#include "core/inc/assert.h"
+#include "core/inc/endian.h"
+#include "core/inc/types.h"
 
 namespace wn {
 namespace containers {
