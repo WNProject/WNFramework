@@ -1,4 +1,4 @@
-// Copyright (c) 2018, WNProject Authors. All rights reserved.
+// Copyright (c) 2020, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
@@ -25,27 +25,5 @@
 // calling conventions
 #define WN_CDECL_BEGIN ${WN_CDECL_BEGIN}
 #define WN_CDECL_END ${WN_CDECL_END}
-
-// stl features
-#cmakedefine _WN_HAS_CPP11_STD_IS_TRIVIALLY_COPYABLE
-#cmakedefine _WN_HAS_CPP11_STD_IS_TRIVIALLY_CONSTRUCTIBLE
-#cmakedefine _WN_HAS_CPP11_STD_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE
-#cmakedefine _WN_HAS_CPP11_STD_IS_TRIVIALLY_COPY_CONSTRUCTIBLE
-#cmakedefine _WN_HAS_CPP11_STD_IS_TRIVIALLY_MOVE_CONSTRUCTIBLE
-#cmakedefine _WN_HAS_CPP11_STD_IS_TRIVIALLY_ASSIGNABLE
-#cmakedefine _WN_HAS_CPP11_STD_IS_TRIVIALLY_COPY_ASSIGNABLE
-#cmakedefine _WN_HAS_CPP11_STD_IS_TRIVIALLY_MOVE_ASSIGNABLE
-#cmakedefine _WN_HAS_CPP11_STD_IS_TRIVIALLY_DESTRUCTIBLE
-#cmakedefine _WN_HAS_CPP11_STD_ALIGNED_UNION
-#cmakedefine _WN_HAS_CPP14_STD_DECAY_T
-#cmakedefine _WN_HAS_CPP14_STD_ENABLE_IF_T
-#cmakedefine _WN_HAS_CPP14_STD_CONDITIONAL_T
-#cmakedefine _WN_HAS_CPP14_STD_COMMON_TYPE_T
-#cmakedefine _WN_HAS_CPP14_STD_RESULT_OF_T
-#cmakedefine _WN_HAS_CPP14_STD_INTEGER_SEQUENCE
-#cmakedefine _WN_HAS_CPP14_STD_IS_NULL_POINTER
-#cmakedefine _WN_HAS_CPP14_STD_EQUAL
-#cmakedefine _WN_HAS_CPP14_STD_EQUAL_VARIANT
-#cmakedefine _WN_HAS_CPP17_STD_BOOL_CONSTANT
 
 #endif  // __WN_CORE_INTERNAL_CONFIG_H__

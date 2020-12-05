@@ -1,7 +1,7 @@
 wn_create_executable_tests_from_list(
-  TEST_PREFIX WNCore
+  TEST_PREFIX core
   SOURCE_DIR src
   SOURCES
     utilities
-    WNTypeTraits
-  )
+    type_traits
+)
