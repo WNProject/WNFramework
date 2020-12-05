@@ -23,7 +23,7 @@ private:
   using base = base_object<2>;
 
 public:
-  WN_FORCE_INLINE arena(arena&& _other)
+  inline arena(arena&& _other)
     : m_device(core::move(_other.m_device)), m_size(core::move(_other.m_size)) {
     _other.m_device = nullptr;
     _other.m_size = 0;
@@ -32,27 +32,26 @@ public:
     memory::memory_zero(&_other.m_data);
   }
 
-  WN_FORCE_INLINE ~arena() {
+  inline ~arena() {
     if (is_valid()) {
       m_device->destroy_arena(this);
     }
   }
 
-  WN_FORCE_INLINE bool is_valid() const {
+  inline bool is_valid() const {
     return (m_device != nullptr && size() != 0);
   }
 
-  WN_FORCE_INLINE uint64_t size() const {
+  inline uint64_t size() const {
     return m_size;
   }
 
 private:
   WN_GRAPHICS_ADD_FRIENDS(device);
 
-  WN_FORCE_INLINE arena() : base(), m_device(nullptr), m_size(0) {}
+  inline arena() : base(), m_device(nullptr), m_size(0) {}
 
-  WN_FORCE_INLINE arena(device* _device)
-    : base(), m_device(_device), m_size(0) {}
+  inline arena(device* _device) : base(), m_device(_device), m_size(0) {}
 
   device* m_device;
   uint64_t m_size;

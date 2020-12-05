@@ -74,27 +74,27 @@ struct routed_message {
       m_buffer(core::move(_other.m_buffer)),
       m_status(_other.m_status) {}
 
-  WN_FORCE_INLINE uint16_t id() const {
+  inline uint16_t id() const {
     return m_message_data & 0x3FFF;
   }
 
-  WN_FORCE_INLINE uint64_t offset() const {
+  inline uint64_t offset() const {
     return m_message_offset;
   }
 
-  WN_FORCE_INLINE message_type type() const {
+  inline message_type type() const {
     return static_cast<message_type>((m_message_data >> 14) & 0x3);
   }
 
-  WN_FORCE_INLINE uint32_t multipart_id() const {
+  inline uint32_t multipart_id() const {
     return m_multipart_id;
   }
 
-  WN_FORCE_INLINE route get_route() const {
+  inline route get_route() const {
     return m_route;
   }
 
-  WN_FORCE_INLINE const containers::contiguous_range<char>& data() {
+  inline const containers::contiguous_range<char>& data() {
     return m_data;
   }
 

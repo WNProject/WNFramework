@@ -46,72 +46,69 @@ private:
       internal::matrix_base<wn::math::matrix, T, Rows, Columns, Precise>;
 
 public:
-  WN_FORCE_INLINE matrix() : base() {}
+  inline matrix() : base() {}
 
-  WN_FORCE_INLINE matrix(matrix&& _matrix) : base(core::move(_matrix)) {}
+  inline matrix(matrix&& _matrix) : base(core::move(_matrix)) {}
 
-  WN_FORCE_INLINE matrix(const matrix& _matrix) : base(_matrix) {}
+  inline matrix(const matrix& _matrix) : base(_matrix) {}
 
-  WN_FORCE_INLINE explicit matrix(const T& _value) : base(_value) {}
+  inline explicit matrix(const T& _value) : base(_value) {}
 
-  WN_FORCE_INLINE explicit matrix(const T (&_values)[Rows * Columns])
-    : base(_values) {}
+  inline explicit matrix(const T (&_values)[Rows * Columns]) : base(_values) {}
 
-  WN_FORCE_INLINE explicit matrix(const T (&_values)[Columns][Rows])
-    : base(_values) {}
+  inline explicit matrix(const T (&_values)[Columns][Rows]) : base(_values) {}
 
   template <typename Itr>
-  WN_FORCE_INLINE matrix(Itr _begin, Itr _end) : base(_begin, _end) {}
+  inline matrix(Itr _begin, Itr _end) : base(_begin, _end) {}
 
-  WN_FORCE_INLINE matrix(std::initializer_list<T> _initializer_list)
+  inline matrix(std::initializer_list<T> _initializer_list)
     : matrix(_initializer_list.begin(), _initializer_list.end()) {}
 
-  WN_FORCE_INLINE matrix& operator=(matrix&& _matrix) {
+  inline matrix& operator=(matrix&& _matrix) {
     matrix(core::move(_matrix)).swap(*this);
 
     return *this;
   }
 
-  WN_FORCE_INLINE matrix& operator=(const matrix& _matrix) {
+  inline matrix& operator=(const matrix& _matrix) {
     matrix(_matrix).swap(*this);
 
     return *this;
   }
 
-  WN_FORCE_INLINE matrix& operator=(const T& _value) {
+  inline matrix& operator=(const T& _value) {
     matrix(_value).swap(*this);
 
     return *this;
   }
 
-  WN_FORCE_INLINE matrix& operator=(const T (&_values)[Rows * Columns]) {
+  inline matrix& operator=(const T (&_values)[Rows * Columns]) {
     matrix(_values).swap(*this);
 
     return *this;
   }
 
-  WN_FORCE_INLINE matrix& operator=(const T (&_values)[Columns][Rows]) {
+  inline matrix& operator=(const T (&_values)[Columns][Rows]) {
     matrix(_values).swap(*this);
 
     return *this;
   }
 
-  WN_FORCE_INLINE matrix& operator=(
-      std::initializer_list<T> _initializer_list) {
+  inline matrix& operator=(std::initializer_list<T> _initializer_list) {
     matrix(_initializer_list).swap(*this);
 
     return *this;
   }
 
   template <size_t OtherColumns, bool OtherPrecise>
-  WN_FORCE_INLINE matrix<T, Rows, OtherColumns, Precise> operator*(
+  inline matrix<T, Rows, OtherColumns, Precise> operator*(
       const matrix<T, Columns, OtherColumns, OtherPrecise>& _matrix) const {
     return base::multiply(_matrix);
   }
 };
 
 template <typename T, size_t Order, bool Precise>
-WN_FORCE_INLINE matrix<T, Order, Order, Precise>& operator*=(
+inline matrix<T, Order, Order, Precise>& operator*=(
     matrix<T, Order, Order, Precise>& _lhs,
     const matrix<T, Order, Order, Precise>& _rhs) {
   _lhs = _lhs * _rhs;

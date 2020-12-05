@@ -41,15 +41,15 @@ public:
       m_static_viewports(_allocator),
       m_color_attachments(_allocator) {}
 
-  WN_FORCE_INLINE graphics_pipeline_description& set_shader(shader_stage _stage,
+  inline graphics_pipeline_description& set_shader(shader_stage _stage,
       shader_module* _module, const containers::string_view& _entry_point);
 
   // You must add at least one vertex stream
-  WN_FORCE_INLINE graphics_pipeline_description& add_vertex_stream(
+  inline graphics_pipeline_description& add_vertex_stream(
       uint32_t _stream_index, uint32_t _stride, stream_frequency _frequency);
 
   // You must add at least one vertex attribute
-  WN_FORCE_INLINE graphics_pipeline_description& add_vertex_attribute(
+  inline graphics_pipeline_description& add_vertex_attribute(
       uint32_t _stream_index, uint32_t _attribute_index,
       const containers::string_view& _semantic, uint32_t _offset,
       data_format _format);
@@ -57,117 +57,107 @@ public:
   // Sets the index_buffer type for this pipeline, defaults to none.
   // If index_type is none, then this pipeline can not be used for
   // indexed draws.
-  WN_FORCE_INLINE graphics_pipeline_description& set_index_type(
-      index_type _type);
+  inline graphics_pipeline_description& set_index_type(index_type _type);
 
   // This can be set to enable primitive restart
   // when index 0xFFFF or 0xFFFFFFFF are hit respectively.
   // Note this MUST be 0x00 to turn off, 0xFFFF for u16 indices
   // and 0xFFFFFFFF for u32 indices
-  WN_FORCE_INLINE graphics_pipeline_description& set_index_restart(
-      uint32_t _restart);
+  inline graphics_pipeline_description& set_index_restart(uint32_t _restart);
 
   // Topology defaults to triangle_list
-  WN_FORCE_INLINE graphics_pipeline_description& set_topology(
-      topology _topology);
+  inline graphics_pipeline_description& set_topology(topology _topology);
 
   // If topology == patch_list you must set the number of control point.
-  WN_FORCE_INLINE graphics_pipeline_description& set_patch_control_points(
+  inline graphics_pipeline_description& set_patch_control_points(
       uint32_t _num_points);
 
   // Sets the winding of the front-face. Defaults to winding::clockwise.
-  WN_FORCE_INLINE graphics_pipeline_description& set_winding(winding _winding);
+  inline graphics_pipeline_description& set_winding(winding _winding);
 
   // Sets the cull mode for the rasterization. Defaults to cull_mode::back
-  WN_FORCE_INLINE graphics_pipeline_description& set_cull_mode(cull_mode _mode);
+  inline graphics_pipeline_description& set_cull_mode(cull_mode _mode);
 
   // Sets the number of samples for rendering. Defaults to 1 sample
-  WN_FORCE_INLINE graphics_pipeline_description& set_num_samples(
+  inline graphics_pipeline_description& set_num_samples(
       multisample_count _samples = multisample_count::samples_1);
 
   static const uint64_t k_all_samples = 0xFFFFFFFFFFFFFFFF;
   // The minimum number of samples per pixel to shade. If this is not
   // specified the GPU is free to do what it deems most optimal.
-  WN_FORCE_INLINE graphics_pipeline_description& set_min_sample_count(
+  inline graphics_pipeline_description& set_min_sample_count(
       multisample_count _samples = multisample_count::disabled);
 
   // Specifies the sample mask for the pipeline. Defaults to all samples
-  WN_FORCE_INLINE graphics_pipeline_description& set_sample_mask(
-      uint64_t sample_mask);
+  inline graphics_pipeline_description& set_sample_mask(uint64_t sample_mask);
 
   // If you set a static scissor then all scissors are static for this
   // pipeline.
   // It is invalid to call command_list->set_scissor after binding this
   // pipeline and before binding another.
-  WN_FORCE_INLINE graphics_pipeline_description& set_num_scissors(
-      uint32_t count);
+  inline graphics_pipeline_description& set_num_scissors(uint32_t count);
 
-  WN_FORCE_INLINE graphics_pipeline_description& set_static_scissor(
+  inline graphics_pipeline_description& set_static_scissor(
       uint32_t index, const scissor& scissor);
-  WN_FORCE_INLINE graphics_pipeline_description& clear_static_scissor();
+  inline graphics_pipeline_description& clear_static_scissor();
 
   // If you set a static viewport, then all viewports are static for this
   // pipeline. It is invalid to call command_list->set_viewport after
   // binding
   // this pipeline and before binding another.
   // Not all hardware may support an index > 0
-  WN_FORCE_INLINE graphics_pipeline_description& set_num_viewports(
-      uint32_t count);
+  inline graphics_pipeline_description& set_num_viewports(uint32_t count);
 
-  WN_FORCE_INLINE graphics_pipeline_description& set_static_viewport(
+  inline graphics_pipeline_description& set_static_viewport(
       uint32_t index, const viewport& viewport);
-  WN_FORCE_INLINE graphics_pipeline_description& clear_static_viewport();
+  inline graphics_pipeline_description& clear_static_viewport();
 
   // Sets the fill_mode of the polygon. Defaults to fill_mode::fill
   // This may not be supported by all hardware.
-  WN_FORCE_INLINE graphics_pipeline_description& set_fill_mode(
+  inline graphics_pipeline_description& set_fill_mode(
       fill_mode _mode = fill_mode::fill);
 
   // Sets the depth vias of the pipeline. Defaults to 0.
-  WN_FORCE_INLINE graphics_pipeline_description& set_depth_bias(
-      float _bias = 0.f);
+  inline graphics_pipeline_description& set_depth_bias(float _bias = 0.f);
 
   // Sets alpha to coverage. Defaults to false.
-  WN_FORCE_INLINE graphics_pipeline_description& set_alpha_to_coverage(
-      bool _enable);
+  inline graphics_pipeline_description& set_alpha_to_coverage(bool _enable);
 
   // Adds a color output to the pipeline.
   // The defaults are set to the default values of the other
   // set_* functions on color_outputs
   // If a add_color_output has already been set with this _index,
   // this resets the values to their defaults.
-  WN_FORCE_INLINE graphics_pipeline_description& add_color_output(
-      uint32_t _index);
+  inline graphics_pipeline_description& add_color_output(uint32_t _index);
 
   // Enabled blending for the given color output
-  WN_FORCE_INLINE graphics_pipeline_description& enable_blending(
-      uint32_t _index, blend_factor _src_blend = blend_factor::one,
+  inline graphics_pipeline_description& enable_blending(uint32_t _index,
+      blend_factor _src_blend = blend_factor::one,
       blend_factor _dst_blend = blend_factor::zero,
       blend_op _blend_op = blend_op::add,
       blend_factor _src_blend_alpha = blend_factor::one,
       blend_factor _dst_blend_alpha = blend_factor::zero,
       blend_op _blend_op_alpha = blend_op::add);
   // Sets the write mask for the given color output
-  WN_FORCE_INLINE graphics_pipeline_description& set_write_mask(
+  inline graphics_pipeline_description& set_write_mask(
       uint32_t _index, write_components _write_mask = k_all_write_components);
 
   // Sets the logic op for the given color output.
-  WN_FORCE_INLINE graphics_pipeline_description& set_logic_op(
+  inline graphics_pipeline_description& set_logic_op(
       logic_op _logic_op = logic_op::disabled);
   // If blend_factory_constant was set, this sets a static set
   // of blend constants. Otherwise they are dynamic. For all
-  WN_FORCE_INLINE graphics_pipeline_description& set_static_blend_constants(
+  inline graphics_pipeline_description& set_static_blend_constants(
       float _constants[4]);
-  WN_FORCE_INLINE graphics_pipeline_description& clear_static_blend_constants();
+  inline graphics_pipeline_description& clear_static_blend_constants();
 
-  WN_FORCE_INLINE graphics_pipeline_description& set_depth_buffer_enabled(
-      bool _enabled);
+  inline graphics_pipeline_description& set_depth_buffer_enabled(bool _enabled);
 
   // TODO(awoloszyn): Handle depth bounds tests
-  WN_FORCE_INLINE graphics_pipeline_description& set_depth(
+  inline graphics_pipeline_description& set_depth(
       bool _depth_test_enabled = false, bool _depth_write_enabled = false,
       comparison_op _comparison_op = comparison_op::less);
-  WN_FORCE_INLINE graphics_pipeline_description& set_stencil(
+  inline graphics_pipeline_description& set_stencil(
       bool _stencil_enabled = false, uint32_t _read_mask = 0xFFFFFFFF,
       uint32_t _write_mask = 0xFFFFFFFF,
       const stencil_desc& _front_face = stencil_desc(),
@@ -177,9 +167,9 @@ public:
   // it must be set on the command buffer.
   // If this is set, it is invalid to set the stencil dynamically
   // on the command buffer after this pipeline is bound.
-  WN_FORCE_INLINE graphics_pipeline_description& set_static_stencil_ref(
+  inline graphics_pipeline_description& set_static_stencil_ref(
       uint32_t _reference);
-  WN_FORCE_INLINE graphics_pipeline_description& clear_static_stencil_ref();
+  inline graphics_pipeline_description& clear_static_stencil_ref();
 
 private:
   WN_GRAPHICS_ADD_FRIENDS(device);

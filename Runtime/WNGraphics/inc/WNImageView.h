@@ -17,7 +17,7 @@ namespace graphics {
 
 class image_view : public base_object<2> {
 public:
-  WN_FORCE_INLINE image_view(image_view&& _other)
+  inline image_view(image_view&& _other)
     : m_device(_other.m_device), m_components(_other.m_components) {
     _other.m_device = nullptr;
 
@@ -36,7 +36,7 @@ public:
   }
 
   image_view() : m_device(nullptr) {}
-  WN_FORCE_INLINE image_view& operator=(image_view&& _other) {
+  inline image_view& operator=(image_view&& _other) {
     if (m_device) {
       m_device->destroy_image_view(this);
     }
@@ -53,7 +53,7 @@ private:
   WN_GRAPHICS_ADD_FRIENDS(device);
   WN_GRAPHICS_ADD_FRIENDS(command_list);
 
-  WN_FORCE_INLINE image_view(device* _device, image_components _components)
+  inline image_view(device* _device, image_components _components)
     : m_device(_device), m_components(_components) {}
   device* m_device;
   image_components m_components;

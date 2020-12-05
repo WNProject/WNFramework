@@ -174,7 +174,7 @@ public:
     _other.transfer_to(_other.begin(), _other.end(), end(), *this);
   }
 
-  WN_FORCE_INLINE memory::allocator* get_allocator() const {
+  inline memory::allocator* get_allocator() const {
     return m_allocator;
   }
 
@@ -184,52 +184,52 @@ public:
 
   // iterators
 
-  WN_FORCE_INLINE iterator begin() {
+  inline iterator begin() {
     return iterator(m_begin);
   }
 
-  WN_FORCE_INLINE const_iterator begin() const {
+  inline const_iterator begin() const {
     return cbegin();
   }
 
-  WN_FORCE_INLINE const_iterator cbegin() const {
+  inline const_iterator cbegin() const {
     return const_iterator(m_begin);
   }
 
-  WN_FORCE_INLINE iterator end() {
+  inline iterator end() {
     return iterator(reinterpret_cast<list_node*>(&m_dummy_end_node));
   }
 
-  WN_FORCE_INLINE const_iterator end() const {
+  inline const_iterator end() const {
     return cend();
   }
 
-  WN_FORCE_INLINE const_iterator cend() const {
+  inline const_iterator cend() const {
     return const_iterator(const_cast<list_node*>(
         reinterpret_cast<const list_node*>(&m_dummy_end_node)));
   }
 
-  WN_FORCE_INLINE reverse_iterator rbegin() {
+  inline reverse_iterator rbegin() {
     return reverse_iterator(end());
   }
 
-  WN_FORCE_INLINE const_reverse_iterator rbegin() const {
+  inline const_reverse_iterator rbegin() const {
     return crbegin();
   }
 
-  WN_FORCE_INLINE const_reverse_iterator crbegin() const {
+  inline const_reverse_iterator crbegin() const {
     return const_reverse_iterator(cend());
   }
 
-  WN_FORCE_INLINE reverse_iterator rend() {
+  inline reverse_iterator rend() {
     return reverse_iterator(begin());
   }
 
-  WN_FORCE_INLINE const_reverse_iterator rend() const {
+  inline const_reverse_iterator rend() const {
     return crend();
   }
 
-  WN_FORCE_INLINE const_reverse_iterator crend() const {
+  inline const_reverse_iterator crend() const {
     return const_reverse_iterator(cbegin());
   }
 
@@ -343,15 +343,15 @@ public:
     }
   }
 
-  WN_FORCE_INLINE bool empty() const {
+  inline bool empty() const {
     return m_size == 0;
   }
 
-  WN_FORCE_INLINE size_t size() const {
+  inline size_t size() const {
     return m_size;
   }
 
-  WN_FORCE_INLINE void swap(list& _other) {
+  inline void swap(list& _other) {
     if (this != &_other) {
       core::swap(m_allocator, _other.m_allocator);
       core::swap(m_dummy_end_node, _other.m_dummy_end_node);
@@ -360,7 +360,7 @@ public:
     }
   }
 
-  WN_FORCE_INLINE void shrink_to_fit() {}
+  inline void shrink_to_fit() {}
 
 private:
   iterator unlink(iterator _start, iterator _end, size_t count) {

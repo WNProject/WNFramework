@@ -17,11 +17,6 @@
 #define ${_WN_PLATFORM}
 #define _WN_PLATFORM_NAME "${WN_PLATFORM}"
 
-// specifiers
-#define WN_FORCE_INLINE ${WN_FORCE_INLINE}
-#define WN_NO_INLINE ${WN_NO_INLINE}
-#define WN_WEAK_LINK ${WN_WEAK_LINK}
-
 // calling conventions
 #define WN_CDECL_BEGIN ${WN_CDECL_BEGIN}
 #define WN_CDECL_END ${WN_CDECL_END}

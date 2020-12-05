@@ -20,7 +20,7 @@ class intrusive_ptr;
 
 class intrusive_ptr_base : core::non_copyable {
 public:
-  WN_FORCE_INLINE void add_reference() {
+  inline void add_reference() {
     for (;;) {
       size_t count = m_reference_count;
       const size_t target_count = count + 1;
@@ -31,7 +31,7 @@ public:
     }
   }
 
-  WN_FORCE_INLINE bool remove_reference() {
+  inline bool remove_reference() {
     for (;;) {
       size_t count = m_reference_count;
       const size_t target_count = count - 1;
@@ -42,18 +42,18 @@ public:
     }
   }
 
-  WN_FORCE_INLINE size_t reference_count() const {
+  inline size_t reference_count() const {
     return m_reference_count;
   }
 
-  WN_FORCE_INLINE allocator* get_allocator() const {
+  inline allocator* get_allocator() const {
     return m_allocator;
   }
 
 protected:
-  WN_FORCE_INLINE intrusive_ptr_base() : intrusive_ptr_base(nullptr) {}
+  inline intrusive_ptr_base() : intrusive_ptr_base(nullptr) {}
 
-  WN_FORCE_INLINE explicit intrusive_ptr_base(allocator* _allocator)
+  inline explicit intrusive_ptr_base(allocator* _allocator)
     : m_allocator(_allocator), m_reference_count(0) {}
 
 private:
@@ -74,34 +74,34 @@ public:
   typedef typename core::add_lvalue_reference_t<T> reference;
   typedef T element_type;
 
-  WN_FORCE_INLINE intrusive_ptr() : m_pointer(nullptr) {}
+  inline intrusive_ptr() : m_pointer(nullptr) {}
 
-  WN_FORCE_INLINE intrusive_ptr(const nullptr_t) : intrusive_ptr() {}
+  inline intrusive_ptr(const nullptr_t) : intrusive_ptr() {}
 
   template <typename U,
       typename = core::enable_if_t<core::is_convertible<U*, pointer>::value>>
-  WN_FORCE_INLINE intrusive_ptr(allocator* _allocator, U* _ptr)
+  inline intrusive_ptr(allocator* _allocator, U* _ptr)
     : intrusive_ptr(_allocator, _ptr, true) {}
 
-  WN_FORCE_INLINE intrusive_ptr(intrusive_ptr&& _other)
+  inline intrusive_ptr(intrusive_ptr&& _other)
     : intrusive_ptr(_other.get_allocator(), _other.get(), false) {
     _other.clear();
   }
 
-  WN_FORCE_INLINE intrusive_ptr(const intrusive_ptr& _other)
+  inline intrusive_ptr(const intrusive_ptr& _other)
     : intrusive_ptr(_other.get_allocator(), _other.get(), true) {}
 
   template <typename U>
-  WN_FORCE_INLINE intrusive_ptr(intrusive_ptr<U>&& _other)
+  inline intrusive_ptr(intrusive_ptr<U>&& _other)
     : intrusive_ptr(_other.get_allocator(), _other.get(), false) {
     _other.clear();
   }
 
   template <typename U>
-  WN_FORCE_INLINE intrusive_ptr(const intrusive_ptr<U>& _other)
+  inline intrusive_ptr(const intrusive_ptr<U>& _other)
     : intrusive_ptr(_other.get_allocator(), _other.get(), true) {}
 
-  WN_FORCE_INLINE ~intrusive_ptr() {
+  inline ~intrusive_ptr() {
     pointer p = get();
 
     if (p) {
@@ -111,57 +111,57 @@ public:
     }
   }
 
-  WN_FORCE_INLINE pointer operator->() const {
+  inline pointer operator->() const {
     return get();
   }
 
-  WN_FORCE_INLINE reference operator*() const {
+  inline reference operator*() const {
     WN_RELEASE_ASSERT(get() != nullptr, "cannot dereference nullptr");
 
     return *get();
   }
 
-  WN_FORCE_INLINE operator bool() const {
+  inline operator bool() const {
     return (get() != nullptr);
   }
 
-  WN_FORCE_INLINE intrusive_ptr& operator=(const nullptr_t) {
+  inline intrusive_ptr& operator=(const nullptr_t) {
     intrusive_ptr(nullptr).swap(*this);
 
     return *this;
   }
 
-  WN_FORCE_INLINE intrusive_ptr& operator=(intrusive_ptr&& _other) {
+  inline intrusive_ptr& operator=(intrusive_ptr&& _other) {
     intrusive_ptr(core::move(_other)).swap(*this);
 
     return *this;
   }
 
-  WN_FORCE_INLINE intrusive_ptr& operator=(const intrusive_ptr& _other) {
+  inline intrusive_ptr& operator=(const intrusive_ptr& _other) {
     intrusive_ptr(_other).swap(*this);
 
     return *this;
   }
 
   template <typename U>
-  WN_FORCE_INLINE intrusive_ptr& operator=(intrusive_ptr<U>&& _other) {
+  inline intrusive_ptr& operator=(intrusive_ptr<U>&& _other) {
     intrusive_ptr(core::move(_other)).swap(*this);
 
     return *this;
   }
 
   template <typename U>
-  WN_FORCE_INLINE intrusive_ptr& operator=(const intrusive_ptr<U>& _other) {
+  inline intrusive_ptr& operator=(const intrusive_ptr<U>& _other) {
     intrusive_ptr(_other).swap(*this);
 
     return *this;
   }
 
-  WN_FORCE_INLINE pointer get() const {
+  inline pointer get() const {
     return m_pointer;
   }
 
-  WN_FORCE_INLINE allocator* get_allocator() const {
+  inline allocator* get_allocator() const {
     if (m_pointer) {
       return m_pointer->get_allocator();
     }
@@ -169,33 +169,33 @@ public:
     return nullptr;
   }
 
-  WN_FORCE_INLINE size_t use_count() const {
+  inline size_t use_count() const {
     return (get() ? get()->reference_count() : 0);
   }
 
-  WN_FORCE_INLINE bool unique() const {
+  inline bool unique() const {
     return (use_count() == 1);
   }
 
-  WN_FORCE_INLINE void reset() {
+  inline void reset() {
     intrusive_ptr().swap(*this);
   }
 
-  WN_FORCE_INLINE void reset(const nullptr_t) {
+  inline void reset(const nullptr_t) {
     intrusive_ptr(nullptr).swap(*this);
   }
 
   template <typename U,
       typename = core::enable_if_t<core::is_convertible<U*, pointer>::value>>
-  WN_FORCE_INLINE void reset(allocator* _allocator, U* _ptr) {
+  inline void reset(allocator* _allocator, U* _ptr) {
     intrusive_ptr(_allocator, _ptr).swap(*this);
   }
 
-  WN_FORCE_INLINE void swap(intrusive_ptr& _other) {
+  inline void swap(intrusive_ptr& _other) {
     core::swap(m_pointer, _other.m_pointer);
   }
 
-  WN_FORCE_INLINE pointer release() {
+  inline pointer release() {
     pointer p = get();
 
     clear();
@@ -209,8 +209,7 @@ private:
 
   template <typename U,
       typename = core::enable_if_t<core::is_convertible<U*, pointer>::value>>
-  WN_FORCE_INLINE intrusive_ptr(
-      allocator* _allocator, U* _ptr, const bool _add_ref)
+  inline intrusive_ptr(allocator* _allocator, U* _ptr, const bool _add_ref)
     : m_pointer(_ptr) {
     if (m_pointer) {
       allocator* a = m_pointer->get_allocator();
@@ -229,7 +228,7 @@ private:
     }
   }
 
-  WN_FORCE_INLINE void clear() {
+  inline void clear() {
     m_pointer = nullptr;
   }
 
@@ -237,104 +236,103 @@ private:
 };
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator==(
+inline bool operator==(
     const intrusive_ptr<T>& lhs, const intrusive_ptr<U>& rhs) {
   return (lhs.get() == rhs.get());
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator!=(
+inline bool operator!=(
     const intrusive_ptr<T>& lhs, const intrusive_ptr<U>& rhs) {
   return (lhs.get() != rhs.get());
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator<(
+inline bool operator<(
     const intrusive_ptr<T>& lhs, const intrusive_ptr<U>& rhs) {
   return (lhs.get() < rhs.get());
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator>(
+inline bool operator>(
     const intrusive_ptr<T>& lhs, const intrusive_ptr<U>& rhs) {
   return (lhs.get() > rhs.get());
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator<=(
+inline bool operator<=(
     const intrusive_ptr<T>& lhs, const intrusive_ptr<U>& rhs) {
   return (lhs.get() <= rhs.get());
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator>=(
+inline bool operator>=(
     const intrusive_ptr<T>& lhs, const intrusive_ptr<U>& rhs) {
   return (lhs.get() >= rhs.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator==(const intrusive_ptr<T>& ptr, const nullptr_t) {
+inline bool operator==(const intrusive_ptr<T>& ptr, const nullptr_t) {
   return (ptr.get() == nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator==(const nullptr_t, const intrusive_ptr<T>& ptr) {
+inline bool operator==(const nullptr_t, const intrusive_ptr<T>& ptr) {
   return (nullptr == ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator!=(const intrusive_ptr<T>& ptr, const nullptr_t) {
+inline bool operator!=(const intrusive_ptr<T>& ptr, const nullptr_t) {
   return (ptr.get() != nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator!=(const nullptr_t, const intrusive_ptr<T>& ptr) {
+inline bool operator!=(const nullptr_t, const intrusive_ptr<T>& ptr) {
   return (nullptr != ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator<(const intrusive_ptr<T>& ptr, const nullptr_t) {
+inline bool operator<(const intrusive_ptr<T>& ptr, const nullptr_t) {
   return (ptr.get() < nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator<(const nullptr_t, const intrusive_ptr<T>& ptr) {
+inline bool operator<(const nullptr_t, const intrusive_ptr<T>& ptr) {
   return (nullptr < ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator>(const intrusive_ptr<T>& ptr, const nullptr_t) {
+inline bool operator>(const intrusive_ptr<T>& ptr, const nullptr_t) {
   return (ptr.get() > nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator>(const nullptr_t, const intrusive_ptr<T>& ptr) {
+inline bool operator>(const nullptr_t, const intrusive_ptr<T>& ptr) {
   return (nullptr > ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator<=(const intrusive_ptr<T>& ptr, const nullptr_t) {
+inline bool operator<=(const intrusive_ptr<T>& ptr, const nullptr_t) {
   return (ptr.get() <= nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator<=(const nullptr_t, const intrusive_ptr<T>& ptr) {
+inline bool operator<=(const nullptr_t, const intrusive_ptr<T>& ptr) {
   return (nullptr <= ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator>=(const intrusive_ptr<T>& ptr, const nullptr_t) {
+inline bool operator>=(const intrusive_ptr<T>& ptr, const nullptr_t) {
   return (ptr.get() >= nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator>=(const nullptr_t, const intrusive_ptr<T>& ptr) {
+inline bool operator>=(const nullptr_t, const intrusive_ptr<T>& ptr) {
   return (nullptr >= ptr.get());
 }
 
 template <typename T, typename... Args>
-WN_FORCE_INLINE intrusive_ptr<T> make_intrusive(
-    allocator* _allocator, Args&&... _args) {
+inline intrusive_ptr<T> make_intrusive(allocator* _allocator, Args&&... _args) {
   T* ptr = _allocator->construct<T>(core::forward<Args>(_args)...);
 
   if (ptr) {

@@ -21,7 +21,7 @@ namespace graphics {
 // devices
 class factory {
 public:
-  WN_FORCE_INLINE factory(memory::allocator* _allocator, logging::log* _log)
+  inline factory(memory::allocator* _allocator, logging::log* _log)
     : m_adapters(_allocator), m_allocator(_allocator), m_log(_log) {}
 
   virtual ~factory();

@@ -13,7 +13,7 @@
 namespace wn {
 namespace core {
 namespace internal {
-WN_FORCE_INLINE void swap_byte(uint8_t& _first, uint8_t& _second) {
+inline void swap_byte(uint8_t& _first, uint8_t& _second) {
   _first ^= _second;
   _second ^= _first;
   _first ^= _second;
@@ -24,21 +24,21 @@ struct swap_bytes {};
 
 template <typename _Type>
 struct swap_bytes<_Type, 1> {
-  static WN_FORCE_INLINE _Type execute(const _Type _value) {
+  static inline _Type execute(const _Type _value) {
     return (_value);
   }
 };
 
 template <typename _Type>
 struct swap_bytes<_Type, 2> {
-  static WN_FORCE_INLINE _Type execute(const _Type _value) {
+  static inline _Type execute(const _Type _value) {
     return ((_value >> 8) | ((_value & 0xFF) << 8));
   }
 };
 
 template <typename _Type>
 struct swap_bytes<_Type, 4> {
-  static WN_FORCE_INLINE _Type execute(const _Type _value) {
+  static inline _Type execute(const _Type _value) {
     return (((((_value)&0xFF000000) >> 24) | (((_value)&0x00FF0000) >> 8) |
              (((_value)&0x0000FF00) << 8) | (((_value)&0x000000FF) << 24)));
   }
@@ -46,7 +46,7 @@ struct swap_bytes<_Type, 4> {
 
 template <typename _Type>
 struct swap_bytes<_Type, 8> {
-  static WN_FORCE_INLINE _Type execute(const _Type _value) {
+  static inline _Type execute(const _Type _value) {
     return (((((_value)&0xFF00000000000000ULL) >> 56) |
              (((_value)&0x00FF000000000000ULL) >> 40) |
              (((_value)&0x0000FF0000000000ULL) >> 24) |
@@ -60,7 +60,7 @@ struct swap_bytes<_Type, 8> {
 
 template <>
 struct swap_bytes<float, 4> {
-  static WN_FORCE_INLINE float execute(const float _value) {
+  static inline float execute(const float _value) {
     float value = _value;
     uint8_t* bytes = reinterpret_cast<uint8_t*>(&value);
 
@@ -73,7 +73,7 @@ struct swap_bytes<float, 4> {
 
 template <>
 struct swap_bytes<double, 8> {
-  static WN_FORCE_INLINE double execute(const double _value) {
+  static inline double execute(const double _value) {
     double value = _value;
     uint8_t* bytes = reinterpret_cast<uint8_t*>(&value);
 
@@ -88,7 +88,7 @@ struct swap_bytes<double, 8> {
 }  // namespace internal
 
 template <typename _Type>
-WN_FORCE_INLINE _Type to_big_endian(const _Type _value) {
+inline _Type to_big_endian(const _Type _value) {
 #ifdef _WN_ENDIAN_BIG
   return (_value);
 #else
@@ -97,7 +97,7 @@ WN_FORCE_INLINE _Type to_big_endian(const _Type _value) {
 }
 
 template <typename _Type>
-WN_FORCE_INLINE _Type from_big_endian(const _Type _value) {
+inline _Type from_big_endian(const _Type _value) {
 #ifdef _WN_ENDIAN_BIG
   return (_value);
 #else
@@ -106,7 +106,7 @@ WN_FORCE_INLINE _Type from_big_endian(const _Type _value) {
 }
 
 template <typename _Type>
-WN_FORCE_INLINE _Type to_little_endian(const _Type _value) {
+inline _Type to_little_endian(const _Type _value) {
 #ifdef _WN_ENDIAN_BIG
   return (internal::swap_bytes<_Type>::execute(_value));
 #else
@@ -115,7 +115,7 @@ WN_FORCE_INLINE _Type to_little_endian(const _Type _value) {
 }
 
 template <typename _Type>
-WN_FORCE_INLINE _Type from_little_endian(const _Type _value) {
+inline _Type from_little_endian(const _Type _value) {
 #ifdef _WN_ENDIAN_BIG
   return (internal::swap_bytes<_Type>::execute(_value));
 #else

@@ -15,8 +15,7 @@ namespace graphics {
 namespace internal {
 namespace vulkan {
 
-static WN_FORCE_INLINE VkFormat image_format_to_vulkan_format(
-    data_format _format) {
+static inline VkFormat image_format_to_vulkan_format(data_format _format) {
   static const VkFormat formats[] = {
       VK_FORMAT_R8G8B8A8_UNORM,
       VK_FORMAT_R32G32B32A32_SFLOAT,
@@ -60,8 +59,7 @@ static WN_FORCE_INLINE VkFormat image_format_to_vulkan_format(
   return formats[static_cast<uint32_t>(_format)];
 }
 
-static WN_FORCE_INLINE data_format vulkan_format_to_image_format(
-    VkFormat _format) {
+static inline data_format vulkan_format_to_image_format(VkFormat _format) {
   switch (_format) {
     case VK_FORMAT_R8G8B8A8_UNORM:
       return data_format::r8g8b8a8_unorm;
@@ -128,7 +126,7 @@ static WN_FORCE_INLINE data_format vulkan_format_to_image_format(
   }
 }
 
-static WN_FORCE_INLINE VkImageAspectFlags image_components_to_aspect(
+static inline VkImageAspectFlags image_components_to_aspect(
     image_components _components) {
   VkImageAspectFlags flags{0};
 
@@ -144,7 +142,7 @@ static WN_FORCE_INLINE VkImageAspectFlags image_components_to_aspect(
   return flags;
 }
 
-static WN_FORCE_INLINE VkSampleCountFlagBits multi_sampled_to_vulkan(
+static inline VkSampleCountFlagBits multi_sampled_to_vulkan(
     multisample_count _count) {
   switch (_count) {
     case multisample_count::samples_1:
@@ -167,7 +165,7 @@ static WN_FORCE_INLINE VkSampleCountFlagBits multi_sampled_to_vulkan(
   return VK_SAMPLE_COUNT_1_BIT;
 }
 
-static WN_FORCE_INLINE VkAttachmentLoadOp load_op_to_vulkan(load_op _load) {
+static inline VkAttachmentLoadOp load_op_to_vulkan(load_op _load) {
   switch (_load) {
     case load_op::load:
       return VK_ATTACHMENT_LOAD_OP_LOAD;
@@ -179,7 +177,7 @@ static WN_FORCE_INLINE VkAttachmentLoadOp load_op_to_vulkan(load_op _load) {
   return VkAttachmentLoadOp(0);
 }
 
-static WN_FORCE_INLINE VkAttachmentStoreOp store_op_to_vulkan(store_op _store) {
+static inline VkAttachmentStoreOp store_op_to_vulkan(store_op _store) {
   switch (_store) {
     case store_op::store:
       return VK_ATTACHMENT_STORE_OP_STORE;

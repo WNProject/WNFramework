@@ -19,8 +19,7 @@ namespace graphics {
 
 class framebuffer : public base_object<2> {
 public:
-  WN_FORCE_INLINE framebuffer(framebuffer&& _other)
-    : m_device(_other.m_device) {
+  inline framebuffer(framebuffer&& _other) : m_device(_other.m_device) {
     _other.m_device = nullptr;
 
     memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
@@ -48,7 +47,7 @@ private:
   WN_GRAPHICS_ADD_FRIENDS(device);
   WN_GRAPHICS_ADD_FRIENDS(command_list);
 
-  WN_FORCE_INLINE framebuffer(device* _device) : m_device(_device) {}
+  inline framebuffer(device* _device) : m_device(_device) {}
 
   device* m_device;
 };

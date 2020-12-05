@@ -23,7 +23,7 @@ namespace graphics {
 // This just describes a descriptor set
 class descriptor_set_layout final : public base_object<2> {
 public:
-  WN_FORCE_INLINE descriptor_set_layout(descriptor_set_layout&& _other)
+  inline descriptor_set_layout(descriptor_set_layout&& _other)
     : m_device(_other.m_device) {
     _other.m_device = nullptr;
 
@@ -52,14 +52,13 @@ public:
 private:
   WN_GRAPHICS_ADD_FRIENDS(device);
   WN_GRAPHICS_ADD_FRIENDS(command_list);
-  WN_FORCE_INLINE descriptor_set_layout(device* _device) : m_device(_device) {}
+  inline descriptor_set_layout(device* _device) : m_device(_device) {}
   device* m_device;
 };
 
 class descriptor_set final : public base_object<2> {
 public:
-  WN_FORCE_INLINE descriptor_set(descriptor_set&& _other)
-    : m_device(_other.m_device) {
+  inline descriptor_set(descriptor_set&& _other) : m_device(_other.m_device) {
     _other.m_device = nullptr;
 
     memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
@@ -95,7 +94,7 @@ public:
 
 private:
   WN_GRAPHICS_ADD_FRIENDS(command_list);
-  WN_FORCE_INLINE descriptor_set(device* _device) : m_device(_device) {}
+  inline descriptor_set(device* _device) : m_device(_device) {}
   device* m_device;
   friend class descriptor_pool;
 };
@@ -114,8 +113,7 @@ public:
     m_device->initialize_descriptor_set(&set, this, _layout);
     return set;
   }
-  WN_FORCE_INLINE descriptor_pool(descriptor_pool&& _other)
-    : m_device(_other.m_device) {
+  inline descriptor_pool(descriptor_pool&& _other) : m_device(_other.m_device) {
     _other.m_device = nullptr;
 
     memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
@@ -143,15 +141,14 @@ public:
 
 private:
   WN_GRAPHICS_ADD_FRIENDS(device);
-  WN_FORCE_INLINE descriptor_pool(device* _device) : m_device(_device) {}
+  inline descriptor_pool(device* _device) : m_device(_device) {}
 
   device* m_device;
 };
 
 class pipeline_layout final : public base_object<2> {
 public:
-  WN_FORCE_INLINE pipeline_layout(pipeline_layout&& _other)
-    : m_device(_other.m_device) {
+  inline pipeline_layout(pipeline_layout&& _other) : m_device(_other.m_device) {
     _other.m_device = nullptr;
 
     memory::memcpy(&m_data, &_other.m_data, sizeof(opaque_data));
@@ -180,7 +177,7 @@ public:
 private:
   WN_GRAPHICS_ADD_FRIENDS(device);
   WN_GRAPHICS_ADD_FRIENDS(command_list);
-  WN_FORCE_INLINE pipeline_layout(device* _device) : m_device(_device) {}
+  inline pipeline_layout(device* _device) : m_device(_device) {}
   device* m_device;
 };
 

@@ -15,8 +15,7 @@ namespace graphics {
 namespace internal {
 namespace d3d12 {
 
-static WN_FORCE_INLINE DXGI_FORMAT image_format_to_dxgi_format(
-    data_format _format) {
+static inline DXGI_FORMAT image_format_to_dxgi_format(data_format _format) {
   static const DXGI_FORMAT formats[] = {
       DXGI_FORMAT_R8G8B8A8_UNORM,
       DXGI_FORMAT_R32G32B32A32_FLOAT,
@@ -57,7 +56,7 @@ static WN_FORCE_INLINE DXGI_FORMAT image_format_to_dxgi_format(
   return formats[static_cast<uint32_t>(_format)];
 }
 
-static WN_FORCE_INLINE image_components valid_components(data_format _format) {
+static inline image_components valid_components(data_format _format) {
   image_components components = 0;
   switch (_format) {
     case data_format::d24_unorm_s8_uint:

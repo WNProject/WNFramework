@@ -21,7 +21,7 @@ namespace graphics {
 
 class graphics_pipeline final : public base_object<2> {
 public:
-  WN_FORCE_INLINE graphics_pipeline(graphics_pipeline&& _other)
+  inline graphics_pipeline(graphics_pipeline&& _other)
     : m_device(_other.m_device) {
     _other.m_device = nullptr;
 
@@ -53,7 +53,7 @@ private:
   WN_GRAPHICS_ADD_FRIENDS(device)
   WN_GRAPHICS_ADD_FRIENDS(command_list);
 
-  WN_FORCE_INLINE graphics_pipeline(device* _device) : m_device(_device) {}
+  inline graphics_pipeline(device* _device) : m_device(_device) {}
   device* m_device;
   friend class descriptor_pool;
 };

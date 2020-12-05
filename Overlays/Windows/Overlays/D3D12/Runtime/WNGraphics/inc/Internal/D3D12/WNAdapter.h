@@ -81,20 +81,19 @@ public:
     return m_adapter_formats;
   }
 
-  WN_FORCE_INLINE containers::string_view name() const
-      WN_GRAPHICS_OVERRIDE_FINAL {
+  inline containers::string_view name() const WN_GRAPHICS_OVERRIDE_FINAL {
     return m_name;
   }
 
-  WN_FORCE_INLINE uint32_t vendor_id() const WN_GRAPHICS_OVERRIDE_FINAL {
+  inline uint32_t vendor_id() const WN_GRAPHICS_OVERRIDE_FINAL {
     return m_vendor_id;
   }
 
-  WN_FORCE_INLINE uint32_t device_id() const WN_GRAPHICS_OVERRIDE_FINAL {
+  inline uint32_t device_id() const WN_GRAPHICS_OVERRIDE_FINAL {
     return m_device_id;
   }
 
-  WN_FORCE_INLINE api_type api() const WN_GRAPHICS_OVERRIDE_FINAL {
+  inline api_type api() const WN_GRAPHICS_OVERRIDE_FINAL {
     return m_api;
   }
 
@@ -102,14 +101,13 @@ protected:
   friend void enumerate_adapters(memory::allocator*, logging::log*,
       containers::dynamic_array<adapter_ptr>&);
 
-  WN_FORCE_INLINE d3d12_adapter()
+  inline d3d12_adapter()
     : d3d12_adapter_base(),
       m_vendor_id(uint32_t(-1)),
       m_device_id(uint32_t(-1)),
       m_api(api_type::invalid) {}
 
-  WN_FORCE_INLINE void initialize(
-      Microsoft::WRL::ComPtr<IDXGIAdapter1>&& _dxgi_adapter,
+  inline void initialize(Microsoft::WRL::ComPtr<IDXGIAdapter1>&& _dxgi_adapter,
       Microsoft::WRL::ComPtr<IDXGIFactory4> _dxgi_factory,
       containers::string&& _name, logging::log* _log, const uint32_t _vendor_id,
       const uint32_t _device_id) {

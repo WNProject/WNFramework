@@ -28,8 +28,7 @@ public:
   typedef R result_type;
 
   template <typename F, typename... Args>
-  WN_FORCE_INLINE callback_task(
-      memory::allocator* _allocator, F&& f, Args&&... args)
+  inline callback_task(memory::allocator* _allocator, F&& f, Args&&... args)
     : thread_task() {
     static_assert(core::is_same<R, core::result_of_t<F(Args...)>>::value,
         "thread function return type does not match thread return type");
@@ -43,7 +42,7 @@ public:
 
   using thread_task::join;
 
-  WN_FORCE_INLINE bool join(R& result) {
+  inline bool join(R& result) {
     const bool join_result = join();
 
     if (join_result) {
@@ -54,7 +53,7 @@ public:
   }
 
 private:
-  virtual WN_FORCE_INLINE void run() override {
+  virtual inline void run() override {
     m_result = m_callback();
   }
 
@@ -68,8 +67,7 @@ public:
   typedef void result_type;
 
   template <typename F, typename... Args>
-  WN_FORCE_INLINE callback_task(
-      memory::allocator* _allocator, F&& f, Args&&... args)
+  inline callback_task(memory::allocator* _allocator, F&& f, Args&&... args)
     : thread_task() {
     static_assert(core::is_same<void, core::result_of_t<F(Args...)>>::value,
         "thread function return type does not match thread return type");
@@ -82,7 +80,7 @@ public:
   virtual ~callback_task() override = default;
 
 private:
-  virtual WN_FORCE_INLINE void run() override {
+  virtual inline void run() override {
     m_callback();
   }
 
@@ -93,7 +91,7 @@ template <typename R>
 using callback_task_ptr = memory::intrusive_ptr<callback_task<R>>;
 
 template <typename R, typename... Args>
-WN_FORCE_INLINE callback_task_ptr<R> make_callback_task(
+inline callback_task_ptr<R> make_callback_task(
     memory::allocator* _allocator, Args&&... _args) {
   return memory::make_intrusive<callback_task<R>>(
       _allocator, _allocator, core::forward<Args>(_args)...);

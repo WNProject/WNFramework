@@ -15,7 +15,7 @@ namespace internal {
 
 class mapping_windows final : public mapping {
 public:
-  WN_FORCE_INLINE mapping_windows(memory::allocator* _allocator,
+  inline mapping_windows(memory::allocator* _allocator,
       containers::string&& _path, const bool _cleanup = false)
     : mapping(_allocator, core::move(_path), _cleanup) {}
 

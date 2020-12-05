@@ -49,9 +49,9 @@ public:
     size_t block_size;    // The size of a single block (or texel) in bytes
   };
 
-  WN_FORCE_INLINE image() : m_device(nullptr) {}
+  inline image() : m_device(nullptr) {}
 
-  WN_FORCE_INLINE image(image&& _other)
+  inline image(image&& _other)
     : m_device(_other.m_device),
       m_resource_info(core::move(_other.m_resource_info)) {
     _other.m_device = nullptr;
@@ -60,7 +60,7 @@ public:
     memory::memzero(&_other.m_data, sizeof(opaque_data));
   }
 
-  WN_FORCE_INLINE image& operator=(image&& _other) {
+  inline image& operator=(image&& _other) {
     m_device = _other.m_device;
     m_resource_info = core::move(_other.m_resource_info);
     m_is_swapchain_image = _other.m_is_swapchain_image;
@@ -70,17 +70,17 @@ public:
     return *this;
   }
 
-  WN_FORCE_INLINE ~image() {
+  inline ~image() {
     if (is_valid() && !m_is_swapchain_image) {
       m_device->destroy_image(this);
     }
   }
 
-  WN_FORCE_INLINE bool is_valid() const {
+  inline bool is_valid() const {
     return (m_device != nullptr);
   }
 
-  WN_FORCE_INLINE bool is_swapchain_image() const {
+  inline bool is_swapchain_image() const {
     return m_is_swapchain_image;
   }
 
@@ -114,11 +114,11 @@ private:
   WN_GRAPHICS_ADD_FRIENDS(command_list);
   WN_GRAPHICS_ADD_FRIENDS(swapchain);
 
-  WN_FORCE_INLINE image(device* _device)
+  inline image(device* _device)
     : m_data({0}), m_device(_device), m_is_swapchain_image(false) {}
 
   template <typename T>
-  WN_FORCE_INLINE T& data_as() {
+  inline T& data_as() {
     static_assert(sizeof(opaque_data) >= sizeof(T),
         "invalid cast, target type size does not match opaque data size");
 
@@ -126,7 +126,7 @@ private:
   }
 
   template <typename T>
-  WN_FORCE_INLINE const T& data_as() const {
+  inline const T& data_as() const {
     static_assert(sizeof(opaque_data) >= sizeof(T),
         "invalid cast, target type size does not match opaque data size");
 

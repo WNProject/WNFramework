@@ -10,10 +10,9 @@ struct contiguous_range : ::testing::Test {};
 
 // 72 bit struct
 struct dummy1 {
-  WN_FORCE_INLINE dummy1(const uint8_t _value)
-    : m_value1(_value), m_value2(_value) {}
+  inline dummy1(const uint8_t _value) : m_value1(_value), m_value2(_value) {}
 
-  WN_FORCE_INLINE void operator=(const dummy1& _other) volatile {
+  inline void operator=(const dummy1& _other) volatile {
     m_value1 = _other.m_value1;
     m_value2 = _other.m_value2;
   }
@@ -24,9 +23,9 @@ struct dummy1 {
 
 // non trivial assignment
 struct dummy2 {
-  WN_FORCE_INLINE dummy2(const uint8_t _value) : m_value(_value) {}
+  inline dummy2(const uint8_t _value) : m_value(_value) {}
 
-  WN_FORCE_INLINE dummy2& operator=(const dummy2& _other) {
+  inline dummy2& operator=(const dummy2& _other) {
     m_value = _other.m_value + 1;
 
     return *this;
@@ -35,11 +34,11 @@ struct dummy2 {
   uint8_t m_value;
 };
 
-WN_FORCE_INLINE bool operator==(const dummy1& _lhs, const dummy1& _rhs) {
+inline bool operator==(const dummy1& _lhs, const dummy1& _rhs) {
   return (_lhs.m_value1 == _rhs.m_value1 && _lhs.m_value2 == _rhs.m_value2);
 }
 
-WN_FORCE_INLINE bool operator==(const dummy2& _lhs, const dummy2& _rhs) {
+inline bool operator==(const dummy2& _lhs, const dummy2& _rhs) {
   return (_lhs.m_value == _rhs.m_value);
 }
 

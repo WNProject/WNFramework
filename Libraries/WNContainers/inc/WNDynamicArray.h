@@ -156,15 +156,15 @@ public:
   using reverse_iterator = std::reverse_iterator<iterator>;
   using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
-  WN_FORCE_INLINE dynamic_array()
+  inline dynamic_array()
     : m_allocator(nullptr), m_data(nullptr), m_size(0), m_capacity(0) {}
 
-  WN_FORCE_INLINE dynamic_array(const nullptr_t) : dynamic_array() {}
+  inline dynamic_array(const nullptr_t) : dynamic_array() {}
 
-  WN_FORCE_INLINE explicit dynamic_array(memory::allocator* _allocator)
+  inline explicit dynamic_array(memory::allocator* _allocator)
     : m_allocator(_allocator), m_data(nullptr), m_size(0), m_capacity(0) {}
 
-  WN_FORCE_INLINE explicit dynamic_array(
+  inline explicit dynamic_array(
       memory::allocator* _allocator, const size_type _count)
     : dynamic_array(_allocator) {
     for (size_t i = 0; i < _count; ++i) {
@@ -172,7 +172,7 @@ public:
     }
   }
 
-  WN_FORCE_INLINE dynamic_array(
+  inline dynamic_array(
       memory::allocator* _allocator, const size_type _count, const T& _value)
     : dynamic_array(_allocator) {
     insert(iterator(m_data), _count, _value);
@@ -230,7 +230,7 @@ public:
     }
   }
 
-  WN_FORCE_INLINE ~dynamic_array() {
+  inline ~dynamic_array() {
     clear();
     deallocate(m_data);
   }
@@ -241,20 +241,19 @@ public:
     m_allocator = _allocator;
   }
 
-  WN_FORCE_INLINE operator contiguous_range<value_type>() {
+  inline operator contiguous_range<value_type>() {
     return to_contiguous_range();
   }
 
-  WN_FORCE_INLINE operator contiguous_range<value_type>() const {
+  inline operator contiguous_range<value_type>() const {
     return to_contiguous_range();
   }
 
-  WN_FORCE_INLINE contiguous_range<value_type> to_contiguous_range() {
+  inline contiguous_range<value_type> to_contiguous_range() {
     return contiguous_range<value_type>(data(), size());
   }
 
-  WN_FORCE_INLINE contiguous_range<const value_type> to_contiguous_range()
-      const {
+  inline contiguous_range<const value_type> to_contiguous_range() const {
     return contiguous_range<const value_type>(data(), size());
   }
 
@@ -343,113 +342,113 @@ public:
     return *this;
   }
 
-  WN_FORCE_INLINE memory::allocator* get_allocator() const {
+  inline memory::allocator* get_allocator() const {
     return m_allocator;
   }
 
   // element access
 
-  WN_FORCE_INLINE reference operator[](const size_type _pos) {
+  inline reference operator[](const size_type _pos) {
     return at(_pos);
   }
 
-  WN_FORCE_INLINE const_reference operator[](const size_type _pos) const {
+  inline const_reference operator[](const size_type _pos) const {
     return at(_pos);
   }
 
-  WN_FORCE_INLINE reference front() {
+  inline reference front() {
     return *begin();
   }
 
-  WN_FORCE_INLINE const_reference front() const {
+  inline const_reference front() const {
     return *cbegin();
   }
 
-  WN_FORCE_INLINE reference back() {
+  inline reference back() {
     return *(--end());
   }
 
-  WN_FORCE_INLINE const_reference back() const {
+  inline const_reference back() const {
     return *(--end());
   }
 
-  WN_FORCE_INLINE reference at(const size_type _pos) {
+  inline reference at(const size_type _pos) {
     return m_data[_pos];
   }
 
-  WN_FORCE_INLINE const_reference at(const size_type _pos) const {
+  inline const_reference at(const size_type _pos) const {
     return m_data[_pos];
   }
 
-  WN_FORCE_INLINE T* data() {
+  inline T* data() {
     return m_data;
   }
 
-  WN_FORCE_INLINE const T* data() const {
+  inline const T* data() const {
     return m_data;
   }
 
   // iterators
 
-  WN_FORCE_INLINE iterator begin() {
+  inline iterator begin() {
     return iterator(m_data);
   }
 
-  WN_FORCE_INLINE const_iterator begin() const {
+  inline const_iterator begin() const {
     return cbegin();
   }
 
-  WN_FORCE_INLINE const_iterator cbegin() const {
+  inline const_iterator cbegin() const {
     return const_iterator(m_data);
   }
 
-  WN_FORCE_INLINE iterator end() {
+  inline iterator end() {
     return iterator(m_data + m_size);
   }
 
-  WN_FORCE_INLINE const_iterator end() const {
+  inline const_iterator end() const {
     return cend();
   }
 
-  WN_FORCE_INLINE const_iterator cend() const {
+  inline const_iterator cend() const {
     return const_iterator(m_data + m_size);
   }
 
-  WN_FORCE_INLINE reverse_iterator rbegin() {
+  inline reverse_iterator rbegin() {
     return reverse_iterator(end());
   }
 
-  WN_FORCE_INLINE const_reverse_iterator rbegin() const {
+  inline const_reverse_iterator rbegin() const {
     return crbegin();
   }
 
-  WN_FORCE_INLINE const_reverse_iterator crbegin() const {
+  inline const_reverse_iterator crbegin() const {
     return const_reverse_iterator(cend());
   }
 
-  WN_FORCE_INLINE reverse_iterator rend() {
+  inline reverse_iterator rend() {
     return reverse_iterator(begin());
   }
 
-  WN_FORCE_INLINE const_reverse_iterator rend() const {
+  inline const_reverse_iterator rend() const {
     return crend();
   }
 
-  WN_FORCE_INLINE const_reverse_iterator crend() const {
+  inline const_reverse_iterator crend() const {
     return const_reverse_iterator(cbegin());
   }
 
   // capacity
 
-  WN_FORCE_INLINE bool empty() const {
+  inline bool empty() const {
     return (size() == 0);
   }
 
-  WN_FORCE_INLINE size_type size() const {
+  inline size_type size() const {
     return m_size;
   }
 
-  WN_FORCE_INLINE size_type max_size() const {
+  inline size_type max_size() const {
     return std::numeric_limits<size_type>::max();
   }
 
@@ -481,13 +480,13 @@ public:
     }
   }
 
-  WN_FORCE_INLINE size_type capacity() const {
+  inline size_type capacity() const {
     return m_capacity;
   }
 
   // operations
 
-  WN_FORCE_INLINE void clear() {
+  inline void clear() {
     if (m_data) {
       for (size_type i = 0; i < size(); ++i) {
         m_data[i].~T();
@@ -597,31 +596,30 @@ public:
     return iterator(m_data + (_first.m_ptr - m_data));
   }
 
-  WN_FORCE_INLINE void push_back(T&& _value) {
+  inline void push_back(T&& _value) {
     insert(cend(), core::move(_value));
   }
 
-  WN_FORCE_INLINE void push_back(const T& _value) {
+  inline void push_back(const T& _value) {
     T value(_value);
 
     push_back(core::move(value));
   }
 
   template <typename... _Arguments>
-  WN_FORCE_INLINE void emplace_back(_Arguments&&... _arguments) {
+  inline void emplace_back(_Arguments&&... _arguments) {
     push_back(T(std::forward<_Arguments>(_arguments)...));
   }
 
-  WN_FORCE_INLINE void pop_back() {
+  inline void pop_back() {
     erase(cend() - 1);
   }
 
-  WN_FORCE_INLINE void resize(const size_type _count) {
+  inline void resize(const size_type _count) {
     resize(_count, value_type());
   }
 
-  WN_FORCE_INLINE void resize(
-      const size_type _count, const value_type& _value) {
+  inline void resize(const size_type _count, const value_type& _value) {
     if (_count > m_size) {
       insert(const_iterator(m_data + m_size), (_count - m_size), _value);
     } else {
@@ -629,7 +627,7 @@ public:
     }
   }
 
-  WN_FORCE_INLINE void swap(dynamic_array& _other) {
+  inline void swap(dynamic_array& _other) {
     if (&_other != this) {
       core::swap(m_allocator, _other.m_allocator);
       core::swap(m_capacity, _other.m_capacity);
@@ -638,7 +636,7 @@ public:
     }
   }
 
-  WN_FORCE_INLINE void shrink_to_fit() {
+  inline void shrink_to_fit() {
     const size_type current_size = size();
 
     if (capacity() != current_size) {
@@ -659,11 +657,11 @@ public:
   }
 
 private:
-  WN_FORCE_INLINE void* allocate(const size_t _size, const size_t _count) {
+  inline void* allocate(const size_t _size, const size_t _count) {
     return m_allocator->allocate(_size * _count);
   }
 
-  WN_FORCE_INLINE void deallocate(void* _ptr) {
+  inline void deallocate(void* _ptr) {
     if (m_allocator) {
       m_allocator->deallocate(_ptr);
     } else {

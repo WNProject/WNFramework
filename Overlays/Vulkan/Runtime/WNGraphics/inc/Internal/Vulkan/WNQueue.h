@@ -68,7 +68,7 @@ public:
       fence* _signal_fence, std::initializer_list<signal*> _signal_signals)
       WN_GRAPHICS_OVERRIDE_FINAL;
 
-  WN_FORCE_INLINE bool is_valid() const WN_GRAPHICS_OVERRIDE_FINAL {
+  inline bool is_valid() const WN_GRAPHICS_OVERRIDE_FINAL {
     return (m_device != nullptr);
   }
 
@@ -92,15 +92,15 @@ protected:
     return m_queue_context->vkQueuePresentKHR(m_queue, &info);
   }
 
-  WN_FORCE_INLINE vulkan_queue()
+  inline vulkan_queue()
     : vulkan_queue_base(),
       m_device(nullptr),
       m_queue(VK_NULL_HANDLE),
       m_queue_context(nullptr),
       m_allocator(nullptr) {}
 
-  WN_FORCE_INLINE void initialize(vulkan_device* _device,
-      memory::allocator* _allocator, queue_context* _context, VkQueue queue) {
+  inline void initialize(vulkan_device* _device, memory::allocator* _allocator,
+      queue_context* _context, VkQueue queue) {
     m_device = _device;
     m_queue_context = _context;
     m_queue = queue;

@@ -24,28 +24,28 @@ public:
   using reference = core::add_lvalue_reference_t<T>;
   using element_type = T;
 
-  WN_FORCE_INLINE unique_ptr() : m_allocator(nullptr), m_pointer(nullptr) {}
+  inline unique_ptr() : m_allocator(nullptr), m_pointer(nullptr) {}
 
-  WN_FORCE_INLINE unique_ptr(const nullptr_t) : unique_ptr() {}
+  inline unique_ptr(const nullptr_t) : unique_ptr() {}
 
   template <typename U,
       typename = core::enable_if_t<core::is_convertible<U*, pointer>::value>>
-  WN_FORCE_INLINE explicit unique_ptr(allocator* _allocator, U* _ptr)
+  inline explicit unique_ptr(allocator* _allocator, U* _ptr)
     : m_allocator(_allocator), m_pointer(_ptr) {}
 
-  WN_FORCE_INLINE unique_ptr(unique_ptr&& _other)
+  inline unique_ptr(unique_ptr&& _other)
     : unique_ptr(_other.get_allocator(), _other.get()) {
     _other.clear();
   }
 
   template <typename U,
       typename = core::enable_if_t<core::is_convertible<U*, pointer>::value>>
-  WN_FORCE_INLINE unique_ptr(unique_ptr<U>&& _other)
+  inline unique_ptr(unique_ptr<U>&& _other)
     : unique_ptr(_other.get_allocator(), _other.get()) {
     _other.clear();
   }
 
-  WN_FORCE_INLINE ~unique_ptr() {
+  inline ~unique_ptr() {
     pointer p = get();
 
     if (p) {
@@ -53,27 +53,27 @@ public:
     }
   }
 
-  WN_FORCE_INLINE pointer operator->() const {
+  inline pointer operator->() const {
     return get();
   }
 
-  WN_FORCE_INLINE reference operator*() const {
+  inline reference operator*() const {
     WN_RELEASE_ASSERT(get() != nullptr, "cannot dereference nullptr");
 
     return *get();
   }
 
-  WN_FORCE_INLINE operator bool() const {
+  inline operator bool() const {
     return (get() != nullptr);
   }
 
-  WN_FORCE_INLINE unique_ptr& operator=(nullptr_t) {
+  inline unique_ptr& operator=(nullptr_t) {
     unique_ptr(nullptr).swap(*this);
 
     return *this;
   }
 
-  WN_FORCE_INLINE unique_ptr& operator=(unique_ptr&& _other) {
+  inline unique_ptr& operator=(unique_ptr&& _other) {
     unique_ptr(core::move(_other)).swap(*this);
 
     return *this;
@@ -81,40 +81,40 @@ public:
 
   template <typename U,
       typename = core::enable_if_t<core::is_convertible<U*, pointer>::value>>
-  WN_FORCE_INLINE unique_ptr& operator=(unique_ptr<U>&& _other) {
+  inline unique_ptr& operator=(unique_ptr<U>&& _other) {
     unique_ptr(core::move(_other)).swap(*this);
 
     return *this;
   }
 
-  WN_FORCE_INLINE pointer get() const {
+  inline pointer get() const {
     return m_pointer;
   }
 
-  WN_FORCE_INLINE allocator* get_allocator() const {
+  inline allocator* get_allocator() const {
     return m_allocator;
   }
 
-  WN_FORCE_INLINE void reset() {
+  inline void reset() {
     unique_ptr().swap(*this);
   }
 
-  WN_FORCE_INLINE void reset(nullptr_t) {
+  inline void reset(nullptr_t) {
     unique_ptr(nullptr).swap(*this);
   }
 
   template <typename U,
       typename = core::enable_if_t<core::is_convertible<U*, pointer>::value>>
-  WN_FORCE_INLINE void reset(allocator* _allocator, U* _ptr) {
+  inline void reset(allocator* _allocator, U* _ptr) {
     unique_ptr(_allocator, _ptr).swap(*this);
   }
 
-  WN_FORCE_INLINE void swap(unique_ptr& _other) {
+  inline void swap(unique_ptr& _other) {
     core::swap(m_allocator, _other.m_allocator);
     core::swap(m_pointer, _other.m_pointer);
   }
 
-  WN_FORCE_INLINE pointer release() {
+  inline pointer release() {
     pointer p = get();
 
     clear();
@@ -126,7 +126,7 @@ private:
   template <typename U>
   friend class unique_ptr;
 
-  WN_FORCE_INLINE void clear() {
+  inline void clear() {
     m_pointer = nullptr;
     m_allocator = nullptr;
   }
@@ -136,104 +136,97 @@ private:
 };
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator==(
-    const unique_ptr<T>& _lhs, const unique_ptr<U>& _rhs) {
+inline bool operator==(const unique_ptr<T>& _lhs, const unique_ptr<U>& _rhs) {
   return (_lhs.get() == _rhs.get());
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator!=(
-    const unique_ptr<T>& _lhs, const unique_ptr<U>& _rhs) {
+inline bool operator!=(const unique_ptr<T>& _lhs, const unique_ptr<U>& _rhs) {
   return (_lhs.get() != _rhs.get());
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator<(
-    const unique_ptr<T>& _lhs, const unique_ptr<U>& _rhs) {
+inline bool operator<(const unique_ptr<T>& _lhs, const unique_ptr<U>& _rhs) {
   return (_lhs.get() < _rhs.get());
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator>(
-    const unique_ptr<T>& _lhs, const unique_ptr<U>& _rhs) {
+inline bool operator>(const unique_ptr<T>& _lhs, const unique_ptr<U>& _rhs) {
   return (_lhs.get() > _rhs.get());
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator<=(
-    const unique_ptr<T>& _lhs, const unique_ptr<U>& _rhs) {
+inline bool operator<=(const unique_ptr<T>& _lhs, const unique_ptr<U>& _rhs) {
   return (_lhs.get() <= _rhs.get());
 }
 
 template <typename T, typename U>
-WN_FORCE_INLINE bool operator>=(
-    const unique_ptr<T>& _lhs, const unique_ptr<U>& _rhs) {
+inline bool operator>=(const unique_ptr<T>& _lhs, const unique_ptr<U>& _rhs) {
   return (_lhs.get() >= _rhs.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator==(const unique_ptr<T>& _ptr, nullptr_t) {
+inline bool operator==(const unique_ptr<T>& _ptr, nullptr_t) {
   return (_ptr.get() == nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator==(nullptr_t, const unique_ptr<T>& _ptr) {
+inline bool operator==(nullptr_t, const unique_ptr<T>& _ptr) {
   return (nullptr == _ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator!=(const unique_ptr<T>& _ptr, nullptr_t) {
+inline bool operator!=(const unique_ptr<T>& _ptr, nullptr_t) {
   return (_ptr.get() != nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator!=(nullptr_t, const unique_ptr<T>& _ptr) {
+inline bool operator!=(nullptr_t, const unique_ptr<T>& _ptr) {
   return (nullptr != _ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator<(const unique_ptr<T>& _ptr, nullptr_t) {
+inline bool operator<(const unique_ptr<T>& _ptr, nullptr_t) {
   return (_ptr.get() < nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator<(nullptr_t, const unique_ptr<T>& _ptr) {
+inline bool operator<(nullptr_t, const unique_ptr<T>& _ptr) {
   return (nullptr < _ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator>(const unique_ptr<T>& _ptr, nullptr_t) {
+inline bool operator>(const unique_ptr<T>& _ptr, nullptr_t) {
   return (_ptr.get() > nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator>(nullptr_t, const unique_ptr<T>& _ptr) {
+inline bool operator>(nullptr_t, const unique_ptr<T>& _ptr) {
   return (nullptr > _ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator<=(const unique_ptr<T>& _ptr, nullptr_t) {
+inline bool operator<=(const unique_ptr<T>& _ptr, nullptr_t) {
   return (_ptr.get() <= nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator<=(nullptr_t, const unique_ptr<T>& _ptr) {
+inline bool operator<=(nullptr_t, const unique_ptr<T>& _ptr) {
   return (nullptr <= _ptr.get());
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator>=(const unique_ptr<T>& _ptr, nullptr_t) {
+inline bool operator>=(const unique_ptr<T>& _ptr, nullptr_t) {
   return (_ptr.get() >= nullptr);
 }
 
 template <typename T>
-WN_FORCE_INLINE bool operator>=(nullptr_t, const unique_ptr<T>& _ptr) {
+inline bool operator>=(nullptr_t, const unique_ptr<T>& _ptr) {
   return (nullptr >= _ptr.get());
 }
 
 template <typename T, typename... Args>
-WN_FORCE_INLINE unique_ptr<T> make_unique(
-    allocator* _allocator, Args&&... _args) {
+inline unique_ptr<T> make_unique(allocator* _allocator, Args&&... _args) {
   static_assert(!core::is_array<T>::value, "array 'T[]' types not allowed");
 
   T* ptr = _allocator->construct<T>(core::forward<Args>(_args)...);
@@ -246,7 +239,7 @@ WN_FORCE_INLINE unique_ptr<T> make_unique(
 }
 
 template <typename T, typename F>
-WN_FORCE_INLINE unique_ptr<T> make_unique_delegated(
+inline unique_ptr<T> make_unique_delegated(
     allocator* _allocator, F&& _delegator) {
   static_assert(!core::is_array<T>::value, "array 'T[]' types not allowed");
   static_assert(core::is_invocable_r<T*, F, void*>::value,
@@ -266,7 +259,7 @@ WN_FORCE_INLINE unique_ptr<T> make_unique_delegated(
 }
 
 template <typename T, typename... Args>
-WN_FORCE_INLINE std::unique_ptr<T> make_std_unique(Args&&... args) {
+inline std::unique_ptr<T> make_std_unique(Args&&... args) {
   return std::unique_ptr<T>(new T(core::forward<Args>(args)...));
 }
 

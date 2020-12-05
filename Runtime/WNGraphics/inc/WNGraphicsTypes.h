@@ -149,11 +149,11 @@ struct sampler_create_info_hasher {
   }
 };
 
-WN_FORCE_INLINE bool operator==(const scissor& a, const scissor& b) {
+inline bool operator==(const scissor& a, const scissor& b) {
   return a.x == b.x && a.y == b.y && a.width == b.width && a.height == b.height;
 }
 
-WN_FORCE_INLINE bool operator!=(const scissor& a, const scissor& b) {
+inline bool operator!=(const scissor& a, const scissor& b) {
   return !(a == b);
 }
 

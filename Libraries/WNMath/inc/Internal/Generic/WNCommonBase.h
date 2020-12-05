@@ -22,23 +22,22 @@ private:
   using base = storage_base<T, Dimension>;
 
 public:
-  WN_FORCE_INLINE common_base_generic() : base() {}
+  inline common_base_generic() : base() {}
 
-  WN_FORCE_INLINE explicit common_base_generic(const T& _value) : base() {
+  inline explicit common_base_generic(const T& _value) : base() {
     for (size_t i = 0; i < Dimension; ++i) {
       at(i) = _value;
     }
   }
 
-  WN_FORCE_INLINE explicit common_base_generic(const T (&_values)[Dimension])
-    : base() {
+  inline explicit common_base_generic(const T (&_values)[Dimension]) : base() {
     for (size_t i = 0; i < Dimension; ++i) {
       at(i) = _values[i];
     }
   }
 
   template <typename Itr>
-  WN_FORCE_INLINE common_base_generic(Itr _begin, Itr _end) : base() {
+  inline common_base_generic(Itr _begin, Itr _end) : base() {
     size_t count = 0;
 
     for (; _begin < _end && count < Dimension; ++_begin, ++count) {
@@ -52,31 +51,31 @@ public:
     WN_DEBUG_ASSERT(_begin == _end, "not all values consumed");
   }
 
-  WN_FORCE_INLINE T& operator[](const size_t _index) {
+  inline T& operator[](const size_t _index) {
     return at(_index);
   }
 
-  WN_FORCE_INLINE const T& operator[](const size_t _index) const {
+  inline const T& operator[](const size_t _index) const {
     return at(_index);
   }
 
-  WN_FORCE_INLINE T& at(const size_t _index) {
+  inline T& at(const size_t _index) {
     return base::m_values[_index];
   }
 
-  WN_FORCE_INLINE const T& at(const size_t _index) const {
+  inline const T& at(const size_t _index) const {
     return base::m_values[_index];
   }
 
-  WN_FORCE_INLINE void assign(const T& _value) {
+  inline void assign(const T& _value) {
     common_base_generic(_value).swap(*this);
   }
 
-  WN_FORCE_INLINE void assign(const T (&_values)[Dimension]) {
+  inline void assign(const T (&_values)[Dimension]) {
     common_base_generic(_values).swap(*this);
   }
 
-  WN_FORCE_INLINE bool operator==(const common_base_generic& _other) const {
+  inline bool operator==(const common_base_generic& _other) const {
     for (size_t i = 0; i < Dimension; ++i) {
       if (at(i) != _other.at(i)) {
         return false;
@@ -86,7 +85,7 @@ public:
     return true;
   }
 
-  WN_FORCE_INLINE bool operator!=(const common_base_generic& _other) const {
+  inline bool operator!=(const common_base_generic& _other) const {
     for (size_t i = 0; i < Dimension; ++i) {
       if (at(i) == _other.at(i)) {
         return false;
@@ -96,7 +95,7 @@ public:
     return true;
   }
 
-  WN_FORCE_INLINE void swap(common_base_generic& _other) {
+  inline void swap(common_base_generic& _other) {
     for (size_t i = 0; i < Dimension; ++i) {
       core::swap(at(i), _other.at(i));
     }

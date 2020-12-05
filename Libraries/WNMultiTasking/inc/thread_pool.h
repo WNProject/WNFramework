@@ -30,7 +30,7 @@ public:
 
   typedef result result_type;
 
-  WN_FORCE_INLINE thread_pool(memory::allocator* _allocator)
+  inline thread_pool(memory::allocator* _allocator)
     : m_allocator(_allocator),
       m_threads(_allocator),
 #ifdef _WN_POSIX
@@ -39,7 +39,7 @@ public:
       m_shutdown(true) {
   }
 
-  WN_FORCE_INLINE ~thread_pool() {
+  inline ~thread_pool() {
     cleanup();
   }
 
@@ -79,7 +79,7 @@ public:
   // This forces one thread that is waiting for a job to
   // wake up. This many cancel any thread that is currently
   // running.
-  WN_FORCE_INLINE void wake_waiting_thread() {
+  inline void wake_waiting_thread() {
 #ifdef _WN_WINDOWS
     ::PostQueuedCompletionStatus(m_io_completion_port.value(), 0, 0, 0);
 #else
@@ -93,7 +93,7 @@ public:
 #endif
   }
 
-  WN_FORCE_INLINE result_type enqueue(thread_task_ptr&& task) {
+  inline result_type enqueue(thread_task_ptr&& task) {
     if (!task || m_shutdown) {
       return result::invalid_parameters;
     }
@@ -121,7 +121,7 @@ public:
     return result::ok;
   }
 
-  WN_FORCE_INLINE result_type enqueue(const thread_task_ptr& task) {
+  inline result_type enqueue(const thread_task_ptr& task) {
     return enqueue(thread_task_ptr(task));
   }
 

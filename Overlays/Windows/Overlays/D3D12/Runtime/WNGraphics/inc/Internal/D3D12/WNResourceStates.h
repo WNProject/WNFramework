@@ -16,8 +16,8 @@ namespace graphics {
 namespace internal {
 namespace d3d12 {
 
-static WN_FORCE_INLINE D3D12_RESOURCE_STATES
-resource_state_to_d3d12_resource_states(const resource_state _state) {
+static inline D3D12_RESOURCE_STATES resource_state_to_d3d12_resource_states(
+    const resource_state _state) {
   static const D3D12_RESOURCE_STATES states[] = {
       D3D12_RESOURCE_STATE_COMMON,                      // initial
       D3D12_RESOURCE_STATE_COMMON,                      // host_write
@@ -50,7 +50,7 @@ resource_state_to_d3d12_resource_states(const resource_state _state) {
   return states[math::trailing_zeros(static_cast<uint32_t>(_state)) + 1];
 }
 
-static WN_FORCE_INLINE D3D12_RESOURCE_FLAGS resources_states_to_resource_flags(
+static inline D3D12_RESOURCE_FLAGS resources_states_to_resource_flags(
     resource_states _state) {
   D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
 
@@ -66,7 +66,7 @@ static WN_FORCE_INLINE D3D12_RESOURCE_FLAGS resources_states_to_resource_flags(
   return flags;
 }
 
-static WN_FORCE_INLINE D3D12_BLEND blend_to_d3d12(blend_factor _blend) {
+static inline D3D12_BLEND blend_to_d3d12(blend_factor _blend) {
   switch (_blend) {
     case blend_factor::zero:
       return D3D12_BLEND_ZERO;
@@ -108,7 +108,7 @@ static WN_FORCE_INLINE D3D12_BLEND blend_to_d3d12(blend_factor _blend) {
   return D3D12_BLEND(0);
 }
 
-static WN_FORCE_INLINE D3D12_BLEND_OP blend_op_to_d3d12(blend_op _blend) {
+static inline D3D12_BLEND_OP blend_op_to_d3d12(blend_op _blend) {
   switch (_blend) {
     case blend_op::add:
       return D3D12_BLEND_OP_ADD;
@@ -126,7 +126,7 @@ static WN_FORCE_INLINE D3D12_BLEND_OP blend_op_to_d3d12(blend_op _blend) {
   return D3D12_BLEND_OP(0);
 }
 
-static WN_FORCE_INLINE D3D12_LOGIC_OP logic_op_to_d3d12(logic_op _logic) {
+static inline D3D12_LOGIC_OP logic_op_to_d3d12(logic_op _logic) {
   switch (_logic) {
     case logic_op::disabled:
       return D3D12_LOGIC_OP(0);
@@ -168,8 +168,7 @@ static WN_FORCE_INLINE D3D12_LOGIC_OP logic_op_to_d3d12(logic_op _logic) {
   return D3D12_LOGIC_OP(0);
 }
 
-static WN_FORCE_INLINE UINT8 write_components_to_d3d12(
-    write_components _write) {
+static inline UINT8 write_components_to_d3d12(write_components _write) {
   uint8_t write = 0;
   if (_write & static_cast<uint32_t>(write_component::r)) {
     write |= D3D12_COLOR_WRITE_ENABLE_RED;
@@ -186,7 +185,7 @@ static WN_FORCE_INLINE UINT8 write_components_to_d3d12(
   return write;
 }
 
-static WN_FORCE_INLINE D3D12_FILL_MODE fill_to_d3d12(fill_mode _fill) {
+static inline D3D12_FILL_MODE fill_to_d3d12(fill_mode _fill) {
   switch (_fill) {
     case fill_mode::fill:
       return D3D12_FILL_MODE_SOLID;
@@ -199,7 +198,7 @@ static WN_FORCE_INLINE D3D12_FILL_MODE fill_to_d3d12(fill_mode _fill) {
   return D3D12_FILL_MODE(0);
 }
 
-static WN_FORCE_INLINE D3D12_CULL_MODE cull_mode_to_d3d12(cull_mode _cull) {
+static inline D3D12_CULL_MODE cull_mode_to_d3d12(cull_mode _cull) {
   switch (_cull) {
     case cull_mode::back:
       return D3D12_CULL_MODE_BACK;
@@ -212,7 +211,7 @@ static WN_FORCE_INLINE D3D12_CULL_MODE cull_mode_to_d3d12(cull_mode _cull) {
   return D3D12_CULL_MODE(0);
 }
 
-static WN_FORCE_INLINE D3D12_COMPARISON_FUNC comparison_op_to_d3d12(
+static inline D3D12_COMPARISON_FUNC comparison_op_to_d3d12(
     comparison_op _compare) {
   switch (_compare) {
     case comparison_op::never:
@@ -236,8 +235,7 @@ static WN_FORCE_INLINE D3D12_COMPARISON_FUNC comparison_op_to_d3d12(
   return D3D12_COMPARISON_FUNC(0);
 }
 
-static WN_FORCE_INLINE D3D12_STENCIL_OP stencil_op_to_d3d12(
-    stencil_op _stencil) {
+static inline D3D12_STENCIL_OP stencil_op_to_d3d12(stencil_op _stencil) {
   switch (_stencil) {
     case stencil_op::keep:
       return D3D12_STENCIL_OP_KEEP;
@@ -260,8 +258,8 @@ static WN_FORCE_INLINE D3D12_STENCIL_OP stencil_op_to_d3d12(
   return D3D12_STENCIL_OP(0);
 }
 
-static WN_FORCE_INLINE D3D12_PRIMITIVE_TOPOLOGY_TYPE
-topology_to_d3d12_topology_type(topology _topology) {
+static inline D3D12_PRIMITIVE_TOPOLOGY_TYPE topology_to_d3d12_topology_type(
+    topology _topology) {
   switch (_topology) {
     case topology::undefined:
       return D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED;
@@ -284,7 +282,7 @@ topology_to_d3d12_topology_type(topology _topology) {
   return D3D12_PRIMITIVE_TOPOLOGY_TYPE(0);
 }
 
-static WN_FORCE_INLINE D3D_PRIMITIVE_TOPOLOGY topology_to_d3d12_topology(
+static inline D3D_PRIMITIVE_TOPOLOGY topology_to_d3d12_topology(
     topology _topology) {
   switch (_topology) {
     case topology::undefined:

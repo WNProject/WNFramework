@@ -138,7 +138,7 @@ protected:
   friend class vulkan_adapter;
   friend class vulkan_command_list;
 
-  WN_FORCE_INLINE vulkan_device()
+  inline vulkan_device()
     : vulkan_device_base(),
       m_device(VK_NULL_HANDLE),
       m_queue(VK_NULL_HANDLE),

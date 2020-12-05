@@ -55,7 +55,7 @@ class d3d12_command_list WN_GRAPHICS_FINAL : public d3d12_command_list_base {
 public:
   ~d3d12_command_list() WN_GRAPHICS_OVERRIDE_FINAL = default;
 
-  WN_FORCE_INLINE void finalize() WN_GRAPHICS_OVERRIDE_FINAL {
+  inline void finalize() WN_GRAPHICS_OVERRIDE_FINAL {
     auto retval = m_command_list->Close();
     WN_RELEASE_ASSERT(S_OK == retval, "Unknown error closing command list.");
   };
@@ -126,12 +126,11 @@ protected:
 
   d3d12_command_list() = default;
 
-  WN_FORCE_INLINE ID3D12CommandList* command_list() const {
+  inline ID3D12CommandList* command_list() const {
     return m_command_list.Get();
   }
 
-  WN_FORCE_INLINE void initialize(memory::allocator* _allocator,
-      ID3D12Device* _device,
+  inline void initialize(memory::allocator* _allocator, ID3D12Device* _device,
       Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>&& _command_list,
       d3d12_resource_cache* _cache) {
     m_allocator = _allocator;

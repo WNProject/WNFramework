@@ -19,18 +19,17 @@ namespace internal {
 
 struct basic_traits_generic : core::non_constructable {
   template <typename type>
-  static WN_FORCE_INLINE
-      typename core::enable_if<(std::is_integral<type>::value &&
-                                   core::is_signed<type>::value),
-          type>::type
-      abs(const type& _value) {
+  static inline typename core::enable_if<(std::is_integral<type>::value &&
+                                             core::is_signed<type>::value),
+      type>::type
+  abs(const type& _value) {
     const type negate = static_cast<type>(_value < 0);
 
     return ((_value ^ -negate) + negate);
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<(core::is_floating_point<type>::value &&
                                    std::is_fundamental<type>::value),
           type>::type
@@ -39,7 +38,7 @@ struct basic_traits_generic : core::non_constructable {
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<(core::is_floating_point<type>::value &&
                                    !std::is_fundamental<type>::value),
           type>::type
@@ -48,7 +47,7 @@ struct basic_traits_generic : core::non_constructable {
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<(!std::is_integral<type>::value &&
                                    !core::is_floating_point<type>::value &&
                                    core::is_signed<type>::value),
@@ -58,21 +57,21 @@ struct basic_traits_generic : core::non_constructable {
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<std::is_integral<type>::value, type>::type
       mod(const type& _dividend, const type& _divisor) {
     return (_dividend % _divisor);
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<std::is_floating_point<type>::value, type>::type
       mod(const type& _dividend, const type& _divisor) {
     return (::fmod(_dividend, _divisor));
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<(core::is_floating_point<type>::value &&
                                    !std::is_floating_point<type>::value),
           type>::type
@@ -81,23 +80,23 @@ struct basic_traits_generic : core::non_constructable {
         mod(static_cast<float>(_dividend), static_cast<float>(_divisor))));
   }
 
-  static WN_FORCE_INLINE float sqrt(const float& _value) {
+  static inline float sqrt(const float& _value) {
     return (::sqrt(_value));
   }
 
-  static WN_FORCE_INLINE double sqrt(const double& _value) {
+  static inline double sqrt(const double& _value) {
     return (::sqrt(_value));
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<std::is_integral<type>::value, type>::type
       sqrt(const type& _value) {
     return (static_cast<type>(sqrt(static_cast<double>(_value))));
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<(core::is_floating_point<type>::value &&
                                    !std::is_floating_point<type>::value),
           type>::type
@@ -106,7 +105,7 @@ struct basic_traits_generic : core::non_constructable {
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<(std::is_floating_point<type>::value &&
                                    !core::is_same<type, float>::value &&
                                    !core::is_same<type, double>::value),
@@ -115,16 +114,16 @@ struct basic_traits_generic : core::non_constructable {
     return (::sqrt(_value));
   }
 
-  static WN_FORCE_INLINE float invsqrt(const float& _value) {
+  static inline float invsqrt(const float& _value) {
     return (1.0f / sqrt(_value));
   }
 
-  static WN_FORCE_INLINE double invsqrt(const double& _value) {
+  static inline double invsqrt(const double& _value) {
     return (1.0 / sqrt(_value));
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<(core::is_floating_point<type>::value &&
                                    !std::is_floating_point<type>::value),
           type>::type
@@ -133,7 +132,7 @@ struct basic_traits_generic : core::non_constructable {
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<(std::is_floating_point<type>::value &&
                                    !core::is_same<type, float>::value &&
                                    !core::is_same<type, double>::value),
@@ -143,21 +142,21 @@ struct basic_traits_generic : core::non_constructable {
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<std::is_integral<type>::value, type>::type
       min(const type& _value1, const type& _value2) {
     return (_value2 ^ ((_value1 ^ _value2) & -(_value1 < _value2)));
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<std::is_floating_point<type>::value, type>::type
       min(const type& _value1, const type& _value2) {
     return (::fmin(_value1, _value2));
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<(core::is_floating_point<type>::value &&
                                    !std::is_floating_point<type>::value),
           type>::type
@@ -167,7 +166,7 @@ struct basic_traits_generic : core::non_constructable {
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<(!std::is_integral<type>::value &&
                                    !core::is_floating_point<type>::value),
           type>::type
@@ -176,21 +175,21 @@ struct basic_traits_generic : core::non_constructable {
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<std::is_integral<type>::value, type>::type
       max(const type& _value1, const type& _value2) {
     return (_value1 ^ ((_value1 ^ _value2) & -(_value1 < _value2)));
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<std::is_floating_point<type>::value, type>::type
       max(const type& _value1, const type& _value2) {
     return (::fmax(_value1, _value2));
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<(core::is_floating_point<type>::value &&
                                    !std::is_floating_point<type>::value),
           type>::type
@@ -200,7 +199,7 @@ struct basic_traits_generic : core::non_constructable {
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<(!std::is_integral<type>::value &&
                                    !core::is_floating_point<type>::value),
           type>::type
@@ -209,13 +208,13 @@ struct basic_traits_generic : core::non_constructable {
   }
 
   template <typename type>
-  static WN_FORCE_INLINE type clamp(
+  static inline type clamp(
       const type& _value, const type& _min, const type& _max) {
     return (min(max(_value, _min), _max));
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<std::is_integral<type>::value, type>::type
       pow(const type& _base, const type& _exponent) {
     type base = _base;
@@ -235,7 +234,7 @@ struct basic_traits_generic : core::non_constructable {
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<(core::is_floating_point<type>::value &&
                                    !std::is_floating_point<type>::value),
           type>::type
@@ -245,14 +244,14 @@ struct basic_traits_generic : core::non_constructable {
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<std::is_floating_point<type>::value, type>::type
       pow(const type& _base, const type& _exponent) {
     return (::pow(_base, _exponent));
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<(core::is_floating_point<type>::value &&
                                    !std::is_floating_point<type>::value),
           type>::type
@@ -261,14 +260,14 @@ struct basic_traits_generic : core::non_constructable {
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<std::is_floating_point<type>::value, type>::type
       ceil(const type& _value) {
     return (::ceil(_value));
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<(core::is_floating_point<type>::value &&
                                    !std::is_floating_point<type>::value),
           type>::type
@@ -277,14 +276,14 @@ struct basic_traits_generic : core::non_constructable {
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<std::is_floating_point<type>::value, type>::type
       floor(const type& _value) {
     return (::floor(_value));
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<(core::is_floating_point<type>::value &&
                                    !std::is_floating_point<type>::value),
           type>::type
@@ -293,14 +292,14 @@ struct basic_traits_generic : core::non_constructable {
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<std::is_floating_point<type>::value, type>::type
       round(const type& _value) {
     return (::round(_value));
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<(core::is_floating_point<type>::value &&
                                    !std::is_floating_point<type>::value),
           type>::type
@@ -309,7 +308,7 @@ struct basic_traits_generic : core::non_constructable {
   }
 
   template <typename type>
-  static WN_FORCE_INLINE
+  static inline
       typename core::enable_if<std::is_floating_point<type>::value, type>::type
       trunc(const type& _value) {
     return (::trunc(_value));

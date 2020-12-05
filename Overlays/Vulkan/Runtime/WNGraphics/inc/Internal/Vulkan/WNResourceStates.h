@@ -16,7 +16,7 @@ namespace graphics {
 namespace internal {
 namespace vulkan {
 
-static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_access_flags(
+static inline VkFlags resource_state_to_vulkan_access_flags(
     resource_state _state) {
   static const VkFlags states[] = {
       0,                                    // initial
@@ -49,7 +49,7 @@ static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_access_flags(
   return states[math::trailing_zeros(static_cast<uint32_t>(_state)) + 1];
 }
 
-static WN_FORCE_INLINE VkImageLayout resource_state_to_vulkan_layout(
+static inline VkImageLayout resource_state_to_vulkan_layout(
     resource_state _state) {
   static const VkImageLayout layouts[] = {
       VK_IMAGE_LAYOUT_UNDEFINED,                         // initial
@@ -80,7 +80,7 @@ static WN_FORCE_INLINE VkImageLayout resource_state_to_vulkan_layout(
   return layouts[math::trailing_zeros(static_cast<uint32_t>(_state)) + 1];
 }
 
-static WN_FORCE_INLINE VkPipelineStageFlags flags_to_vulkan_stage(
+static inline VkPipelineStageFlags flags_to_vulkan_stage(
     pipeline_stages _state) {
   VkPipelineStageFlags flags = 0;
 
@@ -138,7 +138,7 @@ static WN_FORCE_INLINE VkPipelineStageFlags flags_to_vulkan_stage(
   return flags;
 }
 
-static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_pipeline_stage(
+static inline VkFlags resource_state_to_vulkan_pipeline_stage(
     resource_state _state) {
   static const VkFlags states[] = {
       VK_PIPELINE_STAGE_HOST_BIT,                     // initial
@@ -169,7 +169,7 @@ static WN_FORCE_INLINE VkFlags resource_state_to_vulkan_pipeline_stage(
   return states[math::trailing_zeros(static_cast<uint32_t>(_state)) + 1];
 }
 
-static WN_FORCE_INLINE VkImageUsageFlags resources_states_to_usage_bits(
+static inline VkImageUsageFlags resources_states_to_usage_bits(
     resource_states _state) {
   uint32_t usage = 0;
   if (_state & static_cast<uint32_t>(resource_state::copy_dest)) {
@@ -196,8 +196,7 @@ static WN_FORCE_INLINE VkImageUsageFlags resources_states_to_usage_bits(
   return VkImageUsageFlags(usage);
 }
 
-static WN_FORCE_INLINE VkShaderStageFlagBits shader_stage_to_vulkan(
-    shader_stage stage) {
+static inline VkShaderStageFlagBits shader_stage_to_vulkan(shader_stage stage) {
   switch (stage) {
     case shader_stage::vertex:
       return VK_SHADER_STAGE_VERTEX_BIT;
@@ -216,7 +215,7 @@ static WN_FORCE_INLINE VkShaderStageFlagBits shader_stage_to_vulkan(
   return VkShaderStageFlagBits(0);
 }
 
-static WN_FORCE_INLINE uint32_t shader_stages_to_vulkan(uint32_t stages) {
+static inline uint32_t shader_stages_to_vulkan(uint32_t stages) {
   uint32_t output = 0;
 
   if (stages & static_cast<uint32_t>(shader_stage::vertex)) {
@@ -241,8 +240,7 @@ static WN_FORCE_INLINE uint32_t shader_stages_to_vulkan(uint32_t stages) {
   return output;
 }
 
-static WN_FORCE_INLINE VkPrimitiveTopology primitive_topology_to_vulkan(
-    topology t) {
+static inline VkPrimitiveTopology primitive_topology_to_vulkan(topology t) {
   switch (t) {
     case topology::undefined:
       return VkPrimitiveTopology(0);
@@ -271,7 +269,7 @@ static WN_FORCE_INLINE VkPrimitiveTopology primitive_topology_to_vulkan(
   return VkPrimitiveTopology(0);
 }
 
-static WN_FORCE_INLINE VkPolygonMode fill_mode_to_vulkan(fill_mode _mode) {
+static inline VkPolygonMode fill_mode_to_vulkan(fill_mode _mode) {
   switch (_mode) {
     case fill_mode::fill:
       return VK_POLYGON_MODE_FILL;
@@ -284,7 +282,7 @@ static WN_FORCE_INLINE VkPolygonMode fill_mode_to_vulkan(fill_mode _mode) {
   return VkPolygonMode(0);
 }
 
-static WN_FORCE_INLINE VkCullModeFlags cull_mode_to_vulkan(cull_mode _mode) {
+static inline VkCullModeFlags cull_mode_to_vulkan(cull_mode _mode) {
   switch (_mode) {
     case cull_mode::back:
       return VK_CULL_MODE_BACK_BIT;
@@ -297,7 +295,7 @@ static WN_FORCE_INLINE VkCullModeFlags cull_mode_to_vulkan(cull_mode _mode) {
   return VkCullModeFlags(0);
 }
 
-static WN_FORCE_INLINE VkFrontFace winding_to_vulkan(winding _mode) {
+static inline VkFrontFace winding_to_vulkan(winding _mode) {
   switch (_mode) {
     case winding::clockwise:
       return VK_FRONT_FACE_CLOCKWISE;
@@ -308,7 +306,7 @@ static WN_FORCE_INLINE VkFrontFace winding_to_vulkan(winding _mode) {
   return VkFrontFace(0);
 }
 
-static WN_FORCE_INLINE VkSampleCountFlagBits samples_to_vulkan(
+static inline VkSampleCountFlagBits samples_to_vulkan(
     multisample_count _count) {
   switch (_count) {
     case multisample_count::disabled:
@@ -332,7 +330,7 @@ static WN_FORCE_INLINE VkSampleCountFlagBits samples_to_vulkan(
   return VkSampleCountFlagBits(0);
 }
 
-static WN_FORCE_INLINE VkCompareOp compare_to_vulkan(comparison_op _compare) {
+static inline VkCompareOp compare_to_vulkan(comparison_op _compare) {
   switch (_compare) {
     case comparison_op::always:
       return VK_COMPARE_OP_ALWAYS;
@@ -355,7 +353,7 @@ static WN_FORCE_INLINE VkCompareOp compare_to_vulkan(comparison_op _compare) {
   return VkCompareOp(0);
 }
 
-static WN_FORCE_INLINE VkStencilOp stencil_op_to_vulkan(stencil_op _stencil) {
+static inline VkStencilOp stencil_op_to_vulkan(stencil_op _stencil) {
   switch (_stencil) {
     case stencil_op::keep:
       return VK_STENCIL_OP_KEEP;
@@ -378,8 +376,7 @@ static WN_FORCE_INLINE VkStencilOp stencil_op_to_vulkan(stencil_op _stencil) {
   return VkStencilOp(0);
 }
 
-static WN_FORCE_INLINE VkBlendFactor blend_factor_to_vulkan(
-    blend_factor _factor) {
+static inline VkBlendFactor blend_factor_to_vulkan(blend_factor _factor) {
   switch (_factor) {
     case blend_factor::zero:
       return VK_BLEND_FACTOR_ZERO;
@@ -420,7 +417,7 @@ static WN_FORCE_INLINE VkBlendFactor blend_factor_to_vulkan(
   return VkBlendFactor(0);
 }
 
-static WN_FORCE_INLINE VkBlendOp blend_op_to_vulkan(blend_op _op) {
+static inline VkBlendOp blend_op_to_vulkan(blend_op _op) {
   switch (_op) {
     case blend_op::add:
       return VK_BLEND_OP_ADD;
@@ -437,7 +434,7 @@ static WN_FORCE_INLINE VkBlendOp blend_op_to_vulkan(blend_op _op) {
   return VkBlendOp(0);
 }
 
-static WN_FORCE_INLINE VkLogicOp logic_op_to_vulkan(logic_op _op) {
+static inline VkLogicOp logic_op_to_vulkan(logic_op _op) {
   switch (_op) {
     case logic_op::disabled:
       return VkLogicOp(0);
@@ -478,7 +475,7 @@ static WN_FORCE_INLINE VkLogicOp logic_op_to_vulkan(logic_op _op) {
   return VkLogicOp(0);
 }
 
-static WN_FORCE_INLINE VkColorComponentFlags write_components_to_vulkan(
+static inline VkColorComponentFlags write_components_to_vulkan(
     write_components _components) {
   VkColorComponentFlags flags = 0;
   if (_components & static_cast<uint8_t>(write_component::r)) {

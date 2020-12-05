@@ -21,7 +21,7 @@ class thread_task : public memory::intrusive_ptr_base {
 public:
   virtual ~thread_task() = default;
 
-  WN_FORCE_INLINE bool join() {
+  inline bool join() {
     if (!run_task()) {
       m_completion_semaphore.wait();
       m_completion_semaphore.notify();
@@ -31,7 +31,7 @@ public:
   }
 
 protected:
-  WN_FORCE_INLINE thread_task() : memory::intrusive_ptr_base() {
+  inline thread_task() : memory::intrusive_ptr_base() {
     m_executed.clear(std::memory_order_release);
   }
 
@@ -40,7 +40,7 @@ protected:
 private:
   friend class thread_pool;
 
-  WN_FORCE_INLINE bool run_task() {
+  inline bool run_task() {
     if (!m_executed.test_and_set(std::memory_order_acquire)) {
       run();
 

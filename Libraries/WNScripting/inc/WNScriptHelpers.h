@@ -320,8 +320,8 @@ memory::unique_ptr<ast_script_file> parse_script(memory::allocator* _allocator,
 namespace logging {
 template <typename T, typename BuffType>
 struct log_type_helper<scripting::wn_array<T>, BuffType> {
-  WN_FORCE_INLINE static bool do_log(const scripting::wn_array<T>& _0,
-      BuffType* _buffer, size_t& _buffer_left) {
+  inline static bool do_log(const scripting::wn_array<T>& _0, BuffType* _buffer,
+      size_t& _buffer_left) {
     size_t last_buffer_left = _buffer_left;
     if (!log_type_helper<char[2], BuffType>::do_log(
             "[", _buffer, last_buffer_left)) {

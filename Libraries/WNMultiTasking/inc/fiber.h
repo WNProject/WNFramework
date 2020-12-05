@@ -31,7 +31,7 @@ fiber* get_self();
 void convert_to_fiber(wn::memory::allocator* _allocator);
 void revert_from_fiber();
 
-WN_FORCE_INLINE fiber_id get_id() {
+inline fiber_id get_id() {
   return fiber_id();
 }
 
@@ -63,7 +63,7 @@ public:
 #endif
   }
 
-  WN_FORCE_INLINE fiber(memory::allocator* _allocator)
+  inline fiber(memory::allocator* _allocator)
     : m_is_top_level_fiber(false), m_allocator(_allocator) {
 #ifdef _WN_WINDOWS
     m_fiber_context = nullptr;
@@ -75,13 +75,12 @@ public:
     m_data->m_fiber = this;
   }
 
-  WN_FORCE_INLINE fiber(fiber&& _other) : fiber() {
+  inline fiber(fiber&& _other) : fiber() {
     _other.swap(*this);
   }
 
   template <typename F, typename... Args>
-  WN_FORCE_INLINE explicit fiber(
-      memory::allocator* _allocator, F&& _f, Args&&... _args)
+  inline explicit fiber(memory::allocator* _allocator, F&& _f, Args&&... _args)
     : m_is_top_level_fiber(false), m_allocator(_allocator) {
     create(default_fiber_stack_size,
         functional::function<void()>(
@@ -90,8 +89,8 @@ public:
   }
 
   template <typename F, typename... Args>
-  WN_FORCE_INLINE explicit fiber(memory::allocator* _allocator,
-      const size_t _stack_size, F&& _f, Args&&... _args)
+  inline explicit fiber(memory::allocator* _allocator, const size_t _stack_size,
+      F&& _f, Args&&... _args)
     : m_is_top_level_fiber(false), m_allocator(_allocator) {
     functional::function<void()> f(
         _allocator, std::bind(core::decay_copy(std::forward<F>(_f)),
@@ -100,7 +99,7 @@ public:
     create(_stack_size, core::move(f));
   }
 
-  WN_FORCE_INLINE fiber& operator=(fiber&& _other) {
+  inline fiber& operator=(fiber&& _other) {
     // Clear out this.
     m_data.release();
     m_allocator = nullptr;
@@ -123,7 +122,7 @@ public:
     return *this;
   }
 
-  WN_FORCE_INLINE void swap(fiber& _other) {
+  inline void swap(fiber& _other) {
     core::swap(m_data, _other.m_data);
     core::swap(m_is_top_level_fiber, _other.m_is_top_level_fiber);
     core::swap(m_allocator, _other.m_allocator);

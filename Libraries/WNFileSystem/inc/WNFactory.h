@@ -32,7 +32,7 @@ enum class mapping_type {
 
 class factory {
 public:
-  WN_FORCE_INLINE factory(memory::allocator* _allocator,
+  inline factory(memory::allocator* _allocator,
       const executable::executable_data* _executable_data, logging::log* _log)
     : m_system_data(_executable_data), m_allocator(_allocator), m_log(_log) {}
 
@@ -45,12 +45,12 @@ public:
   virtual mapping_ptr make_mapping(
       memory::allocator* _allocator, containers::string&& _path) const;
 
-  WN_FORCE_INLINE mapping_ptr make_mapping(
+  inline mapping_ptr make_mapping(
       memory::allocator* _allocator, const containers::string& _path) const {
     return make_mapping(_allocator, containers::string(_path));
   }
 
-  WN_FORCE_INLINE mapping_ptr make_mapping(memory::allocator* _allocator,
+  inline mapping_ptr make_mapping(memory::allocator* _allocator,
       const containers::string_view _path) const {
     return make_mapping(_allocator, _path.to_string(_allocator));
   }
