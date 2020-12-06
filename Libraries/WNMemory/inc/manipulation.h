@@ -15,24 +15,13 @@
 namespace wn {
 namespace memory {
 
-inline void* memset(void* _dest, uint8_t _value, size_t _count) {
-  return std::memset(_dest, _value, _count);
-}
+using std::memcmp;
+using std::memcpy;
+using std::memmove;
+using std::memset;
 
 inline void* memzero(void* _dest, size_t _count) {
   return memset(_dest, 0, _count);
-}
-
-inline void* memcpy(void* _dest, const void* _src, size_t _count) {
-  return std::memcpy(_dest, _src, _count);
-}
-
-inline void* memmove(void* _dest, const void* _src, size_t _count) {
-  return std::memmove(_dest, _src, _count);
-}
-
-inline int32_t memcmp(const void* _lhs, const void* _rhs, size_t _count) {
-  return std::memcmp(_lhs, _rhs, _count);
 }
 
 template <typename T>
@@ -128,7 +117,7 @@ inline int32_t memory_compare(
 
 template <typename T>
 inline void prefetch(const T* _ptr) {
-  (void)_ptr;  // currently does nothing
+  (void)_ptr;
 }
 
 template <typename T>

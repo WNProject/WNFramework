@@ -8,10 +8,10 @@
 #define __WN_MEMORY_INTERNAL_ALLOCATION_H__
 
 #include "WNMemory/inc/internal/stack_allocation.h"
-#include "WNMemory/inc/manipulation.h"
 #include "core/inc/types.h"
 
 #include <cstdlib>
+#include <cstring>
 
 namespace wn {
 namespace memory {
@@ -43,7 +43,7 @@ inline void* aligned_realloc(void* _ptr, size_t _new_size, size_t _alignment) {
     const size_t old_size = *(reinterpret_cast<size_t*>(_ptr) - 2);
     const size_t copy_size = old_size < _new_size ? old_size : _new_size;
 
-    temp_ptr = memcpy(temp_ptr, _ptr, copy_size);
+    temp_ptr = std::memcpy(temp_ptr, _ptr, copy_size);
   }
 
   aligned_free(_ptr);
