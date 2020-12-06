@@ -7,9 +7,9 @@
 #ifndef __WN_MEMORY_STRING_UTILITIES_H__
 #define __WN_MEMORY_STRING_UTILITIES_H__
 
-#include "WNCore/inc/assert.h"
 #include "WNMemory/inc/allocation.h"
 #include "WNMemory/inc/manipulation.h"
+#include "core/inc/assert.h"
 
 #include <algorithm>
 #include <cmath>

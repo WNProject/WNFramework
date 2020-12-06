@@ -10,7 +10,6 @@
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNHashSet.h"
 #include "WNContainers/inc/WNString.h"
-#include "WNCore/inc/optional.h"
 #include "WNFunctional/inc/WNFunction.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
@@ -18,6 +17,7 @@
 #include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/inc/externals.h"
 #include "WNScripting/inc/resource_manager.h"
+#include "core/inc/optional.h"
 
 namespace wn {
 namespace scripting {

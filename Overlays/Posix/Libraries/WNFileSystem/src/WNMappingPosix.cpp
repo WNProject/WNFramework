@@ -4,9 +4,9 @@
 
 #include "WNFileSystem/src/WNMappingPosix.h"
 
-#include "WNCore/inc/assert.h"
 #include "WNFileSystem/src/WNFilePosix.h"
 #include "WNFileSystem/src/WNSystemUtilities.h"
+#include "core/inc/assert.h"
 
 #include <fcntl.h>
 #include <stdio.h>

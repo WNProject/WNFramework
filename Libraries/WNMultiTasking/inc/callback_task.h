@@ -7,11 +7,11 @@
 #ifndef __WN_MULTI_TASKING_CALLBACK_TASK_H__
 #define __WN_MULTI_TASKING_CALLBACK_TASK_H__
 
-#include "WNCore/inc/type_traits.h"
-#include "WNCore/inc/utilities.h"
 #include "WNFunctional/inc/WNFunction.h"
 #include "WNMemory/inc/intrusive_ptr.h"
 #include "WNMultiTasking/inc/thread_task.h"
+#include "core/inc/type_traits.h"
+#include "core/inc/utilities.h"
 
 #include <functional>
 

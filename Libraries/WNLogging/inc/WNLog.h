@@ -7,11 +7,11 @@
 #ifndef __WN_LOGGING_LOG_H__
 #define __WN_LOGGING_LOG_H__
 
-#include "WNCore/inc/assert.h"
-#include "WNCore/inc/types.h"
 #include "WNLogging/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNLogEnums.h"
 #include "WNMemory/inc/string_utility.h"
+#include "core/inc/assert.h"
+#include "core/inc/types.h"
 
 namespace wn {
 namespace logging {

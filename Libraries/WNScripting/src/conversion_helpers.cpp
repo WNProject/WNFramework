@@ -2,11 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE.txt file.
 
-#include "WNCore/inc/utilities.h"
 #include "WNMemory/inc/unique_ptr.h"
 #include "WNScripting/inc/WNNodeTypes.h"
 #include "WNScripting/inc/internal/ast_convertor_context.h"
 #include "WNScripting/inc/parse_ast_convertor.h"
+#include "core/inc/utilities.h"
 
 namespace wn {
 namespace scripting {

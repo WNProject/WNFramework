@@ -7,9 +7,9 @@
 #ifndef __WN_FUNCTIONAL_UNIQUE_FUNCTION_H__
 #define __WN_FUNCTIONAL_UNIQUE_FUNCTION_H__
 
-#include "WNCore/inc/assert.h"
-#include "WNCore/inc/utilities.h"
 #include "WNMemory/inc/allocation.h"
+#include "core/inc/assert.h"
+#include "core/inc/utilities.h"
 
 namespace wn {
 namespace functional {

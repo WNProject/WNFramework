@@ -8,13 +8,13 @@
 #define __WN_RUNTIME_WINDOW_INPUT_CONTEXT_H__
 
 #include "WNContainers/inc/WNDeque.h"
-#include "WNCore/inc/assert.h"
-#include "WNCore/inc/types.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/intrusive_ptr.h"
 #include "WNMultiTasking/inc/lock_guard.h"
 #include "WNMultiTasking/inc/spin_lock.h"
 #include "WNWindow/inc/WNWindowEnums.h"
+#include "core/inc/assert.h"
+#include "core/inc/types.h"
 
 namespace wn {
 namespace runtime {

@@ -7,8 +7,8 @@
 #ifndef __WN_UTILITIES_WINDOWS_INTERNAL_HANDLE_H__
 #define __WN_UTILITIES_WINDOWS_INTERNAL_HANDLE_H__
 
-#include "WNCore/inc/assert.h"
-#include "WNCore/inc/utilities.h"
+#include "core/inc/assert.h"
+#include "core/inc/utilities.h"
 
 namespace wn {
 namespace utilities {

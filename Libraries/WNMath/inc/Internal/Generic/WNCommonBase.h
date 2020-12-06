@@ -7,10 +7,10 @@
 #ifndef __WN_MATH_INTERNAL_COMMON_BASE_GENERIC_H__
 #define __WN_MATH_INTERNAL_COMMON_BASE_GENERIC_H__
 
-#include "WNCore/inc/assert.h"
-#include "WNCore/inc/types.h"
-#include "WNCore/inc/utilities.h"
 #include "WNMath/inc/Internal/WNStorageBase.h"
+#include "core/inc/assert.h"
+#include "core/inc/types.h"
+#include "core/inc/utilities.h"
 
 namespace wn {
 namespace math {

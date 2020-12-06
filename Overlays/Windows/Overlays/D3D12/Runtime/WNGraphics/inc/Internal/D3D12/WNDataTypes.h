@@ -9,7 +9,6 @@
 
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNRangePartition.h"
-#include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/Internal/D3D12/WNLockedHeap.h"
 #include "WNGraphics/inc/WNArena.h"
 #include "WNGraphics/inc/WNBuffer.h"
@@ -20,6 +19,7 @@
 #include "WNGraphics/inc/WNRenderPassTypes.h"
 #include "WNGraphics/inc/WNShaderModule.h"
 #include "WNUtilities/inc/handle.h"
+#include "core/inc/pair.h"
 
 #include <dxgi1_4.h>
 #include <wrl.h>

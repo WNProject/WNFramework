@@ -44,7 +44,7 @@ tokens
 
 
 @header {
-    #include "WNCore/inc/base.h"
+    #include "core/inc/base.h"
 #ifdef _WN_MSVC
     #pragma warning(disable: 4100)
     #pragma warning(disable: 4459)
@@ -106,7 +106,7 @@ tokens
 
 @lexer::traits
 {
-    #include "WNCore/inc/base.h"
+    #include "core/inc/base.h"
 #ifdef _WN_MSVC
     #pragma warning(disable: 4100)
     #pragma warning(disable: 4459)

@@ -7,8 +7,8 @@
 #ifndef __WN_MATH_MATRIX_H__
 #define __WN_MATH_MATRIX_H__
 
-#include "WNCore/inc/type_traits.h"
 #include "WNMath/inc/Internal/WNMatrixBase.h"
+#include "core/inc/type_traits.h"
 
 namespace wn {
 namespace math {

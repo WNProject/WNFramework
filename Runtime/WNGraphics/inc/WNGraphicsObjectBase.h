@@ -7,9 +7,9 @@
 #ifndef __WN_GRAPHICS_OBJECT_BASE__
 #define __WN_GRAPHICS_OBJECT_BASE__
 
-#include "WNCore/inc/base.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNDevice.h"
+#include "core/inc/base.h"
 
 WN_GRAPHICS_FORWARD(queue);
 WN_GRAPHICS_FORWARD(device);

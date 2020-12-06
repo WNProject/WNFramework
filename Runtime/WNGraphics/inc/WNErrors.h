@@ -12,7 +12,7 @@ namespace runtime {
 namespace graphics {
 
 enum class graphics_error {
-#include "WNCore/inc/internal/errors.inc"
+#include "core/inc/internal/errors.inc"
 };
 
 }  // namespace graphics

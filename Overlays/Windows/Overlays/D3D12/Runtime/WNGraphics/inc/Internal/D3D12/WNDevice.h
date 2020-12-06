@@ -11,7 +11,6 @@
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNRangePartition.h"
 #include "WNContainers/inc/WNStringView.h"
-#include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/Internal/D3D12/WND3D12ResourceCache.h"
 #include "WNGraphics/inc/Internal/D3D12/WNLockedHeap.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
@@ -27,11 +26,12 @@
 #include "WNMultiTasking/inc/mutex.h"
 #include "WNMultiTasking/inc/spin_lock.h"
 #include "WNWindow/inc/WNWindow.h"
+#include "core/inc/pair.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNDevice.h"
 #else
-#include "WNCore/inc/utilities.h"
+#include "core/inc/utilities.h"
 #endif
 
 #include <d3d12.h>

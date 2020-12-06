@@ -17,12 +17,12 @@
 #else
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
-#include "WNCore/inc/utilities.h"
+#include "core/inc/utilities.h"
 #endif
 
-#include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/WNErrors.h"
 #include "WNGraphics/inc/WNSurface.h"
+#include "core/inc/pair.h"
 
 namespace wn {
 namespace runtime {

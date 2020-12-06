@@ -8,15 +8,15 @@
 #define __WN_GRAPHICS_QUEUE_H__
 
 #include "WNContainers/inc/WNContiguousRange.h"
-#include "WNCore/inc/pair.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNMemory/inc/unique_ptr.h"
+#include "core/inc/pair.h"
 
 #ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/Internal/WNQueueIncludes.h"
 #else
-#include "WNCore/inc/utilities.h"
+#include "core/inc/utilities.h"
 #endif
 
 #include <initializer_list>

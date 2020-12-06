@@ -9,8 +9,8 @@
 
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNList.h"
-#include "WNCore/inc/pair.h"
 #include "WNMemory/inc/allocator.h"
+#include "core/inc/pair.h"
 
 #include <algorithm>
 #include <initializer_list>

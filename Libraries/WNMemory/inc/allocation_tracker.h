@@ -7,8 +7,8 @@
 #ifndef __WN_MEMORY_ALLOCATION_TRACKER_H__
 #define __WN_MEMORY_ALLOCATION_TRACKER_H__
 
-#include "WNCore/inc/assert.h"
 #include "WNMemory/inc/allocator.h"
+#include "core/inc/assert.h"
 
 #include <mutex>
 #include <unordered_map>

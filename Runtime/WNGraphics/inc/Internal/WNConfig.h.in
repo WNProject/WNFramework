@@ -7,8 +7,8 @@
 #ifndef __WN_GRAPHICS_INTERNAL_CONFIG_H__
 #define __WN_GRAPHICS_INTERNAL_CONFIG_H__
 
-#include "WNCore/inc/base.h"
-#include "WNCore/inc/macros.h"
+#include "core/inc/base.h"
+#include "core/inc/macros.h"
 
 // number of graphics device types available
 #define _WN_GRAPHICS_DEVICE_TYPES_AVAILABLE                                    \

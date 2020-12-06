@@ -5,9 +5,9 @@
 #ifndef __WN_UTILS_ANDROID_EVENT_PUMP_H__
 #define __WN_UTILS_ANDROID_EVENT_PUMP_H__
 
-#include "WNCore/inc/types.h"
 #include "WNMultiTasking/inc/semaphore.h"
 #include "WNMultiTasking/inc/spin_lock.h"
+#include "core/inc/types.h"
 
 #include <android/input.h>
 #include <android/native_window.h>

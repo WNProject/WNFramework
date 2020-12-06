@@ -7,13 +7,13 @@
 
 #include "WNContainers/inc/WNDeque.h"
 #include "WNContainers/inc/WNHashMap.h"
-#include "WNCore/inc/utilities.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNScripting/inc/WNEngine.h"
 #include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/inc/ast_node_types.h"
 #include "WNScripting/inc/type_manager.h"
+#include "core/inc/utilities.h"
 
 namespace llvm {
 class LLVMContext;

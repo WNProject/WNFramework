@@ -4,11 +4,11 @@
 
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
-#include "WNCore/inc/types.h"
 #include "WNMemory/inc/allocator.h"
 #include "WNMemory/inc/manipulation.h"
 #include "WNScripting/inc/WNEnums.h"
 #include "WNScripting/inc/WNScriptTLS.h"
+#include "core/inc/types.h"
 
 namespace wn {
 namespace scripting {

@@ -7,9 +7,9 @@
 #ifndef __WN_NEWORKING_RELIABLE_CONNECTION_LISTEN_SOCKET_H__
 #define __WN_NEWORKING_RELIABLE_CONNECTION_LISTEN_SOCKET_H__
 
-#include "WNCore/inc/base.h"
 #include "WNNetworking/inc/WNNetworkManager.h"
 #include "WNNetworking/inc/WNReliableConnection.h"
+#include "core/inc/base.h"
 
 namespace wn {
 namespace networking {

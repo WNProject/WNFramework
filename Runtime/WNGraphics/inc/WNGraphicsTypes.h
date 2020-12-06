@@ -7,7 +7,7 @@
 #ifndef __WN_GRAPHICS_GRAPHICS_TYPES_H__
 #define __WN_GRAPHICS_GRAPHICS_TYPES_H__
 
-#include "WNCore/inc/types.h"
+#include "core/inc/types.h"
 
 namespace wn {
 namespace runtime {

@@ -12,7 +12,7 @@
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNSwapchain.h"
 #else
-#include "WNCore/inc/utilities.h"
+#include "core/inc/utilities.h"
 #endif
 
 #include "WNContainers/inc/WNDynamicArray.h"

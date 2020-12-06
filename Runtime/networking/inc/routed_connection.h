@@ -8,11 +8,11 @@
 #define __WN_RUNTIME_NETWORKING_ROUTED_CONNECTION_H__
 
 #include "WNContainers/inc/WNContiguousRange.h"
-#include "WNCore/inc/endian.h"
 #include "WNMemory/inc/unique_ptr.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNNetworking/inc/WNConnection.h"
 #include "WNNetworking/inc/WNNetworkingErrors.h"
+#include "core/inc/endian.h"
 
 namespace wn {
 namespace runtime {

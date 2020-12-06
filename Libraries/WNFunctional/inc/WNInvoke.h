@@ -7,8 +7,8 @@
 #ifndef __WN_FUNCTIONAL_INVOKE_H__
 #define __WN_FUNCTIONAL_INVOKE_H__
 
-#include "WNCore/inc/type_traits.h"
-#include "WNCore/inc/utilities.h"
+#include "core/inc/type_traits.h"
+#include "core/inc/utilities.h"
 
 namespace wn {
 namespace functional {

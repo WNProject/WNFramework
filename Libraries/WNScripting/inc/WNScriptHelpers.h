@@ -8,8 +8,6 @@
 #include "WNContainers/inc/WNArray.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNStringView.h"
-#include "WNCore/inc/type_traits.h"
-#include "WNCore/inc/utilities.h"
 #include "WNFunctional/inc/WNFunction.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
@@ -17,6 +15,8 @@
 #include "WNScripting/inc/WNEnums.h"
 #include "WNScripting/inc/WNScriptTLS.h"
 #include "WNScripting/inc/forward.h"
+#include "core/inc/type_traits.h"
+#include "core/inc/utilities.h"
 
 #include <atomic>
 

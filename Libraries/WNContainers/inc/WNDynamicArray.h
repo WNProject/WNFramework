@@ -8,8 +8,8 @@
 #define __WN_CONTAINERS_DYNAMIC_ARRAY_H__
 
 #include "WNContainers/inc/WNContiguousRange.h"
-#include "WNCore/inc/assert.h"
 #include "WNMemory/inc/allocator.h"
+#include "core/inc/assert.h"
 
 #include <iterator>
 #include <limits>

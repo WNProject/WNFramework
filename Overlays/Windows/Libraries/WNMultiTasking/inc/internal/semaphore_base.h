@@ -7,10 +7,10 @@
 #ifndef __WN_MULTI_TASKING_WINDOWS_INTERNAL_SEMAPHORE_BASE_H__
 #define __WN_MULTI_TASKING_WINDOWS_INTERNAL_SEMAPHORE_BASE_H__
 
-#include "WNCore/inc/assert.h"
-#include "WNCore/inc/types.h"
-#include "WNCore/inc/utilities.h"
 #include "WNUtilities/inc/handle.h"
+#include "core/inc/assert.h"
+#include "core/inc/types.h"
+#include "core/inc/utilities.h"
 
 namespace wn {
 namespace multi_tasking {

@@ -5,11 +5,11 @@
 #ifndef __WN_APPLICATIONS_DEMOS_OBJECT_H__
 #define __WN_APPLICATIONS_DEMOS_OBJECT_H__
 #include "WNContainers/inc/WNStringView.h"
-#include "WNCore/inc/endian.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMemory/inc/allocator.h"
+#include "core/inc/endian.h"
 #include "texture_file.h"
 #include "texture_manager.h"
 

@@ -7,8 +7,8 @@
 #ifndef __WN_MULTI_TASKING_WINDOWS_INTERNAL_UTILITIES_H__
 #define __WN_MULTI_TASKING_WINDOWS_INTERNAL_UTILITIES_H__
 
-#include "WNCore/inc/base.h"
 #include "WNMultiTasking/inc/call_once.h"
+#include "core/inc/base.h"
 
 namespace wn {
 namespace multi_tasking {

@@ -7,7 +7,7 @@
 #ifndef __WN_MULTI_TASKING_CALL_ONCE_H__
 #define __WN_MULTI_TASKING_CALL_ONCE_H__
 
-#include "WNCore/inc/types.h"
+#include "core/inc/types.h"
 
 #include <mutex>
 

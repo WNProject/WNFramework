@@ -5,9 +5,9 @@
 #include "WNFileSystem/src/WNSystemTempPath.h"
 
 #include "WNContainers/inc/WNString.h"
-#include "WNCore/inc/types.h"
 #include "WNFileSystem/src/WNUtilities.h"
 #include "WNMemory/inc/allocator.h"
+#include "core/inc/types.h"
 #include "executable_data/inc/executable_data.h"
 #include "executable_entry/inc/executable_entry.h"
 

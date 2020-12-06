@@ -4,8 +4,8 @@
 
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
-#include "WNCore/inc/types.h"
 #include "WNFileSystem/src/WNSystemPaths.h"
+#include "core/inc/types.h"
 
 #include <limits.h>
 #include <unistd.h>

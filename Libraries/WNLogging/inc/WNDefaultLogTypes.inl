@@ -7,8 +7,8 @@
 
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNStringView.h"
-#include "WNCore/inc/types.h"
 #include "WNMemory/inc/string_utility.h"
+#include "core/inc/types.h"
 
 #include <cinttypes>
 

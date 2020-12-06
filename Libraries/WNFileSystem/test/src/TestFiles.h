@@ -7,7 +7,7 @@
 
 #include "WNContainers/inc/WNContiguousRange.h"
 #include "WNContainers/inc/WNStringView.h"
-#include "WNCore/inc/pair.h"
+#include "core/inc/pair.h"
 
 namespace TestFiles {
 

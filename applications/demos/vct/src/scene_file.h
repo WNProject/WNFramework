@@ -5,10 +5,10 @@
 #ifndef __WN_APPLICATIONS_DEMOS_VCT_SCENE_H__
 #define __WN_APPLICATIONS_DEMOS_VCT_SCENE_H__
 #include "WNContainers/inc/WNStringView.h"
-#include "WNCore/inc/endian.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNMemory/inc/allocator.h"
+#include "core/inc/endian.h"
 #include "object.h"
 #include "texture_manager.h"
 

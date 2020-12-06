@@ -10,9 +10,6 @@
 #include "WNContainers/inc/WNDeque.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNList.h"
-#include "WNCore/inc/pair.h"
-#include "WNCore/inc/tuple.h"
-#include "WNCore/inc/utilities.h"
 #include "WNFunctional/inc/WNFunction.h"
 #include "WNFunctional/inc/WNInvoke.h"
 #include "WNFunctional/inc/WNUniqueFunction.h"
@@ -21,6 +18,9 @@
 #include "WNMultiTasking/inc/synchronized.h"
 #include "WNMultiTasking/inc/thread.h"
 #include "WNMultiTasking/inc/thread_pool.h"
+#include "core/inc/pair.h"
+#include "core/inc/tuple.h"
+#include "core/inc/utilities.h"
 
 namespace wn {
 namespace multi_tasking {
