@@ -1,6 +1,6 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2020, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE.txt file.
+// found in the LICENSE file.
 
 // RUN: test1 3 -> 4
 // RUN: test1 8 -> 9
@@ -10,4 +10,3 @@ Int test1(Int x) {
     // CHECK-NEXT: _return = _ZN3wns16increment_numberEii(x);
     return increment_number(x);
 }
-

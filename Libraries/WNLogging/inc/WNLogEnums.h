@@ -1,6 +1,6 @@
-// Copyright (c) 2016, WNProject Authors. All rights reserved.
+// Copyright (c) 2020, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE.txt file.
+// found in the LICENSE file.
 
 #ifndef __WN_LOGGING_LOG_ENUMS_H__
 #define __WN_LOGGING_LOG_ENUMS_H__

@@ -1,6 +1,6 @@
 // Copyright (c) 2020, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE.txt file.
+// found in the LICENSE file.
 
 class TextureDescription {
     CString name = "";
@@ -9,7 +9,7 @@ class TextureDescription {
     Int format = format_max;
 
     CString get_name() {
-        return name;        
+        return name;
     }
 
     Int get_width() {
@@ -20,7 +20,7 @@ class TextureDescription {
         return height;
     }
 
-    Int get_format() { 
+    Int get_format() {
         return format;
     }
 }

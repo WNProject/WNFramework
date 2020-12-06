@@ -1,6 +1,6 @@
-// Copyright (c) 2018, WNProject Authors. All rights reserved.
+// Copyright (c) 2020, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE.txt file.
+// found in the LICENSE file.
 
 include "renderer/render_data.wns"
 include "renderer/render_description.wns"
@@ -49,13 +49,13 @@ class MainDesc: RenderDescription(shared RenderContext rnd) {
 Int main(Context ctx) {
   shared Window window = get_window(ctx, 1920, 1080);
   shared RenderContext context = get_render_context(ctx, window);
-  
+
   MainDesc desc = MainDesc(context);
   context.register_description(desc);
 
   shared MainGUI main_gui = @UIResource("assets/ui/main.rml");
   context.add_renderable_to_passes(get_renderer(ctx, main_gui), CString[]("Initial Pass"){0:1});
-  
+
   while(true) {
     context.render();
   }
