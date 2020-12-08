@@ -1,6 +1,6 @@
-// Copyright (c) 2017, WNProject Authors. All rights reserved.
+// Copyright (c) 2020, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE.txt file.
+// found in the LICENSE file.
 
 // RUN: do_with_continue 4 -> 5
 // RUN: do_with_continue 12 -> 12
@@ -48,4 +48,3 @@ Int for_loop_with_continue(Int x) {
     }
     return f;
 }
-

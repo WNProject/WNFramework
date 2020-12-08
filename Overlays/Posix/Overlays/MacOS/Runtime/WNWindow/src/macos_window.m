@@ -1,6 +1,6 @@
-// Copyright (c) 2018, WNProject Authors. All rights reserved.
+// Copyright (c) 2020, WNProject Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE.txt file.
+// found in the LICENSE file.
 
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/CAMetalLayer.h>
@@ -292,11 +292,11 @@ bool macos_handle_event(struct macos_event* mcevent) {
                                 case NSEventTypeLeftMouseDown:
                                 case NSEventTypeLeftMouseUp:
                                     mcevent->mb.button = macos_mouse_button_l;
-                                    break;            
+                                    break;
                                 case NSEventTypeRightMouseDown:
                                 case NSEventTypeRightMouseUp:
                                     mcevent->mb.button = macos_mouse_button_r;
-                                    break;            
+                                    break;
                                 case NSEventTypeOtherMouseDown:
                                 case NSEventTypeOtherMouseUp:
                                     mcevent->mb.button = macos_mouse_button_m;
@@ -335,7 +335,7 @@ bool macos_handle_event(struct macos_event* mcevent) {
                             code != NSRightArrowFunctionKey) {
                             if (![s getCString:mcevent->kb.characters maxLength:256 encoding:NSUTF8StringEncoding]) {
                                 mcevent->kb.characters[0] = 0;
-                            }   
+                            }
                         }
                     }
                     mcevent->kb.code = keycode_to_macos_key_code([ev keyCode]);
