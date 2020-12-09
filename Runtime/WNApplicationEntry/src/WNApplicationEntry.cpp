@@ -4,11 +4,14 @@
 
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNLogging/inc/WNConsoleLogger.h"
+#include "WNLogging/inc/WNMultiLogger.h"
+#include "WNLogging/inc/WNProfilerLogger.h"
 #include "WNMemory/inc/basic_allocator.h"
 #include "WNMultiTasking/inc/job_pool.h"
 #include "WNMultiTasking/inc/job_signal.h"
 #include "WNMultiTasking/inc/work_queue.h"
 #include "executable_entry/inc/executable_entry.h"
+#include "profiling/inc/profiling.h"
 
 namespace wn {
 namespace runtime {
@@ -39,9 +42,17 @@ struct main_application {
 int32_t wn_main(const wn::executable::executable_data* _data) {
   wn::executable::wn_dummy();
   wn::memory::basic_allocator root_allocator;
-  wn::logging::console_logger<wn::logging::console_location::std_out>
-      default_logger;
-  wn::logging::static_log<> log(&default_logger);
+
+  wn::logging::multi_logger<
+      wn::logging::console_logger<wn::logging::console_location::std_out>,
+      wn::logging::profiler_logger>
+      multi_logger;
+  // If profiling is enabled we need 2 things
+  // 1) We need to log to BOTH console and the profiler.
+  // 2) We need to actually flush the log after every message.
+  wn::logging::static_log<> log(
+      wn::profiling::is_profiling_enabled() ? &multi_logger : multi_logger.l1(),
+      wn::logging::log_level::error, wn::profiling::is_profiling_enabled());
 
   app_params params{0,
       {

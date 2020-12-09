@@ -8,6 +8,7 @@
 #include "WNGraphics/inc/WNGraphicsEnums.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 #include "engine_base/inc/context.h"
+#include "profiling/inc/profiling.h"
 #include "renderer/inc/render_data.h"
 #include "renderer/inc/render_target.h"
 #include "renderer/inc/renderable_object.h"
@@ -565,157 +566,169 @@ void render_context::add_renderable_to_passes(
 }
 
 bool render_context::render() {
-  // TODO(awoloszyn): I don't like this tick, but it will do for now.
   size_t backing_idx = m_frame_num % kNumDefaultBackings;
-  if (m_frame_num >= kNumDefaultBackings) {
-    // Wait for the previous frame to be done:
-    m_frame_fences[backing_idx].wait();
-    m_frame_fences[backing_idx].reset();
-    m_temporary_buffers[backing_idx].clear();
-    m_temporary_images[backing_idx].clear();
-  }
-  int32_t new_width = m_window->width();
-  int32_t new_height = m_window->height();
-  if (new_width == m_last_up_to_date_width &&
-      new_height == m_last_up_to_date_height) {
-    m_last_up_to_date_frame = m_frame_num;
-  }
-  m_width = new_width;
-  m_height = new_height;
-
-  for (auto& rt : m_render_targets) {
-    rt.setup_for_frame(this, m_frame_num, true);
-  }
-
-  // m_command_lists[backing_idx].reset();
-  m_command_allocators[backing_idx].reset();
-  m_command_lists[backing_idx] =
-      m_command_allocators[backing_idx].create_command_list();
-
-  // m_setup_command_lists[backing_idx].reset();
-  m_setup_command_allocators[backing_idx].reset();
-  m_setup_command_lists[backing_idx] =
-      m_setup_command_allocators[backing_idx].create_command_list();
-
-  auto* setup_list = m_setup_command_lists[backing_idx].get();
+  uint32_t swap_idx = 0;
   {
-    containers::hash_set<renderable_object*> m_added(m_allocator);
-    for (size_t i = 0; i < m_pending_renderables.size(); ++i) {
-      render_pass& pass = m_render_passes[i];
-      for (wn::scripting::shared_cpp_pointer<
-               wn::engine::renderer::renderable_object>& obj :
-          m_pending_renderables[i]) {
-        obj->initialize_for_renderpass(this, &pass, setup_list);
-        pass.add_renderable_object(obj);
-        if (m_added.find(obj.get()) != m_added.end()) {
-          continue;
+    static const char* render = "Render";
+    profiling::FrameMarker marker(render);
+    PROFILE_REGION(Rendering);
+
+    // TODO(awoloszyn): I don't like this tick, but it will do for now.
+    if (m_frame_num >= kNumDefaultBackings) {
+      // Wait for the previous frame to be done:
+      m_frame_fences[backing_idx].wait();
+      m_frame_fences[backing_idx].reset();
+      m_temporary_buffers[backing_idx].clear();
+      m_temporary_images[backing_idx].clear();
+    }
+    int32_t new_width = m_window->width();
+    int32_t new_height = m_window->height();
+    if (new_width == m_last_up_to_date_width &&
+        new_height == m_last_up_to_date_height) {
+      m_last_up_to_date_frame = m_frame_num;
+    }
+    m_width = new_width;
+    m_height = new_height;
+
+    for (auto& rt : m_render_targets) {
+      rt.setup_for_frame(this, m_frame_num, true);
+    }
+
+    // m_command_lists[backing_idx].reset();
+    m_command_allocators[backing_idx].reset();
+    m_command_lists[backing_idx] =
+        m_command_allocators[backing_idx].create_command_list();
+
+    // m_setup_command_lists[backing_idx].reset();
+    m_setup_command_allocators[backing_idx].reset();
+    m_setup_command_lists[backing_idx] =
+        m_setup_command_allocators[backing_idx].create_command_list();
+
+    auto* setup_list = m_setup_command_lists[backing_idx].get();
+    {
+      PROFILE_REGION(SetupRender);
+      containers::hash_set<renderable_object*> m_added(m_allocator);
+      for (size_t i = 0; i < m_pending_renderables.size(); ++i) {
+        render_pass& pass = m_render_passes[i];
+        for (wn::scripting::shared_cpp_pointer<
+                 wn::engine::renderer::renderable_object>& obj :
+            m_pending_renderables[i]) {
+          obj->initialize_for_renderpass(this, &pass, setup_list);
+          pass.add_renderable_object(obj);
+          if (m_added.find(obj.get()) != m_added.end()) {
+            continue;
+          }
+          m_added.insert(obj.get());
+          m_renderables.push_back(core::move(obj));
         }
-        m_added.insert(obj.get());
-        m_renderables.push_back(core::move(obj));
+        m_pending_renderables[i].clear();
       }
-      m_pending_renderables[i].clear();
     }
-  }
-
-  for (auto& renderable : m_renderables) {
-    renderable->update_render_data(backing_idx, setup_list);
-  }
-
-  auto* cmd_list = m_command_lists[backing_idx].get();
-
-  for (size_t i = 0; i < m_render_passes.size(); ++i) {
-    m_render_passes[i].render(this, m_frame_num, setup_list, cmd_list);
-  }
-  setup_list->finalize();
-  m_queue->enqueue_command_lists({setup_list}, {}, nullptr, {});
-
-  auto output_img_idx =
-      m_render_targets[m_output_rt].get_index_for_frame(m_frame_num);
-  auto output_img =
-      m_render_targets[m_output_rt].get_image_for_index(output_img_idx);
-
-  cmd_list->transition_resource(*output_img,
-      static_cast<runtime::graphics::image_components>(
-          runtime::graphics::image_component::color),
-      0, 1, runtime::graphics::resource_state::render_target,
-      runtime::graphics::resource_state::copy_source);
-
-  uint32_t swap_idx = m_swapchain->get_next_backbuffer_index(
-      nullptr, &m_swapchain_get_signals[backing_idx]);
-  while (m_frame_num > m_last_up_to_date_frame + 60) {
-    m_log->log_warning("Swapchain out of date, resizing");
-
-    runtime::graphics::data_format swapchain_format =
-        m_surface->valid_formats()[0];
-    const runtime::graphics::swapchain_create_info create_info = {
-        swapchain_format, 2, wn::runtime::graphics::swap_mode::fifo,
-        wn::runtime::graphics::discard_policy::discard};
-    if (m_swapchain) {
-      m_swapchain = m_device->recreate_swapchain(
-          *m_surface, core::move(m_swapchain), create_info, m_queue.get());
-    } else {
-      m_swapchain =
-          m_device->create_swapchain(*m_surface, create_info, m_queue.get());
+    {
+      PROFILE_REGION(UpdateRenderData);
+      for (auto& renderable : m_renderables) {
+        renderable->update_render_data(backing_idx, setup_list);
+      }
     }
-    if (!m_swapchain) {
-      m_log->log_warning("Swapchain recreation failed, trying again");
-      continue;
+
+    auto* cmd_list = m_command_lists[backing_idx].get();
+    {
+      PROFILE_REGION(RenderPasses);
+      for (size_t i = 0; i < m_render_passes.size(); ++i) {
+        m_render_passes[i].render(this, m_frame_num, setup_list, cmd_list);
+      }
     }
-    m_swapchain_image_initialized.resize(m_swapchain->info().num_buffers);
-    for (auto& init : m_swapchain_image_initialized) {
-      init = false;
-    }
+    setup_list->finalize();
+    m_queue->enqueue_command_lists({setup_list}, {}, nullptr, {});
+
+    auto output_img_idx =
+        m_render_targets[m_output_rt].get_index_for_frame(m_frame_num);
+    auto output_img =
+        m_render_targets[m_output_rt].get_image_for_index(output_img_idx);
+
+    cmd_list->transition_resource(*output_img,
+        static_cast<runtime::graphics::image_components>(
+            runtime::graphics::image_component::color),
+        0, 1, runtime::graphics::resource_state::render_target,
+        runtime::graphics::resource_state::copy_source);
 
     swap_idx = m_swapchain->get_next_backbuffer_index(
         nullptr, &m_swapchain_get_signals[backing_idx]);
-    WN_RELEASE_ASSERT(swap_idx >= 0, "Cannot recreate the swapchain");
-    m_last_up_to_date_width = m_width;
-    m_last_up_to_date_height = m_height;
-    m_last_up_to_date_frame = m_frame_num;
-  }
+    while (m_frame_num > m_last_up_to_date_frame + 60) {
+      m_log->log_warning("Swapchain out of date, resizing");
 
-  auto swap_img = m_swapchain->get_image_for_index(swap_idx);
-  if (m_swapchain_image_initialized[swap_idx]) {
+      runtime::graphics::data_format swapchain_format =
+          m_surface->valid_formats()[0];
+      const runtime::graphics::swapchain_create_info create_info = {
+          swapchain_format, 2, wn::runtime::graphics::swap_mode::fifo,
+          wn::runtime::graphics::discard_policy::discard};
+      if (m_swapchain) {
+        m_swapchain = m_device->recreate_swapchain(
+            *m_surface, core::move(m_swapchain), create_info, m_queue.get());
+      } else {
+        m_swapchain =
+            m_device->create_swapchain(*m_surface, create_info, m_queue.get());
+      }
+      if (!m_swapchain) {
+        m_log->log_warning("Swapchain recreation failed, trying again");
+        continue;
+      }
+      m_swapchain_image_initialized.resize(m_swapchain->info().num_buffers);
+      for (auto& init : m_swapchain_image_initialized) {
+        init = false;
+      }
+
+      swap_idx = m_swapchain->get_next_backbuffer_index(
+          nullptr, &m_swapchain_get_signals[backing_idx]);
+      WN_RELEASE_ASSERT(swap_idx >= 0, "Cannot recreate the swapchain");
+      m_last_up_to_date_width = m_width;
+      m_last_up_to_date_height = m_height;
+      m_last_up_to_date_frame = m_frame_num;
+    }
+
+    auto swap_img = m_swapchain->get_image_for_index(swap_idx);
+    if (m_swapchain_image_initialized[swap_idx]) {
+      cmd_list->transition_resource(*swap_img,
+          static_cast<runtime::graphics::image_components>(
+              runtime::graphics::image_component::color),
+          0, 1, runtime::graphics::resource_state::present,
+          runtime::graphics::resource_state::blit_dest);
+
+    } else {
+      m_swapchain_image_initialized[swap_idx] = true;
+      cmd_list->transition_resource(*swap_img,
+          static_cast<runtime::graphics::image_components>(
+              runtime::graphics::image_component::color),
+          0, 1, runtime::graphics::resource_state::initial,
+          runtime::graphics::resource_state::blit_dest);
+    }
+
+    // We use a blit image here in case the swapchain image format does
+    // not match the render image format.
+    cmd_list->blit_image(*output_img, 0, *swap_img, 0);
+
     cmd_list->transition_resource(*swap_img,
         static_cast<runtime::graphics::image_components>(
             runtime::graphics::image_component::color),
-        0, 1, runtime::graphics::resource_state::present,
-        runtime::graphics::resource_state::blit_dest);
+        0, 1, runtime::graphics::resource_state::blit_dest,
+        runtime::graphics::resource_state::present);
 
-  } else {
-    m_swapchain_image_initialized[swap_idx] = true;
-    cmd_list->transition_resource(*swap_img,
+    cmd_list->transition_resource(*output_img,
         static_cast<runtime::graphics::image_components>(
             runtime::graphics::image_component::color),
-        0, 1, runtime::graphics::resource_state::initial,
-        runtime::graphics::resource_state::blit_dest);
+        0, 1, runtime::graphics::resource_state::copy_source,
+        runtime::graphics::resource_state::render_target);
+
+    cmd_list->finalize();
+
+    m_queue->enqueue_command_lists({cmd_list},
+        {core::make_pair(
+            static_cast<runtime::graphics::pipeline_stages>(
+                runtime::graphics::pipeline_stage::color_attachment_output),
+            &m_swapchain_get_signals[backing_idx])},
+        &m_frame_fences[backing_idx],
+        {&m_swapchain_ready_signals[backing_idx]});
   }
-
-  // We use a blit image here in case the swapchain image format does
-  // not match the render image format.
-  cmd_list->blit_image(*output_img, 0, *swap_img, 0);
-
-  cmd_list->transition_resource(*swap_img,
-      static_cast<runtime::graphics::image_components>(
-          runtime::graphics::image_component::color),
-      0, 1, runtime::graphics::resource_state::blit_dest,
-      runtime::graphics::resource_state::present);
-
-  cmd_list->transition_resource(*output_img,
-      static_cast<runtime::graphics::image_components>(
-          runtime::graphics::image_component::color),
-      0, 1, runtime::graphics::resource_state::copy_source,
-      runtime::graphics::resource_state::render_target);
-
-  cmd_list->finalize();
-
-  m_queue->enqueue_command_lists({cmd_list},
-      {core::make_pair(
-          static_cast<runtime::graphics::pipeline_stages>(
-              runtime::graphics::pipeline_stage::color_attachment_output),
-          &m_swapchain_get_signals[backing_idx])},
-      &m_frame_fences[backing_idx], {&m_swapchain_ready_signals[backing_idx]});
-
   m_swapchain->present(
       m_queue.get(), &m_swapchain_ready_signals[backing_idx], swap_idx);
 

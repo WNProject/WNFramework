@@ -232,7 +232,7 @@ inline size_t format_block_width(data_format _format) {
     case data_format::d32_float_s8_uint:
       return 1;
     case data_format::max:
-      return 0;
+      return 1;
   }
   WN_DEBUG_ASSERT(false, "You should not end up here, update this enum");
   return false;

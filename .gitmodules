@@ -46,3 +46,9 @@
 	branch = master
 	ignore = dirty
 	shallow = true
+[submodule "tracy"]
+	path = externals/tracy
+	url = https://github.com/wolfpld/tracy
+	branch = master
+	ignore = dirty
+	shallow = true

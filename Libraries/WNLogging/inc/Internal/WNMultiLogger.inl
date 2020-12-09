@@ -9,15 +9,15 @@
 namespace wn {
 namespace logging {
 
-template <typename T_Logger1, typename T_Logger2, int T_BufferSize>
-logging::multi_logger<T_Logger1, T_Logger2, T_BufferSize>::~multi_logger() {}
+template <typename T_Logger1, typename T_Logger2>
+logging::multi_logger<T_Logger1, T_Logger2>::~multi_logger() {}
 
-template <typename T_Logger1, typename T_Logger2, int T_BufferSize>
-void logging::multi_logger<T_Logger1, T_Logger2, T_BufferSize>::flush_external(
-    const char* _buffer, size_t _buffer_size, color_element* _colors,
-    size_t num_color) {
-  mLogger1.FlushExternal(_buffer, _buffer_size, _colors, num_colors);
-  mLogger2.FlushExternal(_buffer, _buffer_size, _colors, num_colors);
+template <typename T_Logger1, typename T_Logger2>
+void logging::multi_logger<T_Logger1, T_Logger2>::flush_buffer(
+    const char* _buffer, size_t _buffer_size, const color_element* _colors,
+    size_t _num_colors) {
+  m_logger_1.flush_buffer(_buffer, _buffer_size, _colors, _num_colors);
+  m_logger_2.flush_buffer(_buffer, _buffer_size, _colors, _num_colors);
 }
 
 }  // namespace logging

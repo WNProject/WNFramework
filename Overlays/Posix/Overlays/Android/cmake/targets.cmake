@@ -5,9 +5,8 @@ function(overload_add_library name)
       PARSED_ARGS
       "SHARED"
       ""
-      "SOURCES;LIBS;INCLUDES;COMPILE_OPTIONS"
+      "SOURCES;LIBS;INCLUDES;COMPILE_OPTIONS;PUBLIC_COMPILE_DEFINES"
       ${ARGN})
-
     set(LIB_TYPE STATIC)
     if (PARSED_ARGS_SHARED)
       set(LIB_TYPE SHARED)
@@ -22,12 +21,23 @@ function(overload_add_library name)
     if (PARSED_ARGS_COMPILE_OPTIONS)
       target_compile_options(${name} PRIVATE ${PARSED_ARGS_COMPILE_OPTIONS})
     endif()
-    add_custom_command(TARGET ${name}
-      COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/stripped
-      COMMAND ${ANDROID_TOOLCHAIN_PREFIX}strip${ANDROID_TOOLCHAIN_SUFFIX}
-        $<TARGET_FILE:${name}> -o
-        ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/stripped/$<TARGET_FILE_NAME:${name}>
-    )
+    if (PARSED_ARGS_PUBLIC_COMPILE_DEFINES)
+      target_compile_definitions(${name} PUBLIC ${PARSED_ARGS_PUBLIC_COMPILE_DEFINES})
+    endif()
+    if (WN_ENABLE_TRACY)
+      add_custom_command(TARGET ${name}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/stripped
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${name}>
+            ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/stripped/$<TARGET_FILE_NAME:${name}>
+      )
+    else()
+      add_custom_command(TARGET ${name}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/stripped
+        COMMAND ${ANDROID_TOOLCHAIN_PREFIX}strip${ANDROID_TOOLCHAIN_SUFFIX}
+          $<TARGET_FILE:${name}> -o
+          ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/stripped/$<TARGET_FILE_NAME:${name}>
+      )
+    endif()
   else()
     cmake_parse_arguments(
         PARSED_ARGS
@@ -77,12 +87,21 @@ function(overload_add_executable name)
     if (PARSED_ARGS_INCLUDES)
       target_include_directories(${name} PUBLIC ${PARSED_ARGS_INCLUDES})
     endif()
-    add_custom_command(TARGET ${name}
-      COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/stripped
-      COMMAND ${ANDROID_TOOLCHAIN_PREFIX}strip${ANDROID_TOOLCHAIN_SUFFIX}
-        $<TARGET_FILE:${name}> -o
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/stripped/$<TARGET_FILE_NAME:${name}>
-    )
+    if (WN_ENABLE_TRACY)
+      add_custom_command(TARGET ${name}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/stripped
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${name}>
+            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/stripped/$<TARGET_FILE_NAME:${name}>
+      )
+    else()
+      add_custom_command(TARGET ${name}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/stripped
+        COMMAND ${ANDROID_TOOLCHAIN_PREFIX}strip${ANDROID_TOOLCHAIN_SUFFIX}
+          $<TARGET_FILE:${name}> -o
+          ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/stripped/$<TARGET_FILE_NAME:${name}>
+      )
+    endif()
+    
   else()
     cmake_parse_arguments(
         PARSED_ARGS
@@ -120,12 +139,20 @@ function(overload_add_application name)
         ${ARGN})
   if (NOT WN_ANDROID_WRAPPER)
     overload_add_library(${name} SHARED ${ARGN})
-    add_custom_command(TARGET ${name}
-      COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/stripped
-      COMMAND ${ANDROID_TOOLCHAIN_PREFIX}strip${ANDROID_TOOLCHAIN_SUFFIX}
-        $<TARGET_FILE:${name}> -o
-        ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/stripped/$<TARGET_FILE_NAME:${name}>
-    )
+     if (WN_ENABLE_TRACY)
+      add_custom_command(TARGET ${name}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/stripped
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${name}>
+            ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/stripped/$<TARGET_FILE_NAME:${name}>
+      )
+    else()
+      add_custom_command(TARGET ${name}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/stripped
+        COMMAND ${ANDROID_TOOLCHAIN_PREFIX}strip${ANDROID_TOOLCHAIN_SUFFIX}
+          $<TARGET_FILE:${name}> -o
+          ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/stripped/$<TARGET_FILE_NAME:${name}>
+      )
+    endif()
   else()
       add_custom_target(${name})
      set(ABSOLUTE_SOURCES)
