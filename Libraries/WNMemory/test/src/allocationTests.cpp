@@ -24,53 +24,6 @@ struct dummy_construct {
   }
 };
 
-TYPED_TEST(memory, malloc_realloc_free) {
-  TypeParam* memory1 =
-      static_cast<TypeParam*>(wn::memory::malloc(sizeof(TypeParam)));
-  TypeParam* memory2 =
-      static_cast<TypeParam*>(wn::memory::malloc(sizeof(TypeParam) * 4));
-
-  ASSERT_NE(memory1, nullptr);
-  ASSERT_NE(memory2, nullptr);
-
-  memory1[0] = static_cast<TypeParam>(1);
-  memory2[0] = static_cast<TypeParam>(2);
-  memory2[1] = static_cast<TypeParam>(3);
-  memory2[2] = static_cast<TypeParam>(4);
-  memory2[3] = static_cast<TypeParam>(5);
-
-  ASSERT_EQ(memory1[0], static_cast<TypeParam>(1));
-  ASSERT_EQ(memory2[0], static_cast<TypeParam>(2));
-  ASSERT_EQ(memory2[1], static_cast<TypeParam>(3));
-  ASSERT_EQ(memory2[2], static_cast<TypeParam>(4));
-  ASSERT_EQ(memory2[3], static_cast<TypeParam>(5));
-
-  memory1 = static_cast<TypeParam*>(
-      wn::memory::realloc(memory1, sizeof(TypeParam) * 2));
-
-  ASSERT_NE(memory1, nullptr);
-
-  memory1[1] = static_cast<TypeParam>(100);
-
-  ASSERT_EQ(memory1[0], static_cast<TypeParam>(1));
-  ASSERT_EQ(memory1[1], static_cast<TypeParam>(100));
-
-  void* null_memory = nullptr;
-  TypeParam* memory3 = static_cast<TypeParam*>(
-      wn::memory::realloc(null_memory, sizeof(TypeParam)));
-
-  ASSERT_NE(memory3, nullptr);
-
-  memory3[0] = static_cast<TypeParam>(66);
-
-  ASSERT_EQ(memory3[0], static_cast<TypeParam>(66));
-
-  wn::memory::free(memory1);
-  wn::memory::free(memory2);
-  wn::memory::free(memory3);
-  wn::memory::free(null_memory);
-}
-
 TYPED_TEST(memory, aligned_malloc_realloc_free) {
   TypeParam* memory1 = static_cast<TypeParam*>(
       wn::memory::aligned_malloc(sizeof(TypeParam), 16));

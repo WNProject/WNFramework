@@ -21,19 +21,10 @@
 namespace wn {
 namespace memory {
 
-inline void* malloc(size_t _size) {
-  WN_RELEASE_ASSERT(_size != 0, "attempting to allocate 0 bytes");
-
-  return std::malloc(_size);
-}
-
-inline void* realloc(void* _ptr, size_t _new_size) {
-  return std::realloc(_ptr, _new_size);
-}
-
-inline void free(void* _ptr) {
-  std::free(_ptr);
-}
+using std::calloc;
+using std::free;
+using std::malloc;
+using std::realloc;
 
 inline void* aligned_malloc(size_t _size, size_t _alignment) {
   WN_RELEASE_ASSERT(_size != 0, "attempting to allocate 0 bytes");
