@@ -23,7 +23,9 @@ set(SOURCES
   inc/WNLog.inl
   inc/WNLogEnums.h
   inc/WNMultiLogger.h
+  inc/WNProfilerLogger.h
   src/WNLog.cpp
+  src/WNProfilerLogger.cpp
 )
 
 option(WN_ALLOW_TESTING_LOG "Allow the use of a global testing log"
@@ -42,6 +44,7 @@ add_wn_library(WNLogging
     ${ADDITIONAL_SOURCES}
     ${SOURCES}
   LIBS
+    profiling
 )
 
 wn_add_subdirectory(test)

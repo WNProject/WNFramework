@@ -3,7 +3,7 @@ macro(_overlay_add_enabled_sources name)
     PARSED_ARGS
     ""
     ""
-    "SOURCES;LIBS;COMPILE_OPTIONS;INCLUDES"
+    "SOURCES;LIBS;COMPILE_OPTIONS;PUBLIC_COMPILE_DEFINES;INCLUDES"
     ${ARGN})
 
   set(local_overlay_sources)
@@ -87,6 +87,13 @@ macro(_overlay_add_enabled_sources name)
     list(APPEND compile_opts ${opt})
   endforeach()
 
+
+  set(public_compile_defs ${${name}_OVERLAY_PUBLIC_COMPILE_DEFINES})
+  foreach(opt ${PARSED_ARGS_PUBLIC_COMPILE_DEFINES})
+    list(APPEND public_compile_defs ${opt})
+  endforeach()
+
+
   set(include_directories ${${name}_OVERLAY_INCLUDES})
   foreach(inc ${PARSED_ARGS_INCLUDES})
     list(APPEND include_directories ${inc})
@@ -107,7 +114,9 @@ macro(_overlay_add_enabled_sources name)
 
   set(${name}_OVERLAY_LIBS ${local_libs} PARENT_SCOPE)
   set(${name}_OVERLAY_COMPILE_OPTIONS ${compile_opts} PARENT_SCOPE)
+  set(${name}_OVERLAY_PUBLIC_COMPILE_DEFINES ${public_compile_defs} PARENT_SCOPE)
   set(${name}_OVERLAY_INCLUDES ${include_directories} PARENT_SCOPE)
+  
 
   set(${name}_OVERLAY_SOURCES ${local_overlay_sources} PARENT_SCOPE)
   set(${name}_OVERLAY_LOGICAL_SOURCES ${local_overlay_logical_sources}
@@ -121,7 +130,7 @@ macro(_overlay_add_disabled_sources name)
     PARSED_ARGS
     ""
     ""
-    "SOURCES;LIBS;COMPILE_OPTIONS;INCLUDES"
+    "SOURCES;LIBS;COMPILE_OPTIONS;PUBLIC_COMPILE_DEFINES;INCLUDES"
     ${ARGN})
 
   set(local_overlay_sources ${${name}_OVERLAY_DISABLED_SOURCES})
@@ -163,7 +172,7 @@ macro(_add_sources_to_target name)
     ADDED_SOURCES_PARSED_ARGS
     ""
     ""
-    "SOURCES;LIBS;COMPILE_OPTIONS;INCLUDES"
+    "SOURCES;LIBS;COMPILE_OPTIONS;PUBLIC_COMPILE_DEFINES;INCLUDES"
     ${ARGN})
 
   foreach(source ${ADDED_SOURCES_PARSED_ARGS_SOURCES})
@@ -201,6 +210,10 @@ macro(_add_sources_to_target name)
 
   foreach(opt ${ADDED_SOURCES_PARSED_ARGS_COMPILE_OPTIONS})
     list(APPEND ${name}_OVERLAY_COMPILE_OPTIONS ${opt})
+  endforeach()
+
+  foreach(opt ${ADDED_SOURCES_PARSED_ARGS_PUBLIC_COMPILE_DEFINES})
+    list(APPEND ${name}_OVERLAY_PUBLIC_COMPILE_DEFINES ${opt})
   endforeach()
 
   foreach(inc ${ADDED_SOURCES_PARSED_ARGS_INCLUDES})
@@ -261,7 +274,7 @@ cmake_parse_arguments(
     PARSED_ARGS
     "SHARED"
     ""
-    "SOURCES;LIBS;INCLUDES;COMPILE_OPTIONS"
+    "SOURCES;LIBS;INCLUDES;COMPILE_OPTIONS;PUBLIC_COMPILE_DEFINES"
     ${ARGN})
 
   set(LIB_TYPE STATIC)
@@ -277,6 +290,9 @@ cmake_parse_arguments(
   endif()
   if (PARSED_ARGS_COMPILE_OPTIONS)
     target_compile_options(${name} PRIVATE ${PARSED_ARGS_COMPILE_OPTIONS})
+  endif()
+  if (PARSED_ARGS_PUBLIC_COMPILE_DEFINES)
+    target_compile_definitions(${name} PUBLIC ${PARSED_ARGS_PUBLIC_COMPILE_DEFINES})
   endif()
 endfunction()
 
@@ -306,11 +322,14 @@ function(add_wn_library name)
       PARSED_ARGS
       "SHARED"
       ""
-      "SOURCES;LIBS;INCLUDES;COMPILE_OPTIONS"
+      "SOURCES;LIBS;INCLUDES;COMPILE_OPTIONS;PUBLIC_COMPILE_DEFINES"
       ${ARGN})
 
     _add_sources_to_target(${name} SOURCES ${PARSED_ARGS_SOURCES} LIBS
-      ${PARSED_ARGS_LIBS} INCLUDES ${PARSED_ARGS_INCLUDES})
+      ${PARSED_ARGS_LIBS} INCLUDES ${PARSED_ARGS_INCLUDES}
+        PUBLIC_COMPILE_DEFINES ${PARSED_ARGS_PUBLIC_COMPILE_DEFINES}
+        COMPILE_OPTIONS ${PARSED_ARGS_COMPILE_OPTIONS}
+    )
 
     if (NOT ${name}_OVERLAY_SOURCES)
       message(FATAL_ERROR "Must supply at least one source file for ${name}")
@@ -326,7 +345,8 @@ function(add_wn_library name)
     overlay_named_file(cmake/target_functions/pre_add_library.cmake)
     overload_add_library(${name} SOURCES ${${name}_OVERLAY_SOURCES}
       LIBS ${${name}_OVERLAY_LIBS} INCLUDES ${${name}_OVERLAY_INCLUDES}
-      COMPILE_OPTIONS ${${name}_OVERLAY_COMPILE_OPTIONS}
+      COMPILE_OPTIONS ${${name}_OVERLAY_COMPILE_OPTIONS} PUBLIC_COMPILE_DEFINES 
+        ${${name}_OVERLAY_PUBLIC_COMPILE_DEFINES}
       ${IS_SHARED})
     overlay_named_file(cmake/target_functions/post_add_library.cmake)
   endif()

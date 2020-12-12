@@ -15,6 +15,8 @@ endforeach()
 include_directories(${WNFramework_SOURCE_DIR}/Libraries)
 include_directories(${WNFramework_SOURCE_DIR}/wrappers)
 
+wn_add_subdirectory(profiling)
+
 # These must be before all the below in order for it to work
 wn_add_subdirectory(executable_data)
 wn_add_subdirectory(executable_entry)

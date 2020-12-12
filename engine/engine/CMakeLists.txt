@@ -9,6 +9,7 @@ add_wn_application(
   LIBS
     WNScripting
     engine_base
+    profiling
     support
     renderer
     window

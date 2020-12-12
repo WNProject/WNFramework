@@ -54,7 +54,11 @@ function(add_application name)
 
   set(PERMISSIONS)
   if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(PERMISSIONS "READ_EXTERNAL_STORAGE")
+    list(APPEND PERMISSIONS READ_EXTERNAL_STORAGE)
+  endif()
+  
+  if (WN_ENABLE_TRACY)
+    list(APPEND PERMISSIONS INTERNET)
   endif()
 
   if (PERMISSIONS)

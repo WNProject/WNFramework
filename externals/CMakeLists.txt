@@ -1,4 +1,8 @@
-if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+set(WN_ADDITIONAL_TRACY_OPTIONS)
+
+enable_overlay_directory()
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   add_compile_options(
     /wd4100
     /wd4201
@@ -9,6 +13,11 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     /wd4459
     /wd4244
     /wd4127
+  )
+else()
+  add_compile_options(
+    -Wno-unused-variable
+    -Wno-format
   )
 endif()
 
@@ -112,3 +121,23 @@ add_wn_header_library(
   INCLUDES
     rapidjson/include
 )
+
+set(TRACY_OPTIONS)
+if(WN_ENABLE_TRACY)
+  set(TRACY_OPTIONS TRACY_ENABLE)
+endif()
+
+
+add_wn_library(
+  tracy_client
+  SOURCES
+    tracy/TracyClient.cpp
+  INCLUDES
+    tracy
+  PUBLIC_COMPILE_DEFINES
+    ${TRACY_OPTIONS}
+  COMPILE_OPTIONS
+    -DENABLE_PRELOAD
+)
+
+post_enable_overlay_directory()
