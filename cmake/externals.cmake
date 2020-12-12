@@ -20,7 +20,7 @@ function(add_wn_externals name)
       PARSED_ARGS
       ""
       "DIRECTORY"
-      "COMPILE_OPTIONS"
+      "COMPILE_OPTIONS;PUBLIC_COMPILE_DEFINES"
       ${ARGN}
     )
 
@@ -36,6 +36,14 @@ function(add_wn_externals name)
       endforeach()
     endif()
 
+    if (PARSED_ARGS_PUBLIC_COMPILE_DEFINES)
+      foreach(EXTERNAL_TARGET ${EXTERNAL_TARGETS})
+        target_compile_definitions(
+          ${EXTERNAL_TARGET} PUBLIC
+          ${PARSED_ARGS_PUBLIC_COMPILE_DEFINES}
+        )
+      endforeach()
+    endif()
     overlay_named_file(cmake/externals.cmake)
   endif()
 endfunction()

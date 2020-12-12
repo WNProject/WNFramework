@@ -7,6 +7,8 @@ add_wn_library(WNApplicationEntry
   LIBS
     WNMultiTasking
     WNApplicationData
+    profiling
+    WNLogging
 )
 
 wn_add_subdirectory(test)

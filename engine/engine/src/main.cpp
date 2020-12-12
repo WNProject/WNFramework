@@ -8,6 +8,7 @@
 #include "WNScripting/inc/WNFactory.h"
 #include "engine/inc/script_export.h"
 #include "engine_base/inc/context.h"
+#include "profiling/inc/allocator.h"
 #include "renderer/inc/render_context.h"
 #include "support/inc/command_line.h"
 #include "support/inc/log.h"
@@ -23,51 +24,53 @@ int32_t wn_application_main(
     const runtime::application::application_data* _application_data) {
   _application_data->default_log->set_log_level(logging::log_level::debug);
   _application_data->default_log->log_info("Engine startup.");
-
   int32_t ret = 0;
   {
-    memory::allocator* file_system_allocator =
-        _application_data->system_allocator;
-    memory::allocator* scripting_allocator =
-        _application_data->system_allocator;
-    memory::allocator* ui_allocator = _application_data->system_allocator;
-    memory::allocator* render_allocator = _application_data->system_allocator;
-    memory::allocator* support_allocator = _application_data->system_allocator;
+    profiling::allocator file_system_allocator(
+        _application_data->system_allocator, "FileSystem");
+    profiling::allocator scripting_allocator(
+        _application_data->system_allocator, "Scripting");
+    profiling::allocator ui_allocator(
+        _application_data->system_allocator, "UI");
+    profiling::allocator render_allocator(
+        _application_data->system_allocator, "Renderer");
+    profiling::allocator support_allocator(
+        _application_data->system_allocator, "Support");
     // TODO: If we ever need a logger in file-systems add it here.
     logging::log* scripting_logger = _application_data->default_log;
 
     support::command_line_manager command_line_mgr(
-        scripting_allocator, scripting_logger);
+        &scripting_allocator, scripting_logger);
 
     file_system::mapping_ptr mapping =
-        file_system::factory(file_system_allocator,
+        file_system::factory(&file_system_allocator,
             _application_data->executable_data, _application_data->default_log)
-            .make_mapping(file_system_allocator,
+            .make_mapping(&file_system_allocator,
                 wn::file_system::mapping_type::development_assets);
     _application_data->default_log->flush();
     memory::unique_ptr<scripting::engine> scripting_engine =
-        scripting::factory().get_engine(scripting_allocator,
+        scripting::factory().get_engine(&scripting_allocator,
             scripting::scripting_engine_type::jit_engine, mapping.get(),
-            scripting_logger, support_allocator);
+            scripting_logger, &support_allocator);
 
     engine::register_scripting(scripting_engine.get());
     engine_base::register_context(scripting_engine.get());
     engine::window::window::register_scripting(scripting_engine.get());
     engine::renderer::render_context::register_scripting(
-        render_allocator, scripting_engine.get());
-    engine::ui::ui::register_scripting(ui_allocator, scripting_engine.get());
+        &render_allocator, scripting_engine.get());
+    engine::ui::ui::register_scripting(&ui_allocator, scripting_engine.get());
 
     {
       support::regex_manager::register_scripting(
-          support_allocator, scripting_engine.get());
+          &support_allocator, scripting_engine.get());
       support::string::register_scripting(
-          support_allocator, scripting_engine.get());
+          &support_allocator, scripting_engine.get());
       support::subprocess::register_scripting(
-          support_allocator, scripting_engine.get());
+          &support_allocator, scripting_engine.get());
       support::log::register_scripting(
-          support_allocator, scripting_engine.get());
+          &support_allocator, scripting_engine.get());
       command_line_mgr.register_scripting(
-          support_allocator, scripting_engine.get());
+          &support_allocator, scripting_engine.get());
     }
 
     scripting::parse_error err = scripting_engine->parse_file("main.wns");

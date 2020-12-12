@@ -4,6 +4,7 @@
 
 #include "renderer/inc/render_pass.h"
 
+#include "profiling/inc/profiling.h"
 #include "renderer/inc/render_context.h"
 
 namespace wn {
@@ -72,6 +73,7 @@ render_pass::render_pass(memory::allocator* _allocator, logging::log* _log,
 void render_pass::render(render_context* _context, uint64_t _frame_idx,
     runtime::graphics::command_list* _setup,
     runtime::graphics::command_list* _render) {
+  PROFILE_REGION(RenderpassRender);
   (void)_context;
   containers::dynamic_array<const runtime::graphics::image_view*> views(
       m_allocator);

@@ -11,6 +11,7 @@
 #include "WNScripting/inc/WNEngine.h"
 #include "WNWindow/inc/WNWindow.h"
 #include "engine_base/inc/context.h"
+#include "profiling/inc/profiling.h"
 #include "ui/inc/ui_data.h"
 #include "ui/inc/ui_rocket_interop.h"
 #include "ui/inc/ui_rocket_renderer.h"
@@ -119,6 +120,8 @@ ui::~ui() {}
 void ui::initialize_for_renderpass(renderer::render_context* _renderer,
     renderer::render_pass* _render_pass,
     runtime::graphics::command_list* _setup_list) {
+  PROFILE_REGION(UIInitialize);
+
   WN_RELEASE_ASSERT(
       !m_rocket_context, "Cannot add ui to more than one renderpass");
 
@@ -168,6 +171,7 @@ void ui::initialize_for_renderpass(renderer::render_context* _renderer,
 }
 
 void ui::update_render_data(size_t _frame_parity, command_list* _cmd_list) {
+  PROFILE_REGION(UIUpdateRenderData);
   wn::runtime::window::input_event evt;
   int key_modifier_state = get_key_modifier_state(m_window);
   while (m_input_context->get_event(&evt)) {
@@ -217,7 +221,10 @@ void ui::update_render_data(size_t _frame_parity, command_list* _cmd_list) {
     m_document_context->SetDimensions(
         Rocket::Core::Vector2i(m_width, m_height));
   }
-  m_document_context->Update();
+  {
+    PROFILE_REGION(UIUpdateContext);
+    m_document_context->Update();
+  }
   // Just make sure this doesnt get kept there
   m_renderer->set_setup_command_list(nullptr);
   m_renderer->set_render_command_list(nullptr);
@@ -226,6 +233,8 @@ void ui::update_render_data(size_t _frame_parity, command_list* _cmd_list) {
 // TODO:Split out render and the rest of it!
 void ui::render(renderer::render_pass* _render_pass,
     command_list* _setup_cmd_list, command_list* _cmd_list) {
+  PROFILE_REGION(UIRender);
+
   (void)_render_pass;
   m_renderer->set_setup_command_list(_setup_cmd_list);
   m_renderer->set_render_command_list(_cmd_list);

@@ -11,6 +11,13 @@ option(
     ${WN_LOW_RESOURCE_MODE}
 )
 
+if (NOT WN_TRACY_CALLBACK_DEPTH)
+    set(WN_TRACY_CALLBACK_DEPTH 0)
+endif()
+
+option(WN_ENABLE_TRACY "Enable Tracy Profiler" ${WN_ENABLE_TRACY})
+set(WN_TRACY_CALLBACK_DEPTH ${WN_TRACY_CALLBACK_DEPTH} CACHE INT "Depth of the callstack to store for tracy")
+
 if (WN_USE_SCCACHE)
     if (NOT CMAKE_CXX_COMPILER_LAUNCHER)
         set(CMAKE_CXX_COMPILER_LAUNCHER sccache)

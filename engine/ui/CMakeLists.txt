@@ -21,4 +21,5 @@ add_wn_library(
     WNGraphics
     WNScripting
     librocket
+    profiling
 )

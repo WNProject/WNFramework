@@ -21,6 +21,7 @@ add_wn_library(
     src/texture.cpp
   LIBS
     engine_base
+    profiling
     window
     WNFileSystem
     WNGraphics
