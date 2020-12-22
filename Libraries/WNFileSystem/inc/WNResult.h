@@ -14,6 +14,7 @@ enum class result {
   ok,
   fail,
   invalid_path,
+  invalid_operation,
   not_found,
   already_exists,
   path_construction_fail,

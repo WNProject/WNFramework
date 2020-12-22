@@ -8,6 +8,7 @@ wn_create_executable_tests_from_list(TEST_PREFIX WNFileSystem
     WNFile
     WNMapping
     WNUtilities
+    ReadOnlyOverlay
   LIBS
     WNFileSystem
 )

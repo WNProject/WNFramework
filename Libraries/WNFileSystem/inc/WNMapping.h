@@ -36,13 +36,11 @@ public:
       const containers::string_view _path, result& _result) = 0;
 
   virtual result delete_directory(const containers::string_view _path) = 0;
-
   virtual result delete_file(const containers::string_view _path) = 0;
 
   result initialize_files(std::initializer_list<
       const core::pair<containers::string_view, containers::string_view>>
           _files);
-
   result initialize_files(containers::contiguous_range<
       const core::pair<containers::string_view, containers::string_view>>
           _files);

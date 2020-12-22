@@ -5,6 +5,7 @@
 #include "WNFileSystem/inc/WNFactory.h"
 
 #include "WNFileSystem/src/WNMemoryBackedMapping.h"
+#include "WNFileSystem/src/WNReadOnlyOverlayMapping.h"
 #include "WNFileSystem/src/WNSystemMapping.h"
 #include "WNFileSystem/src/WNSystemPaths.h"
 #include "WNFileSystem/src/WNSystemUtilities.h"
@@ -91,6 +92,14 @@ mapping_ptr factory::make_mapping(
   }
 
   return nullptr;
+}
+
+mapping_ptr factory::overlay_readonly_mappings(memory::allocator* _allocator,
+    containers::contiguous_range<mapping_ptr> _mappings) const {
+  WN_RELEASE_ASSERT(_mappings.size() > 0, "Cannot overlay zero mappings");
+
+  return memory::make_unique<readonly_overlay_mapping>(
+      _allocator, _allocator, _mappings);
 }
 
 }  // namespace file_system

@@ -7,6 +7,7 @@
 #ifndef __WN_FILE_SYSTEM_FACTORY_H__
 #define __WN_FILE_SYSTEM_FACTORY_H__
 
+#include <initializer_list>
 #include "WNContainers/inc/WNString.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNFileSystem/inc/WNMapping.h"
@@ -44,6 +45,9 @@ public:
 
   virtual mapping_ptr make_mapping(
       memory::allocator* _allocator, containers::string&& _path) const;
+
+  virtual mapping_ptr overlay_readonly_mappings(memory::allocator* _allocator,
+      containers::contiguous_range<mapping_ptr> _mappings) const;
 
   inline mapping_ptr make_mapping(
       memory::allocator* _allocator, const containers::string& _path) const {

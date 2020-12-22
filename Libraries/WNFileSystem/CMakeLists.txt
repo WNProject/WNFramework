@@ -11,6 +11,8 @@ add_wn_library(WNFileSystem
     src/WNMapping.cpp
     src/WNMemoryBackedMapping.cpp
     src/WNMemoryBackedMapping.h
+    src/WNReadOnlyOverlayMapping.cpp
+    src/WNReadOnlyOverlayMapping.h
     src/WNSystemPaths.h
     src/WNUtilities.h
   LIBS
