@@ -121,13 +121,18 @@ def main():
     parser.add_argument("--output-directory",
                         default=".",
                         help="output directory for the files")
+    parser.add_argument("--remove-prefix", 
+                        help="Remove the number subdirectories from the directory",
+                        type=int,
+                        default=0,
+                        required=False)
     parser.add_argument("--files",
                         nargs="+",
                         action=ca.HandleFile,
                         help="Specific list of files to gather")
 
     args = parser.parse_args(sys.argv[1:])
-
+    
     with open(os.path.join(args.output_directory, args.prefix + ".h"), "w") as f:
         f.write(H_FILE_PREFIX.format(
             prefix=args.prefix
@@ -141,10 +146,16 @@ def main():
             for root, _, files in os.walk(d, topdown=False):
                 for name in files:
                     if root == d:
-                        filenames.append(name)
+                        fn = name
                     else:
-                        filenames.append(os.path.join(os.path.relpath(
-                            root, d), name))
+                        fn = os.path.join(os.path.relpath(
+                            root, d), name)
+                    if args.remove_prefix > 0:
+                        print(fn)
+                        fn = os.path.join(os.path.normpath(fn).split(os.sep)[args.remove_prefix:])
+                        print(fn)
+
+                    filenames.append(fn)
                     lc, fc = handle_file(os.path.join(root, name))
                     file_contents.append(fc)
                     contents_length.append(lc)
@@ -152,6 +163,8 @@ def main():
             lc, fc = handle_file(os.path.join(d, fl))
             file_contents.append(fc)
             contents_length.append(lc)
+            if args.remove_prefix > 0:
+                        fl = os.path.join(*os.path.normpath(fl).split(os.sep)[args.remove_prefix:])
             filenames.append(fl)
         file_data = ""
         contents_data = ""

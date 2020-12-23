@@ -1,6 +1,7 @@
 include_directories(${WNFramework_BINARY_DIR}/Libraries)
 include_directories(${WNFramework_BINARY_DIR}/wrappers)
 include_directories(${WNFramework_BINARY_DIR}/Runtime)
+include_directories(${WNFramework_BINARY_DIR}/engine)
 
 set(REVERSE_OVERLAYS ${WN_ENABLED_OVERLAYS})
 
@@ -15,7 +16,6 @@ endforeach()
 include_directories(${WNFramework_SOURCE_DIR}/Libraries)
 include_directories(${WNFramework_SOURCE_DIR}/wrappers)
 include_directories(${WNFramework_SOURCE_DIR}/Runtime)
-
 include_directories(${WNFramework_SOURCE_DIR}/engine)
 
 # Support Libraries
@@ -24,6 +24,7 @@ wn_add_subdirectory(renderer)
 wn_add_subdirectory(support)
 wn_add_subdirectory(window)
 wn_add_subdirectory(ui)
+
 
 # Engine
 wn_add_subdirectory(engine)
