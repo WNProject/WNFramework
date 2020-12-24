@@ -95,7 +95,8 @@ public:
       m_log(_log),
       m_type_manager(_allocator, _log),
       m_object_types(_allocator),
-      m_resources(_allocator) {
+      m_resources(_allocator),
+      m_additional_includes(_allocator) {
     // These exists to stop the compiler from assuming these are unused.
     (void)assign_type_names;
     (void)short_circuit_type_names;
@@ -258,6 +259,7 @@ protected:
       m_object_types;
   containers::deque<memory::unique_ptr<resource_manager>> m_resources;
   scripting_tls_data m_tls_data;
+  containers::deque<containers::string> m_additional_includes;
 };
 
 template <typename T, typename R, typename... Args>

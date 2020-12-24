@@ -29,6 +29,10 @@ struct render_data : scripting::script_object_type {
     return "RenderData";
   }
 
+  static wn::containers::string_view required_script() {
+    return "";
+  }
+
   scripting::scripting_virtual_object_function<render_data, void> register_data;
 
   static void register_scripting(scripting::engine* _engine);
@@ -51,6 +55,10 @@ struct render_dependency : scripting::script_object_type {
   static void register_scripting(scripting::engine* _engine);
   static bool resolve_scripting(scripting::engine* _engine);
 
+  static wn::containers::string_view required_script() {
+    return "";
+  }
+
   scripting::scripting_object_function<render_dependency, int32_t>
       get_render_target;
   scripting::scripting_object_function<render_dependency, int32_t>
@@ -72,6 +80,10 @@ struct render_target_usage : scripting::script_object_type {
 
   static void register_scripting(scripting::engine* _engine);
   static bool resolve_scripting(scripting::engine* _engine);
+
+  static wn::containers::string_view required_script() {
+    return "";
+  }
 
   scripting::scripting_object_function<render_target_usage, int32_t>
       get_render_target;
@@ -97,6 +109,10 @@ struct pass_data : scripting::script_object_type {
     return "PassData";
   }
 
+  static wn::containers::string_view required_script() {
+    return "";
+  }
+
   scripting::scripting_object_function<pass_data, const char*> get_pass_name;
   scripting::scripting_object_function<pass_data,
       scripting::wn_array<scripting::script_pointer<render_target_usage>>>
@@ -116,6 +132,10 @@ struct render_description : scripting::script_object_type {
   using parent_type = void;
   static wn::containers::string_view exported_name() {
     return "RenderDescription";
+  }
+
+  static wn::containers::string_view required_script() {
+    return "";
   }
 
   void export_type(

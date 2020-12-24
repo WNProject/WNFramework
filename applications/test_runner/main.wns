@@ -1,9 +1,3 @@
-// Temphack: For now we need this included
-//   somewhere for compilation.
-include "renderer/render_data.wns"
-include "renderer/render_description.wns"
-include "renderer/texture_description.wns"
-include "ui/renderable_ui.wns"
 
 Int main(Context ctx) {
     Regex re = @Regex(".*");

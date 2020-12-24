@@ -41,6 +41,10 @@ struct rt_description : scripting::script_object_type {
     return "RTDescription";
   }
 
+  static wn::containers::string_view required_script() {
+    return "";
+  }
+
   scripting::scripting_object_function<rt_description, const char*> get_name;
   scripting::scripting_virtual_object_function<rt_description, int32_t>
       get_width;

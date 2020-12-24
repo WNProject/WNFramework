@@ -231,6 +231,10 @@ void inline engine::export_script_type() {
   t->m_engine = this;
   fill_parent_type<typename T::parent_type>(t.get());
   m_object_types[core::type_id<T>::value()] = core::move(t);
+  if (!T::required_script().empty()) {
+    m_additional_includes.push_back(
+        T::required_script().to_string(m_allocator));
+  }
 }
 
 template <typename T>
