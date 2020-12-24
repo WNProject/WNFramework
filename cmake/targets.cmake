@@ -436,7 +436,7 @@ function(wn_filesystem_files name)
     cmake_parse_arguments(
         PARSED_ARGS
         ""
-        "OUTPUT_DIR"
+        "OUTPUT_DIR;REMOVE_PREFIX"
         "SOURCES"
         ${ARGN})
 
@@ -446,6 +446,10 @@ function(wn_filesystem_files name)
 
     LIST(LENGTH ${name}_OVERLAY_LOGICAL_SOURCES num_local_existing_sources)
     math(EXPR num_local_existing_sources "${num_local_existing_sources} - 1")
+    set(ADDITIONAL_ARGS)
+    if (PARSED_ARGS_REMOVE_PREFIX)
+      list(APPEND ADDITIONAL_ARGS --remove-prefix ${PARSED_ARGS_REMOVE_PREFIX})
+    endif()
     foreach(index RANGE 0 ${num_local_existing_sources})
       list(GET ${name}_OVERLAY_LOGICAL_SOURCES ${index} logical_source)
       list(GET ${name}_OVERLAY_SOURCES ${index} full_source)
@@ -461,6 +465,7 @@ function(wn_filesystem_files name)
       COMMAND python ${WNFramework_SOURCE_DIR}/utilities/compile_file_directory.py
         --output-directory ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR} ${PYTHON_ARGS}
         --prefix ${name}
+        ${ADDITIONAL_ARGS}
       DEPENDS ${WNFramework_SOURCE_DIR}/utilities/compile_file_directory.py
         ${${name}_OVERLAY_SOURCES}
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

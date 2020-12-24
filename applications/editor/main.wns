@@ -7,7 +7,7 @@ include "renderer/render_description.wns"
 
 // Temphack: For now we need this included
 //   somewhere for compilation.
-// TODO(awoloszyn): Have resources defined what
+// TODO(awoloszyn): Have resources define what
 //   files they need included.
 include "renderer/texture_description.wns"
 

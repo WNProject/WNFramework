@@ -6,6 +6,7 @@
 #include "WNApplicationEntry/inc/WNApplicationEntry.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNScripting/inc/WNFactory.h"
+#include "engine/inc/engine_scripts.h"
 #include "engine/inc/script_export.h"
 #include "engine_base/inc/context.h"
 #include "profiling/inc/allocator.h"
@@ -41,12 +42,20 @@ int32_t wn_application_main(
 
     support::command_line_manager command_line_mgr(
         &scripting_allocator, scripting_logger);
+    file_system::factory fs_factory(&file_system_allocator,
+        _application_data->executable_data, _application_data->default_log);
+
+    file_system::mapping_ptr ptrs[2];
+
+    ptrs[0] = fs_factory.make_mapping(&file_system_allocator,
+        wn::file_system::mapping_type::development_assets);
+    ptrs[1] = fs_factory.make_mapping(
+        &file_system_allocator, wn::file_system::mapping_type::memory_backed);
+    ptrs[1]->initialize_files(engine_scripts::get_files());
 
     file_system::mapping_ptr mapping =
-        file_system::factory(&file_system_allocator,
-            _application_data->executable_data, _application_data->default_log)
-            .make_mapping(&file_system_allocator,
-                wn::file_system::mapping_type::development_assets);
+        fs_factory.overlay_readonly_mappings(&file_system_allocator, ptrs);
+
     _application_data->default_log->flush();
     memory::unique_ptr<scripting::engine> scripting_engine =
         scripting::factory().get_engine(&scripting_allocator,
