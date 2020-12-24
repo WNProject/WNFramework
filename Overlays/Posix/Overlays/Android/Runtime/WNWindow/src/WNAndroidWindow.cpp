@@ -17,7 +17,7 @@ inline key_code android_keycode_to_keycode(int32_t keycode) {
   if (keycode >= AKEYCODE_0 && keycode <= AKEYCODE_9) {
     return static_cast<key_code>(
         static_cast<uint32_t>(key_code::key_0) + keycode - AKEYCODE_0);
-  } else if (keycode >= AKEYCODE_NUMPAD_0 && keycode <= AKEYCODE_9) {
+  } else if (keycode >= AKEYCODE_NUMPAD_0 && keycode <= AKEYCODE_NUMPAD_9) {
     return static_cast<key_code>(static_cast<uint32_t>(key_code::key_num_0) +
                                  keycode - AKEYCODE_NUMPAD_0);
   }

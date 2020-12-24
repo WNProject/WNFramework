@@ -57,6 +57,9 @@ public:
 
   string_view(const char* _ptr) : string_view(_ptr, memory::strlen(_ptr)) {}
 
+  template <size_t N>
+  explicit string_view(const char (&_val)[N]) : string_view(&_val[0], 0, N) {}
+
   explicit string_view(const string& _string);
 
   string_view(const string& _string, const size_type _size);
