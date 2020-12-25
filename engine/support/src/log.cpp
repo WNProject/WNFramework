@@ -74,6 +74,16 @@ log_flusher* _o_int(log_flusher* fl, int32_t val) {
   return fl;
 }
 
+log_flusher* _o_bool(log_flusher* fl, bool val) {
+  logging::log_level l =
+      static_cast<logging::log_level>(reinterpret_cast<uintptr_t>(fl));
+  scripting::g_scripting_tls->_log->log_params(l,
+      static_cast<size_t>(logging::log_flags::no_newline) |
+          static_cast<size_t>(logging::log_flags::no_header),
+      val ? "true" : "false");
+  return fl;
+}
+
 log_flusher* _o_float(log_flusher* fl, float val) {
   logging::log_level l =
       static_cast<logging::log_level>(reinterpret_cast<uintptr_t>(fl));
@@ -105,6 +115,7 @@ struct exported_script_type<log_flusher> {
     _exporter->register_pseudo_function<decltype(&_o_cstr), &_o_cstr>("o");
     _exporter->register_pseudo_function<decltype(&_o_int), &_o_int>("o");
     _exporter->register_pseudo_function<decltype(&_o_float), &_o_float>("o");
+    _exporter->register_pseudo_function<decltype(&_o_bool), &_o_bool>("o");
     _exporter->register_pseudo_function<decltype(&_end), &_end>("end");
   }
 };

@@ -3,11 +3,13 @@ add_wn_library(
   SOURCES
     inc/command_line.h
     inc/command_line.inl
+    inc/json.h
     inc/log.h
     inc/regex.h
     inc/string.h
     inc/subprocess.h
     src/command_line.cpp
+    src/json.cpp
     src/log.cpp
     src/regex.cpp
     src/string.cpp

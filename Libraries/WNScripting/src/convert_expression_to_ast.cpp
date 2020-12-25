@@ -243,13 +243,17 @@ parse_ast_convertor::convertor_context::resolve_binary(
     return nullptr;
   }
 
-  if (lhs->m_type->m_classification ==
-          ast_type_classification::shared_reference &&
+  if ((lhs->m_type->m_classification ==
+              ast_type_classification::shared_reference ||
+          lhs->m_type->m_classification ==
+              ast_type_classification::reference) &&
       rhs->m_type == m_type_manager->nullptr_t(&m_used_types)) {
     rhs = make_cast(core::move(rhs), lhs->m_type);
   }
-  if (rhs->m_type->m_classification ==
-          ast_type_classification::shared_reference &&
+  if ((rhs->m_type->m_classification ==
+              ast_type_classification::shared_reference ||
+          rhs->m_type->m_classification ==
+              ast_type_classification::reference) &&
       lhs->m_type == m_type_manager->nullptr_t(&m_used_types)) {
     lhs = make_cast(core::move(lhs), rhs->m_type);
   }

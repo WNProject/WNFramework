@@ -12,6 +12,7 @@
 #include "profiling/inc/allocator.h"
 #include "renderer/inc/render_context.h"
 #include "support/inc/command_line.h"
+#include "support/inc/json.h"
 #include "support/inc/log.h"
 #include "support/inc/regex.h"
 #include "support/inc/string.h"
@@ -78,6 +79,8 @@ int32_t wn_application_main(
           &support_allocator, scripting_engine.get());
       support::log::register_scripting(
           &support_allocator, scripting_engine.get());
+      support::json_document::register_scripting(
+          &support_allocator, scripting_engine.get());
       command_line_mgr.register_scripting(
           &support_allocator, scripting_engine.get());
     }
@@ -114,6 +117,11 @@ int32_t wn_application_main(
       if (!support::log::resolve_scripting(scripting_engine.get())) {
         _application_data->default_log->log_critical(
             "Could not resolve needed script types for logging");
+        return -1;
+      }
+      if (!support::json_document::resolve_scripting(scripting_engine.get())) {
+        _application_data->default_log->log_critical(
+            "Could not resolve needed script types for json");
         return -1;
       }
       if (!command_line_mgr.resolve_scripting(scripting_engine.get())) {

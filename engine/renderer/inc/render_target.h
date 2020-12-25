@@ -42,7 +42,7 @@ struct rt_description : scripting::script_object_type {
   }
 
   static wn::containers::string_view required_script() {
-    return "";
+    return "renderer/rt_description.wns";
   }
 
   scripting::scripting_object_function<rt_description, const char*> get_name;

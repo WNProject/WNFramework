@@ -30,7 +30,7 @@ struct render_data : scripting::script_object_type {
   }
 
   static wn::containers::string_view required_script() {
-    return "";
+    return "renderer/render_data.wns";
   }
 
   scripting::scripting_virtual_object_function<render_data, void> register_data;
@@ -56,7 +56,7 @@ struct render_dependency : scripting::script_object_type {
   static bool resolve_scripting(scripting::engine* _engine);
 
   static wn::containers::string_view required_script() {
-    return "";
+    return "renderer/pass_data.wns";
   }
 
   scripting::scripting_object_function<render_dependency, int32_t>
@@ -82,7 +82,7 @@ struct render_target_usage : scripting::script_object_type {
   static bool resolve_scripting(scripting::engine* _engine);
 
   static wn::containers::string_view required_script() {
-    return "";
+    return "renderer/pass_data.wns";
   }
 
   scripting::scripting_object_function<render_target_usage, int32_t>
@@ -110,7 +110,7 @@ struct pass_data : scripting::script_object_type {
   }
 
   static wn::containers::string_view required_script() {
-    return "";
+    return "renderer/pass_data.wns";
   }
 
   scripting::scripting_object_function<pass_data, const char*> get_pass_name;
@@ -135,7 +135,7 @@ struct render_description : scripting::script_object_type {
   }
 
   static wn::containers::string_view required_script() {
-    return "";
+    return "renderer/render_description.wns";
   }
 
   void export_type(
