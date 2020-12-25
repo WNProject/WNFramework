@@ -149,6 +149,10 @@ struct a_type : wn::scripting::script_object_type {
     return "ExportedA";
   }
 
+  static wn::containers::string_view required_script() {
+    return "";
+  }
+
   wn::scripting::scripting_object_function<a_type, int32_t, int32_t> do_a;
 };
 

@@ -28,6 +28,11 @@ struct ui_data : scripting::script_object_type {
   static wn::containers::string_view exported_name() {
     return "RenderableUI";
   }
+
+  static wn::containers::string_view required_script() {
+    return "";
+  }
+
   static void register_scripting(scripting::engine* _engine);
   static bool resolve_scripting(scripting::engine* _engine);
 };

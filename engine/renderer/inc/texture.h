@@ -39,6 +39,10 @@ struct texture_desc : scripting::script_object_type {
     return "TextureDescription";
   }
 
+  static wn::containers::string_view required_script() {
+    return "renderer/texture_description.wns";
+  }
+
   scripting::scripting_object_function<texture_desc, const char*> get_name;
   scripting::scripting_object_function<texture_desc, int32_t> get_width;
   scripting::scripting_object_function<texture_desc, int32_t> get_height;

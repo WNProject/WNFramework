@@ -116,6 +116,10 @@ struct render_data : script_object_type {
     return "RenderData";
   }
 
+  static wn::containers::string_view required_script() {
+    return "";
+  }
+
   void export_type(
       scripting::engine::script_type_importer<render_data>* _importer) {
     _importer->register_function("register_data", &register_data);

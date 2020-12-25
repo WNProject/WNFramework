@@ -275,6 +275,14 @@ void jit_engine::free_shared(void* v) const {
 }
 
 parse_error jit_engine::parse_file(const containers::string_view _file) {
+  auto additional_includes = core::move(m_additional_includes);
+  for (auto& it : additional_includes) {
+    parse_error err = parse_file(it);
+    if (err != parse_error::ok) {
+      return err;
+    }
+  }
+
   if (m_finished_files.find(_file.to_string(m_allocator)) !=
       m_finished_files.end()) {
     return parse_error::ok;

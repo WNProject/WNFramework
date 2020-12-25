@@ -5,12 +5,6 @@
 include "renderer/render_data.wns"
 include "renderer/render_description.wns"
 
-// Temphack: For now we need this included
-//   somewhere for compilation.
-// TODO(awoloszyn): Have resources define what
-//   files they need included.
-include "renderer/texture_description.wns"
-
 class MyPass : PassData {
   .render_targets = shared RenderTargetUsage[](
     RenderTargetUsage(0, clear_mode_clear, store_mode_store)
