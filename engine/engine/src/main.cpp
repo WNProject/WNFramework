@@ -26,6 +26,20 @@ int32_t wn_application_main(
     const runtime::application::application_data* _application_data) {
   _application_data->default_log->set_log_level(logging::log_level::debug);
   _application_data->default_log->log_info("Engine startup.");
+  containers::string_view script_dir;
+  containers::string_view script_file = "main.wns";
+  if (_application_data->executable_data->argv[1][0] != '-') {
+    containers::string_view v(_application_data->executable_data->argv[1]);
+    size_t p = v.find_last_of("\\/");
+    if (p != containers::string_view::npos) {
+      script_dir = v.substr(0, p);
+    } else {
+      p = 0;
+      script_dir = ".";
+    }
+    script_file = v.substr(p + 1);
+  }
+
   int32_t ret = 0;
   {
     profiling::allocator file_system_allocator(
@@ -47,20 +61,29 @@ int32_t wn_application_main(
         _application_data->executable_data, _application_data->default_log);
 
     file_system::mapping_ptr ptrs[2];
+    if (!script_dir.empty()) {
+      ptrs[0] = fs_factory.make_mapping(&file_system_allocator, script_dir);
+      if (!ptrs[0]) {
+        _application_data->default_log->log_error(
+            "Could not find folder for ", script_dir);
+        return -1;
+      }
+    } else {
+      ptrs[0] = fs_factory.make_mapping(&file_system_allocator,
+          wn::file_system::mapping_type::development_assets);
+    }
 
-    ptrs[0] = fs_factory.make_mapping(&file_system_allocator,
-        wn::file_system::mapping_type::development_assets);
     ptrs[1] = fs_factory.make_mapping(
         &file_system_allocator, wn::file_system::mapping_type::memory_backed);
     ptrs[1]->initialize_files(engine_scripts::get_files());
 
-    file_system::mapping_ptr mapping =
+    file_system::mapping_ptr script_mapping =
         fs_factory.overlay_readonly_mappings(&file_system_allocator, ptrs);
 
     _application_data->default_log->flush();
     memory::unique_ptr<scripting::engine> scripting_engine =
         scripting::factory().get_engine(&scripting_allocator,
-            scripting::scripting_engine_type::jit_engine, mapping.get(),
+            scripting::scripting_engine_type::jit_engine, script_mapping.get(),
             scripting_logger, &support_allocator);
 
     engine::register_scripting(scripting_engine.get());
@@ -137,9 +160,22 @@ int32_t wn_application_main(
     ctx.m_application_data = _application_data;
     ctx.m_engine = scripting_engine.get();
     ctx.m_log = _application_data->default_log;
-    ctx.m_file_mapping = mapping.get();
+
+    file_system::mapping_ptr content_ptrs[2];
+    content_ptrs[0] = fs_factory.make_mapping(&file_system_allocator,
+        wn::file_system::mapping_type::development_assets);
+    content_ptrs[1] = fs_factory.make_mapping(
+        &file_system_allocator, wn::file_system::mapping_type::memory_backed);
+    content_ptrs[1]->initialize_files(engine_scripts::get_files());
+
+    file_system::mapping_ptr content_mapping =
+        fs_factory.overlay_readonly_mappings(
+            &file_system_allocator, content_ptrs);
+
+    ctx.m_file_mapping = content_mapping.get();
     bool cmd_err = false;
-    for (int32_t i = 1; i < _application_data->executable_data->argc; ++i) {
+    for (int32_t i = script_dir.empty() ? 1 : 2;
+         i < _application_data->executable_data->argc; ++i) {
       if (!command_line_mgr.insert_global_param(
               _application_data->executable_data->argv[i])) {
         cmd_err = true;
