@@ -6,6 +6,7 @@
 #define __WN_SCRIPTING_SCRIPT_TLS_H__
 
 #include "WNContainers/inc/WNHashMap.h"
+#include "WNFileSystem/inc/WNMapping.h"
 #include "WNMemory/inc/unique_ptr.h"
 
 namespace wn {

@@ -4,32 +4,29 @@
 
 #pragma once
 
-#ifndef __WN_SUPPORT_STRING_H__
-#define __WN_SUPPORT_STRING_H__
+#ifndef __WN_SUPPORT_JSON_H_
+#define __WN_SUPPORT_JSON_H_
 
-#include "WNContainers/inc/WNString.h"
 #include "WNScripting/inc/WNEngine.h"
+#include "rapidjson/document.h"
 
 namespace wn {
 namespace support {
+struct json_value;
 
-class string {
+class json_document {
 public:
+  json_document(rapidjson::Document _doc) : m_document(core::move(_doc)) {}
   static void register_scripting(
       memory::allocator* _allocator, scripting::engine* _engine);
   static bool resolve_scripting(scripting::engine* _engine);
-
-  explicit string(const char* val, memory::allocator* _alloc);
-  ~string();
-  const char* c_str() {
-    return m_string.c_str();
-  }
+  json_value* value();
 
 private:
-  containers::string m_string;
+  rapidjson::Document m_document;
 };
 
 }  // namespace support
 }  // namespace wn
 
-#endif  // __WN_SUPPORT_STRING_H__
+#endif  // __WN_SUPPORT_JSON_H_

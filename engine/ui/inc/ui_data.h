@@ -30,7 +30,7 @@ struct ui_data : scripting::script_object_type {
   }
 
   static wn::containers::string_view required_script() {
-    return "";
+    return "ui/renderable_ui.wns";
   }
 
   static void register_scripting(scripting::engine* _engine);

@@ -1,0 +1,32 @@
+// Copyright (c) 2020, WNProject Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+Int main(Context ctx) {
+  String s = make_string("file.json");
+  JsonDocument doc = parse_json_file(ctx, make_string("file.json"));
+  if (doc == null) {
+      log_error().o("Could not open file").end();
+      return -1;
+  }
+  JsonValue val = doc.value();
+  if (val.get_member("a", 0).get_int() != 31) {
+      return -1;
+  }
+  if (val.get_member("a", 1).get_int() != 12) {
+      return -1;
+  }
+  if (val.get_num_members("a") != 2) {
+      return -1;
+  }
+  if (val.get_member("b", 0).get_array_value(2).get_int() != 442) {
+      return -1;
+  }
+  if (val.get_member("b", 0).array_size() != 3) {
+      return -1;
+  }
+  if (val.has_member("c")) {
+      return -1;
+  }
+  return 0;
+}
