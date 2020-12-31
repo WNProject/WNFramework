@@ -5,8 +5,66 @@ on:
     branches:
       - master
 jobs:
-  check-code-formatting-c-cpp:
-    name: Check code formatting (C/C++)
+  analyze-changes:
+    name: Analyze changes
+    runs-on: ubuntu-latest
+    outputs:
+      run-build: ${{steps.change-analysis.outputs.run-build}}
+      run-format-check: ${{steps.change-analysis.outputs.run-format-check}}
+      code-changes: ${{steps.change-analysis.outputs.code-changes}}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.3.4
+        with:
+          fetch-depth: 0
+      - name: Analyze changes
+        id: change-analysis
+        shell: bash
+        run: |
+          if [[ ${{github.ref}} == 'refs/heads/master' ]]; then
+            build_changes='true'
+            format_changes='true'
+            code_changes=$(
+              find . -type f \
+              -iregex '^.*\.\(c\|cpp\|h\|hpp\|inl\)$' -and -not \
+              -iregex '^\.\/externals.*$'
+            )
+          else
+            build_changes=$(
+              git diff --name-only origin/master HEAD -- \
+              ':!*.md' ':!*.asciidoc' ':!.github/CODEOWNERS' ':!externals/*/*' \
+              ':!.github/workflows/rebase.yml' ':!.github/labels.yml' \
+              ':!.github/dependabot.yml' ':!.github/workflows/sync-labels.yml'
+            )
+            if [[ "$build_changes" != '' ]]; then
+              build_changes='true'
+            else
+              build_changes='false'
+            fi
+            code_changes=$(
+              git diff --name-only origin/master HEAD -- \
+              ':!externals/*/*' *.c *.cpp *.h *.hpp *.inl
+            )
+            if [[ "$code_changes" != '' ]]; then
+              format_changes='true'
+            else
+              format_changes='false'
+            fi
+          fi
+          echo "Run build: $build_changes"
+          echo "Run format check: $format_changes"
+          if [[ "$code_changes" != '' ]]; then
+            echo "Code changes: $code_changes"
+          else
+            echo 'Code changes: [none]'
+          fi
+          echo "::set-output name=run-build::$build_changes"
+          echo "::set-output name=run-format-check::$format_changes"
+          echo "::set-output name=code-changes::$code_changes"
+  check-code-formatting:
+    name: Check code formatting
+    needs: analyze-changes
+    if: needs.analyze-changes.outputs.run-format-check == 'true'
     runs-on: ubuntu-latest
     container: ghcr.io/wnproject/clang-format
     steps:
@@ -14,12 +72,12 @@ jobs:
         uses: actions/checkout@v2.3.4
       - name: Check code format
         run: >
-          find . -type f
-          -iregex '^.*\.\(c\|cpp\|h\|hpp\|inl\)$' -and -not
-          -iregex '^\.\/externals.*$' |
-          xargs clang-format --dry-run --Werror --verbose
+          echo "${{needs.analyze-changes.outputs.code-changes}}" |
+          xargs clang-format --dry-run --Werror
   build-android:
-    name: 'Build (Android: ${{matrix.architecture}}/${{matrix.build-type}})'
+    name: Build Android
+    needs: analyze-changes
+    if: needs.analyze-changes.outputs.run-build == 'true'
     runs-on: ubuntu-latest
     container: ghcr.io/wnproject/build-android
     strategy:
@@ -35,9 +93,9 @@ jobs:
         with:
           path: ./source
           submodules: true
-      - name: Set up GCS Key
-        run: echo $GCS_KEY > /tmp/gcs_key.json
+      - name: Set up gcs key
         shell: bash
+        run: echo "$GCS_KEY" > /tmp/gcs_key.json
         env:
           GCS_KEY: ${{secrets.SCCACHE_GCS_KEY}}
       - name: Run configuration
@@ -56,21 +114,21 @@ jobs:
           SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
           SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
           SCCACHE_GCS_RW_MODE: READ_WRITE
-      - name: Run build - host_tools
+      - name: Run build (host tools)
         working-directory: ./build/host/externals/llvm-project/llvm
         run: cmake --build . --target llvm-tblgen
         env:
           SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
           SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
           SCCACHE_GCS_RW_MODE: READ_WRITE
-      - name: Run build - arch
+      - name: 'Run build (platform: ${{matrix.architecture}})'
         working-directory: ./build/${{matrix.architecture}}
         run: cmake --build .
         env:
           SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
           SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
           SCCACHE_GCS_RW_MODE: READ_WRITE
-      - name: Run build - apks
+      - name: Run build (apks)
         working-directory: ./build
         run: cmake --build .
         env:
@@ -86,14 +144,15 @@ jobs:
         if: success() || failure()
         run: du -hbcs ./source ./build
   build-linux:
-    name: 'Build (Linux: x86-64/${{matrix.compiler}}-${{matrix.version}}/${{matrix.build-type}})'
+    name: Build Linux
+    needs: analyze-changes
+    if: needs.analyze-changes.outputs.run-build == 'true'
     runs-on: ubuntu-latest
-    container: ghcr.io/wnproject/build-linux:${{matrix.compiler}}-${{matrix.version}}
+    container: ghcr.io/wnproject/build-linux:${{matrix.compiler}}
     strategy:
       fail-fast: false
       matrix:
-        compiler: [clang, gcc]
-        version: [9, 10]
+        compiler: [clang-9, clang-10, gcc-9, gcc-10]
         build-type: [Debug, Release]
     steps:
       - name: Set up build environment
@@ -103,14 +162,18 @@ jobs:
         with:
           path: ./source
           submodules: true
-      - name: Set up GCS Key
-        run: echo $GCS_KEY > /tmp/gcs_key.json
+      - name: Set up gcs key
         shell: bash
+        run: echo "$GCS_KEY" > /tmp/gcs_key.json
         env:
           GCS_KEY: ${{secrets.SCCACHE_GCS_KEY}}
       - name: Run configuration
         working-directory: ./build
-        run: cmake -GNinja -DCMAKE_BUILD_TYPE=${{matrix.build-type}} ../source -DWN_USE_SCCACHE=ON
+        run: >
+          cmake -GNinja
+          -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
+          -DWN_USE_SCCACHE=ON
+          ../source
         env:
           SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
           SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
@@ -131,12 +194,14 @@ jobs:
         if: success() || failure()
         run: du -hbcs ./source ./build
   build-windows:
-    name: 'Build (Windows: x86-64/msvc-${{matrix.version}}/${{matrix.build-type}})'
+    name: Build Windows
+    needs: analyze-changes
+    if: needs.analyze-changes.outputs.run-build == 'true'
     runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        version: [15, 16]
+        compiler: [msvc-15, msvc-16]
         build-type: [Debug, Release]
     env:
       PACKAGE: ghcr.io/${{github.repository_owner}}/build-windows
@@ -144,7 +209,7 @@ jobs:
       - name: Determine additional info
         id: info
         run: |
-          $docker_image = "${{env.PACKAGE}}:msvc-${{matrix.version}}".ToLower()
+          $docker_image = "${{env.PACKAGE}}:${{matrix.compiler}}".ToLower()
           echo "::set-output name=docker_image::$docker_image"
       - name: Set up build environment
         run: mkdir build
@@ -153,9 +218,9 @@ jobs:
         with:
           path: ./source
           submodules: true
-      - name: Set up GCS Key
-        run: echo $GCS_KEY > gcs_key.json
+      - name: Set up gcs key
         shell: bash
+        run: echo "$GCS_KEY" > gcs_key.json
         env:
           GCS_KEY: ${{secrets.SCCACHE_GCS_KEY}}
       - name: Pull container
@@ -184,9 +249,6 @@ jobs:
       - name: Run tests
         run: >
           docker run --rm
-          -e SCCACHE_GCS_BUCKET=${{secrets.SCCACHE_GCS_BUCKET}}
-          -e SCCACHE_GCS_KEY_PATH=C:\workspace\gcs_key.json
-          -e SCCACHE_GCS_RW_MODE=READ_WRITE
           -v ${{github.workspace}}:C:\workspace
           ${{steps.info.outputs.docker_image}}
           "cd C:\workspace\build;
@@ -197,3 +259,22 @@ jobs:
         if: success() || failure()
         shell: bash
         run: du -hbcs ./source ./build
+  build:
+    name: Build
+    needs:
+      - build-android
+      - build-linux
+      - build-windows
+    if: success() || failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Accumulate build status
+        shell: bash
+        run: |
+          results=( ${{join(needs.*.result, ' ')}} )
+          for result in "${results[@]}"; do
+            if [[ "$result" != 'success' ]]; then
+              echo 'Build failed'
+              exit 1
+            fi
+          done
