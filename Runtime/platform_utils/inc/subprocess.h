@@ -36,11 +36,22 @@ struct subprocess_return {
       std_err(core::move(_std_err)),
       err(_err),
       return_code(_return_code) {}
+  subprocess_return() {}
+
+  subprocess_return& operator=(subprocess_return&& _other) {
+    std_out = core::move(_other.std_out);
+    std_err = core::move(_other.std_err);
+    err = _other.err;
+    return_code = _other.return_code;
+    _other.err = subprocess_error::uninitialized;
+    _other.return_code = static_cast<uint32_t>(-1);
+    return *this;
+  }
 
   containers::string std_out;
   containers::string std_err;
-  subprocess_error err;
-  uint32_t return_code;
+  subprocess_error err = subprocess_error::uninitialized;
+  uint32_t return_code = static_cast<uint32_t>(-1);
 };
 
 subprocess_return call_subprocess(memory::allocator* _allocator,
