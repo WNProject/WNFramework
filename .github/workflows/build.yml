@@ -110,7 +110,7 @@ jobs:
           $docker_image = "${{env.PACKAGE}}:${{matrix.compiler}}".ToLower()
           echo "::set-output name=docker_image::$docker_image"
       - name: Set up build environment
-        run: mkdir build
+        run: mkdir build; exit 1
   build:
     name: Build
     needs:
