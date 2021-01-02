@@ -21,7 +21,7 @@ jobs:
         id: change-analysis
         shell: bash
         run: |
-          if [[ ${{github.ref}} == 'refs/heads/master' ]]; then
+          if [ '${{github.ref}}' == 'refs/heads/master' ]; then
             build_changes='true'
             format_changes='true'
             code_changes=$(
@@ -36,27 +36,28 @@ jobs:
               ':!.github/workflows/rebase.yml' ':!.github/labels.yml' \
               ':!.github/dependabot.yml' ':!.github/workflows/sync-labels.yml'
             )
-            if [[ "$build_changes" != '' ]]; then
-              build_changes='true'
-            else
+            if [ -z "$build_changes" ]; then
               build_changes='false'
+            else
+              build_changes='true'
             fi
             code_changes=$(
               git diff --name-only origin/master HEAD -- \
-              ':!externals/*/*' *.c *.cpp *.h *.hpp *.inl
+              ':!externals/*/*' *.c *.cpp *.h *.hpp *.inl .clang-format
             )
-            if [[ "$code_changes" != '' ]]; then
-              format_changes='true'
-            else
+            if [ -z "$code_changes" ]; then
               format_changes='false'
+            else
+              format_changes='true'
+              code_changes=$(echo "$code_changes" | grep -v .clang-format)
             fi
           fi
           echo "Run build: $build_changes"
           echo "Run format check: $format_changes"
-          if [[ "$code_changes" != '' ]]; then
-            echo "Code changes: $code_changes"
-          else
+          if [ -z "$code_changes" ]; then
             echo 'Code changes: [none]'
+          else
+            echo "Code changes: $code_changes"
           fi
           echo "::set-output name=run-build::$build_changes"
           echo "::set-output name=run-format-check::$format_changes"
@@ -273,7 +274,7 @@ jobs:
         run: |
           results=( ${{join(needs.*.result, ' ')}} )
           for result in "${results[@]}"; do
-            if [[ "$result" != 'success' ]]; then
+            if [ "$result" != 'success' ]; then
               echo 'Build failed'
               exit 1
             fi
