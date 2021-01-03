@@ -9,22 +9,22 @@ jobs:
     name: Analyze changes
     runs-on: ubuntu-latest
     outputs:
-      run-build: ${{steps.change-analysis.outputs.run-build}}
-      run-format-check: ${{steps.change-analysis.outputs.run-format-check}}
-      code-changes: ${{steps.change-analysis.outputs.code-changes}}
+      run-build: ${{steps.analysis.outputs.run-build}}
+      run-format-check-c-cpp: ${{steps.analysis.outputs.run-format-check-c-cpp}}
+      code-changes-c-cpp: ${{steps.analysis.outputs.code-changes-c-cpp}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 0
       - name: Analyze changes
-        id: change-analysis
+        id: analysis
         shell: bash
         run: |
           if [ '${{github.ref}}' == 'refs/heads/master' ]; then
             build_changes='true'
-            format_changes='true'
-            code_changes=$(
+            format_changes_c_cpp='true'
+            code_changes_c_cpp=$(
               find . -type f \
               -iregex '^.*\.\(c\|cpp\|h\|hpp\|inl\)$' -and -not \
               -iregex '^\.\/externals.*$'
@@ -41,31 +41,33 @@ jobs:
             else
               build_changes='true'
             fi
-            code_changes=$(
+            code_changes_c_cpp=$(
               git diff --name-only origin/master HEAD -- \
               ':!externals/*/*' *.c *.cpp *.h *.hpp *.inl .clang-format
             )
-            if [ -z "$code_changes" ]; then
-              format_changes='false'
+            if [ -z "$code_changes_c_cpp" ]; then
+              format_changes_c_cpp='false'
             else
-              format_changes='true'
-              code_changes=$(echo "$code_changes" | grep -v .clang-format)
+              format_changes_c_cpp='true'
+              code_changes_c_cpp=$(
+                echo "$code_changes_c_cpp" | grep -v .clang-format
+              )
             fi
           fi
           echo "Run build: $build_changes"
-          echo "Run format check: $format_changes"
-          if [ -z "$code_changes" ]; then
-            echo 'Code changes: [none]'
+          echo "Run format check (C/C++): $format_changes_c_cpp"
+          if [ -z "$code_changes_c_cpp" ]; then
+            echo 'Code changes (C/C++): [none]'
           else
-            echo "Code changes: $code_changes"
+            echo "Code changes (C/C++): $code_changes_c_cpp"
           fi
           echo "::set-output name=run-build::$build_changes"
-          echo "::set-output name=run-format-check::$format_changes"
-          echo "::set-output name=code-changes::$code_changes"
-  check-code-formatting:
-    name: Check code formatting
+          echo "::set-output name=run-format-check-c-cpp::$format_changes_c_cpp"
+          echo "::set-output name=code-changes-c-cpp::$code_changes_c_cpp"
+  check-code-formatting-c-cpp:
+    name: Check code formatting (C/C++)
     needs: analyze-changes
-    if: needs.analyze-changes.outputs.run-format-check == 'true'
+    if: needs.analyze-changes.outputs.run-format-check-c-cpp == 'true'
     runs-on: ubuntu-latest
     container: ghcr.io/wnproject/clang-format
     steps:
@@ -73,7 +75,7 @@ jobs:
         uses: actions/checkout@v2.3.4
       - name: Check code format
         run: >
-          echo "${{needs.analyze-changes.outputs.code-changes}}" |
+          echo "${{needs.analyze-changes.outputs.code-changes-c-cpp}}" |
           xargs clang-format --dry-run --Werror
   build-android:
     name: Build Android
