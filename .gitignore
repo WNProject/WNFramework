@@ -8,7 +8,7 @@
 .vscode/
 .ycm_extra_conf.py*
 externals/*/*
-!externals/librocket/
-!externals/antlr/
+!externals/librocket/*
+!externals/antlr/*
 build*/
 ipch/
