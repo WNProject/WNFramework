@@ -50,7 +50,7 @@ jobs:
             else
               format_changes_c_cpp=true
               code_changes_c_cpp=$(
-                echo "$code_changes_c_cpp" | grep -v .clang-format
+                echo "$code_changes_c_cpp" | grep -v .clang-format || true
               )
             fi
           fi
