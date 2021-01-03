@@ -93,6 +93,7 @@ cmake \
   ../
 ```
 
+Note that `Ninja` is the only offically supported generator for **Android**.
 Both the `[WNFramework Root]` and `[Android SDK Root]` must be absolute paths.
 Currently only `x86`, `arm` and `arm64` toolchains for **Android API 22** are
 supported.
