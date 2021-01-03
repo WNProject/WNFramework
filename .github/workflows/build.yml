@@ -21,9 +21,9 @@ jobs:
         id: analysis
         shell: bash
         run: |
-          if [ '${{github.ref}}' == 'refs/heads/master' ]; then
-            build_changes='true'
-            format_changes_c_cpp='true'
+          if [ ${{github.ref}} == refs/heads/master ]; then
+            build_changes=true
+            format_changes_c_cpp=true
             code_changes_c_cpp=$(
               find . -type f \
               -iregex '^.*\.\(c\|cpp\|h\|hpp\|inl\)$' -and -not \
@@ -37,18 +37,18 @@ jobs:
               ':!.github/dependabot.yml' ':!.github/workflows/sync-labels.yml'
             )
             if [ -z "$build_changes" ]; then
-              build_changes='false'
+              build_changes=false
             else
-              build_changes='true'
+              build_changes=true
             fi
             code_changes_c_cpp=$(
               git diff --name-only origin/master HEAD -- \
               ':!externals/*/*' *.c *.cpp *.h *.hpp *.inl .clang-format
             )
             if [ -z "$code_changes_c_cpp" ]; then
-              format_changes_c_cpp='false'
+              format_changes_c_cpp=false
             else
-              format_changes_c_cpp='true'
+              format_changes_c_cpp=true
               code_changes_c_cpp=$(
                 echo "$code_changes_c_cpp" | grep -v .clang-format
               )
@@ -276,8 +276,8 @@ jobs:
         run: |
           results=( ${{join(needs.*.result, ' ')}} )
           for result in "${results[@]}"; do
-            if [ "$result" != 'success' ]; then
-              echo 'Build failed'
+            if [ "$result" != success ]; then
+              echo Build failed
               exit 1
             fi
           done
