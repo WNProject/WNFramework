@@ -277,7 +277,8 @@ jobs:
           results=( ${{join(needs.*.result, ' ')}} )
           for result in "${results[@]}"; do
             if [ "$result" != success ]; then
-              echo Build failed
+              echo Oh no...☹️ the build failed!
               exit 1
             fi
           done
+          echo Yay! The build succeeded! 🎉
