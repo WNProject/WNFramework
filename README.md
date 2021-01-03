@@ -7,9 +7,8 @@ A set of cross platform libraries and tools built for game development.
 
 ## Development
 
-Currently development is supported on **Windows** and **Linux**. Only
-**Windows 10** and **Ubuntu 18+** have been tested with the steps laid out in
-this guide.
+Currently development is supported on **Windows** and **Linux**. Only **Windows
+10** and **Ubuntu 18+** have been tested with the steps laid out in this guide.
 
 ### Environment
 
@@ -75,24 +74,19 @@ offically supported generator for **Windows**. For **Visual Studio 15 2017** and
 **Visual Studio 16 2019** you must specify the architecture through the `-A`
 command. The `CMAKE_BUILD_TYPE` is only needed if using `Ninja` as the generator
 type. For the `Ninja` generator you will also need to run the appropriate
-**Visual Studio** environment setup script (`vcvarsall`) in the same command
-prompt you intend to use for configuration before running a configuration. After
-you have completed configuration you don't need to re-run this script for
-subsequent commands. See below scripts for each supported **Visual Studio**
-version.
-
-* 2017: `%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat amd64`
-* 2019: `%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat amd64`
-
-This step may not be required if you only have a single version of
-**Visual Studio** installed.
+**Visual Studio** environment setup script in the same command prompt you intend
+to use for configuration before running a configuration. After you have
+completed configuration you don't need to re-run this script for
+subsequent commands. See [here][Visual Studio Command Line Tools] for location
+of and options for **Visual Studio** command line tools. This step may not be
+required if you only have a single version of **Visual Studio** installed.
 
 #### Android
 
 ```sh
 cmake \
   -G[Ninja|"Unix Makefiles"] \
-  -DCMAKE_TOOLCHAIN_FILE=[WNFramework Root]\Overlays\Posix\Overlays\Android\android.toolchain.cmake \
+  -DCMAKE_TOOLCHAIN_FILE=[WNFramework Root]/Overlays/Posix/Overlays/Android/android.toolchain.cmake \
   -DWN_ANDROID_ABIS=[arm|arm64|x86] \
   -DWN_ANDROID_SDK=[Android SDK Root] \
   -DCMAKE_BUILD_TYPE=[Debug|Release] \
@@ -150,3 +144,4 @@ conventions check the guides below.
 [License]: https://img.shields.io/github/license/WNProject/WNFramework?label=License
 [Build Badge]: https://github.com/WNProject/WNFramework/workflows/Build/badge.svg?branch=master
 [Build Workflow]: https://github.com/WNProject/WNFramework/actions?query=workflow%3ABuild+branch%3Amaster
+[Visual Studio Command Line Tools]: https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line
