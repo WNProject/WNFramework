@@ -190,10 +190,16 @@ subprocess_return call_subprocess(memory::allocator* _allocator,
 
   success = ReadFile(stdout_read, streams[0].buffer, num_buffered_bytes, NULL,
       &streams[0].overlapped);
+  if (success) {
+    streams[0].handle_data.append(streams[0].buffer);
+  }
   success = success || (GetLastError() == ERROR_IO_PENDING);
 
   success &= ReadFile(stderr_read, streams[1].buffer, num_buffered_bytes, NULL,
       &streams[1].overlapped);
+  if (success) {
+    streams[1].handle_data.append(streams[1].buffer);
+  }
   success = success || (GetLastError() == ERROR_IO_PENDING);
 
   while (success) {

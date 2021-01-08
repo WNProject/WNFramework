@@ -67,7 +67,11 @@ private:
   size_t size_values[N_Vals] = {0};
 
 public:
-  slice() : _value(nullptr) {}
+  slice() : _value(nullptr) {
+    for (size_t i = 0; i < N_Vals; ++i) {
+      size_values[i] = 0;
+    }
+  }
 
   inline slice(T* _val, containers::array<size_t, N_Vals> _sizes_strides)
     : _value(_val) {
@@ -86,7 +90,13 @@ public:
     return _value;
   }
   T* end() {
-    return _value + size_values[0] + 1;
+    return _value + size_values[0];
+  }
+  const T* begin() const {
+    return _value;
+  }
+  const T* end() const {
+    return _value + size_values[0];
   }
 };
 

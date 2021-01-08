@@ -57,10 +57,20 @@ log_flusher* _debug() {
 log_flusher* _o_cstr(log_flusher* fl, const char* str) {
   logging::log_level l =
       static_cast<logging::log_level>(reinterpret_cast<uintptr_t>(fl));
-  scripting::g_scripting_tls->_log->log_params(l,
-      static_cast<size_t>(logging::log_flags::no_newline) |
-          static_cast<size_t>(logging::log_flags::no_header),
-      str);
+  if (!str) {
+    scripting::g_scripting_tls->_log->log_params(l,
+        static_cast<size_t>(logging::log_flags::no_newline) |
+            static_cast<size_t>(logging::log_flags::no_header),
+        "<nullptr>");
+  }
+  size_t s = ::strlen(str);
+  for (size_t i = 0; i < s; i += 512) {
+    scripting::g_scripting_tls->_log->log_params(l,
+        static_cast<size_t>(logging::log_flags::no_newline) |
+            static_cast<size_t>(logging::log_flags::no_header),
+        containers::string_view(str + i, (s - i > 512) ? 512 : s - i));
+  }
+
   return fl;
 }
 
