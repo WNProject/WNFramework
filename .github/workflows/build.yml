@@ -30,19 +30,19 @@ jobs:
             changes_c_cpp=$(
               find . -type f \
               -iregex '^.*\.\(c\|cpp\|h\|hpp\|inl\)$' -and -not \
-              -iregex '^\.\/externals.*$'
+              -iregex '^\.\/externals.*$' | sort
             )
-            changes_md=$(find . -type f -iname '*.md')
+            changes_md=$(find . -type f -iname '*.md' | sort)
           else
-            build=$(
-              git diff --name-only origin/master HEAD -- \
-              ':!externals/*/*' ':!*.md' ':!.github/CODEOWNERS' ':!*LICENSE' \
-              ':!.markdownlintrc' ':!.markdownlintignore' ':!.clang-format' \
-              ':!.github/labels.yml' ':!.github/workflows/sync-labels.yml' \
-              ':!.github/workflows/rebase.yml' ':!.github/dependabot.yml' \
-              ':!.gitattributes' ':!.gitmodules' ':!.gitignore'
+            build_ignore=()
+            while IFS= read -r line || [[ "$line" ]]; do
+              build_ignore+=(':!'"$line")
+            done < .build-ignore
+            build_changes=$(
+              git diff --name-status origin/master HEAD -- ${build_ignore[@]} |
+              sort
             )
-            if [ -z "$build" ]; then
+            if [ -z "$build_changes" ]; then
               build=false
             else
               build=true
@@ -57,7 +57,7 @@ jobs:
             else
               format_check_c_cpp=true
               changes_c_cpp=$(
-                echo "$changes_c_cpp" | grep -v .clang-format || true
+                echo "$changes_c_cpp" | grep -v .clang-format || true | sort
               )
             fi
             changes_md=$(
@@ -68,12 +68,15 @@ jobs:
               format_check_md=false
             else
               format_check_md=true
-              changes_md=$(echo "$changes_md" | grep -v .markdownlint || true)
+              changes_md=$(
+                echo "$changes_md" | grep -v .markdownlint || true | sort
+              )
             fi
           fi
           echo "Run build: $build"
           echo "Run format check (C/C++): $format_check_c_cpp"
           echo "Run format check (Markdown): $format_check_md"
+          echo -e "Changes affecting build:\n$build_changes"
           if [ -z "$changes_c_cpp" ]; then
             echo 'Changes (C/C++): [none]'
           else
@@ -87,8 +90,8 @@ jobs:
           echo "::set-output name=run-build::$build"
           echo "::set-output name=run-format-check-c-cpp::$format_check_c_cpp"
           echo "::set-output name=run-format-check-md::$format_check_md"
-          echo "::set-output name=changes-c-cpp::$changes_c_cpp"
-          echo "::set-output name=changes-md::$changes_md"
+          echo "::set-output name=changes-c-cpp::${changes_c_cpp//$'\n'/'\0'}"
+          echo "::set-output name=changes-md::${changes_md//$'\n'/'\0'}"
   check-formatting-c-cpp:
     name: Check formatting (C/C++)
     needs: analyze-changes
@@ -100,8 +103,8 @@ jobs:
         uses: actions/checkout@v2.3.4
       - name: Check formatting
         run: >
-          echo "${{needs.analyze-changes.outputs.changes-c-cpp}}" |
-          xargs clang-format --dry-run --Werror
+          echo -n "${{needs.analyze-changes.outputs.changes-c-cpp}}" |
+          xargs -0 clang-format --dry-run --Werror
   check-formatting-md:
     name: Check formatting (Markdown)
     needs: analyze-changes
@@ -113,8 +116,8 @@ jobs:
         uses: actions/checkout@v2.3.4
       - name: Check formatting
         run: >
-          echo "${{needs.analyze-changes.outputs.changes-md}}" |
-          xargs markdownlint
+          echo -n "${{needs.analyze-changes.outputs.changes-md}}" |
+          xargs -0 markdownlint
   build-android:
     name: Build Android
     needs: analyze-changes
