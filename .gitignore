@@ -8,6 +8,7 @@
 .vscode/
 .ycm_extra_conf.py*
 externals/*/*
+!externals/.patches/*
 !externals/librocket/*
 !externals/antlr/*
 build*/
