@@ -10,6 +10,5 @@
 externals/*/*
 !externals/.patches/*
 !externals/librocket/*
-!externals/antlr/*
 build*/
 ipch/
