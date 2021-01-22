@@ -1,5 +1,34 @@
 set(WN_ADDITIONAL_TRACY_OPTIONS)
 
+find_package(Git REQUIRED)
+execute_process(
+  COMMAND ${GIT_EXECUTABLE} apply --check -p0 -
+  INPUT_FILE ./externals/.patches/antlr3.patch
+  WORKING_DIRECTORY ${WNFramework_SOURCE_DIR}
+  RESULT_VARIABLE PATCH_APPLY_CHECK_RESULT
+  OUTPUT_QUIET
+  ERROR_QUIET
+)
+
+if (PATCH_APPLY_CHECK_RESULT MATCHES 0)
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} apply -p0 -
+    INPUT_FILE ./externals/.patches/antlr3.patch
+    WORKING_DIRECTORY ${WNFramework_SOURCE_DIR}
+    RESULT_VARIABLE PATCH_APPLY_RESULT
+    OUTPUT_QUIET
+    ERROR_QUIET
+  )
+
+  if (PATCH_APPLY_RESULT MATCHES 0)
+    message(STATUS "Git patched: antlr3")
+  else()
+    message(FATAL_ERROR "Git failed to patch: antlr3")
+  endif()
+else()
+    message(STATUS "Git already patched: antlr3")
+endif()
+
 enable_overlay_directory()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
