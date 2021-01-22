@@ -11,9 +11,11 @@ jobs:
     outputs:
       run-build: ${{steps.analysis.outputs.run-build}}
       run-format-check-c-cpp: ${{steps.analysis.outputs.run-format-check-c-cpp}}
-      code-changes-c-cpp: ${{steps.analysis.outputs.code-changes-c-cpp}}
+      run-format-check-md: ${{steps.analysis.outputs.run-format-check-md}}
+      changes-c-cpp: ${{steps.analysis.outputs.changes-c-cpp}}
+      changes-md: ${{steps.analysis.outputs.changes-md}}
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v2.3.4
         with:
           fetch-depth: 0
@@ -22,61 +24,97 @@ jobs:
         shell: bash
         run: |
           if [ ${{github.ref}} == refs/heads/master ]; then
-            build_changes=true
-            format_changes_c_cpp=true
-            code_changes_c_cpp=$(
+            build=true
+            format_check_c_cpp=true
+            format_check_md=true
+            changes_c_cpp=$(
               find . -type f \
               -iregex '^.*\.\(c\|cpp\|h\|hpp\|inl\)$' -and -not \
               -iregex '^\.\/externals.*$'
             )
+            changes_md=$(find . -type f -iname '*.md')
           else
-            build_changes=$(
+            build=$(
               git diff --name-only origin/master HEAD -- \
-              ':!*.md' ':!*.asciidoc' ':!.github/CODEOWNERS' ':!externals/*/*' \
-              ':!.github/workflows/rebase.yml' ':!.github/labels.yml' \
-              ':!.github/dependabot.yml' ':!.github/workflows/sync-labels.yml'
+              ':!externals/*/*' ':!*.md' ':!.github/CODEOWNERS' ':!*LICENSE' \
+              ':!.markdownlintrc' ':!.markdownlintignore' ':!.clang-format' \
+              ':!.github/labels.yml' ':!.github/workflows/sync-labels.yml' \
+              ':!.github/workflows/rebase.yml' ':!.github/dependabot.yml' \
+              ':!.gitattributes' ':!.gitmodules' ':!.gitignore'
             )
-            if [ -z "$build_changes" ]; then
-              build_changes=false
+            if [ -z "$build" ]; then
+              build=false
             else
-              build_changes=true
+              build=true
             fi
-            code_changes_c_cpp=$(
-              git diff --name-only origin/master HEAD -- \
-              ':!externals/*/*' *.c *.cpp *.h *.hpp *.inl .clang-format
+            changes_c_cpp=$(
+              git diff --diff-filter=d --name-only origin/master HEAD -- \
+              ':!externals/*/*' '*.c' '*.cpp' '*.h' '*.hpp' '*.inl' \
+              .clang-format
             )
-            if [ -z "$code_changes_c_cpp" ]; then
-              format_changes_c_cpp=false
+            if [ -z "$changes_c_cpp" ]; then
+              format_check_c_cpp=false
             else
-              format_changes_c_cpp=true
-              code_changes_c_cpp=$(
-                echo "$code_changes_c_cpp" | grep -v .clang-format || true
+              format_check_c_cpp=true
+              changes_c_cpp=$(
+                echo "$changes_c_cpp" | grep -v .clang-format || true
               )
             fi
+            changes_md=$(
+              git diff --diff-filter=d --name-only origin/master HEAD -- \
+              '*.md' .markdownlintrc .markdownlintignore
+            )
+            if [ -z "$changes_md" ]; then
+              format_check_md=false
+            else
+              format_check_md=true
+              changes_md=$(echo "$changes_md" | grep -v .markdownlint || true)
+            fi
           fi
-          echo "Run build: $build_changes"
-          echo "Run format check (C/C++): $format_changes_c_cpp"
-          if [ -z "$code_changes_c_cpp" ]; then
-            echo 'Code changes (C/C++): [none]'
+          echo "Run build: $build"
+          echo "Run format check (C/C++): $format_check_c_cpp"
+          echo "Run format check (Markdown): $format_check_md"
+          if [ -z "$changes_c_cpp" ]; then
+            echo 'Changes (C/C++): [none]'
           else
-            echo "Code changes (C/C++): $code_changes_c_cpp"
+            echo -e "Changes (C/C++):\n$changes_c_cpp"
           fi
-          echo "::set-output name=run-build::$build_changes"
-          echo "::set-output name=run-format-check-c-cpp::$format_changes_c_cpp"
-          echo "::set-output name=code-changes-c-cpp::$code_changes_c_cpp"
-  check-code-formatting-c-cpp:
-    name: Check code formatting (C/C++)
+          if [ -z "$changes_md" ]; then
+            echo 'Changes (Markdown): [none]'
+          else
+            echo -e "Changes (Markdown):\n$changes_md"
+          fi
+          echo "::set-output name=run-build::$build"
+          echo "::set-output name=run-format-check-c-cpp::$format_check_c_cpp"
+          echo "::set-output name=run-format-check-md::$format_check_md"
+          echo "::set-output name=changes-c-cpp::$changes_c_cpp"
+          echo "::set-output name=changes-md::$changes_md"
+  check-formatting-c-cpp:
+    name: Check formatting (C/C++)
     needs: analyze-changes
     if: needs.analyze-changes.outputs.run-format-check-c-cpp == 'true'
     runs-on: ubuntu-latest
     container: ghcr.io/wnproject/clang-format
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v2.3.4
-      - name: Check code format
+      - name: Check formatting
         run: >
-          echo "${{needs.analyze-changes.outputs.code-changes-c-cpp}}" |
+          echo "${{needs.analyze-changes.outputs.changes-c-cpp}}" |
           xargs clang-format --dry-run --Werror
+  check-formatting-md:
+    name: Check formatting (Markdown)
+    needs: analyze-changes
+    if: needs.analyze-changes.outputs.run-format-check-md == 'true'
+    runs-on: ubuntu-latest
+    container: ghcr.io/wnproject/markdown-lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+      - name: Check formatting
+        run: >
+          echo "${{needs.analyze-changes.outputs.changes-md}}" |
+          xargs markdownlint
   build-android:
     name: Build Android
     needs: analyze-changes
@@ -91,7 +129,7 @@ jobs:
     steps:
       - name: Set up build environment
         run: mkdir build
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v2.3.4
         with:
           path: ./source
@@ -160,7 +198,7 @@ jobs:
     steps:
       - name: Set up build environment
         run: mkdir build
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v2.3.4
         with:
           path: ./source
@@ -206,17 +244,15 @@ jobs:
       matrix:
         compiler: [msvc-15, msvc-16]
         build-type: [Debug, Release]
-    env:
-      PACKAGE: ghcr.io/${{github.repository_owner}}/build-windows
     steps:
-      - name: Determine additional info
-        id: info
-        run: |
-          $docker_image = "${{env.PACKAGE}}:${{matrix.compiler}}".ToLower()
-          echo "::set-output name=docker_image::$docker_image"
       - name: Set up build environment
-        run: mkdir build
-      - name: Checkout code
+        id: build-environment
+        run: |
+          mkdir build
+          $package = 'ghcr.io/wnproject/build-windows'
+          $docker_image = "${package}:${{matrix.compiler}}".ToLower()
+          echo "::set-output name=docker-image::$docker_image"
+      - name: Checkout
         uses: actions/checkout@v2.3.4
         with:
           path: ./source
@@ -227,7 +263,7 @@ jobs:
         env:
           GCS_KEY: ${{secrets.SCCACHE_GCS_KEY}}
       - name: Pull container
-        run: docker pull ${{steps.info.outputs.docker_image}}
+        run: docker pull ${{steps.build-environment.outputs.docker-image}}
       - name: Run configuration
         run: >
           docker run --rm
@@ -235,7 +271,7 @@ jobs:
           -e SCCACHE_GCS_KEY_PATH=C:\workspace\gcs_key.json
           -e SCCACHE_GCS_RW_MODE=READ_WRITE
           -v ${{github.workspace}}:C:\workspace
-          ${{steps.info.outputs.docker_image}}
+          ${{steps.build-environment.outputs.docker-image}}
           cmake -GNinja -S C:\workspace\source -B C:\workspace\build
           -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
           -DWN_LOW_RESOURCE_MODE=ON
@@ -247,13 +283,13 @@ jobs:
           -e SCCACHE_GCS_KEY_PATH=C:\workspace\gcs_key.json
           -e SCCACHE_GCS_RW_MODE=READ_WRITE
           -v ${{github.workspace}}:C:\workspace
-          ${{steps.info.outputs.docker_image}}
+          ${{steps.build-environment.outputs.docker-image}}
           cmake --build C:\workspace\build
       - name: Run tests
         run: >
           docker run --rm
           -v ${{github.workspace}}:C:\workspace
-          ${{steps.info.outputs.docker_image}}
+          ${{steps.build-environment.outputs.docker-image}}
           "cd C:\workspace\build;
           ctest -C ${{matrix.build-type}}
           -LE REQUIRES_HARDWARE
