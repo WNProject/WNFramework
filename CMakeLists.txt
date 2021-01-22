@@ -1,6 +1,8 @@
-cmake_policy(SET CMP0048 NEW)
+if (POLICY CMP0048)
+    cmake_policy(SET CMP0048 NEW)
+endif()
 cmake_minimum_required(VERSION 3.16.3)
-project(WNFramework VERSION 1.0.0)
+project(WNFramework)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(BUILD_SHARED_LIBS OFF)
@@ -16,7 +18,10 @@ if (NOT WN_TRACY_CALLBACK_DEPTH)
 endif()
 
 option(WN_ENABLE_TRACY "Enable Tracy Profiler" ${WN_ENABLE_TRACY})
-set(WN_TRACY_CALLBACK_DEPTH ${WN_TRACY_CALLBACK_DEPTH} CACHE INT "Depth of the callstack to store for tracy")
+set(
+    WN_TRACY_CALLBACK_DEPTH ${WN_TRACY_CALLBACK_DEPTH}
+    CACHE STRING "Depth of the callstack to store for tracy"
+)
 
 if (WN_USE_SCCACHE)
     if (NOT CMAKE_CXX_COMPILER_LAUNCHER)

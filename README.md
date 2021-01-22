@@ -1,6 +1,8 @@
 # WNFramework
 
 [![License]](LICENSE)
+[![C++ Version][C++ Version]][C++ Reference]
+[![CMake Version][CMake Version]][CMake Reference]
 [![Build][Build Badge]][Build Workflow]
 
 A set of cross platform libraries and tools built for game development.
@@ -142,6 +144,10 @@ conventions check the guides below.
 
 <!-- external links -->
 [License]: https://img.shields.io/github/license/WNProject/WNFramework?label=License
+[C++ Version]: https://img.shields.io/badge/C%2B%2B-17-blue
+[C++ Reference]: https://en.cppreference.com/w/cpp/17
+[CMake Version]: https://img.shields.io/badge/CMake-3.16.3-blue
+[CMake Reference]: https://cmake.org/cmake/help/v3.16
 [Build Badge]: https://github.com/WNProject/WNFramework/workflows/Build/badge.svg?branch=master
 [Build Workflow]: https://github.com/WNProject/WNFramework/actions?query=workflow%3ABuild+branch%3Amaster
 [Visual Studio Command Line Tools]: https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line

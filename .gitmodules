@@ -52,3 +52,9 @@
 	branch = master
 	ignore = dirty
 	shallow = true
+[submodule "antlr3"]
+	path = externals/antlr3
+	url = https://github.com/antlr/antlr3
+	branch = master
+	ignore = dirty
+	shallow = true
