@@ -9,9 +9,7 @@ on:
     - cron: '0 0 1 1 *'
 env:
   BRANCH: auto/update-license
-  REGEX: >
-    ^(((\/\/|#) )?Copyright \(c\) )[0-9]{4}(, WNProject Authors(\. All rights
-    reserved.)?)$
+  REGEX: '^(((\/\/|#) )?Copyright \(c\) )[0-9]{4}(, WNProject Authors(\. All rights reserved.)?)$'
 jobs:
   update-license:
     name: Update license
