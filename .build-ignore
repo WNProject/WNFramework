@@ -5,6 +5,7 @@
 .github/labels.yml
 .github/workflows/rebase.yml
 .github/workflows/sync-labels.yml
+.github/workflows/update-license.yml
 .gitignore
 .gitmodules
 .markdownlintignore
