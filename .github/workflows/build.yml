@@ -10,8 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       run-build: ${{steps.analysis.outputs.run-build}}
+      run-check-licenses: ${{steps.analysis.outputs.run-check-licenses}}
       run-format-check-c-cpp: ${{steps.analysis.outputs.run-format-check-c-cpp}}
       run-format-check-md: ${{steps.analysis.outputs.run-format-check-md}}
+      changes-externals: ${{steps.analysis.outputs.changes-externals}}
       changes-c-cpp: ${{steps.analysis.outputs.changes-c-cpp}}
       changes-md: ${{steps.analysis.outputs.changes-md}}
     steps:
@@ -25,8 +27,14 @@ jobs:
         run: |
           if [ ${{github.ref}} == refs/heads/master ]; then
             build=true
+            check_licenses=true
             format_check_c_cpp=true
             format_check_md=true
+            changes_externals=$(
+              find externals/ -mindepth 1 -maxdepth 1 \
+              -type f -iname LICENSE.* -or -type d -and -not -iname .patches |
+              cut -d. -f2 | cut -d/ -f2 | sort | uniq
+            )
             changes_c_cpp=$(
               find . -type f \
               -iregex '^.*\.\(c\|cpp\|h\|hpp\|inl\)$' -and -not \
@@ -46,6 +54,16 @@ jobs:
               build=false
             else
               build=true
+            fi
+            changes_externals=$(
+              git diff --name-only origin/master HEAD -- \
+              externals/ ':!externals/CMakeLists.txt' ':!externals/*/*' |
+              cut -d. -f2 | cut -d/ -f2 | sort | uniq
+            )
+            if [ -z "$changes_externals" ]; then
+              check_licenses=false
+            else
+              check_licenses=true
             fi
             changes_c_cpp=$(
               git diff --diff-filter=d --name-only origin/master HEAD -- \
@@ -74,12 +92,18 @@ jobs:
             fi
           fi
           echo "Run build: $build"
+          echo "Run license check: $check_licenses"
           echo "Run format check (C/C++): $format_check_c_cpp"
           echo "Run format check (Markdown): $format_check_md"
           if [ -z "$build_changes" ]; then
             echo 'Changes affecting build: [none]'
           else
             echo -e "Changes affecting build:\n$build_changes"
+          fi
+          if [ -z "$changes_externals" ]; then
+            echo 'Changes (Externals): [none]'
+          else
+            echo -e "Changes (Externals):\n$changes_externals"
           fi
           if [ -z "$changes_c_cpp" ]; then
             echo 'Changes (C/C++): [none]'
@@ -91,11 +115,104 @@ jobs:
           else
             echo -e "Changes (Markdown):\n$changes_md"
           fi
+          changes_externals=${changes_externals//$'\n'/'\0'}
+          changes_c_cpp=${changes_c_cpp//$'\n'/'\0'}
+          changes_md=${changes_md//$'\n'/'\0'}
           echo "::set-output name=run-build::$build"
+          echo "::set-output name=run-check-licenses::$check_licenses"
           echo "::set-output name=run-format-check-c-cpp::$format_check_c_cpp"
           echo "::set-output name=run-format-check-md::$format_check_md"
-          echo "::set-output name=changes-c-cpp::${changes_c_cpp//$'\n'/'\0'}"
-          echo "::set-output name=changes-md::${changes_md//$'\n'/'\0'}"
+          echo "::set-output name=changes-externals::$changes_externals"
+          echo "::set-output name=changes-c-cpp::$changes_c_cpp"
+          echo "::set-output name=changes-md::$changes_md"
+  check-licenses:
+    name: Check licenses
+    needs: analyze-changes
+    if: needs.analyze-changes.outputs.run-check-licenses == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+        with:
+          submodules: true
+      - name: Check external licenses
+        run: |
+          externals='${{needs.analyze-changes.outputs.changes-externals}}'
+          externals=${externals//'\0'/$'\n'}
+          ignore_list=(
+            antlr
+            librocket
+          )
+          manual_mappings=(
+            'llvm:llvm-project/llvm'
+          )
+          manual_overrides=(
+            'xxhash:c4d6fd586b63b3e25a4ed28a23210791db46df98:only using xxhash'
+          )
+          result=true
+          for external in $externals; do
+            skip=false
+            for ignore in ${ignore_list[@]}; do
+              if [ "$ignore" == "$external" ]; then
+                skip=true
+                break
+              fi
+            done
+            if $skip; then
+              echo "$external: (ignoring)"
+              continue
+            fi
+            license="./externals/LICENSE.$external"
+            if [ ! -f "$license" ]; then
+              echo "$external: (not found)"
+              result=false
+              continue
+            fi
+            for manual_mapping in ${manual_mappings[@]}; do
+                chunks=(${manual_mapping//:/ })
+                if [ "${chunks[0]}" == "$external" ]; then
+                  external=${chunks[1]}
+                  break
+                fi
+            done
+            copy_hash=$(cat $license | sha1sum | awk '{print $1}')
+            original_hash=''
+            reason=''
+            for manual_override in "${manual_overrides[@]}"; do
+              chunks=()
+              IFS=':'; read -ra chunks <<< "$manual_override"; IFS=' '
+              if [ "${chunks[0]}" == "$external" ]; then
+                original_hash=${chunks[1]}
+                reason="${chunks[2]}"
+                break
+              fi
+            done
+            if [ -z "$original_hash" ]; then
+              original_license=$(
+                find ./externals/$external -maxdepth 1 -mindepth 1 \
+                -type f -iname 'LICENSE*'
+              )
+              if [ -z "$original_license" ]; then
+                echo "$external: (original not found)"
+                result=false
+                continue
+              fi
+              original_hash=$(
+                cat "$original_license" | sha1sum | awk '{print $1}'
+              )
+              if [ "$copy_hash" == "$original_hash" ]; then
+                echo "$external: $copy_hash (matches)"
+              else
+                echo "$external: $copy_hash (does not match)"
+                result=false
+              fi
+            else
+              echo "$external: $original_hash (overridden: $reason)"
+            fi
+          done
+          if ! $result; then
+            exit 1
+          fi
   check-formatting-c-cpp:
     name: Check formatting (C/C++)
     needs: analyze-changes
