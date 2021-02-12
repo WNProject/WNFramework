@@ -140,17 +140,42 @@ jobs:
           externals='${{needs.analyze-changes.outputs.changes-externals}}'
           externals=${externals//'\0'/$'\n'}
           ignore_list=(
-            antlr
             librocket
           )
           manual_mappings=(
+            'llvm-project:llvm'
+          )
+          manual_path_mappings=(
             'llvm:llvm-project/llvm'
           )
           manual_overrides=(
             'xxhash:c4d6fd586b63b3e25a4ed28a23210791db46df98:only using xxhash'
+            'antlr3:9a0008a487843ac42b0ffcaf4b6de998f1869094:no single file'
           )
-          result=true
+          sanitized_externals=()
           for external in $externals; do
+            skip=false
+            for manual_mapping in ${manual_mappings[@]}; do
+              chunks=(${manual_mapping//:/ })
+              if [ "${chunks[0]}" == "$external" ]; then
+                echo "$external: (remapped to ${chunks[1]})"
+                external=${chunks[1]}
+                break
+              fi
+            done
+            for sanitized_external in ${sanitized_externals[@]}; do
+              if [ "$sanitized_external" == "$external" ]; then
+                skip=true
+                break
+              fi
+            done
+            if $skip; then
+              continue
+            fi
+            sanitized_externals+=("$external")
+          done
+          result=true
+          for external in ${sanitized_externals[@]}; do
             skip=false
             for ignore in ${ignore_list[@]}; do
               if [ "$ignore" == "$external" ]; then
@@ -168,13 +193,17 @@ jobs:
               result=false
               continue
             fi
-            for manual_mapping in ${manual_mappings[@]}; do
-                chunks=(${manual_mapping//:/ })
+            path=''
+            for manual_path_mapping in ${manual_path_mappings[@]}; do
+                chunks=(${manual_path_mapping//:/ })
                 if [ "${chunks[0]}" == "$external" ]; then
-                  external=${chunks[1]}
+                  path=${chunks[1]}
                   break
                 fi
             done
+            if [ -z "$path" ]; then
+              path=$external
+            fi
             copy_hash=$(cat $license | sha1sum | awk '{print $1}')
             original_hash=''
             reason=''
@@ -189,7 +218,7 @@ jobs:
             done
             if [ -z "$original_hash" ]; then
               original_license=$(
-                find ./externals/$external -maxdepth 1 -mindepth 1 \
+                find ./externals/$path -maxdepth 1 -mindepth 1 \
                 -type f -iname 'LICENSE*'
               )
               if [ -z "$original_license" ]; then
