@@ -163,7 +163,7 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
     hr = dxgi_factory->EnumAdapters1(i, &dxgi_adapter);
 
     if (hr == DXGI_ERROR_NOT_FOUND) {
-      _log->log_info("Finished Enumerating D3D12 Dvices");
+      _log->log_info("Finished Enumerating D3D12 Devices");
 
       break;
     } else if (FAILED(hr)) {
