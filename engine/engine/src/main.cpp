@@ -28,7 +28,7 @@ int32_t wn_application_main(
   _application_data->default_log->log_info("Engine startup.");
   containers::string_view script_dir;
   containers::string_view script_file = "main.wns";
-  if (_application_data->executable_data->argv[1][0] != '-') {
+  if (_application_data->executable_data->argc > 1 && _application_data->executable_data->argv[1][0] != '-') {
     containers::string_view v(_application_data->executable_data->argv[1]);
     size_t p = v.find_last_of("\\/");
     if (p != containers::string_view::npos) {
