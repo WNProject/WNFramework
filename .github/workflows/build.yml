@@ -457,7 +457,7 @@ jobs:
       - build-android
       - build-linux
       - build-windows
-    if: success() || failure()
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Accumulate build status
