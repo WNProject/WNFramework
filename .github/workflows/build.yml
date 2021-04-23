@@ -465,7 +465,7 @@ jobs:
         run: |
           results=( ${{join(needs.*.result, ' ')}} )
           for result in "${results[@]}"; do
-            if [ "$result" != success ]; then
+            if [ "$result" != success ] && [ "$result" != skipped ]; then
               echo Oh no...☹️ the build failed!
               exit 1
             fi
