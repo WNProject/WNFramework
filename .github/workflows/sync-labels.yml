@@ -1,8 +1,7 @@
 name: Sync labels
 on:
   push:
-    branches:
-      - master
+    branches: master
     paths:
       - .github/workflows/sync-labels.yml
       - .github/labels.yml

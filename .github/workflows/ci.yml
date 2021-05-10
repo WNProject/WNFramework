@@ -1,9 +1,9 @@
-name: Build
+name: CI
 on:
   pull_request:
+    branches: master
   push:
-    branches:
-      - master
+    branches: master
 jobs:
   analyze-changes:
     name: Analyze changes
@@ -277,8 +277,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        architecture: [armeabi-v7a, arm64-v8a, x86]
-        build-type: [Debug, Release]
+        architecture:
+          - armeabi-v7a
+          - arm64-v8a
+          - x86
+        build-type:
+          - Debug
+          - Release
     steps:
       - name: Set up build environment
         run: mkdir build
@@ -346,8 +351,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [clang-9, clang-10, gcc-9, gcc-10]
-        build-type: [Debug, Release]
+        compiler:
+          - clang-9
+          - clang-10
+          - gcc-9
+          - gcc-10
+        build-type:
+          - Debug
+          - Release
     steps:
       - name: Set up build environment
         run: mkdir build
@@ -395,8 +406,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [msvc-15, msvc-16]
-        build-type: [Debug, Release]
+        compiler:
+          - msvc-15
+          - msvc-16
+        build-type:
+          - Debug
+          - Release
     steps:
       - name: Set up build environment
         id: build-environment
