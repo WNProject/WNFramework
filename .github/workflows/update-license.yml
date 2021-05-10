@@ -52,7 +52,7 @@ jobs:
           COMMIT_EMAIL: ${{secrets.UPDATE_LICENSE_EMAIL}}
       - name: Create pull request
         if: steps.changes.outputs.exist
-        uses: actions/github-script@v4.0.1
+        uses: actions/github-script@v4.0.2
         with:
           script: |
             const owner = '${{github.repository_owner}}';
