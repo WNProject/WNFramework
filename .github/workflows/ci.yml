@@ -6,7 +6,7 @@ on:
     branches: master
 permissions:
   contents: read
-concurrency: 
+concurrency:
   group: ci-${{github.ref}}
   cancel-in-progress: ${{github.ref != 'refs/heads/master'}}
 jobs:
