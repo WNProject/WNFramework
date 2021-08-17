@@ -137,6 +137,8 @@ void ui::initialize_for_renderpass(renderer::render_context* _renderer,
   m_system_interface = memory::make_unique<rocket_system_interface>(
       allocator, m_context->m_log, _renderer->get_window()->underlying());
   m_window = _renderer->get_window()->underlying();
+  m_instancer = memory::make_unique<event_instancer>(
+      allocator, m_engine, m_context->m_log);
   m_input_context = m_window->get_input_context();
   m_width = static_cast<int>(_render_pass->get_width());
   m_height = static_cast<int>(_render_pass->get_height());
@@ -148,6 +150,8 @@ void ui::initialize_for_renderpass(renderer::render_context* _renderer,
       m_rocket_context.get(), m_file_interface.get());
 
   Rocket::Core::Initialise(m_rocket_context.get());
+  Rocket::Core::Factory::RegisterEventListenerInstancer(
+      m_rocket_context.get(), m_instancer.get());
 
   m_document_context =
       Rocket::Core::CreateDocumentContext(m_rocket_context.get(), "main",

@@ -1,1 +1,3 @@
- 
+Void on_button_click(UiElement element) {
+   element.set_property("display", "none");
+}

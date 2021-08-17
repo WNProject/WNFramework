@@ -13,6 +13,7 @@
 #include "ui/inc/ui_data.h"
 #include "ui/inc/ui_rocket_interop.h"
 #include "ui/inc/ui_rocket_renderer.h"
+#include "ui/inc/ui_scripting_event_instancer.h"
 
 namespace wn {
 namespace memory {
@@ -69,6 +70,8 @@ private:
 
   // Rocket stuff
   memory::unique_ptr<Rocket::Core::Context> m_rocket_context;
+  memory::unique_ptr<event_instancer> m_instancer;
+
   Rocket::Core::DocumentContext* m_document_context;
   Rocket::Core::ElementDocument* m_document;
   bool m_debugger_visible = false;

@@ -21,6 +21,9 @@ button {
   display: block;
   font-size: 14pt;
 }
+button:hover {
+  color: orange;
+}
 textarea {
   display: block;
   font-size: 14pt;
