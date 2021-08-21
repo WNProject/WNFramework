@@ -6,6 +6,7 @@ add_wn_library(
     inc/ui_resources.h
     inc/ui_rocket_interop.h
     inc/ui_rocket_renderer.h
+    inc/ui_scripting_event_instancer.h
     inc/ui_scripting_parser.h
     inc/ui.h
     src/resource_manager.cpp
@@ -13,6 +14,7 @@ add_wn_library(
     src/ui_resources.cpp
     src/ui_rocket_interop.cpp
     src/ui_rocket_renderer.cpp
+    src/ui_scripting_event_instancer.cpp
     src/ui_scripting_parser.cpp
     src/ui_static.cpp
     src/ui.cpp

@@ -5,6 +5,7 @@
 #include "engine_base/inc/context.h"
 #include "ui/inc/resource_manager.h"
 #include "ui/inc/ui.h"
+#include "ui/inc/ui_scripting_event_instancer.h"
 
 using namespace wn::engine;
 using namespace wn::runtime::graphics;
@@ -30,6 +31,7 @@ void ui::register_scripting(
     memory::allocator* _allocator, scripting::engine* _engine) {
   ui_data::register_scripting(_engine);
   resource_manager::register_scripting(_allocator, _engine);
+  event_instancer::register_scripting(_allocator, _engine);
 
   _engine->register_child_cpp_type<ui>();
   _engine->register_function<decltype(&ui::get_renderer), &ui::get_renderer>(
