@@ -204,6 +204,7 @@ void register_graphics_enums(scripting::engine* _engine) {
 
 void render_context::register_scripting(
     memory::allocator* _allocator, scripting::engine* _engine) {
+  PROFILE_REGION(RendererRegisterScripting);
   register_graphics_enums(_engine);
   rt_description::register_scripting(_engine);
   render_dependency::register_scripting(_engine);
@@ -224,6 +225,8 @@ void render_context::register_scripting(
 }
 
 bool render_context::resolve_scripting(scripting::engine* _engine) {
+  PROFILE_REGION(RendererResolveScripting);
+
   return rt_description::resolve_scripting(_engine) &&
          render_data::resolve_scripting(_engine) &&
          renderable_object::resolve_scripting(_engine) &&
@@ -258,6 +261,8 @@ render_context::render_context(memory::allocator* _allocator,
     m_temporary_buffers(_allocator),
     m_temporary_images(_allocator),
     m_pending_renderables(_allocator) {
+  PROFILE_REGION(RenderContextInit);
+
   if (_window) {
     m_log->log_info("Created Renderer With Window");
   } else {
@@ -265,7 +270,12 @@ render_context::render_context(memory::allocator* _allocator,
   }
   m_log->log_info("Renderer Size: ", _width, "x", _height);
 
-  auto adapters = m_factory.query_adapters();
+  containers::read_only_contiguous_range<runtime::graphics::adapter_ptr>
+      adapters;
+  {
+    PROFILE_REGION(RenderContextQueryAdapters);
+    adapters = m_factory.query_adapters();
+  }
   m_log->log_info("Found ", adapters.size(), " adapters");
 
   if (adapters.size() < _forced_adapter + 1) {
@@ -274,8 +284,11 @@ render_context::render_context(memory::allocator* _allocator,
   }
   auto& adapter = adapters[_forced_adapter];
   m_log->log_info("Selecting Adapter ", _forced_adapter);
-  m_device = adapter->make_device(
-      m_allocator, m_log, wn::runtime::graphics::k_empty_adapter_features);
+  {
+    PROFILE_REGION(RenderContextCreateDevice);
+    m_device = adapter->make_device(
+        m_allocator, m_log, wn::runtime::graphics::k_empty_adapter_features);
+  }
   m_queue = m_device->create_queue();
 
   m_arena_properties = m_device->get_arena_properties();
@@ -324,6 +337,7 @@ render_context::render_context(memory::allocator* _allocator,
   // TODO(awoloszyn): Figure out nil surface (or something),
   //    if we don't actually have a window to use.
   if (m_window) {
+    PROFILE_REGION(RenderContextCreateWindow);
     auto surface = adapter->make_surface(m_allocator, m_window->underlying());
     if (surface.second != wn::runtime::graphics::graphics_error::ok) {
       m_log->log_error("Could not create surface");
@@ -366,6 +380,7 @@ render_context::render_context(memory::allocator* _allocator,
 
 void render_context::register_description(
     scripting::script_pointer<render_description> _render_description) {
+  PROFILE_REGION(RenderContextRegisterDescription);
   m_output_rt =
       _render_description.invoke(&render_description::get_output_target);
 
@@ -733,9 +748,11 @@ bool render_context::render() {
         &m_frame_fences[backing_idx],
         {&m_swapchain_ready_signals[backing_idx]});
   }
-  m_swapchain->present(
-      m_queue.get(), &m_swapchain_ready_signals[backing_idx], swap_idx);
-
+  {
+    PROFILE_REGION(RenderContextPresent);
+    m_swapchain->present(
+        m_queue.get(), &m_swapchain_ready_signals[backing_idx], swap_idx);
+  }
   m_frame_num++;
   m_log->flush();
 
@@ -744,6 +761,7 @@ bool render_context::render() {
 
 runtime::graphics::image* render_context::create_temporary_image(
     runtime::graphics::image_create_info* _create_info) {
+  PROFILE_REGION(CreateTempImage);
   runtime::graphics::clear_value c{};
   runtime::graphics::image img = m_device->create_image(*_create_info, c);
   runtime::graphics::image_memory_requirements reqs =
@@ -766,6 +784,7 @@ runtime::graphics::image* render_context::create_temporary_image(
 
 runtime::graphics::buffer* render_context::create_temporary_upload_buffer(
     size_t _size) {
+  PROFILE_REGION(CreateUploadBuffer);
   runtime::graphics::buffer buff = m_device->create_buffer(
       _size, runtime::graphics::resource_state::copy_source |
                  runtime::graphics::resource_state::host_write);
@@ -789,6 +808,7 @@ memory::unique_ptr<texture> render_context::load_texture(
     runtime::graphics::command_list* _setup_command_list,
     file_system::mapping* _mapping, scripting::script_pointer<texture_desc> tex,
     logging::log* _log) {
+  PROFILE_REGION(LoadTexture);
   return memory::make_unique<texture>(
       m_allocator, this, _mapping, _setup_command_list, tex, _log);
 }

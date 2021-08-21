@@ -19,9 +19,8 @@ struct exported_script_type<support::regex> {
 
 namespace support {
 
-regex* get_regex(scripting::wn_size_t st) {
-  static_assert(sizeof(size_t) == sizeof(uintptr_t), "Invalid regex type");
-  return reinterpret_cast<regex*>(static_cast<uintptr_t>(st.val));
+regex* get_regex(void* st) {
+  return reinterpret_cast<regex*>(st);
 }
 
 void regex_manager::register_scripting(

@@ -18,11 +18,11 @@ div {
   font-size: 10pt;
 }
 button {
-  display: block;
   font-size: 14pt;
+  background-color: green;
 }
 button:hover {
-  color: orange;
+  background-color: #50d950;
 }
 textarea {
   display: block;

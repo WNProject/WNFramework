@@ -12,11 +12,11 @@
     <div style="background-color: blue; position:absolute; top: 0%; bottom:25%; border-color: gray; padding: 1mm; border-width:1mm;">
       Hello World
       <textarea>Helloa</textarea>
-      <button type="button" onclick="on_button_click">Click Me!</button>
+      <button type="button" onclick="on_button_click" style="border-width:1mm; border-color: black; width: auto;">Click Me!</button>
     </div>
     <div class="foo" style="background-color: orange; position:absolute; top: 75%; bottom: 0%; border-color:gray; border-width:1mm;"></div>
   </div>
-  <div style="background-color: green; position:absolute; top: 25%; bottom: 0%; border-width:1mm; padding: 1mm; font-style: italic;">
+  <div style="background-color: green; position:absolute; top: 25%; bottom: 0%; border-width:1mm; padding: 1mm; font-style: italic; overflow-x: scroll;">
     Hello World. ss This is some really long text that will hopefully correctly split on to the next line. More words, not sure how many I will need.
     Hello World. This is some really long text that will hopefully correctly split on to the next line. More words, not sure how many I will need.
     Hello World. This is some really long text that will hopefully correctly split on to the next line. More words, not sure how many I will need.

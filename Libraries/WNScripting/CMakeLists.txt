@@ -269,6 +269,7 @@ add_wn_library(WNScripting
   LIBS
     WNFileSystem
     WNLogging
+    profiling
     ${WNScriptingLLVMLibs}
   INCLUDES
     ${CMAKE_SOURCE_DIR}/externals/antlr3/runtime/Cpp/include

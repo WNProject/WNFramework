@@ -7,6 +7,7 @@
 #include "WNFileSystem/inc/WNMapping.h"
 #include "WNGraphics/inc/WNDevice.h"
 #include "WNWindow/inc/WNWindow.h"
+#include "profiling/inc/profiling.h"
 #include "renderer/inc/texture.h"
 #include "window/inc/window.h"
 
@@ -237,6 +238,7 @@ bool rocket_renderer::GenerateTexture(
     Rocket::Core::TextureHandle& texture_handle,
     const Rocket::Core::byte* source,
     const Rocket::Core::Vector2i& source_dimensions) {
+  PROFILE_REGION(UiGenerateTexture);
   memory::unique_ptr<ui_texture> texture = create_and_initialize_texture(
       m_allocator, m_render_context, m_setup_command_list, source,
       source_dimensions.x * source_dimensions.y * 4, source_dimensions.x,
@@ -262,6 +264,7 @@ void rocket_renderer::ReleaseTexture(
 Rocket::Core::CompiledGeometryHandle rocket_renderer::CompileGeometry(
     Rocket::Core::Vertex* vertices, int num_vertices, int* indices,
     int num_indices, Rocket::Core::TextureHandle _texture) {
+  PROFILE_REGION(UICompileGeometry);
   ui_texture* tex = reinterpret_cast<ui_texture*>(_texture);
   if (tex) {
     tex->use_in_frame(m_frame_parity);

@@ -201,12 +201,16 @@ public:
 
     if (m_classification == ast_type_classification::primitive &&
         m_builtin == builtin_type::nullptr_type) {
-      if (_other->m_classification !=
-              ast_type_classification::shared_reference &&
-          _other->m_classification != ast_type_classification::slice_type) {
-        return false;
+      if (_other->m_classification ==
+              ast_type_classification::shared_reference ||
+          _other->m_classification == ast_type_classification::slice_type) {
+        return true;
       }
-      return true;
+      if (_other->m_classification == ast_type_classification::primitive &&
+          _other->m_builtin == builtin_type::void_ptr_type) {
+        return true;
+      }
+      return false;
     }
 
     if (_other->m_classification != ast_type_classification::shared_reference &&

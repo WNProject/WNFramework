@@ -53,6 +53,7 @@
 #include "WNScripting/inc/internal/ast_convertor_context.h"
 #include "WNScripting/inc/jit_compiler.h"
 #include "WNScripting/inc/parse_ast_convertor.h"
+#include "profiling/inc/profiling.h"
 
 namespace wn {
 namespace scripting {
@@ -87,7 +88,7 @@ struct jit_compiler_context {
     m_uint8_t = llvm::IntegerType::getInt8Ty(m_context);
     m_size_t = llvm::Type::getIntNTy(m_context, sizeof(size_t) * 8);
     m_void_t = llvm::Type::getVoidTy(m_context);
-    m_void_ptr_t = m_uint8_t->getPointerTo(0);
+    m_void_ptr_t = m_uint8_t->getPointerTo(0)->getPointerTo(0);
     m_voidfn_ptr_t = llvm::FunctionType::get(m_void_t, false)->getPointerTo(0);
     m_c_string_t = m_uint8_t->getPointerTo(0);
   }
@@ -1358,6 +1359,10 @@ llvm::Value* internal::jit_compiler_context::get_constant(
         m_voidfn_ptr_t->getPointerTo(0));
   }
 
+  if (t == m_c_string_t) {
+    return m_function_builder->CreateGlobalStringPtr(llvm::StringRef(
+        _const->m_string_value.data(), _const->m_string_value.size()));
+  }
   if (t == m_int32_t) {
     return llvm::ConstantInt::get(t, _const->m_node_value.m_integer);
   } else if (t == m_uint8_t) {
@@ -1368,10 +1373,10 @@ llvm::Value* internal::jit_compiler_context::get_constant(
     return llvm::ConstantInt::get(t, _const->m_node_value.m_bool ? 1 : 0);
   } else if (t == m_size_t) {
     return llvm::ConstantInt::get(t, _const->m_node_value.m_size_t);
-  }
-  if (t == m_c_string_t) {
-    return m_function_builder->CreateGlobalStringPtr(llvm::StringRef(
-        _const->m_string_value.data(), _const->m_string_value.size()));
+  } else if (t == m_void_ptr_t) {
+    return m_function_builder->CreateIntToPtr(
+        llvm::ConstantInt::get(m_size_t, _const->m_node_value.m_size_t),
+        m_void_ptr_t);
   }
 
   WN_RELEASE_ASSERT(false, "Unimplemented constant type");

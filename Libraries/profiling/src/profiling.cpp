@@ -23,7 +23,7 @@ bool is_profiling_enabled() {
 }  // namespace wn
 
 #ifdef TRACY_ENABLE
-static const char* default_allocator_name = "DefaultAllocator";
+static const char* default_allocator_name = "UnboundAllocator";
 
 void* aligned_alloc(std::size_t size, std::align_val_t al) {
   al = std::max(al, static_cast<std::align_val_t>(alignof(void*)));
