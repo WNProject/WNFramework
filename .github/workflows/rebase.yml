@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Respond to comment
-        uses: actions/github-script@v4.0.2
+        uses: actions/github-script@v4.1
         with:
           github-token: ${{secrets.REBASE_TOKEN}}
           script: |
@@ -32,7 +32,7 @@ jobs:
           GITHUB_TOKEN: ${{secrets.REBASE_TOKEN}}
       - name: Comment on failure
         if: failure()
-        uses: actions/github-script@v4.0.2
+        uses: actions/github-script@v4.1
         with:
           github-token: ${{secrets.REBASE_TOKEN}}
           script: |
