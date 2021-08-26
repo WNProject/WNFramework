@@ -97,6 +97,10 @@ void macos_window::run_loop() {
       case macos_event_mouse_move:
         it->second->dispatch_input(input_event::mouse_move(evt.mb.x, evt.mb.y));
         break;
+      case macos_event_mouse_wheel:
+        it->second->dispatch_input(
+            input_event::mouse_wheel(static_cast<int32_t>(evt.we.amount)));
+        break;
       default:
         break;
     }

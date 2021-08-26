@@ -43,14 +43,14 @@ void TemplateCache::RegisterContextValues(Context* _context) {
 }
 
 TemplateCache::TemplateCache(Context* _context) : m_context(_context) {
-  auto* instance = (*m_context)(kTemplateInstance);
+  auto& instance = (*m_context)(kTemplateInstance);
   (void)instance;
   ROCKET_ASSERT(instance == NULL);
   instance = this;
 }
 
 TemplateCache::~TemplateCache() {
-  auto* instance = (*m_context)(kTemplateInstance);
+  auto& instance = (*m_context)(kTemplateInstance);
   for (Templates::iterator itr = instance->templates.begin();
        itr != instance->templates.end(); ++itr) {
     delete (*itr).second;

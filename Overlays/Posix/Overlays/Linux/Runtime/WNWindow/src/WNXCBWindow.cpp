@@ -196,6 +196,12 @@ void xcb_window::dispatch_loop(void*) {
                   false;
               dispatch_input(input_event::mouse_up(mouse_button::mouse_m));
               break;
+            case XCB_BUTTON_INDEX_4:
+              dispatch_input(input_event::mouse_wheel(120));
+              break;
+            case XCB_BUTTON_INDEX_5:
+              dispatch_input(input_event::mouse_wheel(-120));
+              break;
           }
           break;
         }

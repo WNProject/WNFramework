@@ -1587,22 +1587,37 @@ void Element::ProcessEvent(Event& event) {
 
   if (event == MOUSESCROLL) {
     int wheel_delta = event.GetParameter<int>("wheel_delta", 0);
-    if ((wheel_delta < 0 && GetScrollTop() > 0) ||
-        (wheel_delta > 0 &&
-            GetScrollHeight() > GetScrollTop() + GetClientHeight())) {
-      int overflow_property = GetProperty<int>(OVERFLOW_Y);
-      if (overflow_property == OVERFLOW_AUTO ||
-          overflow_property == OVERFLOW_SCROLL) {
-        SetScrollTop(
-            GetScrollTop() +
-            wheel_delta *
-                (GetFontFaceHandle()
-                        ? ElementUtilities::GetLineHeight(this)
-                        : (GetProperty(SCROLL_DEFAULT_STEP_SIZE)
-                                  ? GetProperty<int>(SCROLL_DEFAULT_STEP_SIZE)
-                                  : 0)));
-        event.StopPropagation();
-      }
+    int overflow_property_y = GetProperty<int>(OVERFLOW_Y);
+    int overflow_property_x = GetProperty<int>(OVERFLOW_X);
+    if ((overflow_property_y == OVERFLOW_AUTO ||
+            overflow_property_y == OVERFLOW_SCROLL) &&
+        ((wheel_delta < 0 && GetScrollTop() > 0) ||
+            (wheel_delta > 0 &&
+                GetScrollHeight() > GetScrollTop() + GetClientHeight()))) {
+      SetScrollTop(
+          GetScrollTop() +
+          float(wheel_delta) / 120.0f *
+              (GetFontFaceHandle()
+                      ? ElementUtilities::GetLineHeight(this)
+                      : (GetProperty(SCROLL_DEFAULT_STEP_SIZE)
+                                ? GetProperty<int>(SCROLL_DEFAULT_STEP_SIZE)
+                                : 0)));
+      event.StopPropagation();
+    } else if ((overflow_property_x == OVERFLOW_AUTO ||
+                   overflow_property_x == OVERFLOW_SCROLL) &&
+               ((wheel_delta < 0 && GetScrollLeft() > 0) ||
+                   (wheel_delta > 0 &&
+                       GetScrollWidth() >
+                           GetScrollLeft() + GetClientWidth()))) {
+      SetScrollLeft(
+          GetScrollLeft() +
+          float(wheel_delta) / 120.0f *
+              (GetFontFaceHandle()
+                      ? ElementUtilities::GetLineHeight(this)
+                      : (GetProperty(SCROLL_DEFAULT_STEP_SIZE)
+                                ? GetProperty<int>(SCROLL_DEFAULT_STEP_SIZE)
+                                : 0)));
+      event.StopPropagation();
     }
 
     return;
