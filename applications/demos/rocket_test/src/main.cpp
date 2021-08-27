@@ -1536,6 +1536,10 @@ int32_t wn_application_main(
           documents->ProcessMouseMove(static_cast<int>(evt.get_mouse_x()),
               static_cast<int>(evt.get_mouse_y()), key_modifier_state);
           break;
+        case wn::runtime::window::event_type::mouse_wheel:
+          documents->ProcessMouseWheel(
+              evt.get_mouse_wheel(), key_modifier_state);
+          break;
         case wn::runtime::window::event_type::text_input:
           documents->ProcessTextInput(
               static_cast<Rocket::Core::word>(evt.get_character()));

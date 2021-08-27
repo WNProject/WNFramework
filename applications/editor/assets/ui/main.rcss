@@ -1,18 +1,4 @@
 
-.foo {
-  background-decorator: image;
-  background-image: @Texture("assets/ui/gradient.wntex");
-}
-.bar {
-  border-color: #000000;
-  border-width: 1mm;
-  position: absolute;
-  float: left;
-  width: 20%;
-  top: 0pt;
-  bottom: 80%;
-  background-color: green;
-}
 div {
   display: block;
   font-size: 10pt;

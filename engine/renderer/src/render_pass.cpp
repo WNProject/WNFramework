@@ -139,10 +139,10 @@ void render_pass::render(render_context* _context, uint64_t _frame_idx,
   containers::dynamic_array<runtime::graphics::clear_value> clears(m_allocator);
   clears.resize(m_render_targets.size());
   for (size_t i = 0; i < m_render_targets.size() - m_has_depth_target; ++i) {
-    clears[i].color.float_vals[0] = 1.0f;
+    clears[i].color.float_vals[0] = 0.0f;
     clears[i].color.float_vals[1] = 0.0f;
     clears[i].color.float_vals[2] = 0.0f;
-    clears[i].color.float_vals[3] = 0.0f;
+    clears[i].color.float_vals[3] = 1.0f;
   }
 
   if (m_has_depth_target) {

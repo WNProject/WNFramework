@@ -25,6 +25,7 @@ enum class event_type {
   key_up,
   mouse_down,
   mouse_up,
+  mouse_wheel,
   mouse_move,
   text_input,
 };
@@ -67,6 +68,12 @@ public:
     return (m_coordinates >> 16) & 0xFFFF;
   }
 
+  int32_t get_mouse_wheel() {
+    WN_DEBUG_ASSERT(m_type == event_type::mouse_wheel,
+        "Cannot get mouse wheel for this event type");
+    return m_mouse_wheel;
+  }
+
   static input_event key_event(event_type _type, key_code _code) {
     input_event evt;
     evt.m_type = _type;
@@ -95,6 +102,13 @@ public:
     return evt;
   }
 
+  static input_event mouse_wheel(int32_t amount) {
+    input_event evt;
+    evt.m_type = event_type::mouse_wheel;
+    evt.m_mouse_wheel = amount;
+    return evt;
+  }
+
   static input_event text_input(uint64_t _char) {
     input_event evt;
     evt.m_type = event_type::text_input;
@@ -109,6 +123,7 @@ private:
     mouse_button m_button;
     uint32_t m_coordinates;
     uint64_t m_input_text;
+    int32_t m_mouse_wheel;
   };
 };
 

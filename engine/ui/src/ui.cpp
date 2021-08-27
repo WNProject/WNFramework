@@ -168,6 +168,23 @@ void ui::initialize_for_renderpass(renderer::render_context* _renderer,
   const char* element_name = m_data.invoke(&ui_data::get_ui_name);
 
   m_document = m_document_context->LoadDocument(element_name);
+
+  m_document->SetProperty(
+      "left", Rocket::Core::Property(100, Rocket::Core::Property::PX));
+  m_document->SetProperty(
+      "top", Rocket::Core::Property(100, Rocket::Core::Property::PX));
+  WN_RELEASE_ASSERT(m_document != NULL,
+      "This should not be null, since we ALREADY parsed this once before for "
+      "correctness");
+  m_document->Show();
+  m_document->RemoveReference();
+
+  m_document = m_document_context->LoadDocument(element_name);
+
+  m_document->SetProperty(
+      "left", Rocket::Core::Property(500, Rocket::Core::Property::PX));
+  m_document->SetProperty(
+      "top", Rocket::Core::Property(500, Rocket::Core::Property::PX));
   WN_RELEASE_ASSERT(m_document != NULL,
       "This should not be null, since we ALREADY parsed this once before for "
       "correctness");
@@ -207,6 +224,10 @@ void ui::update_render_data(size_t _frame_parity, command_list* _cmd_list) {
         m_document_context->ProcessMouseMove(
             static_cast<int>(evt.get_mouse_x()),
             static_cast<int>(evt.get_mouse_y()), key_modifier_state);
+        break;
+      case wn::runtime::window::event_type::mouse_wheel:
+        m_document_context->ProcessMouseWheel(
+            evt.get_mouse_wheel(), key_modifier_state);
         break;
       case wn::runtime::window::event_type::text_input:
         m_document_context->ProcessTextInput(

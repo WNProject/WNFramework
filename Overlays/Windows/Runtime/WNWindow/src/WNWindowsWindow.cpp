@@ -279,6 +279,12 @@ LRESULT CALLBACK windows_window::wnd_proc(
           window->dispatch_input(input_event::text_input(wParam));
           break;
       }
+      return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    }
+    case WM_MOUSEWHEEL: {
+      int16_t mouse_move = static_cast<int16_t>((wParam >> 16) & 0xFFFF);
+      window->dispatch_input(input_event::mouse_wheel(mouse_move));
+      return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }
     default:
       return DefWindowProc(hwnd, uMsg, wParam, lParam);

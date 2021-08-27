@@ -1,0 +1,87 @@
+<template name="window" content="content">
+<head>
+<style>
+titlebar {
+	display:block;
+	overflow-x: auto;
+	background-color: #FF0000;
+}
+titlebarcontents {
+	display: inline-block;
+	white-space: nowrap;
+}
+titlebaritem {
+	display:inline;
+	background-color: #FFFF00;
+	drag: clone;
+	border-color: black;
+	border-width: 1px;
+}
+titlebaritem:drag {
+	display:inline;
+	background-color: #00000000;
+	border-width: 0px;
+	outline-font-effect: outline;
+	outline-width: 1px;
+	outline-color: white;
+}
+titlebaritem:hover {
+	background-color: #FFEF00;
+} 
+.window:focus {
+	background-color: #556A74;
+}
+scrollbarhorizontal
+{
+	height: 6px;
+}
+scrollbarvertical slidertrack,
+scrollbarhorizontal slidertrack
+{
+	background: #aaa;
+	border-color: #888;
+}
+scrollbarvertical slidertrack
+{
+	border-left-width: 1px;
+}
+scrollbarhorizontal slidertrack
+{
+	height: 7px;
+	border-top-width: 1px;
+}
+scrollbarvertical sliderbar,
+scrollbarhorizontal sliderbar
+{
+	background: #ddd;
+	border-color: #888;
+}
+scrollbarvertical sliderbar
+{
+	border-width: 1px 0px;
+	margin-left: 1px;
+}
+scrollbarhorizontal sliderbar
+{
+	height: 5px;
+	border-width: 0px 1px;
+	margin-top: 1px;
+}
+</style>
+</head>
+<body style="min-width:100px; min-height: 100px; width: 300px; height: 300px; display:block; position: absolute; background-color: #455A64;  border-color: gray; border-width: 3px;" class="window">
+	<titlebar>
+	<titlebarcontents>
+	<titlebaritem>Hello</titlebaritem>
+	<titlebaritem>World</titlebaritem>
+	<titlebaritem>WorldWorldHello</titlebaritem>
+	</titlebarcontents>
+	</titlebar>
+	<div id="window">
+		<div style="display: inline-block;">
+		<div id="content"/>
+		</div>
+	</div>
+	<handle size_target="#document" style="background-color: #CFD8DC; position: absolute; width: 16px; height: 16px; bottom: 0px; right: 0px;"></handle>
+</body>
+</template>
