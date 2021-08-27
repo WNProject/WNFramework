@@ -187,6 +187,7 @@ OVERRIDE:  'override';
 INCLUDE:   'include';
 VOID_TYPE: 'Void';
 INT_TYPE:  'Int';
+CPTR_TYPE: 'Cptr';
 FLOAT_TYPE: 'Float';
 BOOL_TYPE: 'Bool';
 STRING_TYPE: 'CString';
@@ -280,6 +281,7 @@ scalarType returns[scripting::type* node]
     |   FLOAT_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::float_type); SET_LOCATION(node, $FLOAT_TYPE); }
     |   CHAR_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::char_type); SET_LOCATION(node, $CHAR_TYPE); }
     |   BOOL_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::bool_type); SET_LOCATION(node, $BOOL_TYPE); }
+    |   CPTR_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::void_ptr_type); SET_LOCATION(node, $CPTR_TYPE); }
     |   STRING_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::string_type); SET_LOCATION(node, $STRING_TYPE); }
     ;
 

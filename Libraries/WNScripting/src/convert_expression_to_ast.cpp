@@ -115,7 +115,7 @@ parse_ast_convertor::convertor_context::resolve_resource(
 
     memory::unique_ptr<constant_expression> eparam =
         memory::make_unique<constant_expression>(m_allocator, m_allocator,
-            type_classification::size_type, &data_val[offset]);
+            type_classification::void_ptr_type, &data_val[offset]);
     eparam->copy_location_from(fce.get());
     memory::unique_ptr<function_expression> expr =
         memory::make_unique<function_expression>(
@@ -141,6 +141,10 @@ parse_ast_convertor::convertor_context::get_constant(
     c->m_node_value.m_integer = static_cast<int32_t>(val);
     return c;
   } else if (_type == m_type_manager->size_t_t(nullptr)) {
+    unsigned long long val = ::strtoull(value.c_str(), nullptr, 0);
+    c->m_node_value.m_size_t = static_cast<size_t>(val);
+    return c;
+  } else if (_type == m_type_manager->void_ptr_t(nullptr)) {
     unsigned long long val = ::strtoull(value.c_str(), nullptr, 0);
     c->m_node_value.m_size_t = static_cast<size_t>(val);
     return c;
@@ -208,6 +212,10 @@ parse_ast_convertor::convertor_context::resolve_constant(
     }
     case static_cast<uint32_t>(type_classification::size_type): {
       const_type = m_type_manager->size_t_t(&m_used_types);
+      break;
+    }
+    case static_cast<uint32_t>(type_classification::void_ptr_type): {
+      const_type = m_type_manager->void_ptr_t(&m_used_types);
       break;
     }
     default:

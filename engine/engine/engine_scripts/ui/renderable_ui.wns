@@ -7,4 +7,8 @@ class RenderableUI {
     CString get_name() {
         return name;
     }
+    Cptr allocator = null;
+    Cptr get_allocator() {
+        return allocator;
+    }
 }

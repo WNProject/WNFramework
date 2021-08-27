@@ -125,7 +125,8 @@ void ui::initialize_for_renderpass(renderer::render_context* _renderer,
   WN_RELEASE_ASSERT(
       !m_rocket_context, "Cannot add ui to more than one renderpass");
 
-  auto allocator = m_context->m_allocator;
+  auto allocator = reinterpret_cast<memory::allocator*>(
+      m_data.invoke(&ui_data::get_ui_allocator));
   m_rocket_context = memory::make_unique<Rocket::Core::Context>(allocator);
 
   m_renderer = memory::make_unique<rocket_renderer>(allocator, allocator,

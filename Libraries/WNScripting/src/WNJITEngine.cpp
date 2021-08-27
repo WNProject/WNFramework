@@ -66,6 +66,7 @@
 #include "WNScripting/inc/WNScriptHelpers.h"
 #include "WNScripting/inc/ast_node_types.h"
 #include "WNScripting/inc/jit_compiler.h"
+#include "profiling/inc/profiling.h"
 
 #include <algorithm>
 
@@ -136,6 +137,7 @@ public:
       m_resource_functions(_resource_functions) {}
 
   llvm::JITSymbol findSymbol(const std::string& Name) override {
+    PROFILE_REGION(SymbolLookup);
     if (Name.empty()) {
       return llvm::JITSymbol(0, llvm::JITSymbolFlags::Exported);
     }
@@ -227,6 +229,7 @@ jit_engine::jit_engine(memory::allocator* _allocator,
     m_struct_infos(_allocator),
     m_started_files(_allocator),
     m_finished_files(_allocator) {
+  PROFILE_REGION(JitInit);
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
   llvm::InitializeNativeTargetAsmParser();
@@ -240,6 +243,8 @@ jit_engine::jit_engine(memory::allocator* _allocator,
 jit_engine::~jit_engine() {}
 
 CompiledModule& jit_engine::add_module(containers::string_view _file) {
+  PROFILE_REGION(JitAddModule);
+
   m_modules.push_back(CompiledModule());
 
   std::unique_ptr<llvm::Module> module =
@@ -275,6 +280,8 @@ void jit_engine::free_shared(void* v) const {
 }
 
 parse_error jit_engine::parse_file(const containers::string_view _file) {
+  PROFILE_REGION(JitFile);
+
   auto additional_includes = core::move(m_additional_includes);
   for (auto& it : additional_includes) {
     parse_error err = parse_file(it);
@@ -342,49 +349,53 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
     }
   }
 
-  memory::unique_ptr<ast_script_file> parsed_file = parse_script(m_allocator,
-      _file,
-      use_synthetic_contents ? synthetic_contents.to_contiguous_range()
-                             : file->typed_range<char>(),
-      functional::function<bool(containers::string_view)>(m_allocator,
-          [this](containers::string_view include) {
-            return parse_file(include) == scripting::parse_error::ok ? true
-                                                                     : false;
-          }),
-      functional::function<bool(
-          containers::string_view, containers::string_view, bool)>(m_allocator,
-          [this](containers::string_view resource_type,
-              containers::string_view resource_name, bool instantiated) {
-            auto it = m_resources.find(resource_type.to_string(m_allocator));
-            if (it == m_resources.end()) {
-              m_log->log_error("Cannot find resource ", resource_type);
-              return false;
-            }
-            if (it->second.resource->must_be_instantiated() && !instantiated) {
-              m_log->log_error("Resource ", resource_type,
-                  " can only be used in an instantiated context");
-              return false;
-            }
-            if (!it->second.resource->can_be_instantiated() && instantiated) {
-              m_log->log_error("Resource ", resource_type,
-                  " can only not be used in an instantiated context");
-              return false;
-            }
-            containers::string str(m_allocator);
-            if (!it->second.resource->setup_resource(resource_name, &str)) {
-              m_log->log_error("Resource @", resource_type, "(", resource_name,
-                  ") failed initialization");
+  memory::unique_ptr<ast_script_file> parsed_file;
+  {
+    PROFILE_REGION(JitParse);
+    parsed_file = parse_script(m_allocator, _file,
+        use_synthetic_contents ? synthetic_contents.to_contiguous_range()
+                               : file->typed_range<char>(),
+        functional::function<bool(containers::string_view)>(m_allocator,
+            [this](containers::string_view include) {
+              return parse_file(include) == scripting::parse_error::ok ? true
+                                                                       : false;
+            }),
+        functional::function<bool(containers::string_view,
+            containers::string_view, bool)>(m_allocator,
+            [this](containers::string_view resource_type,
+                containers::string_view resource_name, bool instantiated) {
+              auto it = m_resources.find(resource_type.to_string(m_allocator));
+              if (it == m_resources.end()) {
+                m_log->log_error("Cannot find resource ", resource_type);
+                return false;
+              }
+              if (it->second.resource->must_be_instantiated() &&
+                  !instantiated) {
+                m_log->log_error("Resource ", resource_type,
+                    " can only be used in an instantiated context");
+                return false;
+              }
+              if (!it->second.resource->can_be_instantiated() && instantiated) {
+                m_log->log_error("Resource ", resource_type,
+                    " can only not be used in an instantiated context");
+                return false;
+              }
+              containers::string str(m_allocator);
+              if (!it->second.resource->setup_resource(resource_name, &str)) {
+                m_log->log_error("Resource @", resource_type, "(",
+                    resource_name, ") failed initialization");
 
-              return false;
-            }
-            if (str.empty()) {
-              return true;
-            }
-            return parse_file(str) == scripting::parse_error::ok ? true : false;
-          }),
-      &m_type_manager, false, m_compilation_log, &m_num_warnings,
-      &m_num_errors);
-
+                return false;
+              }
+              if (str.empty()) {
+                return true;
+              }
+              return parse_file(str) == scripting::parse_error::ok ? true
+                                                                   : false;
+            }),
+        &m_type_manager, false, m_compilation_log, &m_num_warnings,
+        &m_num_errors);
+  }
   if (parsed_file == nullptr) {
     if (use_synthetic_contents) {
       m_log->log_info("Synthetic file contents: ", synthetic_contents);
@@ -396,8 +407,10 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
   CompiledModule& module = add_module(_file);
 
   jit_compiler compiler(m_allocator, module.m_module, &m_struct_infos);
-  compiler.compile(parsed_file.get());
-
+  {
+    PROFILE_REGION(JitCompile);
+    compiler.compile(parsed_file.get());
+  }
   // TODO: figure out what optimizations to run eventually
   // auto FPM =
   //     llvm::make_unique<llvm::legacy::FunctionPassManager>(module.m_module);
@@ -416,13 +429,16 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
   // Uncomment to get debug information about the module out.
   // It is not really needed, but a good place to debug.
   // module.m_module->dump();
-  module.m_engine->finalizeObject();
-  for (auto& function : module.m_module->getFunctionList()) {
-    llvm::StringRef name = function.getName();
-    if (!function.isIntrinsic()) {
-      m_pointers[containers::string_view(name.data(), name.size())] =
-          reinterpret_cast<void (*)()>(
-              module.m_engine->getPointerToFunction(&function));
+  {
+    PROFILE_REGION(JitFinalize);
+    module.m_engine->finalizeObject();
+    for (auto& function : module.m_module->getFunctionList()) {
+      llvm::StringRef name = function.getName();
+      if (!function.isIntrinsic()) {
+        m_pointers[containers::string_view(name.data(), name.size())] =
+            reinterpret_cast<void (*)()>(
+                module.m_engine->getPointerToFunction(&function));
+      }
     }
   }
 
@@ -456,6 +472,7 @@ size_t jit_engine::get_vtable_offset(const ast_type* _type) {
 
 bool jit_engine::register_resource(
     resource_manager* _resource, const ast_type* _type) {
+  PROFILE_REGION(JitRegisterRes);
   auto name = _resource->get_name().to_string(m_allocator);
   if (m_resources.find(name) != m_resources.end()) {
     return false;

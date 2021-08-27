@@ -14,14 +14,6 @@ namespace wn {
 namespace engine {
 namespace ui {
 
-namespace {
-struct ui_resource_userdata {
-  memory::allocator* m_allocator;
-  containers::string m_ui_name;
-  scripting::engine* m_engine;
-};
-}  // namespace
-
 void resource_manager::register_scripting(
     memory::allocator* _allocator, scripting::engine* _engine) {
   _engine->register_resource<scripting::shared_script_pointer<ui_data>>(
@@ -44,7 +36,7 @@ bool resource_manager::convert_to_function(
     containers::string_view _resource_data, logging::log*,
     containers::string* _dat, core::optional<uintptr_t>* _user_data) {
   (void)_resource_name;
-  (void)_user_data;
+  _user_data->emplace(reinterpret_cast<uintptr_t>(m_allocator));
   _dat->append("getNew").append(_resource_data);
   return true;
 }

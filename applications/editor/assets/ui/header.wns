@@ -1,3 +1,4 @@
 Void on_button_click(UiElement element) {
-   element.set_property("display", "none");
+   log_error().o("You clicked me!!!!").end();
+   element.set_property("background-color", "red");
 }
