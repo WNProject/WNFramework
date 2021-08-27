@@ -103,6 +103,7 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
   m_queue = VK_NULL_HANDLE;
   m_physical_device_memory_properties = _memory_properties;
   m_arena_properties = containers::dynamic_array<arena_properties>(m_allocator);
+  m_arena_to_vulkan_index = containers::dynamic_array<uint32_t>(m_allocator);
   m_supported_formats = _formats;
 
   vkGetDeviceProcAddr =
@@ -1308,11 +1309,11 @@ bool vulkan_device::setup_arena_properties() {
   vkDestroyImage(m_device, test_image, nullptr);
 
   // create arena properties
-  const size_t memory_type_count =
+  const uint32_t memory_type_count =
       m_physical_device_memory_properties->memoryTypeCount;
 
   m_arena_properties.reserve(memory_type_count);
-
+  m_arena_to_vulkan_index.reserve(memory_type_count);
   struct {
     VkFormat format;
     bool supported;
@@ -1369,12 +1370,24 @@ bool vulkan_device::setup_arena_properties() {
     format.format_heaps = depth_image_requirements.memoryTypeBits;
   }
 
-  for (size_t i = 0; i < memory_type_count; ++i) {
+  for (uint32_t i = 0; i < memory_type_count; ++i) {
     size_t heap_bit = static_cast<size_t>(1) << i;
     const VkMemoryType& current_memory_types =
         m_physical_device_memory_properties->memoryTypes[i];
     const VkMemoryPropertyFlags& property_flags =
         current_memory_types.propertyFlags;
+    uint32_t valid_bits = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT |
+                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                          VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
+                          VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+    if ((property_flags & valid_bits) != property_flags) {
+      // This memory has some flags that we don't really want.
+      // E.g. Protected, lazily allocated.
+      // If we want to support those types, we must do so
+      // explicitly.
+      continue;
+    }
+
     const bool allows_image_and_render_targets =
         ((heap_bit & image_heaps) != 0);
     const arena_properties new_arena_properties = {
@@ -1393,6 +1406,7 @@ bool vulkan_device::setup_arena_properties() {
         ((heap_bit & format_checks[6].format_heaps) != 0)};
 
     m_arena_properties.push_back(new_arena_properties);
+    m_arena_to_vulkan_index.push_back(static_cast<uint32_t>(i));
   }
 
   return true;
@@ -1404,12 +1418,13 @@ bool vulkan_device::initialize_arena(arena* _arena, const size_t _index,
       m_arena_properties.size() > _index, "arena property index out of range");
   WN_DEBUG_ASSERT(_size > 0, "arena should be non-zero size");
 
+  const uint32_t vulkan_index = m_arena_to_vulkan_index[_index];
   VkDeviceMemory new_memory;
   const VkMemoryAllocateInfo allocate_info = {
       VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,  // sType
       nullptr,                                 // pNext
       _size,                                   // allocationSize
-      static_cast<uint32_t>(_index)            // memoryTypeIndex
+      vulkan_index                             // memoryTypeIndex
   };
 
   if (vkAllocateMemory(m_device, &allocate_info, nullptr, &new_memory) !=
