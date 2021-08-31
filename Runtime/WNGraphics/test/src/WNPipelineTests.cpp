@@ -169,7 +169,7 @@ TEST_F(pipeline_test, basic_pipeline) {
 
     m_log->flush();
     // On normal operation the log buffer should be empty.
-    EXPECT_EQ("", m_buffer);
+    EXPECT_EQ("", m_buffer) << m_buffer.c_str();
     m_buffer.clear();
   }
 }

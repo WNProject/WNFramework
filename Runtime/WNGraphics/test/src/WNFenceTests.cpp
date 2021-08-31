@@ -30,5 +30,5 @@ TEST_F(fence_test, many_sizes) {
 
   m_log->flush();
   // On normal operation the log buffer should be empty.
-  EXPECT_EQ("", m_buffer);
+  EXPECT_EQ("", m_buffer) << m_buffer.c_str();
 }
