@@ -21,7 +21,7 @@ TEST_F(factory_test, physical_devices) {
 
   m_log->flush();
   // On normal operation the log buffer should be empty.
-  EXPECT_EQ("", m_buffer);
+  EXPECT_EQ("", m_buffer) << m_buffer.c_str();
 }
 
 TEST_F(factory_test, device_test) {
@@ -33,5 +33,5 @@ TEST_F(factory_test, device_test) {
   }
   m_log->flush();
   // On normal operation the log buffer should be empty.
-  EXPECT_EQ("", m_buffer);
+  EXPECT_EQ("", m_buffer) << m_buffer.c_str();
 }
