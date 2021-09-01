@@ -116,6 +116,7 @@ public:
 protected:
   friend class vulkan_device;
   friend class vulkan_queue;
+  friend class vulkan_queue_profiler;
 
   inline vulkan_command_list()
     : vulkan_command_list_base(),

@@ -59,6 +59,7 @@ class descriptor_pool;
 class pipeline_layout;
 class fence;
 class queue;
+class queue_profiler;
 class shader_module;
 class sampler;
 struct sampler_create_info;
@@ -80,6 +81,7 @@ class graphics_pipeline;
 using queue_ptr = memory::unique_ptr<queue>;
 using swapchain_ptr = memory::unique_ptr<swapchain>;
 using command_list_ptr = memory::unique_ptr<command_list>;
+using queue_profiler_ptr = memory::unique_ptr<queue_profiler>;
 
 namespace internal {
 namespace d3d12 {
@@ -102,6 +104,8 @@ public:
       const WN_GRAPHICS_OVERRIDE_FINAL;
 
   queue_ptr create_queue() WN_GRAPHICS_OVERRIDE_FINAL;
+  queue_profiler_ptr create_queue_profiler(
+      queue* _queue, containers::string_view _name) WN_GRAPHICS_OVERRIDE_FINAL;
 
   size_t get_image_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
   size_t get_buffer_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
@@ -135,6 +139,7 @@ protected:
   friend class queue;
   friend class d3d12_queue;
   friend class d3d12_adapter;
+  friend class d3d12_queue_profiler;
 
   struct heap_info final {
     const D3D12_HEAP_PROPERTIES heap_properties;
@@ -158,6 +163,10 @@ protected:
 
   // Destroy methods
   void destroy_queue(queue* _queue) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  // queue_profiler methods
+  virtual void destroy_queue_profiler(
+      queue_profiler* _ptr) WN_GRAPHICS_OVERRIDE_FINAL;
 
   // command allocator methods
   void initialize_command_allocator(
@@ -269,7 +278,8 @@ protected:
   void unmap_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
   buffer_memory_requirements get_buffer_memory_requirements(
-      const buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
+      const buffer* _buffer,
+      const resource_states _usage) WN_GRAPHICS_OVERRIDE_FINAL;
 
 private:
   void get_blit_pipeline(DXGI_FORMAT texture_format, blit_image_data* _data);

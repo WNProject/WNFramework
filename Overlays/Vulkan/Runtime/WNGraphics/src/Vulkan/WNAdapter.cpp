@@ -80,21 +80,56 @@ device_ptr vulkan_adapter::make_device(memory::allocator* _allocator,
     physical_features.shaderCullDistance = VK_TRUE;
   }
 
-  const uint32_t num_device_extensions = 1;
-  const char* device_extensions[num_device_extensions] = {
-      VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+  const char* required_device_extensions[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
+  const char* optional_device_extensions[] = {
+      VK_EXT_CALIBRATED_TIMESTAMPS_EXTENSION_NAME};
+
+  containers::dynamic_array<const char*> extensions(m_allocator);
+  for (auto ext : required_device_extensions) {
+    extensions.push_back(ext);
+  }
+
+  uint32_t m_property_count = 0;
+
+  if (VK_SUCCESS !=
+      m_context->vkEnumerateDeviceExtensionProperties(
+          m_physical_device, nullptr, &m_property_count, nullptr)) {
+    _log->log_error("Could not enumerate device extension properties");
+
+    return nullptr;
+  }
+
+  containers::dynamic_array<VkExtensionProperties> props(
+      m_allocator, m_property_count);
+  if (VK_SUCCESS !=
+      m_context->vkEnumerateDeviceExtensionProperties(
+          m_physical_device, nullptr, &m_property_count, props.data())) {
+    _log->log_error("Could not enumerate device extension properties");
+
+    return nullptr;
+  }
+
+  for (auto i : optional_device_extensions) {
+    for (auto j : props) {
+      if (!wn::memory::strcmp(i, j.extensionName)) {
+        extensions.push_back(i);
+        break;
+      }
+    }
+  }
 
   VkDeviceCreateInfo create_info{
-      VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,  // sType;
-      nullptr,                               // pNext;
-      0,                                     // flags;
-      1,                                     // queueCreateInfoCount;
-      &queue_create_info,                    // pQueueCreateInfos;
-      0,                                     // enabledLayerCount;
-      nullptr,                               // ppEnabledLayerNames;
-      num_device_extensions,                 // enabledExtensionCount;
-      device_extensions,                     // ppEnabledExtensionNames;
-      &physical_features                     // pEnabledFeatures;
+      VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,      // sType;
+      nullptr,                                   // pNext;
+      0,                                         // flags;
+      1,                                         // queueCreateInfoCount;
+      &queue_create_info,                        // pQueueCreateInfos;
+      0,                                         // enabledLayerCount;
+      nullptr,                                   // ppEnabledLayerNames;
+      static_cast<uint32_t>(extensions.size()),  // enabledExtensionCount;
+      extensions.data(),                         // ppEnabledExtensionNames;
+      &physical_features                         // pEnabledFeatures;
   };
 
   VkDevice vk_device;
@@ -114,10 +149,10 @@ device_ptr vulkan_adapter::make_device(memory::allocator* _allocator,
           }));
 
   if (ptr) {
-    if (!ptr->initialize(_allocator, _log, vk_device,
+    if (!ptr->initialize(_allocator, _log, vk_device, m_physical_device,
             m_context->vkDestroyDevice, &m_memory_properties,
-            &m_adapter_formats, m_context.get(),
-            m_compute_and_graphics_queue)) {
+            &m_physical_device_limits, &m_adapter_formats, m_context.get(),
+            m_compute_and_graphics_queue, m_timestamp_period)) {
       return nullptr;
     }
   }

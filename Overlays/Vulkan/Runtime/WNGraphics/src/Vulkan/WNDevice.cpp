@@ -9,6 +9,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNBufferData.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNDataTypes.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNImageFormats.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNQueueProfiler.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNResourceStates.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNSwapchain.h"
 #include "WNGraphics/inc/WNArena.h"
@@ -22,6 +23,7 @@
 #include "WNGraphics/inc/WNGraphicsPipelineDescription.h"
 #include "WNGraphics/inc/WNImageView.h"
 #include "WNGraphics/inc/WNQueue.h"
+#include "WNGraphics/inc/WNQueueProfiler.h"
 #include "WNGraphics/inc/WNRenderPass.h"
 #include "WNGraphics/inc/WNShaderModule.h"
 #include "WNGraphics/inc/WNSwapchain.h"
@@ -81,6 +83,11 @@ vulkan_device::~vulkan_device() {
   }                                                                            \
   m_log->log_debug(#symbol " is at ", symbol);
 
+#define TRY_LOAD_VK_DEVICE_SYMBOL(device, symbol)                              \
+  symbol =                                                                     \
+      reinterpret_cast<PFN_##symbol>(vkGetDeviceProcAddr(device, #symbol));    \
+  m_log->log_debug(#symbol " is at ", symbol);
+
 #define LOAD_VK_SUB_DEVICE_SYMBOL(device, sub_struct, symbol)                  \
   sub_struct.symbol =                                                          \
       reinterpret_cast<PFN_##symbol>(vkGetDeviceProcAddr(device, #symbol));    \
@@ -91,20 +98,30 @@ vulkan_device::~vulkan_device() {
   }                                                                            \
   m_log->log_debug(#symbol " is at ", sub_struct.symbol);
 
+#define TRY_LOAD_VK_SUB_DEVICE_SYMBOL(device, sub_struct, symbol)              \
+  sub_struct.symbol =                                                          \
+      reinterpret_cast<PFN_##symbol>(vkGetDeviceProcAddr(device, #symbol));    \
+  m_log->log_debug(#symbol " is at ", sub_struct.symbol);
+
 bool vulkan_device::initialize(memory::allocator* _allocator,
-    logging::log* _log, VkDevice _device, PFN_vkDestroyDevice _destroy_device,
+    logging::log* _log, VkDevice _device, VkPhysicalDevice _phys_dev,
+    PFN_vkDestroyDevice _destroy_device,
     const VkPhysicalDeviceMemoryProperties* _memory_properties,
+    const VkPhysicalDeviceLimits* _device_limits,
     const adapter_formats* _formats, vulkan_context* _context,
-    uint32_t _graphics_and_device_queue) {
+    uint32_t _graphics_and_device_queue, float _timestamp_period) {
   m_allocator = _allocator;
   m_log = _log;
   vkDestroyDevice = _destroy_device;
   m_device = _device;
   m_queue = VK_NULL_HANDLE;
+  m_queue_index = _graphics_and_device_queue;
   m_physical_device_memory_properties = _memory_properties;
   m_arena_properties = containers::dynamic_array<arena_properties>(m_allocator);
   m_arena_to_vulkan_index = containers::dynamic_array<uint32_t>(m_allocator);
+  m_device_limits = _device_limits;
   m_supported_formats = _formats;
+  m_timestamp_period = _timestamp_period;
 
   vkGetDeviceProcAddr =
       reinterpret_cast<PFN_vkGetDeviceProcAddr>(_context->vkGetInstanceProcAddr(
@@ -230,6 +247,57 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_command_list_context, vkCmdSetViewport);
   LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_command_list_context, vkCmdSetScissor);
 
+#ifdef TRACY_ENABLE
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_queue_profiler_context, vkBeginCommandBuffer);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_queue_profiler_context, vkResetCommandBuffer);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_queue_profiler_context, vkAllocateCommandBuffers);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_queue_profiler_context, vkFreeCommandBuffers);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_queue_profiler_context, vkCmdResetQueryPool);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_queue_profiler_context, vkCmdWriteTimestamp);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_queue_profiler_context, vkCreateQueryPool);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_queue_profiler_context, vkDestroyQueryPool);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_queue_profiler_context, vkEndCommandBuffer);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_queue_profiler_context, vkGetQueryPoolResults);
+  LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_profiler_context, vkQueueSubmit);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_queue_profiler_context, vkQueueWaitIdle);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_queue_profiler_context, vkCreateCommandPool);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_queue_profiler_context, vkDestroyCommandPool);
+
+  LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_profiler_context, vkCreateFence);
+  LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_profiler_context, vkDestroyFence);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_queue_profiler_context, vkGetFenceStatus);
+  LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_queue_profiler_context, vkWaitForFences);
+  LOAD_VK_SUB_DEVICE_SYMBOL(m_device, m_queue_profiler_context, vkResetFences);
+
+  // Optional
+
+  TRY_LOAD_VK_SUB_DEVICE_SYMBOL(
+      m_device, m_queue_profiler_context, vkGetCalibratedTimestampsEXT);
+
+  m_queue_profiler_context.vkGetPhysicalDeviceCalibrateableTimeDomainsEXT =
+      reinterpret_cast<PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT>(
+          _context->vkGetInstanceProcAddr(_context->instance,
+              "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT"));
+  m_queue_profiler_context.physical_device = _phys_dev;
+#else
+  (void)_phys_dev;
+#endif
+
   m_command_list_context.m_device = this;
 
   VkQueue queue;
@@ -273,7 +341,7 @@ queue_ptr vulkan_device::create_queue() {
           }));
 
   if (ptr) {
-    ptr->initialize(this, m_allocator, &m_queue_context, q);
+    ptr->initialize(this, m_allocator, &m_queue_context, q, m_queue_index);
   }
 
   return ptr;
@@ -560,10 +628,16 @@ image_memory_requirements vulkan_device::get_image_memory_requirements(
 }
 
 buffer_memory_requirements vulkan_device::get_buffer_memory_requirements(
-    const buffer* _buffer) {
+    const buffer* _buffer, const resource_states _usage) {
   const memory::unique_ptr<const buffer_info>& buffer = get_data(_buffer);
   VkMemoryRequirements requirements;
   vkGetBufferMemoryRequirements(m_device, buffer->buffer, &requirements);
+  if (_usage & (resource_state::host_write | resource_state::host_read)) {
+    requirements.alignment =
+        requirements.alignment > m_device_limits->nonCoherentAtomSize
+            ? requirements.alignment
+            : m_device_limits->nonCoherentAtomSize;
+  }
   return buffer_memory_requirements{static_cast<uint32_t>(requirements.size),
       static_cast<uint32_t>(requirements.alignment)};
 }
@@ -1926,6 +2000,31 @@ void vulkan_device::destroy_buffer(buffer* _buffer) {
   vkDestroyBuffer(m_device, bdata->buffer, nullptr);
 
   bdata.reset();
+}
+
+queue_profiler_ptr vulkan_device::create_queue_profiler(
+    queue* _queue, containers::string_view _name) {
+  (void)_queue;
+  (void)_name;
+#ifdef TRACY_ENABLE
+  vulkan_queue* queue = reinterpret_cast<vulkan_queue*>(_queue);
+
+  auto profiler = memory::make_unique<vulkan_queue_profiler>(m_allocator);
+  profiler->initialize(m_allocator, _name, this, queue, m_timestamp_period,
+      &m_queue_profiler_context);
+  return profiler;
+#else
+  return nullptr;
+#endif
+}
+
+void vulkan_device::destroy_queue_profiler(queue_profiler* _profiler) {
+  (void)_profiler;
+#ifdef TRACY_ENABLE
+  // DO this
+#else
+  WN_RELEASE_ASSERT(false, "Should never get here");
+#endif
 }
 
 #undef get_data

@@ -72,4 +72,4 @@ protected:
 }  // namespace runtime
 }  // namespace wn
 
-#endif  // __WN_GRAPHICS_INC_INTERNAL_vulkan_QUEUE_H__
+#endif  // __WN_GRAPHICS_INC_INTERNAL_VULKAN_SWAPCHIAN_H__
