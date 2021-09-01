@@ -35,8 +35,8 @@ bool resource_manager::convert_to_function(
     containers::string_view _resource_name,
     containers::string_view _resource_data, logging::log*,
     containers::string* _dat, core::optional<uintptr_t>* _user_data) {
+  (void)_user_data;
   (void)_resource_name;
-  _user_data->emplace(reinterpret_cast<uintptr_t>(m_allocator));
   _dat->append("getNew").append(_resource_data);
   return true;
 }

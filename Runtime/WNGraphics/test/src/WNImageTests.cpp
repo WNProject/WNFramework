@@ -176,7 +176,7 @@ TEST_P(image_transfer_tests, many_sizes) {
 
   m_log->flush();
   // On normal operation the log buffer should be empty.
-  EXPECT_EQ("", m_buffer);
+  EXPECT_EQ("", m_buffer) << m_buffer.c_str();
 }
 
 INSTANTIATE_TEST_SUITE_P(large_values, image_transfer_tests,
@@ -349,7 +349,7 @@ TEST_P(image_transfer_with_offset_tests, several_offsets) {
   }
   m_log->flush();
   // On normal operation the log buffer should be empty.
-  EXPECT_EQ("", m_buffer);
+  EXPECT_EQ("", m_buffer) << m_buffer.c_str();
 }
 
 INSTANTIATE_TEST_SUITE_P(large_values, image_transfer_with_offset_tests,
@@ -540,7 +540,7 @@ TEST_P(image_mip_tests, two_levels) {
 
   m_log->flush();
   // On normal operation the log buffer should be empty.
-  EXPECT_EQ("", m_buffer);
+  EXPECT_EQ("", m_buffer) << m_buffer.c_str();
 }
 
 INSTANTIATE_TEST_SUITE_P(one_value, image_mip_tests, ::testing::Values(128));

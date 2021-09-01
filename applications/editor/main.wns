@@ -48,7 +48,12 @@ Int main(Context ctx) {
   context.register_description(desc);
 
   shared MainGUI main_gui = @UIResource("assets/ui/main.rml");
-  context.add_renderable_to_passes(get_renderer(ctx, main_gui), CString[]("Initial Pass"){0:1});
+  
+  UI ui = get_ui_renderer(ctx);
+  context.add_renderable_to_passes(ui, CString[]("Initial Pass"){0:1});
+  ui.add_document(main_gui, 100, 100);
+  ui.add_document(main_gui, 200, 200);
+  ui.add_document(main_gui, 300, 300);
 
   while(true) {
     context.render();

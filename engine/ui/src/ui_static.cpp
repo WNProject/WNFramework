@@ -20,7 +20,10 @@ struct exported_script_type<ui::ui> {
   }
 
   template <typename T>
-  static void export_type(T*) {}
+  static void export_type(T* _exporter) {
+    _exporter->template register_nonvirtual_function<
+        decltype(&ui::ui::add_document), &ui::ui::add_document>("add_document");
+  }
 };
 }  // namespace scripting
 
@@ -35,7 +38,7 @@ void ui::register_scripting(
 
   _engine->register_child_cpp_type<ui>();
   _engine->register_function<decltype(&ui::get_renderer), &ui::get_renderer>(
-      "get_renderer");
+      "get_ui_renderer");
 }
 
 bool ui::resolve_scripting(scripting::engine* _engine) {
@@ -43,11 +46,9 @@ bool ui::resolve_scripting(scripting::engine* _engine) {
          ui_data::resolve_scripting(_engine);
 }
 
-scripting::shared_cpp_pointer<renderer::renderable_object> ui::get_renderer(
-    engine_base::context* _context,
-    scripting::shared_script_pointer<ui_data> _data) {
-  return _context->m_engine->make_shared_cpp<ui>(
-      _context, _context->m_engine, core::move(_data));
+scripting::shared_cpp_pointer<ui> ui::get_renderer(
+    engine_base::context* _context) {
+  return _context->m_engine->make_shared_cpp<ui>(_context, _context->m_engine);
 }
 
 }  // namespace ui

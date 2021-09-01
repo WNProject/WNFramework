@@ -19,11 +19,9 @@ namespace ui {
 struct ui_data : scripting::script_object_type {
   using parent_type = void;
   scripting::scripting_object_function<ui_data, const char*> get_ui_name;
-  scripting::scripting_object_function<ui_data, void*> get_ui_allocator;
 
   void export_type(
       scripting::engine::script_type_importer<ui_data>* _importer) {
-    _importer->register_function("get_allocator", &get_ui_allocator);
     _importer->register_function("get_name", &get_ui_name);
   }
 

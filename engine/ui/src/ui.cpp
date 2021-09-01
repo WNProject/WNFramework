@@ -125,8 +125,7 @@ void ui::initialize_for_renderpass(renderer::render_context* _renderer,
   WN_RELEASE_ASSERT(
       !m_rocket_context, "Cannot add ui to more than one renderpass");
 
-  auto allocator = reinterpret_cast<memory::allocator*>(
-      m_data.invoke(&ui_data::get_ui_allocator));
+  auto allocator = m_context->m_ui_allocator;
   m_rocket_context = memory::make_unique<Rocket::Core::Context>(allocator);
 
   m_renderer = memory::make_unique<rocket_renderer>(allocator, allocator,
@@ -165,31 +164,11 @@ void ui::initialize_for_renderpass(renderer::render_context* _renderer,
 
   Rocket::Debugger::Initialise(m_rocket_context.get(), m_document_context);
   Rocket::Controls::Initialise(m_rocket_context.get());
-  const char* element_name = m_data.invoke(&ui_data::get_ui_name);
 
-  m_document = m_document_context->LoadDocument(element_name);
-
-  m_document->SetProperty(
-      "left", Rocket::Core::Property(100, Rocket::Core::Property::PX));
-  m_document->SetProperty(
-      "top", Rocket::Core::Property(100, Rocket::Core::Property::PX));
-  WN_RELEASE_ASSERT(m_document != NULL,
-      "This should not be null, since we ALREADY parsed this once before for "
-      "correctness");
-  m_document->Show();
-  m_document->RemoveReference();
-
-  m_document = m_document_context->LoadDocument(element_name);
-
-  m_document->SetProperty(
-      "left", Rocket::Core::Property(500, Rocket::Core::Property::PX));
-  m_document->SetProperty(
-      "top", Rocket::Core::Property(500, Rocket::Core::Property::PX));
-  WN_RELEASE_ASSERT(m_document != NULL,
-      "This should not be null, since we ALREADY parsed this once before for "
-      "correctness");
-  m_document->Show();
-  m_document->RemoveReference();
+  for (auto& doc : m_documents) {
+    add_doc(doc.get());
+  }
+  m_documents.clear();
 }
 
 void ui::update_render_data(size_t _frame_parity, command_list* _cmd_list) {
@@ -268,6 +247,36 @@ void ui::render(renderer::render_pass* _render_pass,
   // Just make sure this doesnt get kept there
   m_renderer->set_setup_command_list(nullptr);
   m_renderer->set_render_command_list(nullptr);
+}
+
+void ui::add_document(
+    scripting::shared_script_pointer<ui_data> _data, int32_t _x, int32_t _y) {
+  if (m_document_context) {
+    document_to_add a{_x, _y, core::move(_data)};
+    add_doc(&a);
+    return;
+  }
+  auto doc = memory::make_unique<document_to_add>(m_context->m_ui_allocator);
+  doc->_x = _x;
+  doc->_y = _y;
+  doc->_data = core::move(_data);
+  m_documents.push_back(core::move(doc));
+}
+
+void ui::add_doc(document_to_add* _doc) {
+  const char* element_name = _doc->_data.invoke(&ui_data::get_ui_name);
+
+  auto document = m_document_context->LoadDocument(element_name);
+
+  document->SetProperty(
+      "left", Rocket::Core::Property(_doc->_x, Rocket::Core::Property::PX));
+  document->SetProperty(
+      "top", Rocket::Core::Property(_doc->_y, Rocket::Core::Property::PX));
+  WN_RELEASE_ASSERT(document != NULL,
+      "This should not be null, since we ALREADY parsed this once before for "
+      "correctness");
+  document->Show();
+  document->RemoveReference();
 }
 
 }  // namespace ui
