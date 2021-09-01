@@ -155,8 +155,8 @@ rocket_renderer::rocket_renderer(memory::allocator* _allocator,
       &m_pipeline_layout_no_texture, _render_pass->get_render_pass(), 0);
 
   const wn::runtime::graphics::descriptor_pool_create_info pool_infos[] = {
-      {100, wn::runtime::graphics::descriptor_type::sampler},
-      {100, wn::runtime::graphics::descriptor_type::sampled_image}};
+      {200, wn::runtime::graphics::descriptor_type::sampler},
+      {200, wn::runtime::graphics::descriptor_type::sampled_image}};
 
   m_descriptor_pool = device->create_descriptor_pool(pool_infos);
   m_sampler = device->create_sampler({});
@@ -166,13 +166,45 @@ void rocket_renderer::RenderGeometry(Rocket::Core::Vertex* vertices,
     int num_vertices, int* indices, int num_indices,
     Rocket::Core::TextureHandle texture,
     const Rocket::Core::Vector2f& translation) {
-  WN_RELEASE_ASSERT(false, "Not implemented yet");
-  (void)vertices;
-  (void)num_vertices;
-  (void)indices;
-  (void)num_indices;
-  (void)texture;
-  (void)translation;
+  ui_texture* tex = reinterpret_cast<ui_texture*>(texture);
+  if (tex) {
+    tex->use_in_frame(m_frame_parity);
+  }
+  uint64_t width = m_render_pass->get_width();
+  uint64_t height = m_render_pass->get_height();
+
+  // TODO: Replace this with push constants and do this on the GPU
+  //  .. that is the only way this will work with resizing.
+  for (int i = 0; i < num_vertices; ++i) {
+    vertices[i].position.x =
+        m_screen_multiplier[0] *
+            (2.0f * vertices[i].position.x / static_cast<float>(width)) -
+        1.0f;
+    vertices[i].position.y =
+        m_screen_multiplier[1] *
+        ((-2.0f * vertices[i].position.y / static_cast<float>(height)) + 1.0f);
+  }
+
+  memory::unique_ptr<ui_geometry> dat = create_and_initialize_geometry(
+      m_allocator, m_render_context, m_setup_command_list, vertices,
+      num_vertices, indices, num_indices, tex);
+  dat->use_in_frame(m_frame_parity);
+  if (dat->get_texture()) {
+    dat->set() =
+        m_descriptor_pool.create_descriptor_set(&m_descriptor_set_layout);
+    wn::runtime::graphics::sampler_descriptor samp[] = {{0, 0, &m_sampler}};
+    wn::runtime::graphics::image_descriptor im[] = {
+        {1, 0, wn::runtime::graphics::descriptor_type::sampled_image,
+            &dat->get_texture()->view(),
+            wn::runtime::graphics::resource_state::texture}};
+    dat->set().update_descriptors({}, im, samp);
+  }
+
+  RenderCompiledGeometry(
+      reinterpret_cast<Rocket::Core::CompiledGeometryHandle>(dat.get()),
+      translation);
+
+  m_cleanup.push_back(core::move(dat));
 }
 void rocket_renderer::EnableScissorRegion(bool enable) {
   m_scissor_enabled = enable;
