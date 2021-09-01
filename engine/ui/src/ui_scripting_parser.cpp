@@ -363,9 +363,8 @@ bool ui_scripting_parser::parse_ui(file_system::mapping* _mapping,
   *_out_string += "\n}\n\n shared ";
 
   *_out_string += *_out_ui_name;
-  *_out_string += " getNew" + *_out_ui_name + "(Cptr allocator) { shared " +
-                  *_out_ui_name + " x = shared " + *_out_ui_name + "(); \n" +
-                  "x.allocator = allocator; \n" + "return x; }\n";
+  *_out_string += " getNew" + *_out_ui_name + " () { shared " + *_out_ui_name +
+                  " x = shared " + *_out_ui_name + "(); \n" + "return x; }\n";
 
   return document != nullptr;
 }

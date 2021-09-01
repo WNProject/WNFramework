@@ -22,6 +22,7 @@ public:
   const runtime::application::application_data* m_application_data;
   scripting::engine* m_engine;
   memory::allocator* m_allocator;
+  memory::allocator* m_ui_allocator;
   logging::log* m_log;
   file_system::mapping* m_file_mapping;
 };

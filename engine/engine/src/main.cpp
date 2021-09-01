@@ -157,6 +157,7 @@ int32_t wn_application_main(
     command_line_mgr.set_global_program_name(
         _application_data->executable_data->argv[0]);
     engine_base::context ctx;
+    ctx.m_ui_allocator = &ui_allocator;
     ctx.m_allocator = _application_data->system_allocator;
     ctx.m_application_data = _application_data;
     ctx.m_engine = scripting_engine.get();
