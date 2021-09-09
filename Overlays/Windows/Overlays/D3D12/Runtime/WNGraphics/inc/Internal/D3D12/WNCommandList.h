@@ -148,6 +148,7 @@ protected:
   }
 
 private:
+  friend class d3d12_queue_profiler;
   // Inserts all of the commands needed to set up the current subpass.
   // It also discards previous subpass elements if possible.
   // If this is AFTER the last subpass, it discards previous

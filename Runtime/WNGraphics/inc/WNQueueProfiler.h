@@ -41,12 +41,13 @@
       __gpu_context, __LINE__) = ctx->profile_scope(cmdbuf,                    \
       &TracyConcat(__gpu_source_location, __LINE__));
 #define ProfileGPUCollect(ctx) ctx->collect();
+#define ProfileGPUNewFrame(ctx) ctx->new_frame();
 
 #else  // TRACY_ENABLE
 #define PROFILE_GPU_NAMED_REGION(ctx, cmdbuf, name)
 #define PROFILE_GPU_NAMED_REGIONC(ctx, cmdbuf, name, color)
 #define ProfileGPUCollect(ctx)
-
+#define ProfileGPUNewFrame(ctx)
 #endif
 WN_GRAPHICS_FORWARD(device);
 
@@ -86,6 +87,7 @@ public:
   virtual memory::unique_ptr<gpu_profile_scope> profile_scope(
       command_list* _command_list, const tracy::SourceLocationData*) = 0;
   virtual void collect() = 0;
+  virtual void new_frame() = 0;
 #endif
 #else
   ~queue_profiler();

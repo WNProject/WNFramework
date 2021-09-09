@@ -460,7 +460,6 @@ function(wn_filesystem_files name)
       list(APPEND PYTHON_ARGS "--directory" ${root_dir} "--files" ${logical_source})
     endforeach()
     find_package(Python3 COMPONENTS Interpreter REQUIRED)
-    message(FATALE_ERROR ${Python3_EXECUTABLE})
     add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR}/${name}.h
                               ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR}/${name}.cpp
       COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/${PARSED_ARGS_OUTPUT_DIR}
