@@ -225,8 +225,8 @@ public:
     reserve(_size);
     while (_size) {
       push_back(*_first);
-      ++_first;
       --_size;
+      ++_first;
     }
   }
 
