@@ -311,7 +311,6 @@ jobs:
           -DWN_ANDROID_ABIS=${{matrix.architecture}}
           -DWN_ANDROID_SDK=/opt/android-sdk
           -DWN_LOW_RESOURCE_MODE=ON
-          -DWN_USE_SCCACHE=ON
           ../source
         env:
           OVERLAY: ${{github.workspace}}/source/Overlays/Posix/Overlays/Android
@@ -382,7 +381,6 @@ jobs:
         run: >
           cmake -GNinja
           -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
-          -DWN_USE_SCCACHE=ON
           ../source
         env:
           SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
@@ -448,7 +446,6 @@ jobs:
           cmake -GNinja -S C:\workspace\source -B C:\workspace\build
           -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
           -DWN_LOW_RESOURCE_MODE=ON
-          -DWN_USE_SCCACHE=ON
       - name: Run build
         run: >
           docker run --rm
