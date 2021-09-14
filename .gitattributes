@@ -1,4 +1,4 @@
-* text eol=lf
+* text=auto eol=lf
 *.png binary
 *.ttf binary
 *.jar.in binary
