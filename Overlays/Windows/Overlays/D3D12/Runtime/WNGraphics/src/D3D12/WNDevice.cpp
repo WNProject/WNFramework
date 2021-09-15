@@ -8,6 +8,7 @@
 #include "WNGraphics/inc/Internal/D3D12/WNCommandList.h"
 #include "WNGraphics/inc/Internal/D3D12/WNDataTypes.h"
 #include "WNGraphics/inc/Internal/D3D12/WNImageFormats.h"
+#include "WNGraphics/inc/Internal/D3D12/WNQueueProfiler.h"
 #include "WNGraphics/inc/Internal/D3D12/WNResourceStates.h"
 #include "WNGraphics/inc/Internal/D3D12/WNSwapchain.h"
 #include "WNGraphics/inc/WNArena.h"
@@ -567,7 +568,7 @@ image_memory_requirements d3d12_device::get_image_memory_requirements(
 }
 
 buffer_memory_requirements d3d12_device::get_buffer_memory_requirements(
-    const buffer* _buffer) {
+    const buffer* _buffer, const resource_states) {
   const memory::unique_ptr<const buffer_info>& data = get_data(_buffer);
   D3D12_RESOURCE_ALLOCATION_INFO info =
       m_device->GetResourceAllocationInfo(0, 1, &data->resource_description);
@@ -1686,6 +1687,13 @@ void d3d12_device::get_blit_pipeline(
 
   _data->pipeline_state = std::move(blit_pipeline);
   _data->root_signature = std::move(root_sig);
+}
+queue_profiler_ptr d3d12_device::create_queue_profiler(
+    queue*, containers::string_view) {
+  return nullptr;
+}
+void d3d12_device::destroy_queue_profiler(queue_profiler* _ptr) {
+  (void)_ptr;
 }
 }  // namespace d3d12
 }  // namespace internal

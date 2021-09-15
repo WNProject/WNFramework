@@ -13,6 +13,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanQueueContext.h"
+#include "WNGraphics/inc/Internal/Vulkan/WNVulkanQueueProfilerContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanSurfaceHelper.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNAdapterFeatures.h"
@@ -54,6 +55,7 @@ class descriptor_pool;
 class pipeline_layout;
 class fence;
 class queue;
+class queue_profiler;
 struct image_create_info;
 class image;
 class image_view;
@@ -76,6 +78,7 @@ struct buffer_memory_requirements;
 using queue_ptr = memory::unique_ptr<queue>;
 using command_list_ptr = memory::unique_ptr<command_list>;
 using swapchain_ptr = memory::unique_ptr<swapchain>;
+using queue_profiler_ptr = memory::unique_ptr<queue_profiler>;
 
 namespace internal {
 namespace vulkan {
@@ -100,6 +103,8 @@ public:
       const WN_GRAPHICS_OVERRIDE_FINAL;
 
   queue_ptr create_queue() WN_GRAPHICS_OVERRIDE_FINAL;
+  queue_profiler_ptr create_queue_profiler(
+      queue* _queue, containers::string_view _name) WN_GRAPHICS_OVERRIDE_FINAL;
 
   size_t get_image_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
   size_t get_buffer_upload_buffer_alignment() WN_GRAPHICS_OVERRIDE_FINAL;
@@ -133,7 +138,9 @@ protected:
   friend class graphics::buffer;
   friend class graphics::fence;
   friend class graphics::queue;
+  friend class graphics::queue_profiler;
   friend class vulkan_queue;
+  friend class vulkan_queue_profiler;
   friend class vulkan_swapchain;
   friend class vulkan_adapter;
   friend class vulkan_command_list;
@@ -146,10 +153,12 @@ protected:
       m_log(nullptr) {}
 
   bool initialize(memory::allocator* _allocator, logging::log* _log,
-      VkDevice _device, PFN_vkDestroyDevice _destroy_device,
+      VkDevice _device, VkPhysicalDevice _phys_dev,
+      PFN_vkDestroyDevice _destroy_device,
       const VkPhysicalDeviceMemoryProperties* _memory_properties,
+      const VkPhysicalDeviceLimits* _device_limits,
       const adapter_formats* _depth_formats, vulkan_context* _context,
-      uint32_t _graphics_and_device_queue);
+      uint32_t _graphics_and_device_queue, float _timestamp_period);
 
   // image methods
   void initialize_image(const image_create_info& _info,
@@ -180,6 +189,9 @@ protected:
 
   // queue methods
   void destroy_queue(queue* _queue) WN_GRAPHICS_OVERRIDE_FINAL;
+
+  // queue_profiler methods
+  void destroy_queue_profiler(queue_profiler* _ptr) WN_GRAPHICS_OVERRIDE_FINAL;
 
   command_list_ptr create_command_list(
       command_allocator*) WN_GRAPHICS_OVERRIDE_FINAL;
@@ -264,7 +276,8 @@ protected:
   void unmap_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
   void destroy_buffer(buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
   buffer_memory_requirements get_buffer_memory_requirements(
-      const buffer* _buffer) WN_GRAPHICS_OVERRIDE_FINAL;
+      const buffer* _buffer,
+      const resource_states _usage) WN_GRAPHICS_OVERRIDE_FINAL;
 
   uint32_t get_memory_type_index(uint32_t _types, VkFlags _properties) const;
 
@@ -368,10 +381,17 @@ private:
   command_list_context m_command_list_context;
   VkDevice m_device;
   std::atomic<VkQueue> m_queue;
+  uint32_t m_queue_index;
   const VkPhysicalDeviceMemoryProperties* m_physical_device_memory_properties;
+  const VkPhysicalDeviceLimits* m_device_limits;
   const adapter_formats* m_supported_formats;
+  float m_timestamp_period;
   memory::allocator* m_allocator;
   logging::log* m_log;
+
+#ifdef TRACY_ENABLE
+  vulkan_queue_profiler_context m_queue_profiler_context;
+#endif
 };
 
 }  // namespace vulkan

@@ -173,6 +173,7 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
 
   LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceFeatures);
   LOAD_VK_SYMBOL(context->instance, vkGetPhysicalDeviceFormatProperties);
+  LOAD_VK_SYMBOL(context->instance, vkEnumerateDeviceExtensionProperties);
 
 #ifdef _WN_GRAPHICS_ALLOW_DEBUG_MODE
   if (has_debug_layers) {
@@ -273,7 +274,8 @@ void enumerate_adapters(memory::allocator* _allocator, logging::log* _log,
     if (ptr) {
       ptr->initialize(_allocator, context, devices[i],
           containers::string(_allocator, properties.deviceName), _log,
-          properties.vendorID, properties.deviceID, graphics_and_compute_queue);
+          properties.vendorID, properties.deviceID, graphics_and_compute_queue,
+          properties.limits.timestampPeriod, &properties.limits);
       ptr->initialize_device();
     }
 

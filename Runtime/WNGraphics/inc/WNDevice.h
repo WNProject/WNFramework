@@ -28,10 +28,11 @@
 #include "core/inc/utilities.h"
 #endif
 
-WN_GRAPHICS_FORWARD(device);
-WN_GRAPHICS_FORWARD(queue);
 WN_GRAPHICS_FORWARD(adapter);
+WN_GRAPHICS_FORWARD(device);
 WN_GRAPHICS_FORWARD(image);
+WN_GRAPHICS_FORWARD(queue_profiler);
+WN_GRAPHICS_FORWARD(queue);
 WN_GRAPHICS_FORWARD(sampler);
 WN_GRAPHICS_FORWARD(surface);
 WN_GRAPHICS_FORWARD(swapchain);
@@ -84,10 +85,12 @@ template <typename HeapTraits>
 class heap;
 
 class queue;
+class queue_profiler;
 class swapchain;
 
 using command_list_ptr = memory::unique_ptr<command_list>;
 using queue_ptr = memory::unique_ptr<queue>;
+using queue_profiler_ptr = memory::unique_ptr<queue_profiler>;
 using swapchain_ptr = memory::unique_ptr<swapchain>;
 
 class device : public internal::device_base {
@@ -102,7 +105,8 @@ public:
 
   // It is only valid to have a single queue active at a time.
   virtual queue_ptr create_queue() = 0;
-
+  virtual queue_profiler_ptr create_queue_profiler(
+      queue* _queue, containers::string_view _name) = 0;
   virtual swapchain_ptr create_swapchain(
       surface& _surface, const swapchain_create_info& _info, queue* queue) = 0;
 
@@ -200,6 +204,8 @@ public:
 private:
   // Destruction methods
   virtual void destroy_queue(queue* _queue) = 0;
+  // queue_profiler methods
+  virtual void destroy_queue_profiler(queue_profiler* _ptr) = 0;
 
   // command allocator methods
   virtual void initialize_command_allocator(
@@ -313,7 +319,7 @@ private:
   virtual void unmap_buffer(buffer* _buffer) = 0;
   virtual void destroy_buffer(buffer* _buffer) = 0;
   virtual buffer_memory_requirements get_buffer_memory_requirements(
-      const buffer* _buffer) = 0;
+      const buffer* _buffer, const resource_states _usage) = 0;
 #endif
 };
 

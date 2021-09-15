@@ -75,6 +75,7 @@ public:
 protected:
   friend class vulkan_device;
   friend class vulkan_swapchain;
+  friend class vulkan_queue_profiler;
 
   VkResult present(
       VkSwapchainKHR swapchain, uint32_t index, VkSemaphore _semaphore) {
@@ -100,11 +101,12 @@ protected:
       m_allocator(nullptr) {}
 
   inline void initialize(vulkan_device* _device, memory::allocator* _allocator,
-      queue_context* _context, VkQueue queue) {
+      queue_context* _context, VkQueue queue, uint32_t queue_index) {
     m_device = _device;
     m_queue_context = _context;
     m_queue = queue;
     m_allocator = _allocator;
+    m_queue_index = queue_index;
   }
 
   template <typename command_lists, typename wait_signals,
@@ -117,6 +119,7 @@ protected:
   VkQueue m_queue;
   queue_context* m_queue_context;
   memory::allocator* m_allocator;
+  uint32_t m_queue_index;
 };
 
 }  // namespace vulkan

@@ -111,9 +111,8 @@ subprocess_return call_subprocess(memory::allocator* _allocator,
 
   containers::dynamic_array<wchar_t> application(
       _allocator, application_data_size);
-  const int new_application_data_size =
-      ::MultiByteToWideChar(CP_UTF8, 0, _application.data(), -1,
-          application.data(), static_cast<int>(application.size()));
+  std::ignore = ::MultiByteToWideChar(CP_UTF8, 0, _application.data(), -1,
+      application.data(), static_cast<int>(application.size()));
 
   int args_data_size = application_data_size;
   for (auto a : _args) {

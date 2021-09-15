@@ -47,9 +47,7 @@ public:
       window::window* _window, int32_t _width, int32_t _height,
       uint32_t _forced_adapter = 0);
 
-  virtual ~render_context() {
-    m_log->log_info("Destroyed Renderer");
-  }
+  virtual ~render_context();
   static void register_scripting(
       memory::allocator* _allocator, scripting::engine* _engine);
   static bool resolve_scripting(scripting::engine* _engine);
@@ -113,6 +111,7 @@ private:
   runtime::graphics::factory m_factory;
   runtime::graphics::device_ptr m_device;
   runtime::graphics::queue_ptr m_queue;
+  runtime::graphics::queue_profiler_ptr m_queue_profiler;
   memory::unique_ptr<runtime::graphics::surface> m_surface;
   runtime::graphics::swapchain_ptr m_swapchain;
   wn::containers::contiguous_range<

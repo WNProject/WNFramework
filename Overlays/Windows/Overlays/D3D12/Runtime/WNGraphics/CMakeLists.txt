@@ -8,6 +8,7 @@ overlay_library_sources(WNGraphics
     inc/Internal/D3D12/WNDataTypes.h
     inc/Internal/D3D12/WNImageFormats.h
     inc/Internal/D3D12/WNQueue.h
+    inc/Internal/D3D12/WNQueueProfiler.h
     inc/Internal/D3D12/WNResourceStates.h
     inc/Internal/D3D12/WNSwapchain.h
     inc/Internal/D3D12/WNLockedHeap.h
@@ -17,6 +18,7 @@ overlay_library_sources(WNGraphics
     src/D3D12/WNHelpers.h
     src/D3D12/WNHelpers.cpp
     src/D3D12/WNQueue.cpp
+    src/D3D12/WNQueueProfiler.cpp
     src/D3D12/WNSwapchain.cpp
   LIBS
     DXGI.lib D3D12.lib

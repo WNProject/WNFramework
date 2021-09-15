@@ -103,6 +103,7 @@ public:
 protected:
   friend void enumerate_adapters(memory::allocator*, logging::log*,
       containers::dynamic_array<adapter_ptr>&);
+  friend class vulkan_queue_profiler;
 
   inline vulkan_adapter()
     : vulkan_adapter_base(),
@@ -116,10 +117,12 @@ protected:
       const memory::intrusive_ptr<vulkan_context>& _context,
       VkPhysicalDevice _device, containers::string&& _name, logging::log* _log,
       const uint32_t _vendor_id, const uint32_t _device_id,
-      const uint32_t _compute_and_graphics_queue) {
+      const uint32_t _compute_and_graphics_queue, const float _timestamp_period,
+      VkPhysicalDeviceLimits* _physical_device) {
     m_allocator = _allocator;
     m_context = _context;
     m_physical_device = _device;
+    m_physical_device_limits = *_physical_device;
     m_name = core::move(_name);
     m_log = _log;
     m_vendor_id = _vendor_id;
@@ -128,6 +131,7 @@ protected:
     m_api = api_type::vulkan;
     m_surface_helper.initialize(
         _context->instance, _context->vkGetInstanceProcAddr);
+    m_timestamp_period = _timestamp_period;
   }
 
   void initialize_device();
@@ -135,6 +139,7 @@ protected:
   memory::allocator* m_allocator;
   memory::intrusive_ptr<vulkan_context> m_context;
   VkPhysicalDeviceMemoryProperties m_memory_properties;
+  VkPhysicalDeviceLimits m_physical_device_limits;
   VkPhysicalDevice m_physical_device;
 
   adapter_features m_adapter_features;
@@ -146,6 +151,7 @@ protected:
   uint32_t m_vendor_id;
   uint32_t m_device_id;
   uint32_t m_compute_and_graphics_queue;
+  float m_timestamp_period;
 };
 
 }  // namespace vulkan

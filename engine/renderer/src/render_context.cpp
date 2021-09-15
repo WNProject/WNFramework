@@ -6,6 +6,7 @@
 
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
+#include "WNGraphics/inc/WNQueueProfiler.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 #include "engine_base/inc/context.h"
 #include "profiling/inc/profiling.h"
@@ -237,6 +238,10 @@ bool render_context::resolve_scripting(scripting::engine* _engine) {
          texture_manager::resolve_scripting(_engine);
 }
 
+render_context::~render_context() {
+  m_log->log_info("Destroyed Renderer");
+}
+
 render_context::render_context(memory::allocator* _allocator,
     logging::log* _log, window::window* _window, int32_t _width,
     int32_t _height, uint32_t _forced_adapter)
@@ -290,6 +295,8 @@ render_context::render_context(memory::allocator* _allocator,
         m_allocator, m_log, wn::runtime::graphics::k_empty_adapter_features);
   }
   m_queue = m_device->create_queue();
+  m_queue_profiler =
+      m_device->create_queue_profiler(m_queue.get(), "MainGraphicsQueue");
 
   m_arena_properties = m_device->get_arena_properties();
   for (uint32_t i = 0; i < m_arena_properties.size(); ++i) {
@@ -626,6 +633,7 @@ bool render_context::render() {
     auto* setup_list = m_setup_command_lists[backing_idx].get();
     {
       PROFILE_REGION(SetupRender);
+      PROFILE_GPU_NAMED_REGION(m_queue_profiler, setup_list, "SettingUp");
       containers::hash_set<renderable_object*> m_added(m_allocator);
       for (size_t i = 0; i < m_pending_renderables.size(); ++i) {
         render_pass& pass = m_render_passes[i];
@@ -645,6 +653,7 @@ bool render_context::render() {
     }
     {
       PROFILE_REGION(UpdateRenderData);
+      PROFILE_GPU_NAMED_REGION(m_queue_profiler, setup_list, "Updating");
       for (auto& renderable : m_renderables) {
         renderable->update_render_data(backing_idx, setup_list);
       }
@@ -654,6 +663,10 @@ bool render_context::render() {
     {
       PROFILE_REGION(RenderPasses);
       for (size_t i = 0; i < m_render_passes.size(); ++i) {
+        PROFILE_GPU_NAMED_REGION(
+            m_queue_profiler, setup_list, "RenderPassSetup");
+        PROFILE_GPU_NAMED_REGION(
+            m_queue_profiler, cmd_list, "RenderPassRender");
         m_render_passes[i].render(this, m_frame_num, setup_list, cmd_list);
       }
     }
@@ -704,40 +717,41 @@ bool render_context::render() {
       m_last_up_to_date_height = m_height;
       m_last_up_to_date_frame = m_frame_num;
     }
+    {
+      PROFILE_GPU_NAMED_REGION(m_queue_profiler, cmd_list, "Blitting");
+      auto swap_img = m_swapchain->get_image_for_index(swap_idx);
+      if (m_swapchain_image_initialized[swap_idx]) {
+        cmd_list->transition_resource(*swap_img,
+            static_cast<runtime::graphics::image_components>(
+                runtime::graphics::image_component::color),
+            0, 1, runtime::graphics::resource_state::present,
+            runtime::graphics::resource_state::blit_dest);
 
-    auto swap_img = m_swapchain->get_image_for_index(swap_idx);
-    if (m_swapchain_image_initialized[swap_idx]) {
+      } else {
+        m_swapchain_image_initialized[swap_idx] = true;
+        cmd_list->transition_resource(*swap_img,
+            static_cast<runtime::graphics::image_components>(
+                runtime::graphics::image_component::color),
+            0, 1, runtime::graphics::resource_state::initial,
+            runtime::graphics::resource_state::blit_dest);
+      }
+
+      // We use a blit image here in case the swapchain image format does
+      // not match the render image format.
+      cmd_list->blit_image(*output_img, 0, *swap_img, 0);
+
       cmd_list->transition_resource(*swap_img,
           static_cast<runtime::graphics::image_components>(
               runtime::graphics::image_component::color),
-          0, 1, runtime::graphics::resource_state::present,
-          runtime::graphics::resource_state::blit_dest);
+          0, 1, runtime::graphics::resource_state::blit_dest,
+          runtime::graphics::resource_state::present);
 
-    } else {
-      m_swapchain_image_initialized[swap_idx] = true;
-      cmd_list->transition_resource(*swap_img,
+      cmd_list->transition_resource(*output_img,
           static_cast<runtime::graphics::image_components>(
               runtime::graphics::image_component::color),
-          0, 1, runtime::graphics::resource_state::initial,
-          runtime::graphics::resource_state::blit_dest);
+          0, 1, runtime::graphics::resource_state::copy_source,
+          runtime::graphics::resource_state::render_target);
     }
-
-    // We use a blit image here in case the swapchain image format does
-    // not match the render image format.
-    cmd_list->blit_image(*output_img, 0, *swap_img, 0);
-
-    cmd_list->transition_resource(*swap_img,
-        static_cast<runtime::graphics::image_components>(
-            runtime::graphics::image_component::color),
-        0, 1, runtime::graphics::resource_state::blit_dest,
-        runtime::graphics::resource_state::present);
-
-    cmd_list->transition_resource(*output_img,
-        static_cast<runtime::graphics::image_components>(
-            runtime::graphics::image_component::color),
-        0, 1, runtime::graphics::resource_state::copy_source,
-        runtime::graphics::resource_state::render_target);
-
     cmd_list->finalize();
 
     m_queue->enqueue_command_lists({cmd_list},
@@ -753,6 +767,7 @@ bool render_context::render() {
     m_swapchain->present(
         m_queue.get(), &m_swapchain_ready_signals[backing_idx], swap_idx);
   }
+  ProfileGPUCollect(m_queue_profiler);
   m_frame_num++;
   m_log->flush();
 

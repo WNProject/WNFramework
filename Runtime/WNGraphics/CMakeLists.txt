@@ -53,6 +53,8 @@ expand_list(WN_HELPER_INCLUDES "#include \"WNGraphics/src/"
   "/WNHelpers.h\"" "\n" ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
 expand_list(WN_QUEUE_INCLUDES "#include \"WNGraphics/inc/Internal/"
   "/WNQueue.h\"" "\n" ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
+expand_list(WN_QUEUE_PROFILER_INCLUDES "#include \"WNGraphics/inc/Internal/"
+  "/WNQueueProfiler.h\"" "\n" ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
 expand_list(WN_SWAPCHAIN_INCLUDES "#include \"WNGraphics/inc/Internal/"
   "/WNSwapchain.h\"" "\n" ${WN_GRAPHICS_DEVICE_TYPES_ENABLED})
 
@@ -94,6 +96,8 @@ configure_file(inc/Internal/WNDeviceIncludes.h.in
   inc/Internal/WNDeviceIncludes.h)
 configure_file(inc/Internal/WNQueueIncludes.h.in
   inc/Internal/WNQueueIncludes.h)
+configure_file(inc/Internal/WNQueueProfilerIncludes.h.in
+  inc/Internal/WNQueueProfilerIncludes.h)
 configure_file(inc/Internal/WNSwapchainIncludes.h.in
   inc/Internal/WNSwapchainIncludes.h)
 
@@ -111,6 +115,8 @@ add_wn_library(WNGraphics
     ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNHelperIncludes.h
     inc/Internal/WNQueueIncludes.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNQueueIncludes.h
+    inc/Internal/WNQueueProfilerIncludes.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNQueueProfilerIncludes.h
     inc/Internal/WNSwapchainIncludes.h.in
     ${CMAKE_CURRENT_BINARY_DIR}/inc/Internal/WNSwapchainIncludes.h
     inc/WNAdapter.h
@@ -136,6 +142,7 @@ add_wn_library(WNGraphics
     inc/WNGraphicsPipeline.h
     inc/WNGraphicsTypes.h
     inc/WNQueue.h
+    inc/WNQueueProfiler.h
     inc/WNRenderPass.h
     inc/WNRenderPassTypes.h
     inc/WNSampler.h
@@ -146,9 +153,11 @@ add_wn_library(WNGraphics
     src/WNDevice.cpp
     src/WNFactory.cpp
     src/WNQueue.cpp
+    src/WNQueueProfiler.cpp
     src/WNSurface.cpp
   LIBS
     WNWindow
+    profiling
 )
 
 string(REPLACE ";" "," WN_GRAPHICS_DEVICE_TYPES_ENABLED_LIST
