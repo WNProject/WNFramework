@@ -111,6 +111,17 @@ get_render_context_with_window(
       _window->height(), adapter);
 }
 
+shared_cpp_pointer<engine::renderer::render_context>
+get_render_context_with_window_and_adapter(
+    engine_base::context* _context, window::window* _window, int32_t _adapter) {
+  if (_adapter == -1) {
+    _adapter = select_adapter(_context);
+  }
+  return _context->m_engine->make_shared_cpp<engine::renderer::render_context>(
+      _context->m_allocator, _context->m_log, _window, _window->width(),
+      _window->height(), _adapter);
+}
+
 struct render_data : script_object_type {
   using parent_type = void;
   static wn::containers::string_view exported_name() {
@@ -223,6 +234,9 @@ void render_context::register_scripting(
           "get_render_context");
   _engine->register_function<decltype(&get_render_context_with_window),
       &get_render_context_with_window>("get_render_context");
+  _engine
+      ->register_function<decltype(&get_render_context_with_window_and_adapter),
+          &get_render_context_with_window_and_adapter>("get_render_context");
 }
 
 bool render_context::resolve_scripting(scripting::engine* _engine) {
@@ -592,6 +606,7 @@ void render_context::add_renderable_to_passes(
 }
 
 bool render_context::render() {
+  ProfileGPUNewFrame(m_queue_profiler);
   size_t backing_idx = m_frame_num % kNumDefaultBackings;
   uint32_t swap_idx = 0;
   {

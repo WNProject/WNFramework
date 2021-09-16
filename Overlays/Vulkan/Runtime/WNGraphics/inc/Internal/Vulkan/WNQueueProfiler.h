@@ -61,6 +61,8 @@ public:
       const tracy::SourceLocationData*) WN_GRAPHICS_OVERRIDE_FINAL;
 
   void collect() WN_GRAPHICS_OVERRIDE_FINAL;
+
+  void new_frame() WN_GRAPHICS_OVERRIDE_FINAL;
 #endif
 protected:
   friend class vulkan_device;

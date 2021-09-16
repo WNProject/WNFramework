@@ -1688,13 +1688,31 @@ void d3d12_device::get_blit_pipeline(
   _data->pipeline_state = std::move(blit_pipeline);
   _data->root_signature = std::move(root_sig);
 }
+
 queue_profiler_ptr d3d12_device::create_queue_profiler(
-    queue*, containers::string_view) {
+    queue* _queue, containers::string_view _name) {
+  (void)_queue;
+  (void)_name;
+#ifdef TRACY_ENABLE
+  d3d12_queue* queue = reinterpret_cast<d3d12_queue*>(_queue);
+
+  auto profiler = memory::make_unique<d3d12_queue_profiler>(m_allocator);
+  profiler->initialize(m_allocator, _name, this, queue);
+  return profiler;
+#else
   return nullptr;
+#endif
 }
-void d3d12_device::destroy_queue_profiler(queue_profiler* _ptr) {
-  (void)_ptr;
+
+void d3d12_device::destroy_queue_profiler(queue_profiler* _profiler) {
+  (void)_profiler;
+#ifdef TRACY_ENABLE
+  // DO this
+#else
+  WN_RELEASE_ASSERT(false, "Should never get here");
+#endif
 }
+
 }  // namespace d3d12
 }  // namespace internal
 }  // namespace graphics

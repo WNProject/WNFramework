@@ -79,6 +79,7 @@ public:
 protected:
   friend class d3d12_device;
   friend class d3d12_swapchain;
+  friend class d3d12_queue_profiler;
   template <typename T>
   typename data_type<T>::value& get_data(T* t);
 

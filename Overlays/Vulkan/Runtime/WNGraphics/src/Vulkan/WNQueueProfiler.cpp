@@ -381,6 +381,8 @@ struct vulkan_gpu_profile_scope : public gpu_profile_scope {
   vulkan_queue_profiler* m_profiler;
 };
 
+void vulkan_queue_profiler::new_frame() {}
+
 memory::unique_ptr<gpu_profile_scope> vulkan_queue_profiler::profile_scope(
     command_list* _command_list, const tracy::SourceLocationData* loc) {
   static int x = 0;
