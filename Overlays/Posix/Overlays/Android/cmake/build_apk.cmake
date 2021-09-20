@@ -34,7 +34,6 @@ endfunction()
 
 if (${ANDROID_SYSTEM_LOWER} STREQUAL "windows" OR
   ${ANDROID_SYSTEM_LOWER} STREQUAL "windows-x86_64")
-  find_program(PYTHON python REQUIRED)
   set(DEBUG_KEYSTORE_PATH "$ENV{USERPROFILE}\\.android\\debug.keystore")
   fix_path(${DEBUG_KEYSTORE_PATH} DEBUG_KEYSTORE_PATH)
 else()
@@ -191,8 +190,8 @@ function(build_apk)
     set(ANDROID_TOOL_PATH ${WN_ANDROID_SDK}/tools/android)
     if (${ANDROID_SYSTEM_LOWER} STREQUAL "windows" OR
       ${ANDROID_SYSTEM_LOWER} STREQUAL "windows-x86_64")
-      find_program(PYTHON python REQUIRED)
-      set(ANDROID_TOOL_PATH ${PYTHON} ${configure_source_dir}/single_process_windows.py
+      find_package(Python3 COMPONENTS Interpreter REQUIRED)
+      set(ANDROID_TOOL_PATH ${Python3_EXECUTABLE} ${configure_source_dir}/single_process_windows.py
         "WNFramework/AndroidUpdateProject"
         "${WN_ANDROID_SDK}/tools/android.bat")
     endif()

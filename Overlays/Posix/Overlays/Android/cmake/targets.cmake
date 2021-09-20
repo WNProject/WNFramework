@@ -31,9 +31,14 @@ function(overload_add_library name)
             ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/stripped/$<TARGET_FILE_NAME:${name}>
       )
     else()
+      if(ANDROID_TOOLCHAIN STREQUAL gcc)
+        set(strip_exe ${ANDROID_TOOLCHAIN_PREFIX}strip${ANDROID_TOOLCHAIN_SUFFIX})
+      else()
+        set(strip_exe ${ANDROID_TOOLCHAIN_ROOT}/bin/llvm-strip${ANDROID_TOOLCHAIN_SUFFIX})
+      endif()
       add_custom_command(TARGET ${name}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/stripped
-        COMMAND ${ANDROID_TOOLCHAIN_PREFIX}strip${ANDROID_TOOLCHAIN_SUFFIX}
+        COMMAND ${strip_exe}
           $<TARGET_FILE:${name}> -o
           ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/stripped/$<TARGET_FILE_NAME:${name}>
       )
@@ -94,9 +99,14 @@ function(overload_add_executable name)
             ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/stripped/$<TARGET_FILE_NAME:${name}>
       )
     else()
+      if(ANDROID_TOOLCHAIN STREQUAL gcc)
+        set(strip_exe ${ANDROID_TOOLCHAIN_PREFIX}strip${ANDROID_TOOLCHAIN_SUFFIX})
+      else()
+        set(strip_exe ${ANDROID_TOOLCHAIN_ROOT}/bin/llvm-strip${ANDROID_TOOLCHAIN_SUFFIX})
+      endif()
       add_custom_command(TARGET ${name}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/stripped
-        COMMAND ${ANDROID_TOOLCHAIN_PREFIX}strip${ANDROID_TOOLCHAIN_SUFFIX}
+        COMMAND ${strip_exe}
           $<TARGET_FILE:${name}> -o
           ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/stripped/$<TARGET_FILE_NAME:${name}>
       )
@@ -146,9 +156,14 @@ function(overload_add_application name)
             ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/stripped/$<TARGET_FILE_NAME:${name}>
       )
     else()
+    if(ANDROID_TOOLCHAIN STREQUAL gcc)
+      set(strip_exe ${ANDROID_TOOLCHAIN_PREFIX}strip${ANDROID_TOOLCHAIN_SUFFIX})
+    else()
+      set(strip_exe ${ANDROID_TOOLCHAIN_ROOT}/bin/llvm-strip${ANDROID_TOOLCHAIN_SUFFIX})
+    endif()
       add_custom_command(TARGET ${name}
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/stripped
-        COMMAND ${ANDROID_TOOLCHAIN_PREFIX}strip${ANDROID_TOOLCHAIN_SUFFIX}
+        COMMAND ${strip_exe}
           $<TARGET_FILE:${name}> -o
           ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/stripped/$<TARGET_FILE_NAME:${name}>
       )

@@ -5,16 +5,16 @@
 
 if (WN_OVERLAY_IS_ENABLED AND NOT WN_DISABLE_CXX)
   string(TOLOWER ${ANDROID_NDK_HOST_SYSTEM_NAME} ANDROID_SYSTEM_LOWER)
-  if(${ANDROID_SYSROOT_ABI} STREQUAL "arm")
+  if(${CMAKE_ANDROID_ARCH_ABI} STREQUAL "armeabi-v7a")
     set_overlay_var(WN_LLVM_TARGET "ARM")
     set_overlay_var(WN_LLVM_TRIPLE "armv7-none-linux-androideabi")
-  elseif (${ANDROID_SYSROOT_ABI} STREQUAL "arm64")
+  elseif (${CMAKE_ANDROID_ARCH_ABI} STREQUAL "arm64-v8a")
     set_overlay_var(WN_LLVM_TARGET "AArch64")
     set_overlay_var(WN_LLVM_TRIPLE "aarch64-none-linux-android")
-  elseif(${ANDROID_SYSROOT_ABI} STREQUAL "x86")
+  elseif(${CMAKE_ANDROID_ARCH_ABI} STREQUAL "x86")
     set_overlay_var(WN_LLVM_TARGET "X86")
     set_overlay_var(WN_LLVM_TRIPLE "i686-none-linux-android")
-  elseif(${ANDROID_SYSROOT_ABI} STREQUAL "x86_64")
+  elseif(${CMAKE_ANDROID_ARCH_ABI} STREQUAL "x86_64")
     set_overlay_var(WN_LLVM_TARGET "X86")
     set_overlay_var(WN_LLVM_TRIPLE "x86_64-none-linux-android")
   endif()
@@ -41,9 +41,10 @@ if (WN_OVERLAY_IS_ENABLED AND NOT WN_DISABLE_CXX)
     "-DCMAKE_CXX_FLAGS=-D__ANDROID_NDK__")
   set_overlay_var(WN_LLVM_TOOLCHAIN
     "${CMAKE_CURRENT_LIST_DIR}/build_tools/wn_android_llvm.toolchain.cmake")
-  find_program(PYTHON python)
+  find_package(Python3 COMPONENTS Interpreter REQUIRED)
+  
   append_to_overlay_var(WN_LLVM_WRAPPER
-    ${PYTHON})
+    ${Python3_EXECUTABLE})
   append_to_overlay_var(WN_LLVM_WRAPPER
     ${CMAKE_CURRENT_LIST_DIR}/build_tools/android_env.py)
   string(REPLACE "\\" "/" CMAKE_TOOLCHAIN_FILE ${CMAKE_TOOLCHAIN_FILE})

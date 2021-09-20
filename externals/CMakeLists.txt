@@ -1,8 +1,8 @@
 set(WN_ADDITIONAL_TRACY_OPTIONS)
 
-find_package(Git REQUIRED)
+find_program(GIT NAMES git)
 execute_process(
-  COMMAND ${GIT_EXECUTABLE} apply --check -p0 -
+  COMMAND ${GIT} apply --check -p0 -
   INPUT_FILE ./externals/.patches/antlr3.patch
   WORKING_DIRECTORY ${WNFramework_SOURCE_DIR}
   RESULT_VARIABLE PATCH_APPLY_CHECK_RESULT
@@ -12,7 +12,7 @@ execute_process(
 
 if (PATCH_APPLY_CHECK_RESULT MATCHES 0)
   execute_process(
-    COMMAND ${GIT_EXECUTABLE} apply -p0 -
+    COMMAND ${GIT} apply -p0 -
     INPUT_FILE ./externals/.patches/antlr3.patch
     WORKING_DIRECTORY ${WNFramework_SOURCE_DIR}
     RESULT_VARIABLE PATCH_APPLY_RESULT

@@ -1931,6 +1931,7 @@ bool vulkan_device::initialize_buffer(
 
   bdata = memory::make_unique<buffer_info>(m_allocator);
   bdata->buffer = core::move(new_buffer);
+  bdata->size = static_cast<VkDeviceSize>(_size);
 
   return true;
 }
@@ -1959,7 +1960,7 @@ void* vulkan_device::map_buffer(buffer* _buffer) {
       nullptr,                                // pNext
       bdata->bound_arena,                     // memory
       bdata->offset,                          // offset
-      VK_WHOLE_SIZE                           // size
+      bdata->size                             // size
   };
 
   if (vkInvalidateMappedMemoryRanges(m_device, 1, &memory_range) !=
@@ -1986,7 +1987,7 @@ void vulkan_device::unmap_buffer(buffer* _buffer) {
       nullptr,                                // pNext
       bdata->bound_arena,                     // memory
       bdata->offset,                          // offset
-      VK_WHOLE_SIZE                           // size
+      bdata->size                             // size
   };
 
   if (vkFlushMappedMemoryRanges(m_device, 1, &memory_range) != VK_SUCCESS) {

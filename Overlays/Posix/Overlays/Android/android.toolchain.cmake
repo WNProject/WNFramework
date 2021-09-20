@@ -15,9 +15,18 @@ endif()
 
 set(WN_ANDROID_NDK "${WN_ANDROID_SDK}/ndk-bundle"
     CACHE STRING "Location of the Android NDK")
+# New Versions of the NDK have a new legacy toolchain that
+# doesn't work properly on windows, as it reads as MINGW.
+if (EXISTS "${WN_ANDROID_NDK}/build/cmake/android-legacy.toolchain.cmake")
+set(WN_ANDROID_TOOLCHAIN_FILE
+    "${WN_ANDROID_NDK}/build/cmake/android-legacy.toolchain.cmake"
+    CACHE STRING "Location of the android.cmake.toolchain for the NDK")
+else()
 set(WN_ANDROID_TOOLCHAIN_FILE
     "${WN_ANDROID_NDK}/build/cmake/android.toolchain.cmake"
     CACHE STRING "Location of the android.cmake.toolchain for the NDK")
+endif()
+
 set(ANDROID_NDK ${WN_ANDROID_NDK})
 set(WN_ANDROID_NATIVE_API_LEVEL 22
     CACHE STRING "Native API level to build")

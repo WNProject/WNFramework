@@ -4,6 +4,7 @@ add_compile_options(-Wno-gcc-compat)
 add_compile_options(-Wno-missing-braces)
 add_compile_options(-Wno-unused-private-field)
 add_compile_options(-Wno-pessimizing-move)
+add_compile_options(-Wno-unused-command-line-argument)
 
 if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.9)
   add_compile_options("-Wno-unused-lambda-capture")
