@@ -57,10 +57,10 @@ private:
   friend class gpu_heap;
   gpu_allocation(runtime::graphics::arena* _arena, uint64_t _offset,
       heap_range::token _token, gpu_heap* _parent);
-  runtime::graphics::arena* m_arena;
-  uint64_t m_offset;
+  runtime::graphics::arena* m_arena = nullptr;
+  uint64_t m_offset = 0;
   heap_range::token m_token;
-  gpu_heap* m_parent;
+  gpu_heap* m_parent = nullptr;
 };
 
 class gpu_heap final {
