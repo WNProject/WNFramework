@@ -146,6 +146,7 @@ struct data_type<const graphics_pipeline> {
 struct buffer_info {
   VkBuffer buffer;
   VkDeviceSize offset;
+  VkDeviceSize size;
   VkDeviceMemory bound_arena;
   void* arena_root;
 };
