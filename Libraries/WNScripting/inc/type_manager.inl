@@ -128,8 +128,8 @@ struct exporter : public exporter_base {
     static typename get_thunk_passed_type<R>::ret_type member_thunk(
         T* t, typename get_thunk_passed_type<Args>::type... args) {
       tls_resetter reset;
-      return get_thunk_passed_type<R>::unwrap(
-          (*fn)(t, get_thunk_passed_type<Args>::unwrap(args)...));
+      auto r = (*fn)(t, get_thunk_passed_type<Args>::unwrap(args)...);
+      return get_thunk_passed_type<R>::wrap(r);
     }
 
     template <R (*fn)(T*, Args...)>
@@ -137,8 +137,8 @@ struct exporter : public exporter_base {
         typename get_thunk_passed_type<Args>::type... args,
         typename get_thunk_passed_type<R>::ret_type* _ret) {
       tls_resetter reset;
-      *_ret = get_thunk_passed_type<R>::unwrap(
-          (*fn)(t, get_thunk_passed_type<Args>::unwrap(args)...));
+      auto r = (*fn)(t, get_thunk_passed_type<Args>::unwrap(args)...);
+      *_ret = get_thunk_passed_type<R>::wrap(r);
     }
   };
 

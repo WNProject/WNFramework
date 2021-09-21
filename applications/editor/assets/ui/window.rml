@@ -10,9 +10,20 @@ titlebarcontents {
 	display: inline-block;
 	white-space: nowrap;
 }
+.active_titlebar_item {
+	background-color: #FFFF00;
+}
+.active_titlebar_item:hover {
+	background-color: #FFEF00;
+}
+.passive_titlebar_item {
+	background-color: #AAAA00;
+}
+.passive_titlebar_item:hover {
+	background-color: #AA9A00;
+}
 titlebaritem {
 	display:inline;
-	background-color: #FFFF00;
 	drag: clone;
 	border-color: black;
 	border-width: 1px;
@@ -25,9 +36,6 @@ titlebaritem:drag {
 	outline-width: 1px;
 	outline-color: white;
 }
-titlebaritem:hover {
-	background-color: #FFEF00;
-} 
 .window:focus {
 	background-color: #556A74;
 }
@@ -69,12 +77,12 @@ scrollbarhorizontal sliderbar
 }
 </style>
 </head>
-<body style="min-width:100px; min-height: 100px; width: 300px; height: 300px; display:block; position: absolute; background-color: #455A64;  border-color: gray; border-width: 3px; overflow: hidden;" class="window">
+<body onload="titlebar_onload" style="min-width:100px; min-height: 100px; width: 300px; height: 300px; display:block; position: absolute; background-color: #455A64;  border-color: gray; border-width: 3px; overflow: hidden;" class="window">
 	<titlebar>
 	<titlebarcontents>
-	<titlebaritem>Hello</titlebaritem>
-	<titlebaritem>World</titlebaritem>
-	<titlebaritem>WorldWorldHello</titlebaritem>
+	<titlebaritem onclick="on_button_click" >Hello</titlebaritem>
+	<titlebaritem onclick="on_button_click" >World</titlebaritem>
+	<titlebaritem onclick="on_button_click" >WorldWorldHello</titlebaritem>
 	</titlebarcontents>
 	</titlebar>
 	<div id="window">
