@@ -637,6 +637,9 @@ buffer_memory_requirements vulkan_device::get_buffer_memory_requirements(
         requirements.alignment > m_device_limits->nonCoherentAtomSize
             ? requirements.alignment
             : m_device_limits->nonCoherentAtomSize;
+    requirements.size =
+        (requirements.size + (m_device_limits->nonCoherentAtomSize - 1)) &
+        ~(m_device_limits->nonCoherentAtomSize - 1);
   }
   return buffer_memory_requirements{static_cast<uint32_t>(requirements.size),
       static_cast<uint32_t>(requirements.alignment)};
@@ -1955,13 +1958,18 @@ bool vulkan_device::bind_buffer(
 
 void* vulkan_device::map_buffer(buffer* _buffer) {
   memory::unique_ptr<buffer_info>& bdata = get_data(_buffer);
-  const VkMappedMemoryRange memory_range = {
+
+  VkMappedMemoryRange memory_range = {
       VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,  // sType
       nullptr,                                // pNext
       bdata->bound_arena,                     // memory
       bdata->offset,                          // offset
       bdata->size                             // size
   };
+
+  memory_range.size =
+      (memory_range.size + (m_device_limits->nonCoherentAtomSize - 1)) &
+      ~(m_device_limits->nonCoherentAtomSize - 1);
 
   if (vkInvalidateMappedMemoryRanges(m_device, 1, &memory_range) !=
       VK_SUCCESS) {
@@ -1982,13 +1990,17 @@ void* vulkan_device::map_buffer(buffer* _buffer) {
 void vulkan_device::unmap_buffer(buffer* _buffer) {
   const memory::unique_ptr<buffer_info>& bdata = get_data(_buffer);
 
-  const VkMappedMemoryRange memory_range = {
+  VkMappedMemoryRange memory_range = {
       VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,  // sType
       nullptr,                                // pNext
       bdata->bound_arena,                     // memory
       bdata->offset,                          // offset
       bdata->size                             // size
   };
+
+  memory_range.size =
+      (memory_range.size + (m_device_limits->nonCoherentAtomSize - 1)) &
+      ~(m_device_limits->nonCoherentAtomSize - 1);
 
   if (vkFlushMappedMemoryRanges(m_device, 1, &memory_range) != VK_SUCCESS) {
     m_log->log_warning("failed to flush device memory");

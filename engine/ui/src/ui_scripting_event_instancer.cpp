@@ -3,15 +3,99 @@
 // found in the LICENSE file.
 #include "ui/inc/ui_scripting_event_instancer.h"
 #include "WNScripting/inc/WNEngine.h"
+#include "support/inc/string.h"
 
+namespace wn {
 namespace {
 void ui_set_property(
     Rocket::Core::Element* _element, const char* property, const char* value) {
   _element->SetProperty(property, value);
 };
+
+scripting::shared_cpp_pointer<support::string> make_string(const char* _str) {
+  return scripting::g_scripting_tls->_engine->make_shared_cpp<support::string>(
+      _str, scripting::g_scripting_tls->_support_allocator);
+}
+
+scripting::shared_cpp_pointer<support::string> ui_get_property(
+    Rocket::Core::Element* _element, const char* _str) {
+  auto elem = _element->GetProperty(_str);
+  if (!elem) {
+    return scripting::shared_cpp_pointer<support::string>();
+  }
+  return make_string(elem->Get<Rocket::Core::String>().CString());
+}
+
+scripting::shared_cpp_pointer<support::string> ui_get_attribute(
+    Rocket::Core::Element* _element, const char* _str) {
+  auto elem = _element->GetAttribute(_str);
+  if (!elem) {
+    return scripting::shared_cpp_pointer<support::string>();
+  }
+  return make_string(elem->Get<Rocket::Core::String>().CString());
+}
+
+int32_t ui_get_int_attribute(
+    Rocket::Core::Element* _element, const char* _str) {
+  auto elem = _element->GetAttribute(_str);
+  if (!elem) {
+    return -1;
+  }
+  return elem->Get<int>();
+}
+
+void ui_set_int_attribute(
+    Rocket::Core::Element* _element, const char* _str, int32_t val) {
+  _element->SetAttribute(_str, static_cast<int>(val));
+}
+
+void ui_set_attribute(
+    Rocket::Core::Element* _element, const char* property, const char* value) {
+  _element->SetAttribute(property, value);
+};
+
+scripting::shared_cpp_pointer<support::string> ui_get_rml(
+    Rocket::Core::Element* _element) {
+  auto str = _element->GetInnerRML();
+  return make_string(str.CString());
+}
+
+void ui_set_rml(Rocket::Core::Element* _element, const char* _str) {
+  _element->SetInnerRML(_str);
+}
+
+Rocket::Core::Element* ui_parent(Rocket::Core::Element* _element) {
+  return _element->GetParentNode();
+}
+
+Rocket::Core::Element* ui_next_sibling(Rocket::Core::Element* _element) {
+  return _element->GetNextSibling();
+}
+
+int32_t ui_num_children(Rocket::Core::Element* _element) {
+  return _element->GetNumChildren();
+}
+
+Rocket::Core::Element* ui_get_child(
+    Rocket::Core::Element* _element, int32_t i) {
+  return _element->GetChild(i);
+}
+
+Rocket::Core::Element* ui_get_first_child(Rocket::Core::Element* _element) {
+  return _element->GetFirstChild();
+}
+
+Rocket::Core::Element* ui_get_owner(Rocket::Core::Element* _element) {
+  return reinterpret_cast<Rocket::Core::Element*>(_element->GetOwnerDocument());
+}
+
+void ui_set_class(
+    Rocket::Core::Element* _element, const char* _class, bool _activate) {
+  return _element->SetClass(_class, _activate);
+}
+
 }  // namespace
 
-namespace wn {
 namespace scripting {
 template <>
 struct exported_script_type<Rocket::Core::Element> {
@@ -23,6 +107,34 @@ struct exported_script_type<Rocket::Core::Element> {
       wn::scripting::exporter<Rocket::Core::Element>* _exporter) {
     _exporter->register_pseudo_function<decltype(&ui_set_property),
         &ui_set_property>("set_property");
+    _exporter->register_pseudo_function<decltype(&ui_get_property),
+        &ui_get_property>("get_property");
+    _exporter->register_pseudo_function<decltype(&ui_set_attribute),
+        &ui_set_attribute>("set_attribute");
+    _exporter->register_pseudo_function<decltype(&ui_set_int_attribute),
+        &ui_set_int_attribute>("set_attribute");
+    _exporter->register_pseudo_function<decltype(&ui_get_attribute),
+        &ui_get_attribute>("get_attribute");
+    _exporter->register_pseudo_function<decltype(&ui_get_int_attribute),
+        &ui_get_int_attribute>("get_int_attribute");
+    _exporter->register_pseudo_function<decltype(&ui_get_rml), &ui_get_rml>(
+        "get_inner_rml");
+    _exporter->register_pseudo_function<decltype(&ui_set_rml), &ui_set_rml>(
+        "set_inner_rml");
+    _exporter->register_pseudo_function<decltype(&ui_parent), &ui_parent>(
+        "parent");
+    _exporter->register_pseudo_function<decltype(&ui_next_sibling),
+        &ui_next_sibling>("next_sibling");
+    _exporter->register_pseudo_function<decltype(&ui_num_children),
+        &ui_num_children>("num_children");
+    _exporter->register_pseudo_function<decltype(&ui_get_child), &ui_get_child>(
+        "get_child");
+    _exporter->register_pseudo_function<decltype(&ui_get_first_child),
+        &ui_get_first_child>("get_first_child");
+    _exporter->register_pseudo_function<decltype(&ui_get_owner), &ui_get_owner>(
+        "owner");
+    _exporter->register_pseudo_function<decltype(&ui_set_class), &ui_set_class>(
+        "set_class");
   }
 };
 }  // namespace scripting

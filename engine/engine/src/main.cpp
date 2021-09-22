@@ -92,8 +92,6 @@ int32_t wn_application_main(
     engine::window::window::register_scripting(scripting_engine.get());
     engine::renderer::render_context::register_scripting(
         &render_allocator, scripting_engine.get());
-    engine::ui::ui::register_scripting(&ui_allocator, scripting_engine.get());
-
     {
       support::regex_manager::register_scripting(
           &support_allocator, scripting_engine.get());
@@ -108,6 +106,7 @@ int32_t wn_application_main(
       command_line_mgr.register_scripting(
           &support_allocator, scripting_engine.get());
     }
+    engine::ui::ui::register_scripting(&ui_allocator, scripting_engine.get());
 
     scripting::parse_error err = scripting_engine->parse_file("main.wns");
     if (err != scripting::parse_error::ok) {

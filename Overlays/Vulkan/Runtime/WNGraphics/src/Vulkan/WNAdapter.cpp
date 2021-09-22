@@ -83,7 +83,8 @@ device_ptr vulkan_adapter::make_device(memory::allocator* _allocator,
   const char* required_device_extensions[] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
   const char* optional_device_extensions[] = {
-      VK_EXT_CALIBRATED_TIMESTAMPS_EXTENSION_NAME};
+      VK_KHR_GET_DISPLAY_PROPERTIES_2_EXTENSION_NAME
+          VK_EXT_CALIBRATED_TIMESTAMPS_EXTENSION_NAME};
 
   containers::dynamic_array<const char*> extensions(m_allocator);
   for (auto ext : required_device_extensions) {

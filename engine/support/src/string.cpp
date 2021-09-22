@@ -13,7 +13,10 @@ struct exported_script_type<support::string> {
     return "String";
   }
 
-  static void export_type(wn::scripting::exporter<support::string>*) {}
+  static void export_type(wn::scripting::exporter<support::string>* _exporter) {
+    _exporter->register_nonvirtual_function<decltype(&support::string::c_str),
+        &support::string::c_str>("c_str");
+  }
 };
 }  // namespace scripting
 
