@@ -23,7 +23,7 @@ jobs:
       changes-md: ${{steps.analysis.outputs.changes-md}}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v2.4.0
         with:
           fetch-depth: 0
       - name: Analyze changes
@@ -137,7 +137,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v2.4.0
         with:
           submodules: true
       - name: Check external licenses
@@ -255,7 +255,7 @@ jobs:
     container: ghcr.io/wnproject/clang-format
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v2.4.0
       - name: Check formatting
         run: >
           echo -n "${{needs.analyze-changes.outputs.changes-c-cpp}}" |
@@ -268,7 +268,7 @@ jobs:
     container: ghcr.io/wnproject/markdown-lint
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v2.4.0
       - name: Check formatting
         run: >
           echo -n "${{needs.analyze-changes.outputs.changes-md}}" |
@@ -293,7 +293,7 @@ jobs:
       - name: Set up build environment
         run: mkdir build
       - name: Checkout
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v2.4.0
         with:
           path: ./source
           submodules: true
@@ -347,7 +347,7 @@ jobs:
       - name: Set up build environment
         run: mkdir build
       - name: Checkout
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v2.4.0
         with:
           path: ./source
           submodules: true
@@ -391,7 +391,7 @@ jobs:
           $docker_image = "${package}:${{matrix.compiler}}".ToLower()
           echo "::set-output name=docker-image::$docker_image"
       - name: Checkout
-        uses: actions/checkout@v2.3.5
+        uses: actions/checkout@v2.4.0
         with:
           path: ./source
           submodules: true
