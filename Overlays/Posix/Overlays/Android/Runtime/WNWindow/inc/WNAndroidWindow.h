@@ -10,7 +10,6 @@
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMultiTasking/inc/job_pool.h"
-#include "WNMultiTasking/inc/job_signal.h"
 #include "WNMultiTasking/inc/thread.h"
 #include "WNUtilities/inc/WNAndroidEventPump.h"
 #include "WNWindow/inc/WNWindow.h"
@@ -42,7 +41,7 @@ class android_window : public window {
 public:
   android_window(memory::allocator* _allocator, logging::log* _log,
       multi_tasking::job_pool* _job_pool,
-      multi_tasking::job_signal* _creation_signal,
+      multi_tasking::signal_ptr _creation_signal,
       const application::application_data* _data, uint32_t _x, uint32_t _y,
       uint32_t _width, uint32_t _height)
     : window(_allocator),
@@ -56,9 +55,11 @@ public:
       m_width(_width),
       m_height(_height),
       m_creation_signal(_creation_signal),
-      m_destroy_signal(_job_pool, 0) {
-    m_job_pool->add_job(&m_destroy_signal,
-        &android_window::wait_for_window_loop, this, nullptr);
+      m_destroy_signal(_job_pool->get_signal()) {
+    m_job_pool->add_job(JOB_NAME,
+        functional::function<void()>(
+            m_allocator, [this]() { wait_for_window_loop(nullptr); }),
+        m_destroy_signal);
     m_callback_tok =
         _data->executable_data->host_data->event_pump->SubscribeToInputEvents(
             +[](AInputEvent* _event, void* _data) {
@@ -136,8 +137,8 @@ private:
   uint32_t m_width;
   uint32_t m_height;
 
-  multi_tasking::job_signal* m_creation_signal;
-  multi_tasking::job_signal m_destroy_signal;
+  multi_tasking::signal_ptr m_creation_signal;
+  multi_tasking::signal_ptr m_destroy_signal;
 
   android_native_data m_data;
   std::atomic<uint32_t> m_cursor_x;

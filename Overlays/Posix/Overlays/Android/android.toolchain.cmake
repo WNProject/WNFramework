@@ -27,7 +27,7 @@ set(WN_ANDROID_TOOLCHAIN_FILE
     CACHE STRING "Location of the android.cmake.toolchain for the NDK")
 endif()
 
-set(ANDROID_NDK ${WN_ANDROID_NDK})
+file(TO_CMAKE_PATH ${WN_ANDROID_NDK} ANDROID_NDK)
 set(WN_ANDROID_NATIVE_API_LEVEL 22
     CACHE STRING "Native API level to build")
 set(WN_ANDROID_ABIS "arm;x86;arm64" CACHE STRING

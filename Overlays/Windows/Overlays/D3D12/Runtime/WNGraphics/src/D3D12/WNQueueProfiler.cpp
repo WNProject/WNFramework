@@ -20,9 +20,12 @@ const uint32_t k_query_count = (64 * 1024);
 d3d12_queue_profiler::~d3d12_queue_profiler() {
 #ifdef TRACY_ENABLE
 #endif
+
+#ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   if (is_valid()) {
     m_device->destroy_queue_profiler(this);
   }
+#endif
 }
 
 void d3d12_queue_profiler::initialize(memory::allocator* _allocator,

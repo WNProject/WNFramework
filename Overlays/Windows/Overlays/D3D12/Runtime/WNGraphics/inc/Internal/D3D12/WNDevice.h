@@ -137,6 +137,7 @@ public:
 protected:
   friend class fence;
   friend class queue;
+  friend class queue_profiler;
   friend class d3d12_queue;
   friend class d3d12_adapter;
   friend class d3d12_queue_profiler;

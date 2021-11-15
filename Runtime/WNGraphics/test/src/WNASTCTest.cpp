@@ -10,7 +10,6 @@
 #include "WNGraphics/test/inc/astc_test.h"
 #include "WNLogging/inc/WNLog.h"
 #include "WNMultiTasking/inc/job_pool.h"
-#include "WNMultiTasking/inc/job_signal.h"
 #include "WNWindow/inc/WNWindow.h"
 #include "WNWindow/inc/WNWindowFactory.h"
 

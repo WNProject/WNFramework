@@ -16,6 +16,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanQueueProfilerContext.h"
 #include "WNGraphics/inc/Internal/WNConfig.h"
 #include "WNGraphics/inc/WNGraphicsEnums.h"
+#include "WNMemory/inc/unique_ptr.h"
 #include "WNMultiTasking/inc/spin_lock.h"
 #include "core/inc/pair.h"
 
@@ -35,6 +36,7 @@ namespace wn {
 namespace runtime {
 namespace graphics {
 struct gpu_profile_scope;
+class command_list;
 namespace internal {
 namespace vulkan {
 

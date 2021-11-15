@@ -10,9 +10,9 @@ import time
 
 
 def run():
-    ndk_dir = "${ANDROID_NDK}"
-    sdk_dir = "${WN_ANDROID_SDK}"
-    runner = "${ANDROID_RUNNER}"
+    ndk_dir = r"${ANDROID_NDK}"
+    sdk_dir = r"${WN_ANDROID_SDK}"
+    runner = r"${ANDROID_RUNNER}"
     parser = argparse.ArgumentParser(
         prog="${WN_ACTIVITY_NAME}.py",
         description="Run android program")

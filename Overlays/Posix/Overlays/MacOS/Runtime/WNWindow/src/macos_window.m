@@ -325,7 +325,7 @@ bool macos_handle_event(struct macos_event* mcevent) {
                 case NSEventTypeScrollWheel: {
                      mcevent->type = macos_event_mouse_wheel;
                      CGFloat fl = [ev scrollingDeltaY];
-                     mcevent->amount = fl;
+                     mcevent->we.amount = fl;
                     break;
                 }
                 case NSEventTypeKeyDown: {

@@ -65,51 +65,56 @@ window_error windows_window::initialize() {
   ReleaseDC(NULL, screen);
   m_dpi = (int)((h + v) / 2);
 
-  m_job_pool->add_job(&m_signal, &windows_window::dispatch_loop, this, rect);
+  m_job_pool->add_job(JOB_NAME,
+      wn::functional::function<void()>(
+          m_allocator, [this, rect]() { dispatch_loop(rect); }),
+      m_signal);
   return window_error::ok;
 }
 
 void windows_window::dispatch_loop(RECT rect) {
-  m_job_pool->call_blocking_function([&]() {
-    m_window.handle = CreateWindowEx(0, WN_WINDOW_CLASS_NAME, "",
-        WS_OVERLAPPEDWINDOW, rect.left, rect.top, rect.right - rect.left,
-        rect.bottom - rect.top, 0, 0, GetModuleHandle(NULL), NULL);
+  m_job_pool->call_blocking_function(
+      JOB_NAME, functional::function<void()>(m_allocator, [this, rect]() {
+        m_window.handle = CreateWindowEx(0, WN_WINDOW_CLASS_NAME, "",
+            WS_OVERLAPPEDWINDOW, rect.left, rect.top, rect.right - rect.left,
+            rect.bottom - rect.top, 0, 0, GetModuleHandle(NULL), NULL);
 
-    m_signal.increment(1);
-    if (!m_window.handle) {
-      DWORD err = GetLastError();
-      LPTSTR buff;
-      FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER, nullptr, err, 0,
-          (LPTSTR)&buff, 1024, nullptr);
-      m_log->log_error("Failed to create Windows window: ", m_window.handle);
-      m_log->flush();
-      LocalFree(buff);
-      if (m_creation_signal) {
-        m_creation_signal->increment(1);
-      }
-      return;
-    }
-    m_window.instance = reinterpret_cast<HINSTANCE>(
-        GetWindowLongPtr(m_window.handle, GWLP_HINSTANCE));
+        m_signal.increment_by(1);
+        if (!m_window.handle) {
+          DWORD err = GetLastError();
+          LPTSTR buff;
+          FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER, nullptr, err, 0,
+              (LPTSTR)&buff, 1024, nullptr);
+          m_log->log_error(
+              "Failed to create Windows window: ", m_window.handle);
+          m_log->flush();
+          LocalFree(buff);
+          if (m_creation_signal) {
+            m_creation_signal.increment_by(1);
+          }
+          return;
+        }
+        m_window.instance = reinterpret_cast<HINSTANCE>(
+            GetWindowLongPtr(m_window.handle, GWLP_HINSTANCE));
 
-    m_log->log_info("Created windows window ", m_window.handle);
-    SetWindowLongPtr(
-        m_window.handle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-    ShowWindow(m_window.handle, SW_SHOW);
-    if (m_creation_signal) {
-      m_creation_signal->increment(1);
-    }
+        m_log->log_info("Created windows window ", m_window.handle);
+        SetWindowLongPtr(
+            m_window.handle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+        ShowWindow(m_window.handle, SW_SHOW);
+        if (m_creation_signal) {
+          m_creation_signal.increment_by(1);
+        }
 
-    MSG msg;
-    while (GetMessage(&msg, m_window.handle, 0, 0)) {
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
-      if (m_exit) {
-        break;
-      }
-    }
-  });
-  m_signal.increment(1);
+        MSG msg;
+        while (GetMessage(&msg, m_window.handle, 0, 0)) {
+          TranslateMessage(&msg);
+          DispatchMessage(&msg);
+          if (m_exit) {
+            break;
+          }
+        }
+      }));
+  m_signal.increment_by(1);
 }
 
 void windows_window::process_callback(UINT wm, WPARAM wp, LPARAM lp) {

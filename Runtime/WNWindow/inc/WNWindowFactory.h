@@ -44,7 +44,7 @@ public:
   // with a call to is_valid().
   virtual memory::unique_ptr<window> create_window(window_type _type,
       multi_tasking::job_pool* _pool,
-      multi_tasking::job_signal* _creation_complete_signal,
+      multi_tasking::signal_ptr _creation_complete_signal,
       const application::application_data* _app_data, uint32_t _x, uint32_t _y,
       uint32_t _width, uint32_t _height);
 

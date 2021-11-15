@@ -8,8 +8,6 @@
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNMemory/inc/string_utility.h"
 #include "WNMultiTasking/inc/job_pool.h"
-#include "WNMultiTasking/inc/job_signal.h"
-#include "WNMultiTasking/inc/work_queue.h"
 #include "WNWindow/inc/helpers.h"
 #include "executable_data/inc/executable_data.h"
 
@@ -25,25 +23,24 @@ namespace runtime {
 namespace window {
 
 window_error macos_window::initialize() {
-  m_job_pool->call_blocking_function([this]() {
-    m_app_data->main_thread_work_queue->run_work_sync(
-        functional::function<void()>(m_allocator, [this]() {
-          void* v =
-              macos_internal_create_window(m_width, m_height, &m_window_number);
-          m_native_window_handle = v;
-          if (m_creation_signal) {
-            m_creation_signal->increment(1);
-          }
-          m_create_signal.increment(1);
-        }));
-  });
-  m_app_data->main_thread_work_queue->run_defer_async(
-      functional::function<void()>(m_allocator, [this]() { run_loop(); }));
+  m_job_pool->call_blocking_job_on_main(
+      JOB_NAME, functional::function<void()>(m_allocator, [this]() {
+        void* v =
+            macos_internal_create_window(m_width, m_height, &m_window_number);
+        m_native_window_handle = v;
+        if (m_creation_signal) {
+          m_creation_signal.increment_by(1);
+        }
+        m_create_signal.increment_by(1);
+      }));
+  m_job_pool->add_job_on_main(JOB_NAME,
+      functional::function<void()>(m_allocator, [this]() { run_loop(); }),
+      nullptr, multi_tasking::job_priority::standard, true);
 
   return window_error::ok;
 }
 
-// These run_lops are helpul, in that no matter how many windows
+// These run_lops are helpful, in that no matter how many windows
 //   they will always be run on the main thread, and are therefore
 //   threadsafe.
 //   Since the events that are run from the ObjectiveC may come back for
@@ -106,11 +103,12 @@ void macos_window::run_loop() {
     }
   }
   if (!m_exit) {
-    m_app_data->main_thread_work_queue->run_defer_async(
-        functional::function<void()>(m_allocator, [this]() { run_loop(); }));
+    m_job_pool->add_job_on_main(JOB_NAME,
+        functional::function<void()>(m_allocator, [this]() { run_loop(); }),
+        nullptr, multi_tasking::job_priority::standard, true);
   } else {
     macos_internal_close_window(m_native_window_handle);
-    m_destroy_signal.increment(1);
+    m_destroy_signal.increment_by(1);
     _windows.erase(m_window_number);
   }
 }

@@ -9,6 +9,7 @@
 #include "WNGraphics/inc/Internal/Vulkan/WNDevice.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNQueue.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
+#include "WNGraphics/inc/WNQueueProfiler.h"
 
 namespace wn {
 namespace runtime {
@@ -385,7 +386,6 @@ void vulkan_queue_profiler::new_frame() {}
 
 memory::unique_ptr<gpu_profile_scope> vulkan_queue_profiler::profile_scope(
     command_list* _command_list, const tracy::SourceLocationData* loc) {
-  static int x = 0;
   auto gps = memory::make_unique<vulkan_gpu_profile_scope>(m_allocator);
 #ifdef TRACY_ON_DEMAND
   gps->m_active = tracy::GetProfiler()::IsConnected();

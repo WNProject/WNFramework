@@ -6,7 +6,6 @@
 #include "WNGraphics/test/inc/WNPixelTestFixture.h"
 #include "WNGraphics/test/inc/push_constants_test.h"
 #include "WNMultiTasking/inc/job_pool.h"
-#include "WNMultiTasking/inc/job_signal.h"
 #include "WNWindow/inc/WNWindow.h"
 #include "WNWindow/inc/WNWindowFactory.h"
 

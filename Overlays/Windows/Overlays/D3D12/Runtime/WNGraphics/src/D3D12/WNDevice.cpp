@@ -20,6 +20,7 @@
 #include "WNGraphics/inc/WNGraphicsPipeline.h"
 #include "WNGraphics/inc/WNGraphicsPipelineDescription.h"
 #include "WNGraphics/inc/WNImage.h"
+#include "WNGraphics/inc/WNQueueProfiler.h"
 #include "WNGraphics/inc/WNRenderPass.h"
 #include "WNGraphics/inc/WNSampler.h"
 #include "WNGraphics/inc/WNSignal.h"
@@ -669,9 +670,17 @@ swapchain_ptr d3d12_device::recreate_swapchain(surface& _surface,
   // In order to recreate the D3D12 swapchain, we first have to
   // flush any queue on which it may be used, and clear all of the images
   // in question.
-  fence f = create_fence();
-  _queue->enqueue_fence(f);
-  wait_fence(&f);
+  ID3D12Fence* fence;
+  m_device->CreateFence(
+      0, D3D12_FENCE_FLAG_NONE, __uuidof(ID3D12Fence), (void**)&fence);
+
+  auto event = ::CreateEventW(NULL, TRUE, FALSE, NULL);
+  fence->SetEventOnCompletion(1, event);
+
+  d3d12_queue* q = reinterpret_cast<d3d12_queue*>(_queue);
+  q->m_queue->Signal(fence, 1);
+  ::WaitForSingleObject(event, INFINITE);
+  fence->Release();
   for (auto& i : swp->m_images) {
     get_data(&i)->image->Release();
   }

@@ -167,8 +167,12 @@ public:
   inline explicit dynamic_array(
       memory::allocator* _allocator, const size_type _count)
     : dynamic_array(_allocator) {
+    m_capacity = _count;
+    m_size = _count;
+    void* p = allocate(sizeof(T), _count);
+    m_data = reinterpret_cast<T*>(p);
     for (size_t i = 0; i < _count; ++i) {
-      insert(end(), T());
+      memory::construct_at<T>(m_data + i);
     }
   }
 

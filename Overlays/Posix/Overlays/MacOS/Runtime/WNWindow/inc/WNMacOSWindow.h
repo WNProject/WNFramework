@@ -8,7 +8,7 @@
 #define __WN_RUNTIME_WINDOW_XCB_WINDOW_H__
 
 #include "WNLogging/inc/WNLog.h"
-#include "WNMultiTasking/inc/job_signal.h"
+#include "WNMultiTasking/inc/job_pool.h"
 #include "WNWindow/inc/WNWindow.h"
 
 namespace wn {
@@ -30,7 +30,7 @@ class macos_window : public window {
 public:
   macos_window(memory::allocator* _allocator, logging::log* _log,
       multi_tasking::job_pool* _job_pool,
-      multi_tasking::job_signal* _creation_signal,
+      multi_tasking::signal_ptr _creation_signal,
       const application::application_data* _data, uint32_t _x, uint32_t _y,
       uint32_t _width, uint32_t _height)
     : window(_allocator),
@@ -43,9 +43,9 @@ public:
       m_height(_height),
       m_exit(false),
       m_native_window_handle(nullptr),
-      m_create_signal(_job_pool, 0),
-      m_destroy_signal(_job_pool, 0),
-      m_creation_signal(_creation_signal) {}
+      m_create_signal(_job_pool->get_signal()),
+      m_destroy_signal(_job_pool->get_signal()),
+      m_creation_signal(core::move(_creation_signal)) {}
 
   ~macos_window() {
     m_create_signal.wait_until(1);
@@ -108,9 +108,9 @@ private:
   int m_window_number;
   void* m_native_window_handle;
 
-  multi_tasking::job_signal m_create_signal;
-  multi_tasking::job_signal m_destroy_signal;
-  multi_tasking::job_signal* m_creation_signal;
+  multi_tasking::signal_ptr m_create_signal;
+  multi_tasking::signal_ptr m_destroy_signal;
+  multi_tasking::signal_ptr m_creation_signal;
 
   std::atomic<uint32_t> m_cursor_x;
   std::atomic<uint32_t> m_cursor_y;

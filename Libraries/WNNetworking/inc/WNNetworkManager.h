@@ -18,10 +18,6 @@
 #include "WNNetworking/inc/WNReliableConnection.h"
 
 namespace wn {
-namespace multi_tasking {
-class job_pool;
-}  // namespace multi_tasking
-
 namespace networking {
 const uint32_t MAX_NETWORK_BUFFER_SIZE = 1024;
 const uint32_t MAX_NETWORK_MESSAGE_SIZE = 1000;
@@ -58,15 +54,6 @@ protected:
   memory::allocator* m_allocator;
 };
 
-// The _job_pool here may be different than the job_pool used
-// to call asynchronous functions. This job_pool will be the one
-// used by asynchronous calls to invoke "call_blocking_function",
-// and as such may have a large number of blocking calls
-// sitting in it simultaneously.
-// In practice it is expected that there will be a total of 2
-// job_pools in any system. One to handle system_calls and
-// low_priority synchronous work, and another to handle
-// non-blocking jobs.
 class WNConcreteNetworkManager : public WNNetworkManager {
 public:
   WNConcreteNetworkManager(memory::allocator* _allocator, logging::log* _log)

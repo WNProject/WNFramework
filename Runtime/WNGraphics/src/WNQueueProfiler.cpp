@@ -14,9 +14,11 @@ namespace runtime {
 namespace graphics {
 
 queue_profiler::~queue_profiler() {
+#ifdef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
   if (is_valid()) {
     m_device->destroy_queue_profiler(this);
   }
+#endif
 }
 
 }  // namespace graphics

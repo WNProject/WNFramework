@@ -8,6 +8,7 @@
 #define __WN_MEMORY_INTERNAL_ALLOCATION_H__
 
 #include "WNMemory/inc/internal/stack_allocation.h"
+#include "core/inc/assert.h"
 #include "core/inc/types.h"
 
 #include <cstdlib>
@@ -18,13 +19,16 @@ namespace memory {
 namespace internal {
 
 inline void* aligned_malloc(size_t _size, size_t _alignment) {
-  void* real_ptr = std::malloc((_size + _alignment - 1) + 2 * sizeof(void*));
+  _alignment = std::max(_alignment, 2 * sizeof(void*));
+  void* real_ptr = std::malloc((_size + (2 * _alignment) - 1));
 
   if (real_ptr) {
     void* adjusted_ptr = reinterpret_cast<void*>(
-        ((reinterpret_cast<size_t>(real_ptr) + sizeof(void*) + _alignment - 1) &
+        ((reinterpret_cast<size_t>(real_ptr) + (2 * _alignment) - 1) &
             ~(_alignment - 1)));
-
+    WN_DEBUG_ASSERT(
+        ((char*)adjusted_ptr - (char*)real_ptr) >= 2 * sizeof(void*),
+        "Something is wrong with our aligned ptr");
     *(reinterpret_cast<void**>(adjusted_ptr) - 1) = real_ptr;
     *(reinterpret_cast<size_t*>(adjusted_ptr) - 2) = _size;
 

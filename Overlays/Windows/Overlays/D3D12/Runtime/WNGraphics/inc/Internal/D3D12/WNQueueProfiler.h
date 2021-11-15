@@ -6,6 +6,7 @@
 
 #ifndef __WN_GRAPHICS_INC_INTERNAL_D3D12_QUEUE_PROFILER_H__
 #define __WN_GRAPHICS_INC_INTERNAL_D3D12_QUEUE_PROFILER_H__
+#include "WNGraphics/inc/Internal/WNConfig.h"
 
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 #include "WNGraphics/inc/WNQueueProfiler.h"
@@ -29,7 +30,6 @@ namespace runtime {
 namespace graphics {
 namespace internal {
 namespace d3d12 {
-
 #ifndef _WN_GRAPHICS_SINGLE_DEVICE_TYPE
 using d3d12_queue_profiler_base = queue_profiler;
 #else

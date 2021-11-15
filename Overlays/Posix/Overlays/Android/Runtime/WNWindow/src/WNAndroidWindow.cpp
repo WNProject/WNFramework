@@ -6,7 +6,6 @@
 
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNMultiTasking/inc/job_pool.h"
-#include "WNMultiTasking/inc/job_signal.h"
 #include "executable_data/inc/executable_data.h"
 
 namespace wn {
@@ -114,37 +113,39 @@ window_error android_window::initialize() {
 }
 
 void android_window::wait_for_window_loop(void*) {
-  m_job_pool->call_blocking_function([this]() {
-    if (!m_app_data->executable_data->host_data->window_initialized ||
-        !m_app_data->executable_data->host_data->android_app) {
-      if (m_creation_signal) {
-        m_creation_signal->increment(1);
-      }
-      return;
-    }
-    while (true) {
-      if (m_destroy.load()) {
-        if (m_creation_signal) {
-          m_creation_signal->increment(1);
+  m_job_pool->call_blocking_function(
+      JOB_NAME, functional::function<void()>(m_allocator, [this]() {
+        if (!m_app_data->executable_data->host_data->window_initialized ||
+            !m_app_data->executable_data->host_data->android_app) {
+          if (m_creation_signal) {
+            m_creation_signal.increment_by(1);
+          }
+          return;
         }
-        return;
-      } else if (m_app_data->executable_data->host_data->window_initialized
-                     ->load()) {
-        m_data.window =
-            m_app_data->executable_data->host_data->android_app->window;
-        auto width = ANativeWindow_getWidth(m_data.window);
-        auto height = ANativeWindow_getHeight(m_data.window);
-        m_width = width;    // width;
-        m_height = height;  // height;
+        while (true) {
+          if (m_destroy.load()) {
+            if (m_creation_signal) {
+              m_creation_signal.increment_by(1);
+            }
+            return;
+          } else if (m_app_data->executable_data->host_data->window_initialized
+                         ->load()) {
+            m_data.window =
+                m_app_data->executable_data->host_data->android_app->window;
+            auto width = ANativeWindow_getWidth(m_data.window);
+            auto height = ANativeWindow_getHeight(m_data.window);
+            m_width = width;    // width;
+            m_height = height;  // height;
 
-        if (m_creation_signal) {
-          m_creation_signal->increment(1);
+            if (m_creation_signal) {
+              m_creation_signal.increment_by(1);
+            }
+            return;
+          }
+          wn::multi_tasking::this_thread::sleep_for(
+              std::chrono::milliseconds(15));
         }
-        return;
-      }
-      wn::multi_tasking::this_thread::sleep_for(std::chrono::milliseconds(15));
-    }
-  });
+      }));
 }
 
 void android_window::handle_input_event(AInputEvent* _event) {

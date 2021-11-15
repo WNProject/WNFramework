@@ -58,3 +58,6 @@
 	branch = master
 	ignore = dirty
 	shallow = true
+[submodule "externals/marl"]
+	path = externals/marl
+	url = https://github.com/google/marl

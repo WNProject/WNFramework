@@ -52,13 +52,14 @@ def run_p_silent(args):
 
 
 def run_p_background(args):
+    print(args)
     file = open(os.devnull)
     return subprocess.Popen(args, stdout=file, stderr=file)
 
 
 def run_p_output(args, strip=False):
     try:
-        output = subprocess.check_output(args)
+        output = subprocess.check_output(args, encoding='utf-8')
         if strip:
             output = output.strip(' \r\n\t')
         return 0, output
@@ -176,24 +177,18 @@ class Runner:
 
             # Assume that the build was done with gdbserver getting packaged.
             abis = []
-
             ret_val, primary_abi = run_p_output([adb, "shell",
                                                  "getprop", "ro.product.cpu.abilist32"], strip=True)
-
             if 0 == ret_val and primary_abi:
                 abis.extend(primary_abi.split(','))
-
             ret_val, primary_abi = run_p_output([adb, "shell",
                                                  "getprop", "ro.product.cpu.abilist64"], strip=True)
             if 0 == ret_val and primary_abi:
                 abis.extend(primary_abi.split(','))
-
             ret_val, primary_abi = run_p_output([adb, "shell",
                                                  "getprop", "ro.product.cpu.abi"], strip=True)
-
             if 0 == ret_val and primary_abi:
                 abis.extend([primary_abi])
-
             ret_val, primary_abi = run_p_output([adb, "shell",
                                                  "getprop", "ro.product.cpu.abi2"], strip=True)
             if 0 == ret_val and primary_abi:
@@ -220,12 +215,30 @@ class Runner:
             except:
                 pass
 
+            host_dir = ""
+            if platform.system() == 'Windows':
+                host_dir = "windows-x86_64"
+            elif platform.system() == 'Linux':
+                host_dir = "linux-x86_64"
+            elif platform.system() == 'Darwin':
+                host_dir = "darwin"
+            arch_to_data_dir = {
+                'armeabi-v7a': 'arm',
+                'armeabi': 'arm',
+                'arm64-v8a': 'aarch64',
+                'x86': 'i386',
+                'x86_64': 'x86_64'
+            }
+
+            lldb = os.path.join(args.ndk_dir, 'toolchains', 'llvm', 'prebuilt', host_dir, 'bin', 'lldb')
+            if platform.system() == 'Windows':
+                lldb = f"{lldb}.cmd"
+            lldb_server_dir = os.path.join(args.ndk_dir, 'toolchains', 'llvm', 'prebuilt', host_dir, 'lib64', 'clang')
+            lldb_server_dir = os.path.join(lldb_server_dir, os.listdir(lldb_server_dir)[0], 'lib', 'linux', arch_to_data_dir[args.target_arch])
+
             self.run_as_shell_silent(['mkdir', '-p', 'lldb/bin'])
             self.push_file_to(
-                os.path.join(args.sdk, 'lldb', '3.1', 'android',
-                             arch_to_dir[args.target_arch], 'lldb-server'), "lldb/bin/lldb-server")
-            self.push_file_to(
-                os.path.join(args.sdk, 'lldb', '3.1', 'android', 'start_lldb_server.sh'), "lldb/start_lldb_server.sh")
+                os.path.join(lldb_server_dir, 'lldb-server'), "lldb/bin/lldb-server")
 
             p = subprocess.Popen([
                 adb, "logcat", "-v", "brief", "-s", args.package_name + ":V",
@@ -238,14 +251,13 @@ class Runner:
                                                                        args.activity_name)])
             info("Starting %s/.%s" % (args.package_name, args.activity_name))
 
-            startre = re.compile("^--STARTED..?$")
+            startre = re.compile("^--STARTED.?.?$")
             strip_stuff = re.compile(r"[A-Z]/" +
                                      args.package_name + r"\(([ 0-9]*)\): (.*)")
 
             pid = args.attach
             while(pid == 0):
-                line = p.stdout.readline()
-
+                line = p.stdout.readline().decode('utf-8')
                 original_line = line
                 if not line:
                     break
@@ -256,29 +268,27 @@ class Runner:
                 line = m.group(2)
                 new_pid = m.group(1)
                 m = startre.search(line)
+                print(line)
                 if m:
                     pid = new_pid
                     break
 
             info("Process started with pid", pid)
             server = run_p_background([adb, 'shell', 'run-as', args.package_name,
-                                       'lldb/start_lldb_server.sh', data_dir + '/lldb',
-                                       'unix-abstract', data_dir, 'lldb',
-                                       '"lldb process:gdb-remote packets"'])
+                                       'lldb/bin/lldb-server', 'platform',
+                                       '--server', '--listen', f'unix-abstract://{data_dir}/lldb.sock'])
 
             info("Started lldb_server")
-
             arch_to_local_dir = {
                 'armeabi-v7a': 'armeabi-v7a',
                 'armeabi': 'armeabi-v7a',
                 'arm64-v8a': 'arm64-v8a',
                 'x86': 'x86'
             }
-
             with open('lldb_args.txt', 'w') as f:
                 f.writelines([
                     'platform select remote-android\n',
-                    'platform connect unix-abstract-connect://{}/lldb\n'.format(
+                    'platform connect unix-abstract-connect://{}/lldb.sock\n'.format(
                         data_dir)
                 ])
                 if args.build_dir:
@@ -292,15 +302,19 @@ class Runner:
 
             args = []
             if platform.system() == 'Windows':
-                args = ['start', '/WAIT']
+                args = ['cmd', '/c', 'start', '/WAIT']
             elif platform.system() == 'Linux':
-                args = ['xterm', '-e']
+                #args = ['xterm', '-e']
+                args = ['/mnt/c/Windows/system32/cmd.exe', '/c', 'start', 'wsl.exe']
+                pass
             elif platform.system() == 'Darwin':
                 args = ['xterm', '-e']
-            args.extend(['lldb', '-s', 'lldb_args.txt'])
+            args.extend([lldb, '-s', 'lldb_args.txt'])
             if platform.system() == 'Windows':
                 args.extend(['-X'])
-            shell_p(args)
+            print(args)
+            run_p(args)
+            
             server.kill()
             try:
                 self.run_as_shell_silent(['killall', '-9', 'lldb-server'])

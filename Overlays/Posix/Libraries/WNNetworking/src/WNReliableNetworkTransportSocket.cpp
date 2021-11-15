@@ -67,13 +67,13 @@ network_error WNReliableNetworkTransportSocket::do_send(
         const_cast<void*>(static_cast<const void*>(_buffers[i].data()));
     send_buffers[i].iov_len = _buffers[i].size();
   }
-
-  msghdr header = {nullptr,                  // msg_name
-      0,                                     // msg_namelen
-      send_buffers,                          // msg_iov
-      static_cast<size_t>(_buffers.size()),  // msg_iovlen
-      nullptr,                               // msg_control
-      0,                                     //  msg_controllen
+  using iovlen_type = decltype(msghdr().msg_iovlen);
+  msghdr header = {nullptr,                       // msg_name
+      0,                                          // msg_namelen
+      send_buffers,                               // msg_iov
+      static_cast<iovlen_type>(_buffers.size()),  // msg_iovlen
+      nullptr,                                    // msg_control
+      0,                                          //  msg_controllen
       0};
 
   ssize_t num_sent = 0;

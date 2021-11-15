@@ -123,9 +123,9 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
   const char* layers[] = {"VK_LAYER_KHRONOS_validation"};
 
 #ifdef _WN_GRAPHICS_ALLOW_DEBUG_MODE
-  num_extensions = 3;
+  num_extensions = 2;
   num_layers = 1;
-  bool has_debug_layers = true;
+  bool has_debug_layers = false;
 #endif
 
   VkInstanceCreateInfo create_info{
@@ -177,10 +177,8 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
 
 #ifdef _WN_GRAPHICS_ALLOW_DEBUG_MODE
   if (has_debug_layers) {
-    PFN_vkCreateDebugReportCallbackEXT vkCreateDebugReportCallbackEXT =
-        reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(
-            context->vkGetInstanceProcAddr(
-                context->instance, "vkCreateDebugReportCallbackEXT"));
+    LOAD_VK_SYMBOL(context->instance, vkCreateDebugReportCallbackEXT);
+    LOAD_VK_SYMBOL(context->instance, vkDestroyDebugReportCallbackEXT);
 
     VkDebugReportCallbackCreateInfoEXT callbackCreateInfo = {
         VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT,  // sType
@@ -190,11 +188,10 @@ memory::intrusive_ptr<vulkan_context> get_vulkan_context(
         &debug_report_cb,                                 // callback
         _log,                                             // pUserData
     };
-    VkDebugReportCallbackEXT cb;
     // We never actually destroy our instance, so we can avoid cleaning up
     // the callback.
-    vkCreateDebugReportCallbackEXT(
-        context->instance, &callbackCreateInfo, nullptr, &cb);
+    context->vkCreateDebugReportCallbackEXT(context->instance,
+        &callbackCreateInfo, nullptr, &context->_debug_report_context);
   }
 #endif
   return context;

@@ -113,16 +113,25 @@ private:
 
 template <typename _Type, typename _Allocator>
 class list final {
-private:
+public:
   struct list_node {
-  public:
+    _Type* element() {
+      return &m_element;
+    }
     template <typename... _Args>
     list_node(_Args&&... _args) : m_element(core::forward<_Args>(_args)...) {}
+
+  private:
     list_node* m_prev;
     list_node* m_next;
     _Type m_element;
+
+    friend class list<_Type, _Allocator>;
+    template <typename _NT, typename _VT>
+    friend struct list_iterator;
   };
 
+private:
   struct dummy_end_node {
     list_node* m_prev;
     list_node* m_next;
@@ -362,6 +371,31 @@ public:
 
   inline void shrink_to_fit() {}
 
+  // Be very careful with these, if you start moving between lists that have
+  // different allocators, bad things will happen.
+  list_node* unlink_node(iterator _it) {
+    WN_DEBUG_ASSERT(
+        static_cast<void*>(_it.m_ptr) != static_cast<void*>(&m_dummy_end_node),
+        "You are trying to unlink end()");
+    list_node* node = _it.m_ptr;
+    unlink(_it);
+    return node;
+  }
+
+  void link_node(iterator _it, list_node* _node) {
+    link(_it, _node);
+  }
+
+  template <typename... Args>
+  list_node* make_node(Args&&... _args) {
+    return m_allocator->construct<list_node>(std::forward<Args>(_args)...);
+  }
+
+  void set_allocator(memory::allocator* _allocator) {
+    WN_DEBUG_ASSERT(!m_allocator, "Allocator must be null to set one");
+    m_allocator = _allocator;
+  }
+
 private:
   iterator unlink(iterator _start, iterator _end, size_t count) {
     WN_DEBUG_ASSERT(static_cast<void*>(_start.m_ptr) !=
@@ -397,6 +431,7 @@ private:
     m_size -= 1;
     return iterator(next);
   }
+
   iterator link(iterator _it, list_node* _node) {
     // m_end->prev == nullptr if there is nothing allocated yet.
     if (_it.m_ptr->m_prev) {
