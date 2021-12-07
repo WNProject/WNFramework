@@ -297,6 +297,11 @@ jobs:
         with:
           path: ./source
           submodules: true
+      - name: Set up gcs key
+        shell: bash
+        run: echo "$GCS_KEY" > /tmp/gcs_key.json
+        env:
+          GCS_KEY: ${{secrets.SCCACHE_GCS_KEY}}
       - name: Run configuration
         working-directory: ./build
         run: >
@@ -306,18 +311,34 @@ jobs:
           -DWN_ANDROID_ABIS=${{matrix.architecture}}
           -DWN_ANDROID_SDK=/opt/android-sdk
           -DWN_LOW_RESOURCE_MODE=ON
+          -DWN_USE_SCCACHE=ON
           ../source
         env:
           OVERLAY: ${{github.workspace}}/source/Overlays/Posix/Overlays/Android
+          SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
+          SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
+          SCCACHE_GCS_RW_MODE: READ_WRITE
       - name: Run build (host tools)
         working-directory: ./build/host/externals/llvm-project/llvm
         run: cmake --build . --target llvm-tblgen
+        env:
+          SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
+          SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
+          SCCACHE_GCS_RW_MODE: READ_WRITE
       - name: 'Run build (platform: ${{matrix.architecture}})'
         working-directory: ./build/${{matrix.architecture}}
         run: cmake --build .
+        env:
+          SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
+          SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
+          SCCACHE_GCS_RW_MODE: READ_WRITE
       - name: Run build (apks)
         working-directory: ./build
         run: cmake --build .
+        env:
+          SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
+          SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
+          SCCACHE_GCS_RW_MODE: READ_WRITE
       - name: Run tests
         working-directory: ./build
         run: >
@@ -351,15 +372,29 @@ jobs:
         with:
           path: ./source
           submodules: true
+      - name: Set up gcs key
+        shell: bash
+        run: echo "$GCS_KEY" > /tmp/gcs_key.json
+        env:
+          GCS_KEY: ${{secrets.SCCACHE_GCS_KEY}}
       - name: Run configuration
         working-directory: ./build
         run: >
           cmake -GNinja
           -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
+          -DWN_USE_SCCACHE=ON
           ../source
+        env:
+          SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
+          SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
+          SCCACHE_GCS_RW_MODE: READ_WRITE
       - name: Run build
         working-directory: ./build
         run: cmake --build .
+        env:
+          SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
+          SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
+          SCCACHE_GCS_RW_MODE: READ_WRITE
       - name: Run tests
         working-directory: ./build
         run: >
