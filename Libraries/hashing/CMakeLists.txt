@@ -2,10 +2,6 @@ set(WN_HASHING_XXHASH_COMPILE_OPTIONS)
 
 enable_overlay_directory()
 
-# must force cache override for this to work properly, remove once
-# https://github.com/Cyan4973/xxHash/pull/468 merges
-set(XXHASH_BUILD_XXHSUM OFF CACHE BOOL "" FORCE)
-
 add_wn_externals(
   xxhash
   DIRECTORY
