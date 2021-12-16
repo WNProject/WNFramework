@@ -280,7 +280,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/wnproject/build-android
-      options: --memory-swap 1g
+      options: |
+        --memory 7g
+        --memory-swap 1g
     strategy:
       fail-fast: false
       matrix:
@@ -356,7 +358,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/wnproject/build-linux:${{matrix.compiler}}
-      options: --memory-swap 1g
+      options: |
+        --memory 7g
+        --memory-swap 1g
     strategy:
       fail-fast: false
       matrix:
@@ -444,6 +448,7 @@ jobs:
       - name: Run configuration
         run: >
           docker run --rm
+          --memory 7g
           --memory-swap 1g
           -e SCCACHE_GCS_BUCKET=${{secrets.SCCACHE_GCS_BUCKET}}
           -e SCCACHE_GCS_KEY_PATH=C:\workspace\gcs_key.json
@@ -457,6 +462,7 @@ jobs:
       - name: Run build
         run: >
           docker run --rm
+          --memory 7g
           --memory-swap 1g
           -e SCCACHE_GCS_BUCKET=${{secrets.SCCACHE_GCS_BUCKET}}
           -e SCCACHE_GCS_KEY_PATH=C:\workspace\gcs_key.json
@@ -467,6 +473,7 @@ jobs:
       - name: Run tests
         run: >
           docker run --rm
+          --memory 7g
           --memory-swap 1g
           -v ${{github.workspace}}:C:\workspace
           ${{steps.build-environment.outputs.docker-image}}
