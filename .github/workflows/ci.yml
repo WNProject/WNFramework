@@ -280,7 +280,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/wnproject/build-android
-      options: |
+      options: >
         --memory 7g
         --memory-swap 1g
     strategy:
@@ -358,7 +358,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/wnproject/build-linux:${{matrix.compiler}}
-      options: |
+      options: >
         --memory 7g
         --memory-swap 1g
     strategy:
