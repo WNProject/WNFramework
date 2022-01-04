@@ -18,21 +18,20 @@ jobs:
       - name: Determine year
         id: year
         run: echo "::set-output name=value::$(date +%Y)"
-      - name: Create/switch to ${{env.BRANCH}}
+      - name: Switch to '${{env.BRANCH}}'
         run: |
-          git fetch origin +refs/heads/$BRANCH:refs/heads/$BRANCH || true  
+          git fetch origin +refs/heads/$BRANCH:refs/heads/$BRANCH || true
           git checkout $BRANCH || git checkout -b $BRANCH
       - name: Update license
         run: >
           find . -type f -not -path './.git/*' -and \( -iname '*.h' -or
           -iname '*.c' -or -iname '*.cpp' -or -iname '*.inl' -or
           -iname '*.h.in' -or -iname '*.s' -or -iname '*.py' -or
-          -iname '*.wns' -or -iname 'LICENSE' \) 
+          -iname '*.wns' -or -iname 'LICENSE' \)
           -exec sed -i -E "s/$REGEX/\1${{steps.year.outputs.value}}\4/" {} \;
       - name: Check for changes
         id: changes
-        run: |
-          git diff --exit-code || echo "::set-output name=exist::true"
+        run: git diff --exit-code || echo "::set-output name=exist::true"
       - name: Create commit
         if: steps.changes.outputs.exist
         run: |
@@ -55,20 +54,19 @@ jobs:
         uses: actions/github-script@v5
         with:
           script: |
-            const owner = '${{github.repository_owner}}';
-            const repo = 'WNFramework';
+            const [owner, repo] = '${{github.repository}}'.split('/');
             const base = 'refs/heads/master';
             const head = 'refs/heads/${{env.BRANCH}}';
-            const pullRequests = await github.pulls.list({
+            const pullRequests = await github.rest.pulls.list({
               head: `${owner}:${head}`,
               owner, repo, base
             });
             if (pullRequests.data.length === 0) {
-              const createResult = await github.pulls.create({
+              const createResult = await github.rest.pulls.create({
                 title: 'Update license year to ${{steps.year.outputs.value}}',
                 owner, repo, head, base
               });
-              github.issues.addLabels({
+              github.rest.issues.addLabels({
                 issue_number: createResult.data.number,
                 owner, repo, labels: ['auto']
               });
@@ -76,11 +74,11 @@ jobs:
               return createResult.data.number;
             } else {
               const prNumber = pullRequests.data.first().number;
-              github.issues.update({
+              github.rest.issues.update({
                 issue_number: prNumber,
                 title: 'Update license year to ${{steps.year.outputs.value}}',
                 owner, repo
-              });         
+              });
               console.log(`Pull request already exists, updated #${prNumber}`);
               return prNumber;
             }
