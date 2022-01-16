@@ -157,9 +157,10 @@ public:
   }
 
   void create_window() {
-    multi_tasking::job_signal signal(0);
+    multi_tasking::signal_ptr signal =
+        m_system_data->default_job_pool->get_signal();
     m_window = m_window_factory.create_window(window::window_type::system,
-        m_system_data->default_job_pool, &signal, m_system_data, 100, 100,
+        m_system_data->default_job_pool, signal, m_system_data, 100, 100,
         k_width, k_height);
     WN_RELEASE_ASSERT(m_window, "Could not create window");
     // Wait until the window is ready

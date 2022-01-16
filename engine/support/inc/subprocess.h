@@ -8,16 +8,13 @@
 #define __WN_SUPPORT_SUBPROCESS_H__
 
 #include "WNContainers/inc/WNString.h"
-#include "WNMultiTasking/inc/job_signal.h"
+#include "WNMultiTasking/inc/job_pool.h"
 #include "WNScripting/inc/WNEngine.h"
 #include "platform_utils/inc/subprocess.h"
 
 namespace wn {
 namespace engine_base {
 class context;
-}
-namespace multi_tasking {
-class job_signal;
 }
 namespace support {
 
@@ -46,7 +43,7 @@ public:
   const char* get_stderr();
 
 private:
-  multi_tasking::job_signal m_signal;
+  multi_tasking::signal_ptr m_signal;
   runtime::platform_utils::subprocess_return m_return;
 };
 

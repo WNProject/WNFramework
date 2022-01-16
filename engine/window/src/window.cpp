@@ -58,11 +58,13 @@ window::window(
     engine_base::context* _context, int32_t _width, int32_t _height) {
   _context->m_log->log_info("Created Window");
   m_log = _context->m_log;
-  wn::multi_tasking::job_signal signal(0);
+
+  wn::multi_tasking::signal_ptr signal =
+      _context->m_application_data->default_job_pool->get_signal();
   m_window =
       runtime::window::window_factory(_context->m_allocator, _context->m_log)
           .create_window(runtime::window::window_type::system,
-              _context->m_application_data->default_job_pool, &signal,
+              _context->m_application_data->default_job_pool, signal,
               _context->m_application_data, 100, 100, _width, _height);
 
   signal.wait_until(1);

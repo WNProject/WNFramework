@@ -26,7 +26,6 @@ class allocator;
 namespace multi_tasking {
 
 class job_pool;
-class thread_exclusive_work_queue;
 
 }  // namespace multi_tasking
 
@@ -38,7 +37,6 @@ struct application_data final {
   memory::allocator* system_allocator;
   logging::log* default_log;
   multi_tasking::job_pool* default_job_pool;
-  multi_tasking::thread_exclusive_work_queue* main_thread_work_queue;
 };
 
 }  // namespace application

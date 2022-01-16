@@ -8,7 +8,7 @@
 #define __WN_RUNTIME_WINDOW_XCB_WINDOW_H__
 
 #include "WNLogging/inc/WNLog.h"
-#include "WNMultiTasking/inc/job_signal.h"
+#include "WNMultiTasking/inc/job_pool.h"
 #include "WNWindow/inc/WNWindow.h"
 
 #include <xcb/xcb.h>
@@ -41,7 +41,7 @@ class xcb_window : public window {
 public:
   xcb_window(memory::allocator* _allocator, logging::log* _log,
       multi_tasking::job_pool* _job_pool,
-      multi_tasking::job_signal* _creation_signal,
+      multi_tasking::signal_ptr _creation_signal,
       const application::application_data* _data, uint32_t _x, uint32_t _y,
       uint32_t _width, uint32_t _height)
     : window(_allocator),
@@ -54,8 +54,8 @@ public:
       m_height(_height),
       m_exit(false),
       m_data({nullptr, 0}),
-      m_create_signal(_job_pool, 0),
-      m_destroy_signal(_job_pool, 0),
+      m_create_signal(_job_pool->get_signal()),
+      m_destroy_signal(_job_pool->get_signal()),
       m_creation_signal(_creation_signal),
       m_key_symbols(nullptr) {}
   ~xcb_window() {
@@ -113,7 +113,7 @@ public:
   }
 
 private:
-  void dispatch_loop(void* _unused);
+  void dispatch_loop();
 
   logging::log* m_log;
   multi_tasking::job_pool* m_job_pool;
@@ -127,9 +127,9 @@ private:
   xcb_screen_t* m_screen;
   xcb_intern_atom_reply_t* m_delete_window;
 
-  multi_tasking::job_signal m_create_signal;
-  multi_tasking::job_signal m_destroy_signal;
-  multi_tasking::job_signal* m_creation_signal;
+  multi_tasking::signal_ptr m_create_signal;
+  multi_tasking::signal_ptr m_destroy_signal;
+  multi_tasking::signal_ptr m_creation_signal;
 
   std::atomic<uint32_t> m_cursor_x;
   std::atomic<uint32_t> m_cursor_y;

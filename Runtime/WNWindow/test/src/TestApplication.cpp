@@ -21,7 +21,7 @@ int32_t wn_application_main(
     _data->default_log->log_critical("Could not create window");
   }
 
-  _data->default_job_pool->call_blocking_function([&]() {
+  _data->default_job_pool->call_blocking_function(JOB_NAME, [&]() {
     wn::multi_tasking::this_thread::sleep_for(std::chrono::seconds(5));
   });
   return 0;

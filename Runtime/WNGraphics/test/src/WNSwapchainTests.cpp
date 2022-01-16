@@ -13,7 +13,6 @@
 #include "WNGraphics/inc/WNSignal.h"
 #include "WNGraphics/inc/WNSwapchain.h"
 #include "WNMultiTasking/inc/job_pool.h"
-#include "WNMultiTasking/inc/job_signal.h"
 #include "WNWindow/inc/WNWindow.h"
 #include "WNWindow/inc/WNWindowFactory.h"
 
@@ -27,7 +26,7 @@ TEST(swapchain, basic) {
       data->system_allocator, data->default_log);
 
   for (auto& adapter : device_factory.query_adapters()) {
-    wn::multi_tasking::job_signal signal(0);
+    auto signal = data->default_job_pool->get_signal();
     // If we make this window too small, as soon as the swapchain
     // is used at least once, it immediately goes out of date.
 
@@ -36,7 +35,7 @@ TEST(swapchain, basic) {
     // in this test.
     wn::memory::unique_ptr<wn::runtime::window::window> wind =
         factory.create_window(wn::runtime::window::window_type::system,
-            data->default_job_pool, &signal, data, 100, 100, 300, 300);
+            data->default_job_pool, signal, data, 100, 100, 300, 300);
 
     // Wait until the window has successfully been created.
     signal.wait_until(1);

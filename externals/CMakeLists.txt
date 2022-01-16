@@ -167,6 +167,14 @@ add_wn_library(
     ${TRACY_OPTIONS}
   COMPILE_OPTIONS
     -DENABLE_PRELOAD
+    -DTRACY_TIMER_FALLBACK
+    
+)
+
+add_wn_externals(
+  marl
+  DIRECTORY
+    marl
 )
 
 post_enable_overlay_directory()

@@ -70,6 +70,5 @@ endmacro()
 
 wn_add_subdirectory(WNFileSystem)
 wn_add_subdirectory(WNGraphics)
-wn_add_subdirectory(networking)
 wn_add_subdirectory(platform_utils)
 wn_add_subdirectory(WNWindow)

@@ -28,6 +28,9 @@ android {
         doNotStrip '*/x86/*.so'
         doNotStrip '*/arm64-v8a/*.so'
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {

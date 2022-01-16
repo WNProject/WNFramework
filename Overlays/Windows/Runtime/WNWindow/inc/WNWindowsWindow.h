@@ -9,7 +9,7 @@
 
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNLogging/inc/WNLog.h"
-#include "WNMultiTasking/inc/job_signal.h"
+#include "WNMultiTasking/inc/job_pool.h"
 #include "WNWindow/inc/WNWindow.h"
 
 namespace wn {
@@ -36,7 +36,7 @@ class windows_window : public window {
 public:
   windows_window(memory::allocator* _allocator, logging::log* _log,
       multi_tasking::job_pool* _job_pool,
-      multi_tasking::job_signal* _creation_signal,
+      multi_tasking::signal_ptr _creation_signal,
       const application::application_data* _data, uint32_t _x, uint32_t _y,
       uint32_t _width, uint32_t _height)
     : window(_allocator),
@@ -49,8 +49,8 @@ public:
       m_height(_height),
       m_exit(false),
       m_window({0}),
-      m_signal(_job_pool, 0),
-      m_creation_signal(_creation_signal) {}
+      m_signal(_job_pool->get_signal()),
+      m_creation_signal(core::move(_creation_signal)) {}
   ~windows_window() {
     m_signal.wait_until(1);
     if (m_window.handle) {
@@ -116,8 +116,8 @@ private:
   uint32_t m_dpi = 0;
   bool m_exit;
   native_handle m_window;
-  multi_tasking::job_signal m_signal;
-  multi_tasking::job_signal* m_creation_signal;
+  multi_tasking::signal_ptr m_signal;
+  multi_tasking::signal_ptr m_creation_signal;
 
   std::atomic<uint32_t> m_cursor_x;
   std::atomic<uint32_t> m_cursor_y;

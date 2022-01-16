@@ -3,4 +3,6 @@ overlay_library_sources(WNFileSystem
     src/WNSystemExecutablePath.cpp
     src/WNSystemDevAssetsPath.cpp
     src/WNSystemTempPath.cpp
+  LIBS
+    WNMultiTasking
 )

@@ -4,7 +4,6 @@
 
 #include "support/inc/subprocess.h"
 #include "WNMultiTasking/inc/job_pool.h"
-#include "WNMultiTasking/inc/job_signal.h"
 #include "WNScripting/inc/WNFactory.h"
 #include "engine_base/inc/context.h"
 #include "platform_utils/inc/subprocess.h"
@@ -116,7 +115,7 @@ bool subprocess::resolve_scripting(scripting::engine*) {
 subprocess::subprocess(memory::allocator* _allocator,
     engine_base::context* _context, const char* _program,
     const subprocess_args* _args)
-  : m_signal(0) {
+  : m_signal(_context->m_application_data->default_job_pool->get_signal()) {
   containers::dynamic_array<containers::string> args(
       scripting::g_scripting_tls->_support_allocator);
   for (const auto& sv : _args->args) {
@@ -124,44 +123,50 @@ subprocess::subprocess(memory::allocator* _allocator,
   }
 
   containers::string prog(_allocator, _program);
-  multi_tasking::job_signal sig(0);
   auto tls = scripting::g_scripting_tls;
-  _context->m_application_data->default_job_pool->call_blocking_function_in_job(
-      &m_signal, [this, tls, prog{core::move(prog)}, args{core::move(args)}]() {
-        containers::dynamic_array<containers::string_view> arr(
-            tls->_support_allocator);
-        for (auto& sv : args) {
-          arr.push_back(sv);
-        }
-        m_return = runtime::platform_utils::call_subprocess(
-            tls->_support_allocator, prog.to_string_view(),
-            containers::contiguous_range<containers::string_view>(arr));
-      });
+  _context->m_application_data->default_job_pool->call_blocking_function(
+      JOB_NAME,
+      functional::function<void()>(
+          scripting::g_scripting_tls->_support_allocator,
+          [this, tls, prog{core::move(prog)}, args{core::move(args)}]() {
+            containers::dynamic_array<containers::string_view> arr(
+                tls->_support_allocator);
+            for (auto& sv : args) {
+              arr.push_back(sv);
+            }
+            m_return = runtime::platform_utils::call_subprocess(
+                tls->_support_allocator, prog.to_string_view(),
+                containers::contiguous_range<containers::string_view>(arr));
+          }),
+      m_signal);
 }
 
 subprocess::subprocess(memory::allocator* _allocator,
     engine_base::context* _context, const char* _program,
     const scripting::slice<const char*> _args)
-  : m_signal(0) {
+  : m_signal(_context->m_application_data->default_job_pool->get_signal()) {
   containers::dynamic_array<containers::string> args(
       scripting::g_scripting_tls->_support_allocator);
   for (const auto& sv : _args) {
     args.push_back(containers::string(_allocator, sv));
   }
   containers::string prog(_allocator, _program);
-  multi_tasking::job_signal sig(0);
   auto tls = scripting::g_scripting_tls;
-  _context->m_application_data->default_job_pool->call_blocking_function_in_job(
-      &m_signal, [this, tls, prog{core::move(prog)}, args{core::move(args)}]() {
-        containers::dynamic_array<containers::string_view> arr(
-            tls->_support_allocator);
-        for (auto& sv : args) {
-          arr.push_back(sv);
-        }
-        m_return = runtime::platform_utils::call_subprocess(
-            tls->_support_allocator, prog.to_string_view(),
-            containers::contiguous_range<containers::string_view>(arr));
-      });
+  _context->m_application_data->default_job_pool->call_blocking_function(
+      JOB_NAME,
+      functional::function<void()>(
+          scripting::g_scripting_tls->_support_allocator,
+          [this, tls, prog{core::move(prog)}, args{core::move(args)}]() {
+            containers::dynamic_array<containers::string_view> arr(
+                tls->_support_allocator);
+            for (auto& sv : args) {
+              arr.push_back(sv);
+            }
+            m_return = runtime::platform_utils::call_subprocess(
+                tls->_support_allocator, prog.to_string_view(),
+                containers::contiguous_range<containers::string_view>(arr));
+          }),
+      m_signal);
 }
 
 subprocess::~subprocess() {

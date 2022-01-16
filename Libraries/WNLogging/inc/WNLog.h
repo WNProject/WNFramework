@@ -7,6 +7,7 @@
 #ifndef __WN_LOGGING_LOG_H__
 #define __WN_LOGGING_LOG_H__
 
+#include <atomic>
 #include "WNLogging/inc/Internal/WNConfig.h"
 #include "WNLogging/inc/WNLogEnums.h"
 #include "WNMemory/inc/string_utility.h"
@@ -80,7 +81,9 @@ public:
       m_num_color_elements(0),
       m_color_elements(_colors),
       m_current_log_level(_lvl),
-      m_flush_after_message(_flush) {}
+      m_flush_after_message(_flush) {
+    m_flag.clear();
+  }
 
   ~log_impl() {
     flush();
@@ -155,6 +158,7 @@ public:
   void do_log_log();
 
 private:
+  void flush_internal();
   log_impl& operator=(const log_impl& _other) = delete;
   inline void log_header(log_level);
   inline void log_newline();
@@ -170,6 +174,7 @@ private:
   color_element* m_color_elements;
   log_level m_current_log_level;
   bool m_flush_after_message;
+  std::atomic_flag m_flag;
 };
 using log = log_impl<>;
 

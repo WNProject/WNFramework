@@ -6,7 +6,6 @@
 
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNMultiTasking/inc/job_pool.h"
-#include "WNMultiTasking/inc/job_signal.h"
 #include "executable_data/inc/executable_data.h"
 
 #include <X11/Xlib-xcb.h>
@@ -17,10 +16,11 @@
 namespace wn {
 namespace runtime {
 namespace window {
-
+// &m_destroy_signal, &xcb_window::dispatch_loop, this, nullptr
 window_error xcb_window::initialize() {
-  m_job_pool->add_job(
-      &m_destroy_signal, &xcb_window::dispatch_loop, this, nullptr);
+  m_job_pool->add_job(JOB_NAME,
+      functional::function<void()>(m_allocator, [this]() { dispatch_loop(); }),
+      m_destroy_signal);
   return window_error::ok;
 }
 
@@ -80,8 +80,9 @@ inline key_code x_code_to_keycode(xcb_keysym_t keycode) {
   return key_code::key_max;
 }
 
-void xcb_window::dispatch_loop(void*) {
-  m_job_pool->call_blocking_function([&]() {
+void xcb_window::dispatch_loop() {
+  m_job_pool->call_blocking_function(JOB_NAME, functional::function<
+                                                   void()>(m_allocator, [&]() {
     m_data.display = XOpenDisplay(NULL);
     if (m_data.display == nullptr) {
       return;
@@ -101,10 +102,10 @@ void xcb_window::dispatch_loop(void*) {
       xcb_disconnect(m_data.connection);
       m_data.connection = nullptr;
       if (m_creation_signal) {
-        m_creation_signal->increment(1);
+        m_creation_signal.increment_by(1);
       }
 
-      m_create_signal.increment(1);
+      m_create_signal.increment_by(1);
       return;
     }
 
@@ -142,10 +143,10 @@ void xcb_window::dispatch_loop(void*) {
     xcb_flush(m_data.connection);
 
     if (m_creation_signal) {
-      m_creation_signal->increment(1);
+      m_creation_signal.increment_by(1);
     }
 
-    m_create_signal.increment(1);
+    m_create_signal.increment_by(1);
     std::array<char, 16> buf{};
 
     xcb_generic_event_t* event;
@@ -260,7 +261,7 @@ void xcb_window::dispatch_loop(void*) {
       }
       free(event);
     }
-  });
+  }));
 }
 
 }  // namespace window

@@ -30,6 +30,9 @@ struct vulkan_context : public memory::intrusive_ptr_base {
       instance(VK_NULL_HANDLE),
       library(0) {}
   virtual ~vulkan_context() {
+    if (_debug_report_context) {
+      vkDestroyDebugReportCallbackEXT(instance, _debug_report_context, nullptr);
+    }
     if (vkDestroyInstance && instance != VK_NULL_HANDLE) {
       vkDestroyInstance(instance, nullptr);
     }
@@ -64,8 +67,12 @@ struct vulkan_context : public memory::intrusive_ptr_base {
   PFN_vkGetPhysicalDeviceFormatProperties vkGetPhysicalDeviceFormatProperties;
   PFN_vkEnumerateDeviceExtensionProperties vkEnumerateDeviceExtensionProperties;
 
+  PFN_vkCreateDebugReportCallbackEXT vkCreateDebugReportCallbackEXT;
+  PFN_vkDestroyDebugReportCallbackEXT vkDestroyDebugReportCallbackEXT;
+
   library_type library;
 
+  VkDebugReportCallbackEXT _debug_report_context = VK_NULL_HANDLE;
   // TODO(awoloszyn): Fill this out as we need more functions.
   // TODO(awoloszyn): Add allocators to vulkan.
 };

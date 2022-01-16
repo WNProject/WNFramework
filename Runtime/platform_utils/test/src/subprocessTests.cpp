@@ -5,12 +5,9 @@
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNApplicationTest/inc/WNTestHarness.h"
 #include "WNMultiTasking/inc/job_pool.h"
-#include "WNMultiTasking/inc/job_signal.h"
 #include "platform_utils/inc/subprocess.h"
 
 TEST(subprocess, basic) {
-  wn::multi_tasking::job_signal signal(0);
-
 #ifdef _WN_WINDOWS
   const char* file = "C:\\Windows\\System32\\cmd.exe";
   wn::containers::string_view views[] = {{"/c"}, {"echo"}, {"Hello World"}};
@@ -29,8 +26,6 @@ TEST(subprocess, basic) {
 }
 
 TEST(subprocess, input) {
-  wn::multi_tasking::job_signal signal(0);
-
 #ifdef _WN_WINDOWS
   const char* file = "C:\\Windows\\System32\\cmd.exe";
   wn::containers::string_view input("echo Hello World\n");

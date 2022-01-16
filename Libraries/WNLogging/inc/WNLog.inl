@@ -12,13 +12,22 @@ namespace wn {
 namespace logging {
 
 template <log_level MAX_LOG_LEVEL>
-inline void log_impl<MAX_LOG_LEVEL>::flush() {
+inline void log_impl<MAX_LOG_LEVEL>::flush_internal() {
   if (m_buffer_size != m_buffer_left) {
     m_logger->flush_buffer(m_log_buffer, m_buffer_size - m_buffer_left,
         m_color_elements, m_num_color_elements);
     m_num_color_elements = 0;
     m_buffer_left = m_buffer_size;
   }
+}
+
+template <log_level MAX_LOG_LEVEL>
+inline void log_impl<MAX_LOG_LEVEL>::flush() {
+  while (m_flag.test_and_set()) {
+    //
+  }
+  flush_internal();
+  m_flag.clear();
 }
 
 template <log_level MAX_LOG_LEVEL>
@@ -54,17 +63,20 @@ inline void log_impl<MAX_LOG_LEVEL>::log_params(
       static_cast<size_t>(_level) > static_cast<size_t>(m_current_log_level)) {
     return;
   }
+  while (m_flag.test_and_set()) {
+    //
+  }
   if ((_flags & static_cast<size_t>(log_flags::no_header)) == 0) {
     log_header(_level);
   }
   do_log_log(args...);
-
   if ((_flags & static_cast<size_t>(log_flags::no_newline)) == 0) {
     log_newline();
   }
   if (m_flush_after_message) {
-    flush();
+    flush_internal();
   }
+  m_flag.clear();
 }
 
 template <log_level MAX_LOG_LEVEL>
@@ -72,7 +84,7 @@ template <typename T0>
 inline void log_impl<MAX_LOG_LEVEL>::log_param(const T0& _val) {
   if (!log_type(_val, m_log_buffer + (m_buffer_size - m_buffer_left),
           m_buffer_left)) {
-    flush();
+    flush_internal();
     log_type(
         _val, m_log_buffer + (m_buffer_size - m_buffer_left), m_buffer_left);
   }

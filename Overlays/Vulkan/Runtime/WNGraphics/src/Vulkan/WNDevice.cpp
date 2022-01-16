@@ -59,10 +59,12 @@ static const VkCommandPoolCreateInfo s_command_pool_create{
 using vulkan_command_list_constructable = vulkan_command_list;
 using vulkan_queue_constructable = vulkan_queue;
 using vulkan_swapchain_constructable = vulkan_swapchain;
+using vulkan_queue_profiler_constructable = vulkan_queue_profiler;
 #else
 using vulkan_command_list_constructable = command_list;
 using vulkan_queue_constructable = queue;
 using vulkan_swapchain_constructable = swapchain;
+using vulkan_queue_profiler_constructable = queue_profiler;
 #endif
 
 }  // anonymous namespace
@@ -1253,13 +1255,13 @@ void vulkan_device::initialize_render_pass(render_pass* _pass,
     }
 
     subpasses[i] = {
-        0,                                       // flags
-        VK_PIPELINE_BIND_POINT_GRAPHICS,         // pipelineBindPoint
-        static_cast<uint32_t>(inputs.size()),    // inputAttachmentCount
-        inputs.data(),                           // pInputAttachmentCount
-        static_cast<uint32_t>(colors.size()),    // colorAttachmentCount
-        colors.data(),                           // pColorAttachments
-        resolves.data(),                         // pResolveAttachments
+        0,                                            // flags
+        VK_PIPELINE_BIND_POINT_GRAPHICS,              // pipelineBindPoint
+        static_cast<uint32_t>(inputs.size()),         // inputAttachmentCount
+        inputs.size() ? inputs.data() : nullptr,      // pInputAttachmentCount
+        static_cast<uint32_t>(colors.size()),         // colorAttachmentCount
+        colors.size() ? colors.data() : nullptr,      // pColorAttachments
+        resolves.size() ? resolves.data() : nullptr,  // pResolveAttachments
         depth_ref,                               // pDepthStencilAttachments
         static_cast<uint32_t>(preserve.size()),  // preserveAttachmentCount
         preserve.data()                          // pPreserveAttachments
@@ -1451,18 +1453,30 @@ bool vulkan_device::setup_arena_properties() {
     size_t heap_bit = static_cast<size_t>(1) << i;
     const VkMemoryType& current_memory_types =
         m_physical_device_memory_properties->memoryTypes[i];
-    const VkMemoryPropertyFlags& property_flags =
-        current_memory_types.propertyFlags;
-    uint32_t valid_bits = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT |
-                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                          VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
-                          VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+    VkMemoryPropertyFlags property_flags = current_memory_types.propertyFlags;
+    const uint32_t valid_bits = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT |
+                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
+                                VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
     if ((property_flags & valid_bits) != property_flags) {
       // This memory has some flags that we don't really want.
       // E.g. Protected, lazily allocated.
       // If we want to support those types, we must do so
       // explicitly.
       continue;
+    }
+
+    const uint32_t heap_flags =
+        m_physical_device_memory_properties
+            ->memoryHeaps[current_memory_types.heapIndex]
+            .flags;
+    // Super ugly. APPARENTLY you can have a heap that is multi-instance.
+    //  HOWEVER because its multi-instance, you cannot actually map from it.
+    //  BUT even so, it will return that the memory is host-visible.
+    //  even though there is no way to actually view that memory from host :).
+    //  So we treat all multi-instance memory as non-host-visible.
+    if (heap_flags & VK_MEMORY_HEAP_MULTI_INSTANCE_BIT) {
+      property_flags &= ~VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
     }
 
     const bool allows_image_and_render_targets =
@@ -2022,7 +2036,8 @@ queue_profiler_ptr vulkan_device::create_queue_profiler(
 #ifdef TRACY_ENABLE
   vulkan_queue* queue = reinterpret_cast<vulkan_queue*>(_queue);
 
-  auto profiler = memory::make_unique<vulkan_queue_profiler>(m_allocator);
+  auto profiler =
+      memory::make_unique<vulkan_queue_profiler_constructable>(m_allocator);
   profiler->initialize(m_allocator, _name, this, queue, m_timestamp_period,
       &m_queue_profiler_context);
   return profiler;
