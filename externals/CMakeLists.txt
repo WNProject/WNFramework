@@ -156,7 +156,6 @@ if(WN_ENABLE_TRACY)
   set(TRACY_OPTIONS TRACY_ENABLE)
 endif()
 
-
 add_wn_library(
   tracy_client
   SOURCES
@@ -168,7 +167,6 @@ add_wn_library(
   COMPILE_OPTIONS
     -DENABLE_PRELOAD
     -DTRACY_TIMER_FALLBACK
-    
 )
 
 add_wn_externals(
