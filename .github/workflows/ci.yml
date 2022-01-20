@@ -154,7 +154,6 @@ jobs:
             'llvm:llvm-project/llvm'
           )
           manual_overrides=(
-            'xxhash:c4d6fd586b63b3e25a4ed28a23210791db46df98:only using xxhash'
             'antlr3:9a0008a487843ac42b0ffcaf4b6de998f1869094:no single file'
           )
           sanitized_externals=()
