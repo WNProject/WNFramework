@@ -7,7 +7,13 @@ add_compile_options(-Wno-stringop-truncation)
 add_compile_options(-Wno-unused-function)
 add_compile_options(-Wno-unused-variable)
 add_compile_options(-Wno-strict-aliasing)
+add_compile_options(-Wno-nonnull)
 add_compile_options(-Wno-nonnull-compare)
+
+if(WN_LOW_RESOURCE_MODE)
+  add_link_options($<$<CONFIG:Debug>:-Wl,--reduce-memory-overheads>)
+  add_link_options($<$<CONFIG:Debug>:-Wl,--no-keep-memory>)
+endif()
 
 if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 9)
   add_compile_options(-Wno-error=maybe-uninitialized)
