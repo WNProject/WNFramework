@@ -142,7 +142,7 @@ jobs:
           submodules: true
       - name: Check external licenses
         run: |
-          externals='${{needs.analyze-changes.outputs.changes-externals}}'
+          externals="${{needs.analyze-changes.outputs.changes-externals}}"
           externals=${externals//'\0'/$'\n'}
           ignore_list=(
             librocket
@@ -154,7 +154,6 @@ jobs:
             'llvm:llvm-project/llvm'
           )
           manual_overrides=(
-            'xxhash:c4d6fd586b63b3e25a4ed28a23210791db46df98:only using xxhash'
             'antlr3:9a0008a487843ac42b0ffcaf4b6de998f1869094:no single file'
           )
           sanitized_externals=()
@@ -224,7 +223,7 @@ jobs:
             if [ -z "$original_hash" ]; then
               original_license=$(
                 find ./externals/$path -maxdepth 1 -mindepth 1 \
-                -type f -iname 'LICENSE*'
+                -type f -iregex '^\.\/externals\/.+\/license\(\..+\)?$'
               )
               if [ -z "$original_license" ]; then
                 echo "$external: (original not found)"

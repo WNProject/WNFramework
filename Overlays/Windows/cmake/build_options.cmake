@@ -93,6 +93,10 @@ add_compile_options(/D_SILENCE_CXX17_IS_LITERAL_TYPE_DEPRECATION_WARNING)
 add_compile_options(/D_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING)
 add_compile_options(/D_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING)
 
+# Disable use of windows.h min/max macros
+add_compile_options(/DNOMINMAX)
+
+# Define platform
 add_compile_options(/D_WN_WINDOWS)
 
 # Linker options

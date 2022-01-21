@@ -1,13 +1,13 @@
 [submodule "googletest"]
 	path = externals/googletest
 	url = https://github.com/google/googletest
-	branch = master
+	branch = main
 	ignore = dirty
 	shallow = true
 [submodule "re2"]
 	path = externals/re2
 	url = https://github.com/google/re2
-	branch = master
+	branch = main
 	ignore = dirty
 	shallow = true
 [submodule "effcee"]
@@ -19,7 +19,7 @@
 [submodule "vulkan-headers"]
 	path = externals/vulkan-headers
 	url = https://github.com/KhronosGroup/Vulkan-Headers
-	branch = master
+	branch = main
 	ignore = dirty
 	shallow = true
 [submodule "llvm-project"]
@@ -58,6 +58,9 @@
 	branch = master
 	ignore = dirty
 	shallow = true
-[submodule "externals/marl"]
+[submodule "marl"]
 	path = externals/marl
 	url = https://github.com/google/marl
+	branch = main
+	ignore = dirty
+	shallow = true
