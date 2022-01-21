@@ -23,8 +23,8 @@ struct exported_script_type<support::string> {
 namespace support {
 
 scripting::shared_cpp_pointer<string> make_string(const char* _re) {
-  return scripting::g_scripting_tls->_engine->make_shared_cpp<string>(
-      _re, scripting::g_scripting_tls->_support_allocator);
+  return scripting::get_scripting_tls()->_engine->make_shared_cpp<string>(
+      _re, scripting::get_scripting_tls()->_support_allocator);
 }
 
 void string::register_scripting(
