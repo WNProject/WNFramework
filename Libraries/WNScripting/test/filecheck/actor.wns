@@ -1,0 +1,13 @@
+class X {
+  
+}
+
+Actor Foo {
+  @synchronized Int x = 4;
+  Int y = 3;
+}
+
+Int main() {
+  Foo f = Foo();
+  return f.x;
+}

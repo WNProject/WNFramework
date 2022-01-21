@@ -198,6 +198,10 @@ SHARED_REF:   'shared';
 DEFAULT: 'default';
 NULLTOK: 'null';
 
+SYNCHRONIZED: '@synchronized';
+ACTOR: 'Actor';
+
+
 BOOL :  'true' | 'false';
 
 ID  :    ('a'..'z') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
@@ -813,21 +817,24 @@ structDecl returns[scripting::struct_definition* node]
             RBRACE  { SET_END_LOCATION(node, $RBRACE); }
     ;
 
-
 classDecl returns[scripting::struct_definition* node]
 @init {
     node = nullptr;
 }
     :
         (
-            (f=CLASS c=TYPE {node= m_allocator->construct<scripting::struct_definition>(m_allocator, $c.text.c_str(), true); SET_LOCATION(node, $f); })
-          | (g=CLASS d=TYPE COLON e=TYPE {node= m_allocator->construct<scripting::struct_definition>(m_allocator, $d.text.c_str(), true, $e.text.c_str()); SET_LOCATION(node, $g); })
+            (ff=ACTOR cc=TYPE {node=m_allocator->construct<scripting::struct_definition>(m_allocator, $cc.text.c_str(), true); node->set_synchronized(true); SET_LOCATION(node, $ff); })
+          | (gg=ACTOR dd=TYPE COLON ee=TYPE {node=m_allocator->construct<scripting::struct_definition>(m_allocator, $dd.text.c_str(), true, $ee.text.c_str());  node->set_synchronized(true); SET_LOCATION(node, $gg); })
+          | (f=CLASS c=TYPE {node=m_allocator->construct<scripting::struct_definition>(m_allocator, $c.text.c_str(), true); SET_LOCATION(node, $f); })
+          | (g=CLASS d=TYPE COLON e=TYPE {node=m_allocator->construct<scripting::struct_definition>(m_allocator, $d.text.c_str(), true, $e.text.c_str()); SET_LOCATION(node, $g); })
         )
             (parameterList { node->set_constructor_parameters($parameterList.node); })?
             LBRACE
                 (
                     (a=declaration { node->add_struct_elem($a.node);} SEMICOLON)
+                  | (SYNCHRONIZED aa=declaration { node->add_struct_elem($aa.node, true);} SEMICOLON) 
                   | (j=inherited_declaration { node->add_struct_elem($j.node);} SEMICOLON)
+                  | (SYNCHRONIZED jj=inherited_declaration { node->add_struct_elem($j.node, true);} SEMICOLON)
                   | (b=function    { node->add_function($b.node); })
                   | (VIRTUAL h=function { node->add_function($h.node); $h.node->set_is_virtual(true); })
                   | (OVERRIDE i=function { node->add_function($i.node); $i.node->set_is_override(true); })

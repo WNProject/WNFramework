@@ -38,9 +38,11 @@
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Verifier.h>
 #include <llvm/Support/TargetSelect.h>
+#include <llvm/Transforms/IPO.h>
 #include <llvm/Transforms/InstCombine/InstCombine.h>
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Scalar/GVN.h>
+#include <llvm/Transforms/Utils.h>
 
 #ifdef _MSC_VER
 #undef PRIi64
@@ -411,20 +413,29 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
     PROFILE_REGION(JitCompile);
     compiler.compile(parsed_file.get());
   }
-  // TODO: figure out what optimizations to run eventually
-  // auto FPM =
-  //     llvm::make_unique<llvm::legacy::FunctionPassManager>(module.m_module);
+
+  // auto MPM = llvm::legacy::PassManager();
+  // MPM.add(llvm::createFunctionInliningPass());
+  // MPM.run(*module.m_module);
+  ////MPM.run(*module.m_module);
   //
-  // // Add some optimizations.
+  //// TODO: figure out what optimizations to run eventually
+  // auto FPM =
+  //     memory::make_unique<llvm::legacy::FunctionPassManager>(m_allocator,
+  //     module.m_module);
+  //// Add some optimizations.
   // FPM->add(llvm::createPromoteMemoryToRegisterPass());
   // FPM->add(llvm::createInstructionCombiningPass());
   // FPM->add(llvm::createReassociatePass());
   // FPM->add(llvm::createConstantPropagationPass());
   // FPM->add(llvm::createGVNPass());
   // FPM->add(llvm::createCFGSimplificationPass());
+  // FPM->add(llvm::createDeadStoreEliminationPass());
+  // FPM->add(llvm::createDeadInstEliminationPass());
+  //
   // FPM->doInitialization();
   // for (auto& F : *module.m_module)
-  //   FPM->run(F);
+  //  FPM->run(F);
 
   // Uncomment to get debug information about the module out.
   // It is not really needed, but a good place to debug.

@@ -1589,6 +1589,7 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
   bool cleanup_after_statement = false;
   bool mark_success = false;
   bool is_inserted_into_array = false;
+  bool is_synchronized_init = false;
   if (!assigned_declaration) {
     cleanup_after_statement = true;
     temp_decl = make_temp_declaration(_alloc, get_next_temporary_name(), t);
@@ -1602,6 +1603,11 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
   } else {
     is_inserted_into_array = assigned_declaration->m_node_type ==
                              ast_node_type::ast_array_access_expression;
+    if (assigned_declaration->m_node_type == ast_node_type::ast_id) {
+      is_synchronized_init = cast_to<ast_id>(assigned_declaration.get())
+                                 ->m_declaration->m_is_synchronized;
+    }
+
     declared_target = core::move(assigned_declaration);
     mark_success = true;
   }
@@ -1703,7 +1709,7 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
   m_current_statements->push_back(core::move(assign));
 
   // Handle the cleanup of this ref
-  if (!is_inserted_into_array) {
+  if (!is_inserted_into_array && !is_synchronized_init) {
     memory::unique_ptr<ast_function_call_expression> destructor_call =
         memory::make_unique<ast_function_call_expression>(m_allocator, _alloc);
     destructor_call->m_function =
@@ -1777,6 +1783,23 @@ parse_ast_convertor::convertor_context::resolve_member_access_expression(
     member->m_type = struct_type->m_structure_members[child_pos]->m_type;
     return member;
   }
+
+  child_pos = 0;
+  for (auto& sp : struct_type->m_synchronized_declarations) {
+    if (sp->m_name == member->m_member_name) {
+      break;
+    }
+    child_pos++;
+  }
+  // If we found a synchronized member with this name use it.
+  if (child_pos != struct_type->m_synchronized_declarations.size()) {
+    member->m_member_offset = child_pos;
+    member->m_type =
+        struct_type->m_synchronized_declarations[child_pos]->m_type;
+    member->m_is_synchronized = true;
+    return member;
+  }
+
   // Try to find a member function with this name instead.
   for (auto it : struct_type->m_member_functions) {
     if (it->m_name == member->m_member_name) {

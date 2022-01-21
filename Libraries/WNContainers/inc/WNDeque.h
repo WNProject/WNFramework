@@ -575,7 +575,7 @@ public:
 
       remove_back(_count);
 
-      return (copy_from);
+      return (pos);
     }
   }
   iterator erase(const_iterator _first, const_iterator _last) {

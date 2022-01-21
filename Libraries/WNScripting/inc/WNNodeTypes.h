@@ -1699,7 +1699,8 @@ public:
   declaration(memory::allocator* _allocator)
     : instruction(_allocator, node_type::declaration),
       m_is_default_initialization(false),
-      m_is_inherited(false) {}
+      m_is_inherited(false),
+      m_is_synchronized(false) {}
   void set_parameter(parameter* _parameter) {
     m_parameter = memory::unique_ptr<parameter>(m_allocator, _parameter);
   }
@@ -1756,7 +1757,16 @@ public:
     t->m_expression = clone_node(_allocator, m_expression.get());
     t->m_is_default_initialization = m_is_default_initialization;
     t->m_is_inherited = m_is_inherited;
+    t->m_is_synchronized = m_is_synchronized;
     return t;
+  }
+
+  void set_synchronized(bool synchronized) {
+    m_is_synchronized = synchronized;
+  }
+
+  bool is_synchronized() const {
+    return m_is_synchronized;
   }
 
 private:
@@ -1764,6 +1774,7 @@ private:
   memory::unique_ptr<expression> m_expression;
   bool m_is_default_initialization;
   bool m_is_inherited;
+  bool m_is_synchronized;
 };
 
 class function;
@@ -1821,6 +1832,7 @@ public:
       m_name(_allocator, _name),
       m_parent_name(_allocator),
       m_is_class(_is_class),
+      m_is_synchronized(false),
       m_struct_members(_allocator),
       m_struct_functions(_allocator) {
     if (_parent_type) {
@@ -1833,9 +1845,35 @@ public:
       m_struct_members(_allocator),
       m_struct_functions(_allocator) {}
 
-  void add_struct_elem(declaration* _decl) {
-    m_struct_members.emplace_back(
-        memory::unique_ptr<declaration>(m_allocator, _decl));
+  void set_synchronized(bool synchronized) {
+    m_is_synchronized = synchronized;
+  }
+
+  bool is_synchronized() const {
+    return m_is_synchronized;
+  }
+
+  void add_struct_elem(
+      memory::unique_ptr<declaration> _decl, bool synchronized = false) {
+    _decl->set_synchronized(synchronized);
+    m_struct_members.emplace_back(core::move(_decl));
+  }
+
+  void override_struct_elem(
+      memory::unique_ptr<declaration> _decl, bool synchronized = false) {
+    _decl->set_synchronized(synchronized);
+    for (auto& sm : m_struct_members) {
+      if (sm->get_name() == _decl->get_name()) {
+        sm = core::move(_decl);
+        return;
+      }
+    }
+    m_struct_members.emplace_back(core::move(_decl));
+  }
+
+  void add_struct_elem(declaration* _decl, bool synchronized = false) {
+    add_struct_elem(
+        memory::unique_ptr<declaration>(m_allocator, _decl), synchronized);
   }
 
   void add_function(function* _func) {
@@ -1893,6 +1931,7 @@ public:
         containers::deque<memory::unique_ptr<declaration>>(_allocator);
     t->m_struct_functions =
         containers::deque<memory::unique_ptr<function>>(_allocator);
+    t->m_is_synchronized = m_is_synchronized;
     for (auto& m : m_struct_members) {
       t->m_struct_members.push_back(clone_node(_allocator, m.get()));
     }
@@ -1908,6 +1947,7 @@ private:
   containers::string m_name;
   containers::string m_parent_name;
   bool m_is_class;
+  bool m_is_synchronized;
   containers::deque<memory::unique_ptr<declaration>> m_struct_members;
   containers::deque<memory::unique_ptr<function>> m_struct_functions;
   memory::unique_ptr<parameter_list> m_constructor_parameters;
