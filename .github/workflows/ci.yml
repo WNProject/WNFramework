@@ -343,6 +343,10 @@ jobs:
           - Debug
           - Release
     steps:
+      - name: Add swap space
+        uses: pierotofy/set-swap-space@v1.0
+        with:
+          swap-size-gb: 1
       - name: Set up build environment
         run: mkdir build
       - name: Checkout
