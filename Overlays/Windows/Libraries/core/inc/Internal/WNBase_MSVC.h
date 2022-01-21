@@ -18,7 +18,6 @@
 #define _WN_MSVC_BUILD (_MSC_FULL_VER % 100000)
 
 #if defined _WIN32 || defined _WIN64
-#define NOMINMAX
 
 // clang-format off
 
