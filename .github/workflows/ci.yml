@@ -31,7 +31,7 @@ jobs:
         id: analysis
         shell: bash
         run: |
-          if [ ${{github.ref}} == refs/heads/master ]; then
+          if [ "$GITHUB_REF" == 'refs/heads/master' ]; then
             build=true
             check_licenses=true
             format_check_c_cpp=true
@@ -144,7 +144,7 @@ jobs:
           submodules: true
       - name: Check external licenses
         run: |
-          externals="${{needs.analyze-changes.outputs.changes-externals}}"
+          externals='${{needs.analyze-changes.outputs.changes-externals}}'
           externals=${externals//'\0'/$'\n'}
           ignore_list=(
             librocket
@@ -260,7 +260,7 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Check formatting
         run: >
-          echo -n "${{needs.analyze-changes.outputs.changes-c-cpp}}" |
+          echo -n '${{needs.analyze-changes.outputs.changes-c-cpp}}' |
           xargs -0 clang-format --dry-run --Werror
   check-formatting-md:
     name: Check formatting (Markdown)
@@ -274,7 +274,7 @@ jobs:
         uses: actions/checkout@v2.4.0
       - name: Check formatting
         run: >
-          echo -n "${{needs.analyze-changes.outputs.changes-md}}" |
+          echo -n '${{needs.analyze-changes.outputs.changes-md}}' |
           xargs -0 markdownlint
   build-android:
     name: Build Android
