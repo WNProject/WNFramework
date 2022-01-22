@@ -1,21 +1,26 @@
 version: 2
 updates:
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: weekly
-    rebase-strategy: auto
-    labels:
-      - auto
-      - dependencies
   - package-ecosystem: gitsubmodule
     directory: /
     schedule:
       interval: weekly
+      day: monday
+      time: '04:00'
+      timezone: America/Toronto
     rebase-strategy: auto
     labels:
       - auto
       - dependencies
-    allow:
-      - dependency-name: '*googletest'
-      - dependency-name: '*xxhash'
+      - submodules
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '04:00'
+      timezone: America/Toronto
+    rebase-strategy: auto
+    labels:
+      - auto
+      - dependencies
+      - github-actions
