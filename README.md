@@ -21,20 +21,20 @@ for that host.
 
 The following packages are required.
 
-* gcc
-* g++
-* git
-* clang
-* cmake
-* ninja-build
-* python3
-* libx11-xcb-dev
-* libxcb-keysyms1-dev
+* **gcc** (currently only `gcc-9`, `gcc-10` and `gcc-11` are supported)
+* **g++** (currently only `g++-9`, `g++-10` and `g++-11` are supported)
+* **git**
+* **clang** (currently only `clang-10`, `clang-11` and `clang-12` are supported)
+* **cmake** (minimum of **CMake 3.16** required)
+* **ninja-build**
+* **python3**
+* **libx11-xcb-dev**
+* **libxcb-keysyms1-dev**
 
 If you want to use **Unix Makefiles** as a generator you will also need the
 following.
 
-* make
+* **make**
 
 ### Configuration
 
@@ -55,10 +55,10 @@ cmake \
 Note that `Ninja` is the only offically supported generator for **Linux**. If
 `CMAKE_C_COMPILER` and `CMAKE_CXX_COMPILE` are omitted **CMake** will configure
 against the default system configured compilers. You can also specify specific
-versions of `gcc` or `clang` (`gcc-9.0`, `clang++-10.0`, etc.) if you have more
+versions of `gcc` or `clang` (`gcc-10.0`, `clang++-11.0`, etc.) if you have more
 then a single version installed and want to target a certain version. Currently
-only `gcc/g++` **9** and **10** are supported along with `clang` **9** and
-**10**.
+only `gcc/g++` **9**, **10** and **11** are supported along with `clang` **10**,
+**11** and **12**.
 
 #### Windows
 
