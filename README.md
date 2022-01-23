@@ -25,7 +25,7 @@ The following packages are required.
 * **g++** (currently only `g++-9`, `g++-10` and `g++-11` are supported)
 * **git**
 * **clang** (currently only `clang-10`, `clang-11` and `clang-12` are supported)
-* **cmake** (minimum of **CMake 3.16** required)
+* **cmake** (minimum of **CMake 3.16.3** required)
 * **ninja-build**
 * **python3**
 * **libx11-xcb-dev**
