@@ -275,7 +275,7 @@ inline T& fixup_return_type(T& _i) {
 template <typename T>
 inline script_pointer<T>& fixup_return_type(script_pointer<T>& t) {
   t.unsafe_set_type(reinterpret_cast<T*>(
-      (*g_scripting_tls->_object_types)[core::type_id<T>::value()].get()));
+      (*get_scripting_tls()->_object_types)[core::type_id<T>::value()].get()));
   return t;
 }
 
@@ -283,13 +283,13 @@ template <typename T>
 inline shared_script_pointer<T>& fixup_return_type(
     shared_script_pointer<T>& t) {
   t.unsafe_set_type(reinterpret_cast<T*>(
-      (*g_scripting_tls->_object_types)[core::type_id<T>::value()].get()));
+      (*get_scripting_tls()->_object_types)[core::type_id<T>::value()].get()));
   return t;
 }
 
 template <typename T>
 inline shared_cpp_pointer<T>& fixup_return_type(shared_cpp_pointer<T>& t) {
-  t.unsafe_set_engine_free(g_scripting_tls->_engine, &do_engine_free);
+  t.unsafe_set_engine_free(get_scripting_tls()->_engine, &do_engine_free);
   return t;
 }
 
@@ -297,7 +297,7 @@ template <typename T>
 inline wn_array<script_pointer<T>>& fixup_return_type(
     wn_array<script_pointer<T>>& t) {
   t.unsafe_set_type(reinterpret_cast<T*>(
-      (*g_scripting_tls->_object_types)[core::type_id<T>::value()].get()));
+      (*get_scripting_tls()->_object_types)[core::type_id<T>::value()].get()));
   return t;
 }
 
@@ -305,7 +305,7 @@ template <typename T>
 inline wn_array<shared_script_pointer<T>>& fixup_return_type(
     wn_array<shared_script_pointer<T>>& t) {
   t.unsafe_set_type(reinterpret_cast<T*>(
-      (*g_scripting_tls->_object_types)[core::type_id<T>::value()].get()));
+      (*get_scripting_tls()->_object_types)[core::type_id<T>::value()].get()));
   return t;
 }
 

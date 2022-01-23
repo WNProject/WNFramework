@@ -48,8 +48,6 @@ public:
       file_system::mapping* _output_mapping, logging::log* _log);
 };
 
-extern thread_local const scripting_tls_data* g_scripting_tls;
-
 }  // namespace scripting
 }  // namespace wn
 
