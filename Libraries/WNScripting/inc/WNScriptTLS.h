@@ -22,22 +22,23 @@ struct scripting_tls_data final {
   logging::log* _log;
   memory::allocator* _support_allocator;
 };
+const scripting_tls_data*& get_scripting_tls();
 
 extern thread_local const scripting_tls_data* g_scripting_tls;
 
 class tls_resetter final {
 public:
   tls_resetter() {
-    m_data = g_scripting_tls;
+    m_data = get_scripting_tls();
   }
 
   tls_resetter(const scripting_tls_data* _tls_data) {
-    m_data = g_scripting_tls;
-    g_scripting_tls = _tls_data;
+    m_data = get_scripting_tls();
+    get_scripting_tls() = _tls_data;
   }
 
   ~tls_resetter() {
-    g_scripting_tls = m_data;
+    get_scripting_tls() = m_data;
   }
 
 private:

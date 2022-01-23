@@ -47,5 +47,9 @@ void do_engine_free(const engine* _engine, void* v) {
 
 thread_local const scripting_tls_data* g_scripting_tls = nullptr;
 
+const scripting_tls_data*& get_scripting_tls() {
+  return g_scripting_tls;
+}
+
 }  // namespace scripting
 }  // namespace wn
