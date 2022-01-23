@@ -123,6 +123,7 @@ struct member_maker {
   template <R (*fn)(Args...)>
   static typename get_thunk_passed_type<R>::ret_type member_thunk(
       typename get_thunk_passed_type<Args>::type... args) {
+    tls_resetter reset;
     auto r = (*fn)(get_thunk_passed_type<Args>::unwrap(args)...);
     return get_thunk_passed_type<R>::wrap(r);
   }
@@ -131,6 +132,7 @@ struct member_maker {
   static void return_member_thunk(
       typename get_thunk_passed_type<Args>::type... args,
       typename get_thunk_passed_type<R>::ret_type* _ret) {
+    tls_resetter reset;
     auto r = (*fn)(get_thunk_passed_type<Args>::unwrap(args)...);
     *_ret = get_thunk_passed_type<R>::wrap(r);
   }
@@ -141,12 +143,14 @@ struct member_maker<void, Args...> {
   static const bool is_ret_by_ref = false;
   template <void (*fn)(Args...)>
   static void member_thunk(typename get_thunk_passed_type<Args>::type... args) {
+    tls_resetter reset;
     return (*fn)(get_thunk_passed_type<Args>::unwrap(args)...);
   }
 
   template <void (*fn)(Args...)>
   static void return_member_thunk(
       typename get_thunk_passed_type<Args>::type... args) {
+    tls_resetter reset;
     (*fn)(get_thunk_passed_type<Args>::unwrap(args)...);
   }
 };
