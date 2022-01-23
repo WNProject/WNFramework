@@ -5,6 +5,7 @@ on:
     paths: .github/workflows/update-license.yml
   schedule:
     - cron: '0 0 1 1 *'
+  workflow_dispatch:
 env:
   BRANCH: auto/update-license
   REGEX: '^(((\/\/|#) )?Copyright \(c\) )[0-9]{4}(, WNProject Authors(\. All rights reserved.)?)$'
@@ -24,27 +25,23 @@ jobs:
           git checkout $BRANCH || git checkout -b $BRANCH
       - name: Update license
         run: >
-          find . -type f -not -path './.git/*' -and \( -iname '*.h' -or
-          -iname '*.c' -or -iname '*.cpp' -or -iname '*.inl' -or
-          -iname '*.h.in' -or -iname '*.s' -or -iname '*.py' -or
-          -iname '*.wns' -or -iname 'LICENSE' \)
+          find . -type f -not -path './.git/*' -and
+          -iregex '.*\(\.\(h\|c\|cpp\|inl\|h\.in\|s\|py\|wns\)\|LICENSE\)'
           -exec sed -i -E "s/$REGEX/\1${{steps.year.outputs.value}}\4/" {} \;
       - name: Check for changes
         id: changes
-        run: git diff --exit-code || echo "::set-output name=exist::true"
+        run: git diff --exit-code || echo '::set-output name=exist::true'
       - name: Create commit
         if: steps.changes.outputs.exist
         run: |
           git reset --hard origin/master
-          find . -type f -not -path './.git/*' -and \( \
-            -iname '*.h' -or -iname '*.c' -or -iname '*.cpp' -or \
-            -iname '*.inl' -or -iname '*.h.in' -or -iname '*.s' -or \
-            -iname '*.py' -or -iname '*.wns' -or -iname 'LICENSE' \
-          \) -exec sed -i -E "s/$REGEX/\1${{steps.year.outputs.value}}\4/" {} \;
+          find . -type f -not -path './.git/*' -and \
+          -iregex '.*\(\.\(h\|c\|cpp\|inl\|h\.in\|s\|py\|wns\)\|LICENSE\)' \
+          -exec sed -i -E "s/$REGEX/\1${{steps.year.outputs.value}}\4/" {} \;
           git config user.name $COMMIT_USERNAME
           git config user.email $COMMIT_EMAIL
           git add -u
-          git commit -m "Update license year to ${{steps.year.outputs.value}}"
+          git commit -m 'Update license year to ${{steps.year.outputs.value}}'
           git push --force origin $BRANCH
         env:
           COMMIT_USERNAME: ${{secrets.UPDATE_LICENSE_USER}}
