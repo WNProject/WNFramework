@@ -49,42 +49,42 @@ namespace support {
 scripting::shared_cpp_pointer<subprocess> make_subprocess(
     engine_base::context* _context, const char* _program,
     scripting::slice<const char*> _args) {
-  return scripting::g_scripting_tls->_engine->make_shared_cpp<subprocess>(
-      scripting::g_scripting_tls->_support_allocator, _context, _program,
+  return scripting::get_scripting_tls()->_engine->make_shared_cpp<subprocess>(
+      scripting::get_scripting_tls()->_support_allocator, _context, _program,
       _args);
 }
 
 scripting::shared_cpp_pointer<subprocess> make_subprocess2(
     engine_base::context* _context, const char* _program) {
-  return scripting::g_scripting_tls->_engine->make_shared_cpp<subprocess>(
-      scripting::g_scripting_tls->_support_allocator, _context, _program,
+  return scripting::get_scripting_tls()->_engine->make_shared_cpp<subprocess>(
+      scripting::get_scripting_tls()->_support_allocator, _context, _program,
       scripting::slice<const char*>());
 }
 
 scripting::shared_cpp_pointer<subprocess> make_subprocess3(
     engine_base::context* _context, const char* _program,
     scripting::shared_cpp_pointer<subprocess_args> _args) {
-  return scripting::g_scripting_tls->_engine->make_shared_cpp<subprocess>(
-      scripting::g_scripting_tls->_support_allocator, _context, _program,
+  return scripting::get_scripting_tls()->_engine->make_shared_cpp<subprocess>(
+      scripting::get_scripting_tls()->_support_allocator, _context, _program,
       _args.get());
 }
 
 scripting::shared_cpp_pointer<subprocess_args> make_subprocess_args(
     engine_base::context* _context) {
-  return scripting::g_scripting_tls->_engine->make_shared_cpp<subprocess_args>(
-      _context);
+  return scripting::get_scripting_tls()
+      ->_engine->make_shared_cpp<subprocess_args>(_context);
 }
 
 int32_t call_subprocess(
     const char* _program, scripting::slice<const char*> _args) {
   containers::dynamic_array<containers::string_view> arr(
-      scripting::g_scripting_tls->_support_allocator);
+      scripting::get_scripting_tls()->_support_allocator);
   for (auto& sv : _args) {
     arr.push_back(sv);
   }
   runtime::platform_utils::subprocess_return ret =
       runtime::platform_utils::call_subprocess(
-          scripting::g_scripting_tls->_support_allocator,
+          scripting::get_scripting_tls()->_support_allocator,
           containers::string_view(_program),
           containers::contiguous_range<containers::string_view>(arr));
   return runtime::platform_utils::subprocess_error::ok == ret.err
@@ -117,17 +117,17 @@ subprocess::subprocess(memory::allocator* _allocator,
     const subprocess_args* _args)
   : m_signal(_context->m_application_data->default_job_pool->get_signal()) {
   containers::dynamic_array<containers::string> args(
-      scripting::g_scripting_tls->_support_allocator);
+      scripting::get_scripting_tls()->_support_allocator);
   for (const auto& sv : _args->args) {
     args.push_back(containers::string(_allocator, sv));
   }
 
   containers::string prog(_allocator, _program);
-  auto tls = scripting::g_scripting_tls;
+  auto tls = scripting::get_scripting_tls();
   _context->m_application_data->default_job_pool->call_blocking_function(
       JOB_NAME,
       functional::function<void()>(
-          scripting::g_scripting_tls->_support_allocator,
+          scripting::get_scripting_tls()->_support_allocator,
           [this, tls, prog{core::move(prog)}, args{core::move(args)}]() {
             containers::dynamic_array<containers::string_view> arr(
                 tls->_support_allocator);
@@ -146,16 +146,16 @@ subprocess::subprocess(memory::allocator* _allocator,
     const scripting::slice<const char*> _args)
   : m_signal(_context->m_application_data->default_job_pool->get_signal()) {
   containers::dynamic_array<containers::string> args(
-      scripting::g_scripting_tls->_support_allocator);
+      scripting::get_scripting_tls()->_support_allocator);
   for (const auto& sv : _args) {
     args.push_back(containers::string(_allocator, sv));
   }
   containers::string prog(_allocator, _program);
-  auto tls = scripting::g_scripting_tls;
+  auto tls = scripting::get_scripting_tls();
   _context->m_application_data->default_job_pool->call_blocking_function(
       JOB_NAME,
       functional::function<void()>(
-          scripting::g_scripting_tls->_support_allocator,
+          scripting::get_scripting_tls()->_support_allocator,
           [this, tls, prog{core::move(prog)}, args{core::move(args)}]() {
             containers::dynamic_array<containers::string_view> arr(
                 tls->_support_allocator);

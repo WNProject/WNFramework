@@ -18,7 +18,7 @@ void sleep(int32_t _seconds) {
 };
 
 void log_error(const char* _str) {
-  scripting::g_scripting_tls->_log->log_error(_str);
+  scripting::get_scripting_tls()->_log->log_error(_str);
 }
 
 }  // anonymous namespace
