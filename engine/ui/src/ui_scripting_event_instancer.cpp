@@ -13,8 +13,9 @@ void ui_set_property(
 };
 
 scripting::shared_cpp_pointer<support::string> make_string(const char* _str) {
-  return scripting::g_scripting_tls->_engine->make_shared_cpp<support::string>(
-      _str, scripting::g_scripting_tls->_support_allocator);
+  return scripting::get_scripting_tls()
+      ->_engine->make_shared_cpp<support::string>(
+          _str, scripting::get_scripting_tls()->_support_allocator);
 }
 
 scripting::shared_cpp_pointer<support::string> ui_get_property(
