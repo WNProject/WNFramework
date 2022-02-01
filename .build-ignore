@@ -3,13 +3,11 @@
 .github/CODEOWNERS
 .github/dependabot.yml
 .github/labels.yml
-.github/workflows/rebase.yml
 .github/workflows/sync-labels.yml
 .github/workflows/update-license.yml
 .gitignore
-.gitmodules
+.markdownlint.yml
 .markdownlintignore
-.markdownlintrc
 *.md
 documents/
 externals/*/LICENSE
