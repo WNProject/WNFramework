@@ -308,6 +308,10 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
   auto test_file_string = test_file.to_string(&allocator);
   file_system::result res;
   file_system::file_ptr iptr = files->open_file(test_file_string, res);
+  if (!iptr) {
+    return -1;
+  }
+
   containers::string input_file =
       containers::string_view(iptr->typed_data<char>(), iptr->size())
           .to_string(&allocator);

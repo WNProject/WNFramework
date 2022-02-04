@@ -55,6 +55,8 @@ if (NOT WN_DISABLE_CXX)
 
     list(APPEND WN_LLVM_EXTRA_FLAGS "-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}")
 
+    list(APPEND WN_LLVM_EXTRA_FLAGS "-DLLVM_OPTIMIZED_TABLEGEN=ON")
+
     execute_process(
      COMMAND ${CMAKE_COMMAND} -E make_directory
       ${WNFramework_BINARY_DIR}/externals/llvm-project/llvm
@@ -179,7 +181,7 @@ if (NOT WN_DISABLE_CXX)
 
   include(${WNFramework_BINARY_DIR}/externals/llvm-project/llvm/lib/cmake/llvm/LLVMConfig.cmake)
 
-  set(WNScriptingLLVMComponents codegen mcjit native)
+  set(WNScriptingLLVMComponents codegen mcjit native ipo)
   llvm_map_components_to_libnames(WNScriptingLLVMLibs ${WNScriptingLLVMComponents})
 
   option(WN_BUILD_LLVM_MANUALLY

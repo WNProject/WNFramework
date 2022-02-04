@@ -85,9 +85,16 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
   containers::hash_set<containers::string> existing_member(m_allocator);
   // bool has_overloaded_construction = false;
 
+  containers::deque<memory::unique_ptr<ast_declaration>> synchronized_decls(
+      m_allocator);
+  memory::unique_ptr<struct_definition> synchronized_decl_types;
+  ast_type* synchronized_internal_type = nullptr;
+
   ast_vtable* vt = nullptr;
   uint32_t vtable_idx = 0;
 
+  bool all_synchronized = true;
+  bool any_synchronized = false;
   // These declarations do not have their initializers associated.
   containers::deque<memory::unique_ptr<ast_declaration>>
       class_order_declarations(m_allocator);
@@ -96,7 +103,39 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
   containers::deque<memory::unique_ptr<declaration>>
       constructor_order_declarations(m_allocator);
 
+  // Either all or none of the chain must be synchronized.
+  if (_def->is_synchronized()) {
+    synchronized_decl_types =
+        memory::make_unique<struct_definition>(m_allocator, m_allocator,
+            (containers::string(m_allocator, "__") +
+                _def->get_name().to_string(m_allocator) + "__actor_data")
+                .c_str(),
+            false, nullptr);
+    synchronized_decl_types->copy_location_from(_def);
+    if (!m_type_manager->register_struct_definition(
+            synchronized_decl_types.get())) {
+      synchronized_decl_types->log_line(m_log, logging::log_level::error);
+      return nullptr;
+    }
+
+    memory::unique_ptr<ast_declaration> decl = make_temp_declaration(_def,
+        containers::string(m_allocator, "__actor_data"),
+        m_type_manager->get_reference_of(
+            m_type_manager->get_or_register_struct(
+                synchronized_decl_types->get_name(), &m_used_types,
+                &m_used_externals),
+            ast_type_classification::reference, &m_used_types));
+    class_order_declarations.push_back(core::move(decl));
+
+    memory::unique_ptr<ast_declaration> decl2 = make_temp_declaration(_def,
+        containers::string(m_allocator, "__actor_elem"),
+        m_type_manager->bool_t(&m_used_types));
+    class_order_declarations.push_back(core::move(decl2));
+  }
+
   for (auto& t : type_chain) {
+    all_synchronized &= t->is_synchronized();
+    any_synchronized |= t->is_synchronized();
     // We push temporarily into this deque, so that we can push in reverse order
     // to the previous one.
     containers::deque<memory::unique_ptr<declaration>>
@@ -121,6 +160,7 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
         vt = vtable;
         struct_type->m_vtable = vt;
         m_script_file->m_all_vtables.push_back(vt);
+        break;
       }
     }
 
@@ -135,13 +175,6 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
           return nullptr;
         }
 
-        memory::unique_ptr<ast_declaration> u_decl = make_temp_declaration(
-            it.get(), containers::string(m_allocator, it->get_name()),
-            resolve_type(it->get_type()));
-        decl = u_decl.get();
-        if (u_decl->m_type == nullptr) {
-          return nullptr;
-        }
         for (auto& de : class_order_declarations) {
           if (de->m_name == it->get_name()) {
             it->log_line(m_log, logging::log_level::error);
@@ -151,7 +184,23 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
           }
         }
 
+        if (it->is_synchronized()) {
+          synchronized_decl_types->add_struct_elem(
+              clone_node(m_allocator, it.get()), false);
+        }
+
+        memory::unique_ptr<ast_declaration> u_decl = make_temp_declaration(
+            it.get(), containers::string(m_allocator, it->get_name()),
+            resolve_type(it->get_type()));
+        u_decl->m_is_synchronized = it->is_synchronized();
+        decl = u_decl.get();
+        if (u_decl->m_type == nullptr) {
+          return nullptr;
+        }
         auto del = clone_node(m_allocator, it.get());
+        if (it->is_synchronized()) {
+          del->set_synchronized(true);
+        }
         temp_constructor_order_declarations.push_back(core::move(del));
         class_order_declarations.push_back(core::move(u_decl));
       } else {
@@ -165,6 +214,7 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
           it->log_line(m_log, logging::log_level::error);
           m_log->log_error("Tried to override ", it->get_name(),
               " which does not", " exist in the parent class");
+          return nullptr;
         }
         memory::unique_ptr<type> old_type;
         for (auto ii = constructor_order_declarations.begin();
@@ -200,14 +250,57 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
     }
   }
 
+  if (all_synchronized != any_synchronized) {
+    _def->log_line(m_log, logging::log_level::error);
+    m_log->log_error("Actors must not inherit from Classes");
+    m_log->log_error("Classes must not inherit from Actors");
+    return nullptr;
+  }
+  uint32_t synchronized_base_data_id = 0;
+
+  if (synchronized_decl_types) {
+    synchronized_internal_type =
+        walk_struct_definition(synchronized_decl_types.get());
+    struct_type->m_synchronized_container = synchronized_internal_type;
+
+    memory::unique_ptr<ast_declaration> decl = make_temp_declaration(_def,
+        containers::string(m_allocator, "__actor_data_0"),
+        synchronized_internal_type);
+
+    class_order_declarations.push_back(core::move(decl));
+    synchronized_base_data_id =
+        static_cast<uint32_t>(class_order_declarations.size() - 1);
+    decl = make_temp_declaration(_def,
+        containers::string(m_allocator, "__actor_data_1"),
+        synchronized_internal_type);
+    class_order_declarations.push_back(core::move(decl));
+  }
+
   if (class_order_declarations.empty()) {
     memory::unique_ptr<ast_declaration> decl =
         make_temp_declaration(_def, containers::string(m_allocator, "__dummy"),
             m_type_manager->integral(8, &m_used_types));
     class_order_declarations.push_back(core::move(decl));
   }
+  containers::deque<memory::unique_ptr<ast_declaration>>
+      synchronized_declarations(m_allocator);
+
+  // Filter out any synchronized declarations.
+  for (auto it = class_order_declarations.begin();
+       it != class_order_declarations.end();) {
+    if ((*it)->m_is_synchronized) {
+      synchronized_declarations.push_back(core::move(*it));
+      it = class_order_declarations.erase(it);
+      synchronized_base_data_id--;
+      continue;
+    }
+    ++it;
+  }
 
   struct_type->m_structure_members = core::move(class_order_declarations);
+  struct_type->m_synchronized_declarations =
+      core::move(synchronized_declarations);
+
   m_type_manager->set_struct_definition_resolved(_def->get_name(), struct_type);
 
   containers::deque<memory::unique_ptr<ast_statement>> destructor_values(
@@ -267,17 +360,16 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
     for (auto it = body.begin(); it != body.end(); ++it) {
       if ((*it)->m_node_type == ast_node_type::ast_declaration) {
         ast_declaration* decl = cast_to<ast_declaration>(it->get());
-        bool existing_decl = false;
-        size_t index = 0;
-        for (auto& a : struct_type->m_structure_members) {
-          if (a->m_name == decl->m_name) {
-            existing_decl = true;
-            break;
+        if (decl->m_is_synchronized) {
+          bool existing_decl = false;
+          size_t index = 0;
+          for (auto& a : struct_type->m_synchronized_declarations) {
+            if (a->m_name == decl->m_name) {
+              existing_decl = true;
+              break;
+            }
+            ++index;
           }
-          ++index;
-        }
-
-        if (decl->m_is_scope_bound || existing_decl) {
           decl->m_indirected_on_this = true;
           if (existing_decl) {
             decl->m_indirected_offset = static_cast<uint32_t>(index);
@@ -294,20 +386,50 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
             assign->m_rhs = core::move(decl->m_initializer);
             it = body.insert(it, core::move(assign));
           }
-          if (decl->m_is_scope_bound) {
-            if (!_def->is_class()) {
-              decl->log_line(m_log, logging::log_level::error);
-              m_log->log_error("All structure definitions must be fixed-sized");
-              m_log->log_error(
-                  "So all arrays must be of a specified size, and it cannot "
-                  "contain classes");
-              return nullptr;
+        } else {
+          bool existing_decl = false;
+          size_t index = 0;
+          for (auto& a : struct_type->m_structure_members) {
+            if (a->m_name == decl->m_name) {
+              existing_decl = true;
+              break;
             }
-            child_decls.push_back(clone_ast_node(m_allocator, decl));
-            decl->m_indirected_offset =
-                static_cast<uint32_t>(struct_type->m_structure_members.size() +
-                                      child_decls.size() - 1);
-            child_decls.back()->m_initializer = nullptr;
+            ++index;
+          }
+
+          if (decl->m_is_scope_bound || existing_decl) {
+            decl->m_indirected_on_this = true;
+            if (existing_decl) {
+              decl->m_indirected_offset = static_cast<uint32_t>(index);
+            }
+
+            if (decl->m_initializer) {
+              auto id = memory::make_unique<ast_id>(m_allocator, _def);
+              id->m_type = decl->m_type;
+              id->m_declaration = decl;
+
+              auto assign =
+                  memory::make_unique<ast_assignment>(m_allocator, _def);
+              assign->m_lhs = core::move(id);
+              assign->m_rhs = core::move(decl->m_initializer);
+              it = body.insert(it, core::move(assign));
+            }
+            if (decl->m_is_scope_bound) {
+              if (!_def->is_class()) {
+                decl->log_line(m_log, logging::log_level::error);
+                m_log->log_error(
+                    "All structure definitions must be fixed-sized");
+                m_log->log_error(
+                    "So all arrays must be of a specified size, and it cannot "
+                    "contain classes");
+                return nullptr;
+              }
+              child_decls.push_back(clone_ast_node(m_allocator, decl));
+              decl->m_indirected_offset = static_cast<uint32_t>(
+                  struct_type->m_structure_members.size() + child_decls.size() -
+                  1);
+              child_decls.back()->m_initializer = nullptr;
+            }
           }
         }
       }
@@ -352,6 +474,98 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
       auto assign = memory::make_unique<ast_assignment>(m_allocator, _def);
       assign->m_lhs = core::move(member);
       assign->m_rhs = core::move(vt_const);
+      body.push_front(core::move(assign));
+    }
+
+    if (struct_type->m_synchronized_container) {
+      auto ref_type = m_type_manager->get_reference_of(
+          struct_type->m_synchronized_container,
+          ast_type_classification::reference, &m_used_types);
+
+      // Push our __actor_data = &actor_data_0 to the front of the
+      // object
+      auto this_id = memory::make_unique<ast_id>(m_allocator, _def);
+      this_id->m_type = fn->m_parameters[0].m_type;
+      this_id->m_function_parameter = &(fn->m_parameters[0]);
+
+      auto member =
+          memory::make_unique<ast_member_access_expression>(m_allocator, _def);
+      member->m_base_expression = clone_ast_node(m_allocator, this_id.get());
+      member->m_member_name = containers::string(m_allocator, "__actor_data");
+      member->m_member_offset = 0;
+      member->m_type = ref_type;
+
+      auto member2 =
+          memory::make_unique<ast_member_access_expression>(m_allocator, _def);
+      member2->m_base_expression = clone_ast_node(m_allocator, this_id.get());
+      member2->m_member_name =
+          containers::string(m_allocator, "__actor_data_0");
+      member2->m_member_offset = synchronized_base_data_id;
+      member2->m_type = struct_type->m_synchronized_container;
+
+      auto assign = memory::make_unique<ast_assignment>(m_allocator, _def);
+      assign->m_lhs = core::move(member);
+      assign->m_rhs =
+          core::move(make_cast(core::move(member2), assign->m_lhs->m_type));
+      body.push_front(core::move(assign));
+
+      // All actor_data_0 parameters should now be initialized by the
+      // constructor so now we initialize actor_data_1 by copying actor_data_0.
+      // This way an entity can make requests right away, and will get the
+      // initial data.
+      member =
+          memory::make_unique<ast_member_access_expression>(m_allocator, _def);
+      member->m_base_expression = clone_ast_node(m_allocator, this_id.get());
+      member->m_member_name = containers::string(m_allocator, "__actor_data_0");
+      member->m_member_offset = synchronized_base_data_id;
+      member->m_type = struct_type->m_synchronized_container;
+
+      member2 =
+          memory::make_unique<ast_member_access_expression>(m_allocator, _def);
+      member2->m_base_expression = clone_ast_node(m_allocator, this_id.get());
+      member2->m_member_name =
+          containers::string(m_allocator, "__actor_data_1");
+      member2->m_member_offset = synchronized_base_data_id + 1;
+      member2->m_type = struct_type->m_synchronized_container;
+
+      if (struct_type->m_synchronized_container->m_assignment) {
+        containers::dynamic_array<memory::unique_ptr<ast_expression>> params(
+            m_allocator);
+        params.push_back(make_cast(core::move(member), ref_type));
+        params.push_back(make_cast(core::move(member2), ref_type));
+
+        auto const_true = memory::make_unique<ast_constant>(m_allocator, _def);
+        const_true->m_type = m_type_manager->bool_t(&m_used_types);
+        const_true->m_string_value = containers::string(m_allocator, "true");
+        const_true->m_node_value.m_bool = true;
+
+        params.push_back(core::move(const_true));
+        body.push_back(evaluate_expression(call_function(_def,
+            struct_type->m_synchronized_container->m_assignment,
+            core::move(params))));
+      } else {
+        auto struct_assign =
+            memory::make_unique<ast_assignment>(m_allocator, _def);
+        struct_assign->m_lhs = core::move(member2);
+        struct_assign->m_rhs = core::move(member);
+        body.push_back(core::move(struct_assign));
+      }
+
+      auto const_false = memory::make_unique<ast_constant>(m_allocator, _def);
+      const_false->m_type = m_type_manager->bool_t(&m_used_types);
+      const_false->m_string_value = containers::string(m_allocator, "false");
+      const_false->m_node_value.m_bool = false;
+
+      member =
+          memory::make_unique<ast_member_access_expression>(m_allocator, _def);
+      member->m_base_expression = clone_ast_node(m_allocator, this_id.get());
+      member->m_member_name = containers::string(m_allocator, "__actor_elem");
+      member->m_member_offset = 1;
+      member->m_type = m_type_manager->bool_t(&m_used_types);
+
+      assign = memory::make_unique<ast_assignment>(m_allocator, _def);
+      assign->m_lhs = core::move(member);
+      assign->m_rhs = core::move(const_false);
       body.push_front(core::move(assign));
     }
 

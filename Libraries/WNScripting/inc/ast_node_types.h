@@ -386,6 +386,8 @@ public:
   containers::string m_mangled_name;
   containers::deque<const ast_type*> m_contained_types;
   containers::deque<memory::unique_ptr<ast_declaration>> m_structure_members;
+  containers::deque<memory::unique_ptr<ast_declaration>>
+      m_synchronized_declarations;
   containers::deque<ast_function*> m_member_functions;
   containers::deque<memory::unique_ptr<ast_function>>
       m_external_member_functions;
@@ -418,6 +420,7 @@ public:
   ast_type* m_overloaded_construction_parent = nullptr;
 
   const ast_type* m_implicitly_contained_type = nullptr;
+  ast_type* m_synchronized_container = nullptr;
   ast_type* m_parent_type = nullptr;
   containers::deque<const ast_function*> m_declared_functions;
   const ast_function* m_constructor = nullptr;
@@ -631,6 +634,7 @@ struct ast_declaration : public ast_statement {
   memory::unique_ptr<ast_expression> m_initializer = nullptr;
   bool m_indirected_on_this = false;
   bool m_is_scope_bound = false;
+  bool m_is_synchronized = false;
   uint32_t m_indirected_offset = 0;
 
   memory::unique_ptr<ast_node> clone(
@@ -874,6 +878,7 @@ struct ast_member_access_expression : public ast_expression {
   containers::string m_member_name;
   memory::unique_ptr<ast_expression> m_base_expression;
   uint32_t m_member_offset = static_cast<uint32_t>(-1);
+  bool m_is_synchronized = false;
 
   memory::unique_ptr<ast_node> clone(
       memory::allocator* _allocator) const override {

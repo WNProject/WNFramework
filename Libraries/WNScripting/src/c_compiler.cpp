@@ -716,7 +716,11 @@ bool c_compiler::write_if_block(const ast_if_block* _expression) {
 bool c_compiler::write_id(const ast_id* _expression) {
   if (_expression->m_declaration) {
     if (_expression->m_declaration->m_indirected_on_this) {
-      m_output += "_this->";
+      if (!_expression->m_declaration->m_is_synchronized) {
+        m_output += "_this->";
+      } else {
+        m_output += "_this->__actor_data->";
+      }
     }
     m_output += _expression->m_declaration->m_name;
   } else if (_expression->m_function_parameter) {
@@ -1165,6 +1169,10 @@ bool c_compiler::write_member_access_expression(
     m_output += "->";
   } else {
     m_output += ".";
+  }
+
+  if (_expression->m_is_synchronized) {
+    m_output += "__actor_data->";
   }
 
   m_output += _expression->m_member_name;
