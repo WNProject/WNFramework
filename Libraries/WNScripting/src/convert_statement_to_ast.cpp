@@ -296,6 +296,9 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
     m_current_statements->push_back(core::move(decl));
     return true;
   }
+  if (_declaration->is_synchronized()) {
+    decl->m_is_synchronized = true;
+  }
 
   const bool is_obj_init = (is_object || is_shared) &&
                            (_declaration->get_expression()->get_node_type() ==
@@ -351,6 +354,7 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
   }
 
   decl->m_initializer = make_cast(core::move(init), type);
+  decl->m_is_synchronized = _declaration->is_synchronized();
   decl->m_name = _declaration->get_name().to_string(m_allocator);
   decl->m_type = type;
   m_nested_scopes.back()

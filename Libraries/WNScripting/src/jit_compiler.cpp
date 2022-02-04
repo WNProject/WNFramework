@@ -1192,7 +1192,15 @@ llvm::Value* internal::jit_compiler_context::get_member_access(
     offset = m_external_types[struct_type].m_fixup_offsets[offset];
   }
 
-  llvm::Value* gep[2] = {i32(0), i32(offset)};
+  llvm::Value* gep[2] = {i32(0), i32(0)};
+  if (_access->m_is_synchronized) {
+    v = m_function_builder->CreateLoad(
+        m_function_builder->CreateInBoundsGEP(
+            v, llvm::ArrayRef<llvm::Value*>(&gep[0], 2)),
+        "__actor_data");
+  }
+
+  gep[1] = i32(offset);
   v = m_function_builder->CreateLoad(
       m_function_builder->CreateInBoundsGEP(
           v, llvm::ArrayRef<llvm::Value*>(&gep[0], 2)),
@@ -1389,16 +1397,29 @@ llvm::Value* internal::jit_compiler_context::get_id(const ast_id* _id) {
       auto param =
           m_function_parameters.find(&m_current_ast_function->m_parameters[0]);
 
-      llvm::Value* gep[2] = {
-          i32(0), i32(_id->m_declaration->m_indirected_offset)};
+      if (_id->m_declaration->m_is_synchronized) {
+        llvm::Value* gep[3] = {
+            i32(0), i32(0), i32(_id->m_declaration->m_indirected_offset)};
 
-      llvm::Value* v = m_function_builder->CreateLoad(
-          m_function_builder->CreateInBoundsGEP(
-              m_function_builder->CreateLoad(param->second),
-              llvm::ArrayRef<llvm::Value*>(&gep[0], 2)),
-          "_this");
+        llvm::Value* pThis = m_function_builder->CreateLoad(param->second);
+        llvm::Value* pActorData = m_function_builder->CreateLoad(
+            m_function_builder->CreateInBoundsGEP(
+                pThis, llvm::ArrayRef<llvm::Value*>(&gep[0], 2)));
 
-      return v;
+        return m_function_builder->CreateLoad(
+            m_function_builder->CreateInBoundsGEP(
+                pActorData, llvm::ArrayRef<llvm::Value*>(&gep[1], 2)),
+            "_this->__actor_data");
+      } else {
+        llvm::Value* gep[2] = {
+            i32(0), i32(_id->m_declaration->m_indirected_offset)};
+
+        return m_function_builder->CreateLoad(
+            m_function_builder->CreateInBoundsGEP(
+                m_function_builder->CreateLoad(param->second),
+                llvm::ArrayRef<llvm::Value*>(&gep[0], 2)),
+            "_this");
+      }
     }
 
     auto decl = m_declarations.find(_id->m_declaration);
