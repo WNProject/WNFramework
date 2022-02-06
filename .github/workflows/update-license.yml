@@ -54,27 +54,27 @@ jobs:
             const [owner, repo] = '${{github.repository}}'.split('/');
             const base = 'refs/heads/master';
             const head = 'refs/heads/${{env.BRANCH}}';
+            const labels = ['auto'];
+            const title = 'Update license year to ${{steps.year.outputs.value}}';
             const pullRequests = await github.rest.pulls.list({
               head: `${owner}:${head}`,
               owner, repo, base
             });
             if (pullRequests.data.length === 0) {
               const createResult = await github.rest.pulls.create({
-                title: 'Update license year to ${{steps.year.outputs.value}}',
-                owner, repo, head, base
+                title, owner, repo, head, base
               });
               github.rest.issues.addLabels({
                 issue_number: createResult.data.number,
-                owner, repo, labels: ['auto']
+                owner, repo, labels
               });
               console.log('Created new pull request');
               return createResult.data.number;
             } else {
-              const prNumber = pullRequests.data.first().number;
+              const prNumber = pullRequests.data[0].number;
               github.rest.issues.update({
                 issue_number: prNumber,
-                title: 'Update license year to ${{steps.year.outputs.value}}',
-                owner, repo
+                title, owner, repo, labels
               });
               console.log(`Pull request already exists, updated #${prNumber}`);
               return prNumber;
