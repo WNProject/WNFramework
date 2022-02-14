@@ -48,7 +48,7 @@ jobs:
           COMMIT_EMAIL: ${{secrets.UPDATE_LICENSE_EMAIL}}
       - name: Create pull request
         if: steps.changes.outputs.exist
-        uses: actions/github-script@v5
+        uses: actions/github-script@v6
         with:
           script: |
             const [owner, repo] = '${{github.repository}}'.split('/');
