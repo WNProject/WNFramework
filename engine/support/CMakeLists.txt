@@ -8,12 +8,14 @@ add_wn_library(
     inc/regex.h
     inc/string.h
     inc/subprocess.h
+    inc/sync.h
     src/command_line.cpp
     src/json.cpp
     src/log.cpp
     src/regex.cpp
     src/string.cpp
     src/subprocess.cpp
+    src/sync.cpp
   INCLUDES
     ${WNFramework_SOURCE_DIR}/externals/re2
      ${WNFramework_SOURCE_DIR}/externals/rapidjson/include

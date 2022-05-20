@@ -57,6 +57,7 @@ Int main(Context ctx) {
 
   while(true) {
     context.render();
+    yield();
   }
 
   return 32;

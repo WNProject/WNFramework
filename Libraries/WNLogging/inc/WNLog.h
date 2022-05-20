@@ -19,7 +19,7 @@ namespace logging {
 
 static const char* klog_messages[static_cast<uint32_t>(log_level::max)] = {
     "None:   ", "Critial:", "Error:  ", "Warning:", "Issue:  ", "Info:   ",
-    "Debug:  "};
+    "Debug:  ", "Verbose:"};
 
 enum class log_flags { no_newline = 1 << 0, no_header = 1 << 1 };
 
@@ -123,6 +123,10 @@ public:
   inline void log_debug_flags(size_t size, const Args&... args) {
     log_params(log_level::debug, size, args...);
   }
+  template <typename... Args>
+  inline void log_verbose_flags(size_t size, const Args&... args) {
+    log_params(log_level::verbose, size, args...);
+  }
 
   template <typename... Args>
   inline void log_critical(const Args&... args) {
@@ -147,6 +151,10 @@ public:
   template <typename... Args>
   inline void log_debug(const Args&... args) {
     log_debug_flags(0, args...);
+  }
+  template <typename... Args>
+  inline void log_verbose(const Args&... args) {
+    log_verbose_flags(0, args...);
   }
 
   template <typename Arg1, typename... Args>

@@ -17,6 +17,7 @@
 #include "support/inc/regex.h"
 #include "support/inc/string.h"
 #include "support/inc/subprocess.h"
+#include "support/inc/sync.h"
 #include "ui/inc/ui.h"
 #include "window/inc/window.h"
 
@@ -103,6 +104,8 @@ int32_t wn_application_main(
           &support_allocator, scripting_engine.get());
       support::json_document::register_scripting(
           &support_allocator, scripting_engine.get());
+      support::sync::register_scripting(
+          &support_allocator, scripting_engine.get());
       command_line_mgr.register_scripting(
           &support_allocator, scripting_engine.get());
     }
@@ -143,6 +146,11 @@ int32_t wn_application_main(
         return -1;
       }
       if (!support::json_document::resolve_scripting(scripting_engine.get())) {
+        _application_data->default_log->log_critical(
+            "Could not resolve needed script types for json");
+        return -1;
+      }
+      if (!support::sync::resolve_scripting(scripting_engine.get())) {
         _application_data->default_log->log_critical(
             "Could not resolve needed script types for json");
         return -1;
