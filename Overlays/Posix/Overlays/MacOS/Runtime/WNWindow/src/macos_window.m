@@ -354,6 +354,12 @@ bool macos_handle_event(struct macos_event* mcevent) {
                     break;
                 }
                 case NSEventTypeFlagsChanged:
+                    mcevent->type = macos_event_flags_changed;
+                    mcevent->fl.control = ev.modifierFlags & NSEventModifierFlagControl;
+                    mcevent->fl.option = ev.modifierFlags & NSEventModifierFlagOption;
+                    mcevent->fl.command = ev.modifierFlags & NSEventModifierFlagCommand;
+                    mcevent->fl.shift = ev.modifierFlags & NSEventModifierFlagShift;
+                    break;
                 default:
                     return false;
             }

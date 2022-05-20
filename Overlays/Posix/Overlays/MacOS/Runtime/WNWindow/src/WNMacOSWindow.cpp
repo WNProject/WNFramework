@@ -62,8 +62,11 @@ void macos_window::run_loop() {
     }
     switch (evt.type) {
       case macos_event_key_down: {
+        m_key_states[static_cast<uint32_t>(
+            static_cast<key_code>(evt.kb.code))] = true;
         it->second->dispatch_input(input_event::key_event(
             event_type::key_down, static_cast<key_code>(evt.kb.code)));
+
         size_t len = wn::memory::strlen(evt.kb.characters);
         for (size_t i = 0; i < len; ++i) {
           switch (evt.kb.characters[i]) {
@@ -80,10 +83,13 @@ void macos_window::run_loop() {
         }
         break;
       }
-      case macos_event_key_up:
+      case macos_event_key_up: {
+        m_key_states[static_cast<uint32_t>(
+            static_cast<key_code>(evt.kb.code))] = false;
         it->second->dispatch_input(input_event::key_event(
-            event_type::key_down, static_cast<key_code>(evt.kb.code)));
+            event_type::key_up, static_cast<key_code>(evt.kb.code)));
         break;
+      }
       case macos_event_mouse_down:
         it->second->dispatch_input(
             input_event::mouse_down(static_cast<mouse_button>(evt.mb.button)));
@@ -98,6 +104,49 @@ void macos_window::run_loop() {
         it->second->dispatch_input(
             input_event::mouse_wheel(static_cast<int32_t>(evt.we.amount)));
         break;
+      case macos_event_flags_changed:
+        if (m_key_states[static_cast<uint32_t>(key_code::key_any_alt)] !=
+            evt.fl.option) {
+          m_key_states[static_cast<uint32_t>(key_code::key_any_alt)] =
+              evt.fl.option;
+          if (evt.fl.option) {
+            it->second->dispatch_input(
+                input_event::key_event(event_type::key_down,
+                    static_cast<key_code>(key_code::key_any_alt)));
+          } else {
+            it->second->dispatch_input(
+                input_event::key_event(event_type::key_up,
+                    static_cast<key_code>(key_code::key_any_alt)));
+          }
+        }
+        if (m_key_states[static_cast<uint32_t>(key_code::key_any_ctrl)] !=
+            evt.fl.control) {
+          m_key_states[static_cast<uint32_t>(key_code::key_any_ctrl)] =
+              evt.fl.control;
+          if (evt.fl.control) {
+            it->second->dispatch_input(
+                input_event::key_event(event_type::key_down,
+                    static_cast<key_code>(key_code::key_any_ctrl)));
+          } else {
+            it->second->dispatch_input(
+                input_event::key_event(event_type::key_up,
+                    static_cast<key_code>(key_code::key_any_ctrl)));
+          }
+        }
+        if (m_key_states[static_cast<uint32_t>(key_code::key_any_shift)] !=
+            evt.fl.shift) {
+          m_key_states[static_cast<uint32_t>(key_code::key_any_shift)] =
+              evt.fl.shift;
+          if (evt.fl.shift) {
+            it->second->dispatch_input(
+                input_event::key_event(event_type::key_down,
+                    static_cast<key_code>(key_code::key_any_shift)));
+          } else {
+            it->second->dispatch_input(
+                input_event::key_event(event_type::key_up,
+                    static_cast<key_code>(key_code::key_any_shift)));
+          }
+        }
       default:
         break;
     }
