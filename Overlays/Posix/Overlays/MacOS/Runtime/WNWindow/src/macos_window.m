@@ -239,16 +239,18 @@ enum macos_key_code keycode_to_macos_key_code(UInt16 virtual_key) {
     return macos_key_unimplemented;
 }
 
-void *macos_internal_create_window(uint32_t width, uint32_t height, int* number) {
+void *macos_internal_create_window(uint32_t* width, uint32_t* height, int* number) {
     [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
     NSUInteger windowStyle = NSTitledWindowMask  | NSClosableWindowMask | NSResizableWindowMask | NSMiniaturizableWindowMask;
 
-    id window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height)
+    id window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, *width, *height)
                                           styleMask:windowStyle backing:NSBackingStoreBuffered defer:NO];
     [window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
     [window makeKeyAndOrderFront:nil];
+    NSRect frame = [window frameRectForContentRect: NSMakeRect(0, 0, *width, *height)];
+    [window setFrame:frame display: YES animate: YES];
     [NSApp activateIgnoringOtherApps:YES];
     NSView* view = [window contentView];
     view.wantsLayer = YES;
@@ -256,6 +258,9 @@ void *macos_internal_create_window(uint32_t width, uint32_t height, int* number)
 
     [NSApp finishLaunching];
     *number = [window windowNumber];
+    NSSize window_size = [view frame ].size;
+    *width = window_size.width;
+    *height = window_size.height;
     return view;
 }
 
@@ -286,8 +291,10 @@ bool macos_handle_event(struct macos_event* mcevent) {
                         NSWindow* window = [ev window];
                         if (window) {
                             NSPoint l = [ev locationInWindow];
+                            NSView* view = [window contentView];
+                            l = [view convertPoint:l fromView:nil];
                             mcevent->mb.x = l.x;
-                            mcevent->mb.y = (int)NSHeight([window contentRectForFrameRect: [window frame]])  - l.y;
+                            mcevent->mb.y = view.bounds.size.height - l.y;
                             switch([ev type]) {
                                 case NSEventTypeLeftMouseDown:
                                 case NSEventTypeLeftMouseUp:

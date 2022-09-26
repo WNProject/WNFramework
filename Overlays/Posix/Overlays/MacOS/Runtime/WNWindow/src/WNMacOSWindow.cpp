@@ -13,7 +13,7 @@
 
 extern "C" {
 void* macos_internal_create_window(
-    uint32_t width, uint32_t height, int* window_number);
+    uint32_t* width, uint32_t* height, int* window_number);
 bool macos_handle_event(macos_event* mcevent);
 void macos_internal_close_window(void* _view);
 }
@@ -26,7 +26,7 @@ window_error macos_window::initialize() {
   m_job_pool->call_blocking_job_on_main(
       JOB_NAME, functional::function<void()>(m_allocator, [this]() {
         void* v =
-            macos_internal_create_window(m_width, m_height, &m_window_number);
+            macos_internal_create_window(&m_width, &m_height, &m_window_number);
         m_native_window_handle = v;
         if (m_creation_signal) {
           m_creation_signal.increment_by(1);
