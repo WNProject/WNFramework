@@ -310,7 +310,7 @@ private:
 
   struct sampler_data {
     uint32_t m_sampler_data_count = 0;
-    containers::default_range_partition::token m_range_token = {};
+    containers::range_partition<>::token m_range_token = {};
     D3D12_GPU_DESCRIPTOR_HANDLE m_sampler_handle = {0};
   };
   containers::hash_map<sampler_create_info, memory::unique_ptr<sampler_data>,

@@ -29,7 +29,8 @@ public:
     _log->log_info(
         "Descriptor Size for ", _type, " heap is ", m_descriptor_size);
 
-    m_parition = containers::default_range_partition(_allocator, _size);
+    m_parition = memory::make_unique<containers::range_partition<>>(
+        _allocator, _allocator, _size);
 
     D3D12_DESCRIPTOR_HEAP_DESC desc = {
         _type,  // Type
@@ -53,11 +54,11 @@ public:
     m_root_cpu_handle = m_heap->GetCPUDescriptorHandleForHeapStart();
     m_root_gpu_handle = m_heap->GetGPUDescriptorHandleForHeapStart();
   }
-  using token = containers::default_range_partition::token;
+  using token = containers::range_partition<>::token;
 
   token get_partition(size_t num_elements) {
     multi_tasking::spin_lock_guard guard(m_lock);
-    return m_parition.get_interval(num_elements);
+    return m_parition->get_interval(num_elements);
   }
 
   void release_partition(token t) {
@@ -82,7 +83,7 @@ private:
   Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_heap;
   D3D12_CPU_DESCRIPTOR_HANDLE m_root_cpu_handle;
   D3D12_GPU_DESCRIPTOR_HANDLE m_root_gpu_handle;
-  containers::default_range_partition m_parition;
+  memory::unique_ptr<containers::range_partition<>> m_parition;
   multi_tasking::spin_lock m_lock;
   uint32_t m_descriptor_size;
 };

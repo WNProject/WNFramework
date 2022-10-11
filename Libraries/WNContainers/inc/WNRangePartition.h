@@ -39,9 +39,9 @@ public:
     token();
     ~token();
     token& operator=(token&& _other);
-    T_SIZE offset();
-    bool is_valid();
-    T_SIZE size();
+    T_SIZE offset() const;
+    bool is_valid() const;
+    T_SIZE size() const;
     void free();
 
   private:
@@ -180,12 +180,12 @@ range_partition<T_SIZE>::token::token(range_partition<T_SIZE>::range_node* node,
   : node(node), partition(partition) {}
 
 template <typename T_SIZE>
-T_SIZE range_partition<T_SIZE>::token::offset() {
+T_SIZE range_partition<T_SIZE>::token::offset() const {
   return node->aligned_offset;
 }
 
 template <typename T_SIZE>
-T_SIZE range_partition<T_SIZE>::token::size() {
+T_SIZE range_partition<T_SIZE>::token::size() const {
   return node->size - (node->aligned_offset - node->offset);
 }
 
@@ -197,7 +197,7 @@ void range_partition<T_SIZE>::token::free() {
 }
 
 template <typename T_SIZE>
-bool range_partition<T_SIZE>::token::is_valid() {
+bool range_partition<T_SIZE>::token::is_valid() const {
   return partition && node;
 }
 

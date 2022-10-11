@@ -22,7 +22,7 @@ extern bool is_profiling_enabled();
 #if WN_TRACY_CALLBACK_DEPTH > 0
 #define PROFILE_REGION(n) ZoneNamedS(n, WN_TRACY_CALLBACK_DEPTH, true)
 #define PROFILE_MESSAGE(c, m, s)                                               \
-  TracyMessageCS(m, s, c, WN_TRACY_CALLBACK_DEPTH)
+  TracyMessageCS(m, s, c, WN_TRACY_CALLBACK_DEPTH + 5)
 #else
 #define PROFILE_REGION(n) ZoneNamed(n, true)
 #define PROFILE_MESSAGE(c, m, s) TracyMessageC(m, s, c)
