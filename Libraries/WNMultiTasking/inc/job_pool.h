@@ -174,6 +174,8 @@ public:
   void attach_main_thread();
   void exit_this_thread();
 
+  void yield();
+
   signal_ptr get_signal();
 
 private:

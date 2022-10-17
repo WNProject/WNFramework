@@ -14,9 +14,7 @@ namespace wn {
 namespace engine {
 namespace renderer {
 
-using heap_range =
-    containers::range_partition<containers::default_node_allocator<uint64_t>,
-        uint64_t>;
+using heap_range = containers::range_partition<uint64_t>;
 
 class gpu_heap;
 

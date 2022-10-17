@@ -19,7 +19,7 @@ gpu_heap::gpu_heap(memory::allocator* _allocator,
 }
 
 gpu_allocation gpu_heap::allocate_memory(uint64_t size, uint64_t alignment) {
-  heap_range::token tok = m_partition.get_aligned_interval(size, alignment);
+  heap_range::token tok = m_partition.get_interval(size, alignment);
   if (!tok.is_valid()) {
     return gpu_allocation(nullptr, 0, heap_range::token(), nullptr);
   }

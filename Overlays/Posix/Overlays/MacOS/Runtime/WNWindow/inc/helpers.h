@@ -15,6 +15,7 @@ enum macos_event_type {
   macos_event_mouse_up,
   macos_event_mouse_move,
   macos_event_mouse_wheel,
+  macos_event_flags_changed
 };
 
 // PLease keep this in order with
@@ -111,6 +112,13 @@ struct macos_wheel_event {
   float amount;
 };
 
+struct macos_flags_event {
+  bool control;
+  bool option;
+  bool command;
+  bool shift;
+};
+
 struct macos_event {
   enum macos_event_type type;
   int window_number;
@@ -118,6 +126,7 @@ struct macos_event {
     struct macos_keyboard_event kb;
     struct macos_mouse_event mb;
     struct macos_wheel_event we;
+    struct macos_flags_event fl;
   };
 };
 

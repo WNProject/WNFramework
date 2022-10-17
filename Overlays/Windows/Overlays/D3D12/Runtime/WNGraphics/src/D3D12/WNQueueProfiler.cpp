@@ -158,8 +158,9 @@ uint32_t d3d12_queue_profiler::next_query_id() {
       (m_previous_query_counter + m_query_counter) % m_query_limit;
   m_query_counter += 2;
   return id;
-#endif
+#else
   return 0;
+#endif
 }
 
 #ifdef TRACY_ENABLE

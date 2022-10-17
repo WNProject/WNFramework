@@ -9,7 +9,8 @@ namespace wn {
 namespace logging {
 // 0xRRGGBB
 const static uint32_t log_colors[static_cast<size_t>(log_level::max)] = {
-    0xFFFFFF, 0xFF0000, 0xEF0000, 0xFFFF00, 0xEFEF00, 0x0000FF, 0x00FF00};
+    0xFFFFFF, 0xFF0000, 0xEF0000, 0xFFFF00, 0xEFEF00, 0x0000FF, 0x00FF00,
+    0x00FFFF};
 
 void profiler_logger::flush_buffer(const char* _buffer, size_t _buffer_size,
     const color_element* _colors, size_t _num_colors) {

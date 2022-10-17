@@ -235,7 +235,7 @@ inline size_t format_block_width(data_format _format) {
       return 1;
   }
   WN_DEBUG_ASSERT(false, "You should not end up here, update this enum");
-  return false;
+  return 1;
 }
 
 inline size_t format_block_height(data_format _format) {

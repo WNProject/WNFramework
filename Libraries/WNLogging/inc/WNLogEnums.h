@@ -21,6 +21,7 @@ enum class log_level {  // starting at 1 so that we can turn off with 0
   issue,
   info,
   debug,
+  verbose,
   max
 };
 

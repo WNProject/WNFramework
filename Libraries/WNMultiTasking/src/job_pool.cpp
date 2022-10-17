@@ -378,6 +378,9 @@ void job_pool::spin_up_next_fiber() {
 
   cycle_for_work();
 }
+
+void job_pool::yield() {}
+
 containers::list<fiber>::list_node* job_pool::get_new_fiber() {
   m_idle_fiber_lock.lock();
   containers::list<fiber>::list_node* _node;
@@ -398,10 +401,10 @@ bool job_pool::run_next_task(bool new_fiber_for_job) {
         _node->element()->priority;
     wt->m_current_running_fiber->element()->lock_to_thread =
         _node->element()->lock_to_thread;
-    m_log->log_info("Starting job ", _node->element()->name);
+    m_log->log_verbose("Starting job ", _node->element()->name);
     m_log->flush();
     _node->element()->_fn();
-    m_log->log_info("Ending job ", _node->element()->name);
+    m_log->log_verbose("Ending job ", _node->element()->name);
     m_log->flush();
     m_idle_job_lock.lock();
     _node->element()->_fn = nullptr;

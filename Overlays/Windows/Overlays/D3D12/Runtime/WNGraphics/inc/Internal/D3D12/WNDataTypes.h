@@ -42,16 +42,16 @@ struct shader_module_data {
 struct descriptor_pool_data {
   descriptor_pool_data(memory::allocator* _allocator, size_t _num_csv_nodes,
       size_t _num_sampler_nodes,
-      containers::default_range_partition::token _csv_heap_token,
-      containers::default_range_partition::token _sampler_heap_token)
+      containers::range_partition<>::token _csv_heap_token,
+      containers::range_partition<>::token _sampler_heap_token)
     : csv_heap_partition(_allocator, _num_csv_nodes),
       sampler_heap_partition(_allocator, _num_sampler_nodes),
       csv_heap_token(core::move(_csv_heap_token)),
       sampler_heap_token(core::move(_sampler_heap_token)) {}
-  containers::default_range_partition csv_heap_partition;
-  containers::default_range_partition sampler_heap_partition;
-  containers::default_range_partition::token csv_heap_token;
-  containers::default_range_partition::token sampler_heap_token;
+  containers::range_partition<> csv_heap_partition;
+  containers::range_partition<> sampler_heap_partition;
+  containers::range_partition<>::token csv_heap_token;
+  containers::range_partition<>::token sampler_heap_token;
   // We do not create our own csv heap. We suballocate from the global
   // csv heap (1M entries). Then we suballocate from there. This is
   // supposedly much more efficient on NVIDIA hardware.
@@ -59,7 +59,7 @@ struct descriptor_pool_data {
 
 struct descriptor_data {
   descriptor_type type;
-  containers::default_range_partition::token offset;
+  containers::range_partition<>::token offset;
   size_t base_offset;
   size_t binding;
   size_t index;
@@ -97,7 +97,7 @@ struct render_pass_data {
 };
 
 struct image_view_handle {
-  containers::default_range_partition::token token;
+  containers::range_partition<>::token token;
   locked_heap* heap;
 };
 

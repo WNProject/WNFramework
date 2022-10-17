@@ -734,8 +734,8 @@ void d3d12_device::initialize_descriptor_pool(descriptor_pool* _pool,
         _pool_data) {
   size_t num_csv_types = 0;
   size_t num_sampler_types = 0;
-  containers::default_range_partition::token csv_heap_token;
-  containers::default_range_partition::token sampler_heap_token;
+  containers::range_partition<>::token csv_heap_token;
+  containers::range_partition<>::token sampler_heap_token;
 
   for (const descriptor_pool_create_info& data : _pool_data) {
     switch (data.type) {
@@ -800,7 +800,7 @@ void d3d12_device::initialize_descriptor_set(descriptor_set* _set,
   memory::unique_ptr<descriptor_set_data>& set = get_data(_set);
   set = memory::make_unique<descriptor_set_data>(
       m_allocator, m_allocator, pool.get());
-  containers::default_range_partition::token tok;
+  containers::range_partition<>::token tok;
   const locked_heap* descriptor_heap = nullptr;
   size_t idx = 0;
   size_t heap_offset = 0;

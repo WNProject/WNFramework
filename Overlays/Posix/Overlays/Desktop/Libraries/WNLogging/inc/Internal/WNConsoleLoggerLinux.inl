@@ -9,8 +9,8 @@
 namespace wn {
 namespace logging {
 
-static const char* log_colors[static_cast<size_t>(log_level::max)] = {
-    "\e[0m", "\e[1;4;31m", "\e[31m", "\e[33m", "\e[36m", "\e[34m", "\e[32m"};
+static const char* log_colors[static_cast<size_t>(log_level::max)] = {"\e[0m",
+    "\e[1;4;31m", "\e[31m", "\e[33m", "\e[36m", "\e[34m", "\e[32m", "\e[35m"};
 
 static FILE* s_files[] = {stdout, stderr};
 
