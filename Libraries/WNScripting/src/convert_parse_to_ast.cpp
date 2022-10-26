@@ -19,6 +19,8 @@ parse_ast_convertor::convertor_context::convertor_context(
     m_used_externals(_allocator),
     m_nested_scopes(_allocator),
     m_constructor_destructors(_allocator),
+    m_action_helpers_parse(_allocator),
+    m_action_helpers(_allocator),
     m_temporary_cleanup(_allocator),
     m_external_functions(_allocator),
     m_named_functions(_allocator),
@@ -174,8 +176,8 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
       type->log_line(m_log, logging::log_level::error);
       return false;
     }
-    (void)m_type_manager->get_or_register_struct(
-        type->get_name(), &m_used_types, &m_used_externals);
+    (void)m_type_manager->get_or_register_struct(type->get_name(),
+        &m_used_types, &m_used_externals, type->is_synchronized());
   }
 
   for (auto& type : _file->get_structs()) {
@@ -187,29 +189,44 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
   containers::deque<core::pair<const function*, ast_function*>> functions(
       m_allocator);
 
-  for (auto& fn : m_constructor_destructors) {
-    m_script_file->m_functions.push_back(core::move(fn));
-  }
-
-  m_constructor_destructors.clear();
-
   for (auto& type : _file->get_structs()) {
+    for (auto& fn : m_constructor_destructors) {
+      m_script_file->m_functions.push_back(core::move(fn));
+    }
+
+    m_constructor_destructors.clear();
+
     for (auto& f : type->get_functions()) {
       auto st_type = m_type_manager->get_or_register_struct(
           type->get_name(), &m_used_types, &m_used_externals);
 
-      auto fun = pre_resolve_function(
-          f.get(), m_type_manager->get_reference_of(st_type,
-                       ast_type_classification::reference, &m_used_types));
+      auto fun = pre_resolve_function(f.get(),
+          type->is_synchronized()
+              ? st_type
+              : m_type_manager->get_reference_of(st_type,
+                    ast_type_classification::reference, &m_used_types));
       if (!fun) {
         return false;
       }
-
+      if (fun->m_action_function) {
+        functions.push_back(core::make_pair(
+            m_action_helpers_parse.back().get(), fun->m_action_function));
+        m_script_file->m_functions.push_back(
+            core::move(m_action_helpers.back()));
+        m_action_helpers.pop_back();
+      }
       st_type->initialized_member_functions(m_allocator).push_back(fun.get());
       functions.push_back(core::make_pair(f.get(), fun.get()));
       m_script_file->m_functions.push_back(core::move(fun));
     }
   }
+  // We may have picked up more constructors and destructors from structs
+  // that were implicitly created by @action functions.
+  for (auto& fn : m_constructor_destructors) {
+    m_script_file->m_functions.push_back(core::move(fn));
+  }
+
+  m_constructor_destructors.clear();
 
   // Now that all member functions are initialized, set up all member
   // functions on all struct types.

@@ -2,10 +2,12 @@
 <head>
 		<link type="text/template" href="window.rml"/>
     <link type="text/css" href="main.rcss"/>
-    <script src="header.wns"></script>
 <script>
       // UIName=MainGUI
-    </script>
+Void on_button_click(UiElement element) {
+     log_error().o("CLICKYCLICK").o(name).end();
+}
+</script>
 </head>
 <body template="window">
   <div style="padding: 1mm; display: inline;">

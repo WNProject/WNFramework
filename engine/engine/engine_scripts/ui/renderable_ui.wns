@@ -4,7 +4,11 @@
 
 class RenderableUI {
     CString name = "";
+    CString class_name = "";
     CString get_name() {
         return name;
+    }
+    CString get_class_name() {
+        return class_name;
     }
 }

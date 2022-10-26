@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "WNContainers/inc/WNStringView.h"
+#include "WNContainers/inc/WNHashSet.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNLogging/inc/WNConsoleLogger.h"
 #include "WNMemory/inc/allocation_tracker.h"
@@ -200,10 +201,54 @@ static int32_t increment_number(int32_t i) {
   return i + 1;
 }
 
+class test_runtime : public wn::scripting::scripting_runtime {
+public:
+  test_runtime(wn::memory::allocator* _allocator): m_allocator(_allocator), m_actors(_allocator) {
+  }
+
+  wn::scripting::actor_header* allocate_actor(size_t size) override
+  {
+    auto t = reinterpret_cast<wn::scripting::actor_header*>(
+        m_allocator->allocate(size));
+    m_actors.insert(t);
+    return t;
+  }
+
+  void free_actor(wn::scripting::actor_header* actor) override {
+    if (actor->destructor) {
+      actor->destructor(actor + 1);
+    }
+    m_actors.erase(m_actors.find(actor));
+    return m_allocator->deallocate(actor);
+  }
+
+  void call_actor_function(wn::scripting::actor_function* function) override {
+    function->function(function);
+  }
+
+  void update_actors() {
+    for (auto& it : m_actors) {
+      it->update_values(it + 1);
+    }
+  }
+
+  wn::memory::allocator* m_allocator;
+  wn::containers::hash_set<wn::scripting::actor_header*> m_actors;
+};
+
+
+// This is just for testing, but we just want a simple way to update our actors.
+static memory::unique_ptr<test_runtime> _rt;
+
+static void update_actors() {
+  _rt->update_actors();
+}
+
 int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
   executable::wn_dummy();
   uint8_t tests_to_run = 0xff;
   script_test_allocator allocator;
+  _rt = wn::memory::make_unique<test_runtime>(&allocator, &allocator);
 
   containers::string_view test_file;
   containers::string_view data_dir;
@@ -213,6 +258,8 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
   bool verbose = false;
   bool only_jit = false;
   bool only_c = false;
+  
+  
   for (size_t i = 0; i < static_cast<size_t>(_executable_data->argc); ++i) {
     if (containers::string_view("--test_file") ==
         containers::string_view(_executable_data->argv[i])) {
@@ -279,8 +326,8 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
   scripting::factory script_factory;
 
   memory::unique_ptr<scripting::engine> jit =
-      script_factory.get_engine(&allocator,
-          scripting::scripting_engine_type::jit_engine, files.get(), log.log());
+      script_factory.get_engine(&allocator, scripting::scripting_engine_type::jit_engine, files.get(),
+      log.log(), &allocator, &allocator, _rt.get());
 
   memory::unique_ptr<scripting::translator> translator =
       script_factory.get_translator(&allocator,
@@ -290,7 +337,11 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
   // Register increment_number
   jit->register_function<decltype(&increment_number), &increment_number>(
       "increment_number");
+  jit->register_function<decltype(&update_actors), &update_actors>(
+      "update_actors");
   translator->register_cpp_function("increment_number", &increment_number);
+  translator->register_cpp_function("update_actors", &update_actors);
+
 
   // Register a named constant;
   const int32_t constant_a = 42;
@@ -422,5 +473,6 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
     }
   } while (false);
   log.log()->flush();
+  _rt.reset();
   return success ? 0 : -1;
 }

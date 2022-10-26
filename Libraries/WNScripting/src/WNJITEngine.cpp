@@ -98,10 +98,27 @@ struct object {
   void (*destructor)(void*);
 };
 
-// Temp this is going to have to change.
 void* do_allocate(wn_size_t i) {
-  void* t = memory::malloc(i.val);
+  void* t = get_scripting_tls()->_support_allocator->allocate(i.val);
   return t;
+}
+
+void* do_allocate_actor_data(wn_size_t i) {
+  void* t = get_scripting_tls()->_actor_allocator->allocate(i.val);
+  return t;
+}
+
+void* do_allocate_actor(wn_size_t i) {
+  void* t = reinterpret_cast<void*>(get_scripting_tls()->_runtime->allocate_actor(i.val));
+  return t;
+}
+
+void do_free_actor(void* a) {
+  get_scripting_tls()->_runtime->free_actor(reinterpret_cast<actor_header*>(a));
+}
+
+void call_actor_function(void* a) {
+  get_scripting_tls()->_runtime->call_actor_function(reinterpret_cast<actor_function*>(a));
 }
 
 // Temp this is going to have to change.
@@ -119,7 +136,13 @@ void do_free(void* val) {
   if (val == nullptr) {
     return;
   }
-  memory::free(val);
+  get_scripting_tls()->_support_allocator->deallocate(val);
+}
+void do_free_actor_data(void* val) {
+  if (val == nullptr) {
+    return;
+  }
+  get_scripting_tls()->_actor_allocator->deallocate(val);
 }
 
 namespace {
@@ -217,8 +240,10 @@ CompiledModule::CompiledModule(CompiledModule&& _other)
 
 jit_engine::jit_engine(memory::allocator* _allocator,
     file_system::mapping* _mapping, logging::log* _log,
-    memory::allocator* _support_allocator)
-  : engine(_allocator, _log, _support_allocator),
+    memory::allocator* _support_allocator,
+    memory::allocator* _actor_allocator,
+    scripting_runtime* _runtime)
+  : engine(_allocator, _log, _support_allocator, _actor_allocator, _runtime),
     m_file_mapping(_mapping),
     m_compilation_log(_log),
     m_context(memory::make_std_unique<llvm::LLVMContext>()),
@@ -237,8 +262,16 @@ jit_engine::jit_engine(memory::allocator* _allocator,
   llvm::InitializeNativeTargetAsmParser();
   register_function<decltype(&do_allocate), &do_allocate>("_allocate");
   register_function<decltype(&do_free), &do_free>("_free");
+  register_function<decltype(&do_allocate_actor), &do_allocate_actor>("_allocate_actor");
+  register_function<decltype(&do_free_actor), &do_free_actor>("_free_actor");
   register_function<decltype(&do_allocate_array), &do_allocate_array>(
       "_allocate_runtime_array");
+  register_function<decltype(&do_allocate_actor_data), &do_allocate_actor_data>(
+      "_allocate_actor_call");
+  register_function<decltype(&do_free_actor_data), &do_free_actor_data>(
+      "_free_actor_call");
+  register_function<decltype(&call_actor_function), &call_actor_function>(
+      "_call_actor_function");
   m_type_manager.finalize_builtins();
 }
 
@@ -420,26 +453,27 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
   ////MPM.run(*module.m_module);
   //
   //// TODO: figure out what optimizations to run eventually
-  // auto FPM =
-  //     memory::make_unique<llvm::legacy::FunctionPassManager>(m_allocator,
-  //     module.m_module);
+ //  auto FPM =
+ //      memory::make_unique<llvm::legacy::FunctionPassManager>(m_allocator,
+ //      module.m_module);
   //// Add some optimizations.
-  // FPM->add(llvm::createPromoteMemoryToRegisterPass());
-  // FPM->add(llvm::createInstructionCombiningPass());
-  // FPM->add(llvm::createReassociatePass());
-  // FPM->add(llvm::createConstantPropagationPass());
-  // FPM->add(llvm::createGVNPass());
-  // FPM->add(llvm::createCFGSimplificationPass());
-  // FPM->add(llvm::createDeadStoreEliminationPass());
-  // FPM->add(llvm::createDeadInstEliminationPass());
-  //
-  // FPM->doInitialization();
-  // for (auto& F : *module.m_module)
-  //  FPM->run(F);
+   //FPM->add(llvm::createPromoteMemoryToRegisterPass());
+   //FPM->add(llvm::createInstructionCombiningPass());
+   //FPM->add(llvm::createReassociatePass());
+   //FPM->add(llvm::createConstantPropagationPass());
+   //FPM->add(llvm::createGVNPass());
+   //FPM->add(llvm::createCFGSimplificationPass());
+   //FPM->add(llvm::createDeadStoreEliminationPass());
+   //FPM->add(llvm::createDeadInstEliminationPass());
+   //FPM->add(llvm::createMemCpyOptPass());
+   //
+   //FPM->doInitialization();
+   //for (auto& F : *module.m_module)
+   // FPM->run(F);
 
   // Uncomment to get debug information about the module out.
   // It is not really needed, but a good place to debug.
-  // module.m_module->dump();
+  //module.m_module->dump();
   {
     PROFILE_REGION(JitFinalize);
     module.m_engine->finalizeObject();

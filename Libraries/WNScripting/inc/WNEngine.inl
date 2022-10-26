@@ -71,6 +71,50 @@ bool inline engine::get_member_function(containers::string_view _name,
   return get_function_internal<T, Args...>(_name, _function, true);
 }
 
+
+template <typename T, typename... Args>
+bool inline engine::get_named_member_function(containers::string_view _name,
+    containers::string_view _object_type,
+    script_function<T, Args...>* _function) const {
+  return get_named_function_internal<T, Args...>(_name, _object_type, _function);
+}
+
+template <typename T, typename... Args>
+bool inline engine::get_named_function_internal(containers::string_view _name,
+    containers::string_view _object_name,
+    script_function<T, Args...>* _function) const {
+  containers::dynamic_array<containers::string_view> signature_types =
+      m_type_manager.get_mangled_names<T, Args...>();
+
+  containers::string s = get_mangled_name(m_allocator, _name, _object_name);
+  
+  bool first = true;
+  bool second = false;
+  for (auto& param : signature_types) {
+    if (first) {
+      first = false;
+      second = true;
+    } else if (second) {
+      char count[11] = {0};
+      s += "P";
+      memory::writeuint32(
+          count, static_cast<uint32_t>(_object_name.size()), 10);
+      s += count;
+      s += _object_name;
+      second = false;
+      continue;
+    }
+    s += param;
+  }
+
+  if (m_type_manager.is_pass_by_reference(m_type_manager.get_type<T>())) {
+    s += m_type_manager.get_mangled_name<T>();
+  }
+
+  _function->m_function = get_function_pointer(s);
+  return _function->m_function != nullptr;
+}
+
 template <typename T, typename... Args>
 bool inline engine::get_function_internal(containers::string_view _name,
     script_function<T, Args...>* _function, bool _is_member) const {

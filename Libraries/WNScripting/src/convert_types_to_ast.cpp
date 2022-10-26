@@ -87,7 +87,8 @@ const ast_type* parse_ast_convertor::convertor_context::resolve_reference_type(
           _type->custom_type_name(), &m_used_types);
       if (!extern_it) {
         _type->log_line(m_log, logging::log_level::error);
-        m_log->log_error("Undeclared reference type");
+        m_log->log_error(
+            "Undeclared reference type '", _type->custom_type_name(), "'");
         return nullptr;
       }
       sub_type = extern_it;
@@ -105,9 +106,13 @@ const ast_type* parse_ast_convertor::convertor_context::resolve_reference_type(
 
   switch (_type->get_reference_type()) {
     case reference_type::unique:
+    {
+      if (sub_type->m_classification == ast_type_classification::actor_type) {
+        return sub_type;
+      }
       return m_type_manager->get_reference_of(
           sub_type, ast_type_classification::reference, &m_used_types);
-      break;
+    }  break;
     case reference_type::shared:
       return m_type_manager->get_reference_of(
           sub_type, ast_type_classification::shared_reference, &m_used_types);

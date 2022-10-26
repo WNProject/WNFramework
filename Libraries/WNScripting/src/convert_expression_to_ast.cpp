@@ -253,15 +253,17 @@ parse_ast_convertor::convertor_context::resolve_binary(
 
   if ((lhs->m_type->m_classification ==
               ast_type_classification::shared_reference ||
+          lhs->m_type->m_classification == ast_type_classification::reference ||
           lhs->m_type->m_classification ==
-              ast_type_classification::reference) &&
+              ast_type_classification::actor_type) &&
       rhs->m_type == m_type_manager->nullptr_t(&m_used_types)) {
     rhs = make_cast(core::move(rhs), lhs->m_type);
   }
   if ((rhs->m_type->m_classification ==
               ast_type_classification::shared_reference ||
+          rhs->m_type->m_classification == ast_type_classification::reference ||
           rhs->m_type->m_classification ==
-              ast_type_classification::reference) &&
+              ast_type_classification::actor_type) &&
       lhs->m_type == m_type_manager->nullptr_t(&m_used_types)) {
     lhs = make_cast(core::move(lhs), rhs->m_type);
   }
@@ -653,7 +655,9 @@ parse_ast_convertor::convertor_context::resolve_array_allocation_expression(
     if (t->m_implicitly_contained_type->m_classification ==
             ast_type_classification::struct_type ||
         t->m_implicitly_contained_type->m_classification ==
-            ast_type_classification::shared_reference) {
+            ast_type_classification::shared_reference ||
+        t->m_implicitly_contained_type->m_classification ==
+            ast_type_classification::actor_type) {
       m_assigned_declaration = core::move(target);
       m_declaration_succeeded = false;
       resolve_expression(_alloc->get_copy_initializer());
@@ -825,7 +829,9 @@ parse_ast_convertor::convertor_context::resolve_array_allocation_expression(
       if (t->m_implicitly_contained_type->m_classification ==
               ast_type_classification::struct_type ||
           t->m_implicitly_contained_type->m_classification ==
-              ast_type_classification::shared_reference) {
+              ast_type_classification::shared_reference ||
+          t->m_implicitly_contained_type->m_classification ==
+              ast_type_classification::actor_type) {
         m_assigned_declaration = core::move(target);
         m_declaration_succeeded = false;
         resolve_expression(expr->m_expr.get());
@@ -869,9 +875,23 @@ parse_ast_convertor::convertor_context::resolve_array_allocation_expression(
           .push_front(core::move(dest));
     }
   } else if (t->m_implicitly_contained_type->m_classification ==
-             ast_type_classification::shared_reference) {
+                 ast_type_classification::shared_reference) {
     auto dest = memory::make_unique<ast_array_destruction>(m_allocator, _alloc);
     dest->m_destructor = m_type_manager->release_shared(&m_used_builtins);
+    dest->m_shared = true;
+    dest->m_target = clone_ast_node(m_allocator, assigned_declaration.get());
+
+    if (cleanup_after_statement) {
+      m_temporary_cleanup.push_back(core::move(dest));
+    } else {
+      m_nested_scopes.back()
+          ->initialized_cleanup(m_allocator)
+          .push_front(core::move(dest));
+    }
+  } else if (t->m_implicitly_contained_type->m_classification ==
+             ast_type_classification::actor_type) {
+    auto dest = memory::make_unique<ast_array_destruction>(m_allocator, _alloc);
+    dest->m_destructor = m_type_manager->release_actor(&m_used_builtins);
     dest->m_shared = true;
     dest->m_target = clone_ast_node(m_allocator, assigned_declaration.get());
 
@@ -957,6 +977,8 @@ parse_ast_convertor::convertor_context::resolve_function_call(
 
   p_functions* possible_functions = nullptr;
   bool cast_first_param = false;
+  bool synchronized_callee = false;
+  bool is_this = false;
   switch (base_expr->m_node_type) {
     case ast_node_type::ast_id: {
       auto child_id = cast_to<ast_id>(base_expr.get());
@@ -988,11 +1010,15 @@ parse_ast_convertor::convertor_context::resolve_function_call(
       if (struct_type->m_classification !=
               ast_type_classification::struct_type &&
           struct_type->m_classification !=
-              ast_type_classification::extern_type) {
+              ast_type_classification::extern_type &&
+          struct_type->m_classification !=
+              ast_type_classification::actor_type) {
         _call->log_line(m_log, logging::log_level::error);
         m_log->log_error("Trying to call a member on non struct type: ",
             struct_type->m_name);
       }
+      is_this = member_access->m_is_this;
+      synchronized_callee = struct_type->is_synchronized();
       cast_first_param = true;
       m_non_const_functions.deq = &struct_type->m_member_functions;
       possible_functions = &m_non_const_functions;
@@ -1063,6 +1089,25 @@ parse_ast_convertor::convertor_context::resolve_function_call(
   }
 
   function_call->m_function = possible_functions->get(match_index);
+  if (is_this) {
+    if (m_current_function->m_is_synchronized &&
+        !function_call->m_function->m_is_synchronized &&
+        !function_call->m_function->m_action_function) {
+      _call->log_line(m_log, logging::log_level::error);
+      m_log->log_error("Cannot call '", function_name,
+          "' from a @synchronized function as it is neither an @action or "
+          "@synchronized");
+      return nullptr;
+    }
+  } else if (synchronized_callee &&
+             !function_call->m_function->m_is_synchronized &&
+             !function_call->m_function->m_action_function) {
+    _call->log_line(m_log, logging::log_level::error);
+    m_log->log_error("Cannot call '", function_name,
+        "' as it is neither an @action or @synchronized");
+    return nullptr;
+  }
+
   if (function_call->m_function->m_is_external) {
     m_used_externals.insert(function_call->m_function);
   }
@@ -1125,9 +1170,13 @@ parse_ast_convertor::convertor_context::resolve_function_call(
   }
 
   if (function_call->m_function->m_return_type->m_classification ==
-      ast_type_classification::shared_reference) {
+          ast_type_classification::shared_reference ||
+      function_call->m_function->m_return_type->m_classification ==
+          ast_type_classification::actor_type) {
     const ast_type* t = function_call->m_function->m_return_type;
     auto td = make_temp_declaration(_call, get_next_temporary_name(), t);
+    auto fc = function_call.get();
+    
     td->m_initializer = core::move(function_call);
     auto id = id_to(_call, td.get());
     m_current_statements->push_back(core::move(td));
@@ -1135,7 +1184,9 @@ parse_ast_convertor::convertor_context::resolve_function_call(
     memory::unique_ptr<ast_function_call_expression> destructor_call =
         memory::make_unique<ast_function_call_expression>(m_allocator, _call);
     destructor_call->m_function =
-        m_type_manager->release_shared(&m_used_builtins);
+        fc->m_function->m_return_type->m_classification ==
+          ast_type_classification::shared_reference? m_type_manager->release_shared(&m_used_builtins)
+            : m_type_manager->release_actor(&m_used_builtins);
     memory::unique_ptr<ast_cast_expression> cat_to_void_ptr =
         memory::make_unique<ast_cast_expression>(m_allocator, _call);
     cat_to_void_ptr->m_base_expression = clone_ast_node(m_allocator, id.get());
@@ -1154,6 +1205,61 @@ parse_ast_convertor::convertor_context::resolve_function_call(
         .push_back(core::move(expression_statement));
 
     return id;
+  }
+
+  if (!is_this && function_call->m_function->m_action_function &&
+      !m_current_function->m_is_action_caller) {
+    // We are invoking an action on a different actor,
+    // then instead of
+    // foo->bar(a, b, c);
+    // we instead call
+    // external_actor_act(__foo__bar__call_params_construct(external_get_call_param_mem(sizeof(__foo__bar__call_params)),
+    // foo, bar, a, b, c))
+
+    auto num_bytes =
+        memory::make_unique<ast_builtin_expression>(m_allocator, _call);
+    num_bytes->m_type = m_type_manager->size_t_t(&m_used_types);
+    num_bytes->initialized_extra_types(m_allocator)
+        .push_back(function_call->m_function->m_action_call_type);
+    num_bytes->m_builtin_type = builtin_expression_type::size_of;
+
+    auto alloc_call =
+        memory::make_unique<ast_function_call_expression>(m_allocator, _call);
+    alloc_call->m_function =
+        m_type_manager->allocate_actor_call(&m_used_externals);
+    alloc_call->initialized_parameters(m_allocator)
+        .push_back(core::move(num_bytes));
+    alloc_call->m_type = alloc_call->m_function->m_return_type;
+
+    auto constructor_call =
+        memory::make_unique<ast_function_call_expression>(m_allocator, _call);
+    constructor_call->m_function =
+        function_call->m_function->m_action_call_type->m_constructor;
+    constructor_call->m_parameters = core::move(function_call->m_parameters);
+
+    auto fn_ptr = memory::make_unique<ast_function_pointer_expression>(
+        m_allocator, _call);
+    fn_ptr->m_function = function_call->m_function->m_action_function;
+    fn_ptr->m_type =
+        function_call->m_function->m_action_function->m_function_pointer_type;
+
+    auto fn_ptr_as_void =
+        memory::make_unique<ast_cast_expression>(m_allocator, _call);
+    fn_ptr_as_void->m_type = m_type_manager->function_t(&m_used_types);
+    fn_ptr_as_void->m_base_expression = core::move(fn_ptr);
+
+    constructor_call->m_parameters.push_front(core::move(fn_ptr_as_void));
+    constructor_call->m_parameters.push_front(make_cast(core::move(alloc_call),
+        m_type_manager->get_reference_of(
+            function_call->m_function->m_action_call_type,
+            ast_type_classification::reference, &m_used_types)));
+    constructor_call->m_type = constructor_call->m_function->m_return_type;
+    
+    function_call->m_function = m_type_manager->call_actor_function(&m_used_builtins);
+    function_call->initialized_parameters(m_allocator)
+        .push_back(make_cast(core::move(constructor_call),
+            function_call->m_function->m_parameters[0].m_type));
+    function_call->m_type = function_call->m_function->m_return_type;
   }
 
   return function_call;
@@ -1323,6 +1429,9 @@ parse_ast_convertor::convertor_context::resolve_struct_allocation_expression(
   }
   if (t->m_classification == ast_type_classification::shared_reference) {
     return resolve_shared_struct_allocation_expression(_alloc);
+  }
+  if (t->m_classification == ast_type_classification::actor_type) {
+    return resolve_actor_allocation_expression(_alloc);
   }
   if (t->m_classification != ast_type_classification::struct_type) {
     _alloc->log_line(m_log, logging::log_level ::error);
@@ -1743,6 +1852,202 @@ memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::
   return declared_target;
 }
 
+memory::unique_ptr<ast_expression> parse_ast_convertor::convertor_context::resolve_actor_allocation_expression(
+        const struct_allocation_expression* _alloc) {
+  const ast_type* t = resolve_type(_alloc->get_type());
+  if (!t) {
+    return nullptr;
+  }
+  WN_DEBUG_ASSERT(t->m_classification == ast_type_classification::actor_type,
+      "Unhandled shared allocation with non shared type");
+  const ast_type* st = t;
+
+  ast_type* alloc_type = st->m_overloaded_construction_child;
+
+  memory::unique_ptr<ast_declaration> temp_decl;
+  memory::unique_ptr<ast_expression> declared_target;
+  // We have to get this out of the high-level variable BEFORE we
+  // assign.
+  memory::unique_ptr<ast_expression> assigned_declaration =
+      core::move(m_assigned_declaration);
+  bool cleanup_after_statement = false;
+  bool mark_success = false;
+  bool is_inserted_into_array = false;
+  bool is_synchronized_init = false;
+  if (!assigned_declaration) {
+    cleanup_after_statement = true;
+    temp_decl = make_temp_declaration(_alloc, get_next_temporary_name(), t);
+
+    memory::unique_ptr<ast_id> id =
+        memory::make_unique<ast_id>(m_allocator, _alloc);
+    id->m_declaration = temp_decl.get();
+    id->m_type = temp_decl->m_type;
+
+    declared_target = core::move(id);
+  } else {
+    is_inserted_into_array = assigned_declaration->m_node_type ==
+                             ast_node_type::ast_array_access_expression;
+    if (assigned_declaration->m_node_type == ast_node_type::ast_id) {
+      is_synchronized_init = cast_to<ast_id>(assigned_declaration.get())
+                                 ->m_declaration->m_is_synchronized;
+    }
+
+    declared_target = core::move(assigned_declaration);
+    mark_success = true;
+  }
+
+  WN_DEBUG_ASSERT(alloc_type && alloc_type->m_constructor,
+      "Have a struct type without a proper constructor");
+
+  auto num_bytes =
+      memory::make_unique<ast_builtin_expression>(m_allocator, _alloc);
+  num_bytes->m_type = m_type_manager->size_t_t(&m_used_types);
+  num_bytes->initialized_extra_types(m_allocator).push_back(alloc_type);
+  num_bytes->m_builtin_type = builtin_expression_type::size_of;
+
+  memory::unique_ptr<ast_expression> dest;
+
+  if (alloc_type->m_destructor) {
+    auto d = memory::make_unique<ast_function_pointer_expression>(
+        m_allocator, _alloc);
+    d->m_type = alloc_type->m_destructor->m_function_pointer_type;
+    d->m_function = alloc_type->m_destructor;
+    dest = core::move(d);
+  } else {
+    auto const_null = memory::make_unique<ast_constant>(m_allocator, _alloc);
+    const_null->m_string_value = containers::string(m_allocator, "");
+    const_null->m_type = m_type_manager->nullptr_t(&m_used_types);
+    dest = core::move(const_null);
+  }
+
+  memory::unique_ptr<ast_expression> update;
+  if (alloc_type->m_actor_update) {
+    auto d = memory::make_unique<ast_function_pointer_expression>(
+        m_allocator, _alloc);
+    d->m_type = alloc_type->m_actor_update->m_function_pointer_type;
+    d->m_function = alloc_type->m_actor_update;
+    update = core::move(d);
+  } else {
+    auto const_null = memory::make_unique<ast_constant>(m_allocator, _alloc);
+    const_null->m_string_value = containers::string(m_allocator, "");
+    const_null->m_type = m_type_manager->nullptr_t(&m_used_types);
+    update = core::move(const_null);
+  }
+
+  auto dest_as_void =
+      memory::make_unique<ast_cast_expression>(m_allocator, _alloc);
+  dest_as_void->m_type = m_type_manager->destructor_fn_ptr(&m_used_types);
+  dest_as_void->m_base_expression = core::move(dest);
+
+  auto update_as_void =
+      memory::make_unique<ast_cast_expression>(m_allocator, _alloc);
+  update_as_void->m_type = m_type_manager->destructor_fn_ptr(&m_used_types);
+  update_as_void->m_base_expression = core::move(update);
+
+  memory::unique_ptr<ast_function_call_expression> allocate =
+      memory::make_unique<ast_function_call_expression>(m_allocator, _alloc);
+  allocate->m_function = m_type_manager->allocate_actor(&m_used_builtins);
+  allocate->m_type = allocate->m_function->m_return_type;
+  allocate->initialized_parameters(m_allocator)
+      .push_back(core::move(num_bytes));
+  allocate->initialized_parameters(m_allocator)
+      .push_back(core::move(dest_as_void));
+  allocate->initialized_parameters(m_allocator)
+      .push_back(core::move(update_as_void));
+
+  memory::unique_ptr<ast_function_call_expression> function_call =
+      memory::make_unique<ast_function_call_expression>(m_allocator, _alloc);
+  function_call->m_function = alloc_type->m_constructor;
+  use_function(alloc_type->m_constructor);
+
+  memory::unique_ptr<ast_cast_expression> cast =
+      memory::make_unique<ast_cast_expression>(m_allocator, _alloc);
+  cast->m_base_expression = core::move(allocate);
+  cast->m_type = alloc_type->m_constructor->m_parameters[0].m_type;
+  function_call->initialized_parameters(m_allocator)
+      .push_back(core::move(cast));
+
+  if (_alloc->get_args()) {
+    const ast_function* constructor = alloc_type->m_constructor;
+    if (alloc_type->m_constructor->m_parameters.size() !=
+        _alloc->get_args()->get_expressions().size() + 1) {
+      _alloc->log_line(m_log, logging::log_level::error);
+      m_log->log_error("Constructor expects different arguments");
+      return nullptr;
+    }
+    size_t i = 0;
+    for (auto& expr : _alloc->get_args()->get_expressions()) {
+      // Handily this lets us skip the first element.
+      i++;
+
+      auto ex = resolve_expression(expr->m_expr.get());
+      if (!ex) {
+        return nullptr;
+      }
+      transfer_temporaries(function_call.get(), ex.get());
+
+      if (ex->m_type != constructor->m_parameters[i].m_type) {
+        if (!ex->m_type->can_implicitly_cast_to(
+                constructor->m_parameters[i].m_type)) {
+          _alloc->log_line(m_log, logging::log_level::error);
+          m_log->log_error("Cannot convert arugment in constructor");
+          return nullptr;
+        }
+        ex = make_cast(core::move(ex), constructor->m_parameters[i].m_type);
+      }
+
+      function_call->initialized_parameters(m_allocator)
+          .push_back(core::move(ex));
+    }
+  }
+
+  function_call->m_type = st;
+  
+  if (temp_decl) {
+    m_current_statements->push_back(core::move(temp_decl));
+  }
+
+  const ast_type* to_t = declared_target->m_type;
+  auto assign = memory::make_unique<ast_assignment>(m_allocator, _alloc);
+  assign->m_lhs = clone_ast_node(m_allocator, declared_target.get());
+  assign->m_rhs = make_cast(core::move(function_call), to_t);
+  m_current_statements->push_back(core::move(assign));
+
+  // Handle the cleanup of this ref
+  if (!is_inserted_into_array && !is_synchronized_init) {
+    memory::unique_ptr<ast_function_call_expression> destructor_call =
+        memory::make_unique<ast_function_call_expression>(m_allocator, _alloc);
+    destructor_call->m_function =
+        m_type_manager->release_actor(&m_used_builtins);
+    memory::unique_ptr<ast_cast_expression> cat_to_void_ptr =
+        memory::make_unique<ast_cast_expression>(m_allocator, _alloc);
+    cat_to_void_ptr->m_base_expression =
+        clone_ast_node(m_allocator, declared_target.get());
+    cat_to_void_ptr->m_type = m_type_manager->void_ptr_t(&m_used_types);
+
+    destructor_call->initialized_parameters(m_allocator)
+        .push_back(core::move(cat_to_void_ptr));
+    destructor_call->m_type = m_type_manager->void_t(&m_used_types);
+
+    auto expression_statement =
+        memory::make_unique<ast_evaluate_expression>(m_allocator, _alloc);
+    expression_statement->m_expr = core::move(destructor_call);
+
+    if (cleanup_after_statement) {
+      m_temporary_cleanup.push_back(core::move(expression_statement));
+    } else {
+      m_nested_scopes.back()
+          ->initialized_cleanup(m_allocator)
+          .push_front(core::move(expression_statement));
+    }
+  }
+  if (mark_success) {
+    m_declaration_succeeded = true;
+  }
+
+  return declared_target;
+}
+
 memory::unique_ptr<ast_expression>
 parse_ast_convertor::convertor_context::resolve_member_access_expression(
     const member_access_expression* _expression) {
@@ -1773,6 +2078,13 @@ parse_ast_convertor::convertor_context::resolve_member_access_expression(
   // child_pos cannot be 0, that would not work.
   for (auto& cp : struct_type->m_structure_members) {
     if (cp->m_name == member->m_member_name) {
+      if (struct_type->m_is_synchronized) {
+        cp->log_line(m_log, logging::log_level::error);
+        m_log->log_error("Cannot access member: '", member->m_member_name,
+            "' in Actor as it is not synchronized");
+        return nullptr;
+      }
+
       break;
     }
     child_pos++;
@@ -1797,6 +2109,7 @@ parse_ast_convertor::convertor_context::resolve_member_access_expression(
     member->m_type =
         struct_type->m_synchronized_declarations[child_pos]->m_type;
     member->m_is_synchronized = true;
+    member->m_is_synchronized_function = true;
     return member;
   }
 

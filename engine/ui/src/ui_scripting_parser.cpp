@@ -359,6 +359,9 @@ bool ui_scripting_parser::parse_ui(file_system::mapping* _mapping,
   *_out_string += " .name = \"";
   *_out_string += _file_name;
   *_out_string += "\";\n";
+  *_out_string += " .class_name = \"";
+  *_out_string += *_out_ui_name;
+  *_out_string += "\";\n";
   *_out_string += out_string;
   *_out_string += "\n}\n\n shared ";
 

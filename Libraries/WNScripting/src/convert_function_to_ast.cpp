@@ -12,38 +12,46 @@ namespace scripting {
 memory::unique_ptr<ast_function>
 parse_ast_convertor::convertor_context::pre_resolve_function(
     const function* _function, const ast_type* _implicit_this) {
-  memory::unique_ptr<ast_function> function =
+  memory::unique_ptr<ast_function> fn =
       memory::make_unique<ast_function>(m_allocator, _function);
 
   const ast_type* ret_ty = resolve_type(_function->get_signature()->get_type());
 
-  function->m_return_type = ret_ty;
-  if (!function->m_return_type) {
+  fn->m_return_type = ret_ty;
+  if (!fn->m_return_type) {
     return nullptr;
   }
-  function->m_name =
-      _function->get_signature()->get_name().to_string(m_allocator);
+  fn->m_name = _function->get_signature()->get_name().to_string(m_allocator);
+
+  if (_implicit_this && _implicit_this->is_synchronized()) {
+    if (_function->is_action() &&
+        ret_ty != m_type_manager->void_t(&m_used_types)) {
+      _function->log_line(m_log, logging::log_level::error);
+      m_log->log_error("Actions on Actors must not return values");
+      return nullptr;
+    }
+  }
 
   containers::string mangled_name(m_allocator);
   containers::dynamic_array<const ast_type*> types(m_allocator);
   types.push_back(ret_ty);
   if (!_implicit_this) {
-    auto it = m_named_functions.find(function->m_name);
+    auto it = m_named_functions.find(fn->m_name);
     if (it == m_named_functions.end()) {
       it = m_named_functions
-               .insert(core::make_pair(function->m_name,
+               .insert(core::make_pair(fn->m_name,
                    containers::deque<const ast_function*>(m_allocator)))
                .first;
     }
-    it->second.push_back(function.get());
+    it->second.push_back(fn.get());
   }
 
   containers::deque<ast_function::parameter>& function_params =
-      function->initialized_parameters(m_allocator);
+      fn->initialized_parameters(m_allocator);
   if (_implicit_this) {
     types.push_back(_implicit_this);
     function_params.push_back(ast_function::parameter{
-        containers::string(m_allocator, "_this"), _implicit_this});
+        containers::string(m_allocator, "_this"), fn.get(), _implicit_this});
   }
 
   if (_function->get_parameters() &&
@@ -55,22 +63,225 @@ parse_ast_convertor::convertor_context::pre_resolve_function(
       }
       types.push_back(param_type);
       function_params.push_back(ast_function::parameter{
-          containers::string(m_allocator, param->get_name()), param_type});
+          containers::string(m_allocator, param->get_name()), fn.get(),
+          param_type});
     }
   }
 
   if (ret_ty->m_pass_by_reference) {
     function_params.push_back(ast_function::parameter{
-        containers::string(m_allocator, "_return"), ret_ty});
+        containers::string(m_allocator, "_return"), fn.get(), ret_ty});
   }
 
-  function->m_is_virtual = _function->is_virtual();
-  function->m_is_override = _function->is_override();
-  function->m_is_member_function = _implicit_this != nullptr;
-  function->calculate_mangled_name(m_allocator);
-  function->m_function_pointer_type = m_type_manager->resolve_function_ptr_type(
+  fn->m_is_virtual = _function->is_virtual();
+  fn->m_is_override = _function->is_override();
+  fn->m_is_synchronized = _function->is_synchronized();
+  fn->m_is_member_function = _implicit_this != nullptr;
+  fn->calculate_mangled_name(m_allocator);
+  fn->m_function_pointer_type = m_type_manager->resolve_function_ptr_type(
       core::move(types), &m_used_types);
-  return function;
+
+  if (_function->is_action()) {
+    auto callee_def =
+        memory::make_unique<struct_definition>(m_allocator, m_allocator,
+            (containers::string(m_allocator, "__") + fn->m_mangled_name +
+                "__call_params")
+                .c_str(),
+            false, nullptr);
+    callee_def->copy_location_from(_function->get_signature());
+    callee_def->set_is_actor_callee(true);
+    auto constructor_params =
+        memory::make_unique<parameter_list>(m_allocator, m_allocator);
+    constructor_params->copy_location_from(_function->get_signature());
+
+    if (!m_type_manager->register_struct_definition(callee_def.get())) {
+      callee_def->log_line(m_log, logging::log_level::error);
+      return nullptr;
+    }
+    type* struct_type;
+
+    {
+      auto decl = memory::make_unique<declaration>(m_allocator, m_allocator);
+      decl->copy_location_from(_function->get_signature());
+      auto fnp_type = memory::make_unique<type>(
+          m_allocator, m_allocator, type_classification::function_ptr_type);
+      fnp_type->copy_location_from(_function);
+      fnp_type->set_reference_type(reference_type::raw);
+
+      auto this_param = memory::make_unique<parameter>(
+          m_allocator, m_allocator, core::move(fnp_type), "_fn");
+      this_param->copy_location_from(_function->get_signature());
+      decl->set_parameter(core::move(this_param));
+      auto construct_param = memory::make_unique<parameter>(m_allocator,
+          m_allocator, clone_node(m_allocator, decl->get_type()), "__fn");
+      construct_param->copy_location_from(_function->get_signature());
+      constructor_params->add_parameter(core::move(construct_param));
+
+      auto ex =
+          memory::make_unique<id_expression>(m_allocator, m_allocator, "__fn");
+      ex->copy_location_from(_function->get_signature());
+      decl->add_expression_initializer(core::move(ex));
+      callee_def->add_struct_elem(core::move(decl), false);
+    }
+    {
+      auto decl = memory::make_unique<declaration>(m_allocator, m_allocator);
+      decl->copy_location_from(_function->get_signature());
+      auto this_type = memory::make_unique<type>(m_allocator, m_allocator,
+          _implicit_this->m_name.c_str());
+      this_type->copy_location_from(_function);
+      this_type->set_reference_type(reference_type::raw);
+      struct_type = this_type.get();
+      auto this_param = memory::make_unique<parameter>(
+          m_allocator, m_allocator, core::move(this_type), "__this");
+      this_param->copy_location_from(_function->get_signature());
+      decl->set_parameter(core::move(this_param));
+      auto construct_param = memory::make_unique<parameter>(m_allocator,
+          m_allocator, clone_node(m_allocator, decl->get_type()), "___this");
+
+      construct_param->copy_location_from(_function->get_signature());
+      constructor_params->add_parameter(core::move(construct_param));
+
+      auto ex = memory::make_unique<id_expression>(
+          m_allocator, m_allocator, "___this");
+      ex->copy_location_from(_function->get_signature());
+      decl->add_expression_initializer(core::move(ex));
+      callee_def->add_struct_elem(core::move(decl), false);
+    }
+
+    for (auto& it : _function->get_parameters()->get_parameters()) {
+      auto decl = memory::make_unique<declaration>(m_allocator, m_allocator);
+      decl->copy_location_from(_function->get_signature());
+      auto parm = memory::make_unique<parameter>(m_allocator, m_allocator,
+          clone_node(m_allocator, it->get_type()),
+          (containers::string(m_allocator, "_") +
+              it->get_name().to_string(m_allocator))
+              .c_str());
+      parm->copy_location_from(_function->get_signature());
+      decl->set_parameter(core::move(parm));
+
+      auto construct_param = memory::make_unique<parameter>(m_allocator,
+          m_allocator, clone_node(m_allocator, it->get_type()),
+          (containers::string(m_allocator, "__") +
+              it->get_name().to_string(m_allocator))
+              .c_str());
+      construct_param->copy_location_from(_function->get_signature());
+      constructor_params->add_parameter(core::move(construct_param));
+
+      auto ex = memory::make_unique<id_expression>(m_allocator, m_allocator,
+          (containers::string(m_allocator, "__") +
+              it->get_name().to_string(m_allocator))
+              .c_str());
+      ex->copy_location_from(_function->get_signature());
+      decl->add_expression_initializer(core::move(ex));
+      callee_def->add_struct_elem(core::move(decl), false);
+    }
+    callee_def->set_constructor_parameters(core::move(constructor_params));
+    fn->m_action_call_type = walk_struct_definition(callee_def.get());
+    if (!fn->m_action_call_type) {
+      return nullptr;
+    }
+
+    auto insts =
+        memory::make_unique<instruction_list>(m_allocator, m_allocator);
+    insts->copy_location_from(_function->get_signature());
+    {
+      // _this
+      auto idexpr =
+          memory::make_unique<id_expression>(m_allocator, m_allocator, "_this");
+      idexpr->copy_location_from(_function->get_signature());
+      // _this->__this
+      auto macc = memory::make_unique<member_access_expression>(
+          m_allocator, m_allocator, "__this");
+      macc->copy_location_from(_function->get_signature());
+      macc->add_base_expression(clone_node(m_allocator, idexpr.get()));
+
+      // _this->__this-><function>
+      auto fnacc = memory::make_unique<member_access_expression>(
+          m_allocator, m_allocator, _function->get_signature()->get_name());
+      fnacc->copy_location_from(_function->get_signature());
+      fnacc->add_base_expression(core::move(macc));
+
+      auto al = memory::make_unique<arg_list>(m_allocator, m_allocator);
+      al->copy_location_from(_function->get_signature());
+      {
+        for (auto& it : _function->get_parameters()->get_parameters()) {
+          auto param_expr = memory::make_unique<id_expression>(
+              m_allocator, m_allocator, "_this");
+          param_expr->copy_location_from(_function->get_signature());
+
+          auto param_macc = memory::make_unique<member_access_expression>(
+              m_allocator, m_allocator,
+              containers::string(m_allocator, "_") +
+                  it->get_name_str());
+          param_macc->copy_location_from(_function->get_signature());
+          param_macc->add_base_expression(core::move(param_expr));
+          al->add_expression(core::move(param_macc));
+        }
+      }
+
+      auto fn_call = memory::make_unique<function_call_expression>(
+          m_allocator, m_allocator, core::move(al));
+      fn_call->copy_location_from(_function->get_signature());
+      fn_call->add_base_expression(core::move(fnacc));
+
+      auto expr_inst = memory::make_unique<expression_instruction>(
+          m_allocator, m_allocator, core::move(fn_call));
+      expr_inst->copy_location_from(_function->get_signature());
+      insts->add_instruction(core::move(expr_inst));
+
+      auto param_expr =
+          memory::make_unique<id_expression>(m_allocator, m_allocator, "_this");
+      param_expr->copy_location_from(_function->get_signature());
+      al = memory::make_unique<arg_list>(m_allocator, m_allocator);
+      al->copy_location_from(_function->get_signature());
+      al->add_expression(core::move(param_expr));
+      
+      auto new_id_expr =
+          memory::make_unique<id_expression>(m_allocator, m_allocator, "_free_actor_call");
+      new_id_expr->copy_location_from(_function->get_signature());
+
+      fn_call = memory::make_unique<function_call_expression>(
+          m_allocator, m_allocator, core::move(al));
+      fn_call->copy_location_from(_function->get_signature());
+      fn_call->add_base_expression(core::move(new_id_expr));
+            
+      expr_inst = memory::make_unique<expression_instruction>(
+          m_allocator, m_allocator, core::move(fn_call));
+      expr_inst->copy_location_from(_function->get_signature());
+      insts->add_instruction(core::move(expr_inst));
+    }
+
+    auto struct_callee_type = memory::make_unique<type>(m_allocator, m_allocator, fn->m_action_call_type->m_name.c_str());
+    struct_callee_type->copy_location_from(_function);
+    struct_callee_type->set_reference_type(reference_type::unique);
+
+    auto param = memory::make_unique<parameter>(
+        m_allocator, m_allocator, core::move(struct_callee_type), "_this");
+    param->copy_location_from(_function->get_signature());
+    auto param_list = memory::make_unique<parameter_list>(
+        m_allocator, m_allocator, core::move(param));
+    param_list->copy_location_from(_function->get_signature());
+
+    auto sig = memory::make_unique<parameter>(m_allocator, m_allocator,
+        clone_node(m_allocator, _function->get_signature()->get_type()),
+        (containers::string(m_allocator, "__call_") +
+            _function->get_signature()->get_name_str()).c_str());
+
+    auto af = memory::make_unique<function>(m_allocator, m_allocator,
+        core::move(sig), core::move(param_list), core::move(insts));
+    af->copy_location_from(_function->get_signature());
+
+    auto ah = pre_resolve_function(af.get(), nullptr);
+    ah->m_is_action_caller = true;
+    if (!ah) {
+      return nullptr;
+    }
+    m_action_helpers_parse.push_back(core::move(af));
+    fn->m_action_function = ah.get();
+    m_action_helpers.push_back(core::move(ah));
+  }
+
+  return fn;
 }
 
 bool parse_ast_convertor::convertor_context::resolve_function(

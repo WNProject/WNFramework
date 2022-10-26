@@ -88,7 +88,9 @@ private:
 class engine {
 public:
   engine(memory::allocator* _allocator, logging::log* _log,
-      memory::allocator* _support_allocator)
+      memory::allocator* _support_allocator,
+      memory::allocator* _actor_allocator,
+      scripting_runtime* _runtime)
     : m_num_warnings(0),
       m_num_errors(0),
       m_allocator(_allocator),
@@ -109,6 +111,8 @@ public:
     m_tls_data._object_types = &m_object_types;
     m_tls_data._log = m_log;
     m_tls_data._support_allocator = _support_allocator;
+    m_tls_data._actor_allocator = _actor_allocator;
+    m_tls_data._runtime = _runtime;
   }
 
   virtual ~engine() {}
@@ -135,6 +139,11 @@ public:
   template <typename R, typename... Args>
   bool get_function(containers::string_view _name,
       script_function<R, Args...>* _function) const;
+
+  template <typename T, typename... Args>
+  bool inline get_named_member_function(containers::string_view _name,
+      containers::string_view _object_type,
+      script_function<T, Args...>* _function) const;
 
   template <typename R, typename... Args>
   R invoke(const script_function<R, Args...>& _function, Args... _args) const;
@@ -233,6 +242,11 @@ protected:
   template <typename R, typename... Args>
   bool get_function_internal(containers::string_view _name,
       script_function<R, Args...>* _function, bool _is_member) const;
+
+  template <typename R, typename... Args>
+  bool get_named_function_internal(containers::string_view _name,
+      containers::string_view _object_name,
+      script_function<R, Args...>* _function) const;
 
   template <typename R, typename... Args>
   size_t get_virtual_function(containers::string_view _name) const;

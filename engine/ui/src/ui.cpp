@@ -138,7 +138,7 @@ void ui::initialize_for_renderpass(renderer::render_context* _renderer,
       allocator, m_context->m_log, _renderer->get_window()->underlying());
   m_window = _renderer->get_window()->underlying();
   m_instancer = memory::make_unique<event_instancer>(
-      allocator, m_engine, m_context->m_log);
+      allocator, m_engine, allocator, m_context->m_log);
   m_input_context = m_window->get_input_context();
   m_width = static_cast<int>(_render_pass->get_width());
   m_height = static_cast<int>(_render_pass->get_height());
@@ -265,8 +265,10 @@ void ui::add_document(
 
 void ui::add_doc(document_to_add* _doc) {
   const char* element_name = _doc->_data.invoke(&ui_data::get_ui_name);
-
+  m_instancer->register_currently_loading_doc(core::move(_doc->_data));
   auto document = m_document_context->LoadDocument(element_name);
+  m_instancer->add_element_context(document, 
+    m_instancer->release_currently_loading_doc());
 
   document->SetProperty(
       "left", Rocket::Core::Property(_doc->_x, Rocket::Core::Property::PX));

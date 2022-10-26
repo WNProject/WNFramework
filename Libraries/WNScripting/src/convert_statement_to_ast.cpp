@@ -23,7 +23,9 @@ bool parse_ast_convertor::convertor_context::resolve_return(
       return false;
     }
     if (m_current_function->m_return_type->m_classification ==
-        ast_type_classification::shared_reference) {
+            ast_type_classification::shared_reference ||
+        m_current_function->m_return_type->m_classification ==
+            ast_type_classification::actor_type) {
       if (expr->m_type == m_type_manager->nullptr_t(&m_used_types)) {
         expr = make_cast(core::move(expr), m_current_function->m_return_type);
       } else {
@@ -285,6 +287,8 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
           ast_type_classification::extern_type) {
     type = type->m_implicitly_contained_type;
   }
+  bool is_actor = 
+      type->m_classification == ast_type_classification::actor_type;
 
   const bool is_shared =
       type->m_classification == ast_type_classification::shared_reference;
@@ -300,7 +304,7 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
     decl->m_is_synchronized = true;
   }
 
-  const bool is_obj_init = (is_object || is_shared) &&
+  const bool is_obj_init = (is_object || is_shared || is_actor) &&
                            (_declaration->get_expression()->get_node_type() ==
                                node_type::struct_allocation_expression);
 
@@ -312,7 +316,7 @@ bool parse_ast_convertor::convertor_context::resolve_declaration(
       is_array && (_declaration->get_expression()->get_node_type() ==
                       node_type::array_allocation_expression);
 
-  if (((is_object || is_shared) && is_obj_init) ||
+  if (((is_object || is_shared || is_actor) && is_obj_init) ||
       (is_array && is_array_init)) {
     auto id_expr = memory::make_unique<ast_id>(m_allocator, _declaration);
     id_expr->m_declaration = decl.get();
@@ -391,8 +395,10 @@ bool parse_ast_convertor::convertor_context::resolve_assignment(
     return false;
   }
 
-  if (lhs->m_type->m_classification ==
-          ast_type_classification::shared_reference &&
+  if ((lhs->m_type->m_classification ==
+              ast_type_classification::shared_reference ||
+          lhs->m_type->m_classification ==
+              ast_type_classification::actor_type) &&
       rhs->m_type == m_type_manager->nullptr_t(&m_used_types)) {
     rhs = make_cast(core::move(rhs), lhs->m_type);
   }
@@ -417,7 +423,8 @@ bool parse_ast_convertor::convertor_context::resolve_assignment(
   }
 
   if (lhs->m_type->m_classification ==
-      ast_type_classification::shared_reference) {
+          ast_type_classification::shared_reference ||
+      lhs->m_type->m_classification == ast_type_classification::actor_type) {
     containers::dynamic_array<memory::unique_ptr<ast_expression>> params(
         m_allocator);
     params.push_back(make_cast(clone_ast_node(m_allocator, lhs.get()),

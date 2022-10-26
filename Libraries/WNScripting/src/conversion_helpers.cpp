@@ -118,6 +118,8 @@ parse_ast_convertor::convertor_context::get_id(
 
   if (m_current_function->m_is_member_function) {
     auto st =
+    m_current_function->m_parameters[0].m_type->m_is_synchronized?
+    m_current_function->m_parameters[0].m_type:
         m_current_function->m_parameters[0].m_type->m_implicitly_contained_type;
     uint32_t num = 0;
 
@@ -134,14 +136,45 @@ parse_ast_convertor::convertor_context::get_id(
         mae->m_member_name = core::move(_name);
         mae->m_type = m->m_type;
 
+        if (m_current_function->m_is_synchronized) {
+          _location->log_line(m_log, logging::log_level::error);
+          m_log->log_error("Cannot access '", _name,
+              "' from within a synchronized function");
+          return nullptr;
+        }
         return mae;
       }
 
       num++;
     }
+    num = 0;
+    for (auto& m : st->m_synchronized_declarations) {
+      if (m->m_name == _name) {
+        auto mae = memory::make_unique<ast_member_access_expression>(
+            m_allocator, _location);
+
+        id_expr->m_function_parameter = &m_current_function->m_parameters[0];
+        id_expr->m_type = m_current_function->m_parameters[0].m_type;
+
+        mae->m_is_synchronized_function = m_current_function->m_is_synchronized;
+        mae->m_is_synchronized = true;
+        mae->m_base_expression = core::move(id_expr);
+        mae->m_member_offset = num;
+        mae->m_member_name = core::move(_name);
+        mae->m_type = m->m_type;
+
+        return mae;
+      }
+    }
 
     for (auto& f : st->m_member_functions) {
       if (f->m_name == _name) {
+        if (m_current_function->m_is_synchronized && !(f->m_is_synchronized || f->m_action_function)) {
+          _location->log_line(m_log, logging::log_level::error);
+          m_log->log_error("Cannot call non-synchronized function '",
+              _name, "' from within a synchronized one");
+          return nullptr;
+        }
         auto mae = memory::make_unique<ast_member_access_expression>(
             m_allocator, _location);
         id_expr->m_function_parameter = &m_current_function->m_parameters[0];
@@ -150,6 +183,7 @@ parse_ast_convertor::convertor_context::get_id(
         mae->m_base_expression = core::move(id_expr);
         mae->m_member_name = core::move(_name);
         mae->m_type = m_type_manager->function_t(&m_used_types);
+        mae->m_is_this = true;
 
         return mae;
       }

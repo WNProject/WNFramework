@@ -42,6 +42,7 @@ enum class ast_type_classification {
   slice_type,
   function_pointer,
   extern_type,
+  actor_type
 };
 
 using used_type_set = containers::hash_set<const ast_type*>;
@@ -131,7 +132,8 @@ public:
       const ast_type* _type, uint32_t _size, used_type_set* _used);
 
   ast_type* get_or_register_struct(containers::string_view _name,
-      used_type_set* _used, used_function_set* _used_functions);
+      used_type_set* _used, used_function_set* _used_functions,
+      bool is_actor = false);
   ast_type* register_child_struct(containers::string_view _name,
       ast_type* _struct_type, used_type_set* _used);
   containers::dynamic_array<const ast_type*> get_initialialization_order(
@@ -214,12 +216,6 @@ public:
       _used->insert(m_destructor_fn_ptr_t);
     }
     return m_destructor_fn_ptr_t;
-  }
-  const ast_type* shared_object_header(used_type_set* _used) {
-    if (_used) {
-      _used->insert(m_shared_object_header.get());
-    }
-    return m_shared_object_header.get();
   }
 
   const ast_type* integral(uint32_t size, used_type_set* _used) {
@@ -311,12 +307,64 @@ public:
     }
     return m_return_shared;
   }
+  const ast_function* allocate_actor(
+      containers::hash_set<const ast_function*>* _used_functions) {
+    if (_used_functions) {
+      _used_functions->insert(m_allocate_actor);
+    }
+    return m_allocate_actor;
+  }
+  const ast_function* release_actor(
+      containers::hash_set<const ast_function*>* _used_functions) {
+    if (_used_functions) {
+      _used_functions->insert(m_release_actor);
+    }
+    return m_release_actor;
+  }
+  const ast_function* assign_actor(
+      containers::hash_set<const ast_function*>* _used_functions) {
+    if (_used_functions) {
+      _used_functions->insert(m_assign_actor);
+      _used_functions->insert(m_release_actor);
+    }
+    return m_assign_actor;
+  }
+  const ast_function* return_actor(
+      containers::hash_set<const ast_function*>* _used_functions) {
+    if (_used_functions) {
+      _used_functions->insert(m_return_actor);
+    }
+    return m_return_actor;
+  }
   const ast_function* strlen(
       containers::hash_set<const ast_function*>* _used_functions) {
     if (_used_functions) {
       _used_functions->insert(m_strlen);
     }
     return m_strlen;
+  }
+  const ast_function* allocate_actor_call(
+      containers::hash_set<const ast_function*>* _used_functions) {
+    if (_used_functions) {
+      _used_functions->insert(m_allocate_actor_call);
+    }
+    return m_allocate_actor_call;
+  }
+
+  const ast_function* free_actor_call(
+      containers::hash_set<const ast_function*>* _used_functions) {
+    if (_used_functions) {
+      _used_functions->insert(m_free_actor_call);
+    }
+    return m_free_actor_call;
+  }
+
+  const ast_function* call_actor_function(
+      containers::hash_set<const ast_function*>* _used_functions) {
+    if (_used_functions) {
+      _used_functions->insert(m_call_actor_function);
+    }
+    return m_call_actor_function;
   }
 
   bool is_pass_by_reference(const ast_type* _type) const;
@@ -373,6 +421,10 @@ private:
   void add_release_shared();
   void add_assign_shared();
   void add_return_shared();
+  void add_allocate_actor();
+  void add_release_actor();
+  void add_assign_actor();
+  void add_return_actor();
   void add_strlen();
 
   void finalize_external_type(ast_type* _type) const;
@@ -401,13 +453,21 @@ private:
   const ast_function* m_release_shared;
   const ast_function* m_assign_shared;
   const ast_function* m_return_shared;
+  const ast_function* m_allocate_actor;
+  const ast_function* m_release_actor;
+  const ast_function* m_assign_actor;
+  const ast_function* m_return_actor;
   const ast_function* m_strlen;
+  const ast_function* m_allocate_actor_call = nullptr;
+  const ast_function* m_free_actor_call = nullptr;
+  const ast_function* m_call_actor_function = nullptr;
 
   containers::hash_map<uint32_t, memory::unique_ptr<ast_type>> m_integral_types;
   containers::hash_map<uint32_t, memory::unique_ptr<ast_type>> m_float_types;
 
   const ast_type* m_destructor_fn_ptr_t;
   memory::unique_ptr<ast_type> m_shared_object_header;
+  memory::unique_ptr<ast_type> m_actor_header;
 
   // Reference types
   containers::hash_map<const ast_type*, memory::unique_ptr<ast_type>>

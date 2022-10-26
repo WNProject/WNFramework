@@ -435,6 +435,9 @@ bool internal::jit_compiler_context::decode_type(const ast_type* _type) {
         case builtin_type::not_builtin:
           WN_RELEASE_ASSERT(false, "You shouldn't get here");
           return false;
+        case builtin_type::unresolved_function_type:
+          m_types[_type] = m_voidfn_ptr_t->getPointerTo(0);
+          return true;
         default:
           WN_RELEASE_ASSERT(false, "Unhandled builtin type");
           return false;
@@ -504,6 +507,32 @@ bool internal::jit_compiler_context::decode_type(const ast_type* _type) {
       }
       m_types[_type] =
           m_types[_type->m_implicitly_contained_type]->getPointerTo(0);
+    }
+      return true;
+    case ast_type_classification::actor_type: {
+      containers::dynamic_array<llvm::Type*> types(m_allocator);
+      for (auto& t : _type->m_structure_members) {
+        if (!decode_type(t->m_type)) {
+          return false;
+        }
+        types.push_back(m_types[t->m_type]);
+      }
+      llvm::StructType* s =
+          llvm::StructType::create(llvm::ArrayRef<llvm::Type*>(
+              types.data(), types.data() + types.size()));
+      s->setName(_type->m_name.c_str());
+      size_t vtable_index = static_cast<size_t>(-1);
+      if (_type->m_vtable) {
+        vtable_index = static_cast<size_t>(
+            m_data_layout.getStructLayout(s)->getElementOffset(
+                _type->m_vtable_index));
+      }
+      auto it = m_struct_infos->find(_type);
+      if (it == m_struct_infos->end()) {
+        (*m_struct_infos)[_type] = struct_info{vtable_index};
+      }
+
+      m_types[_type] = s->getPointerTo(0);
     }
       return true;
     case ast_type_classification::weak_reference: {
@@ -956,7 +985,10 @@ llvm::Value* internal::jit_compiler_context::get_cast(
                        ast_type_classification::shared_reference &&
                    _expression->m_base_expression->m_type->m_builtin ==
                        builtin_type::nullptr_type;
-
+  is_int_to_ptr |= _expression->m_type->m_classification ==
+                       ast_type_classification::actor_type &&
+                   _expression->m_base_expression->m_type->m_builtin ==
+                       builtin_type::nullptr_type;
   is_int_to_ptr |=
       _expression->m_type->m_builtin == builtin_type::void_ptr_type &&
       _expression->m_base_expression->m_type->m_builtin ==
@@ -976,6 +1008,10 @@ llvm::Value* internal::jit_compiler_context::get_cast(
                 _expression->m_base_expression->m_type->m_classification ==
                     ast_type_classification::shared_reference;
   is_bitcast |= _expression->m_type->m_classification ==
+                    ast_type_classification::actor_type &&
+                _expression->m_base_expression->m_type->m_classification ==
+                    ast_type_classification::actor_type;
+  is_bitcast |= _expression->m_type->m_classification ==
                     ast_type_classification::reference &&
                 _expression->m_base_expression->m_type->m_classification ==
                     ast_type_classification::shared_reference;
@@ -989,12 +1025,19 @@ llvm::Value* internal::jit_compiler_context::get_cast(
   is_bitcast |= _expression->m_type->m_builtin == builtin_type::void_ptr_type &&
                 _expression->m_base_expression->m_type->m_classification ==
                     ast_type_classification::shared_reference;
+  is_bitcast |= _expression->m_type->m_builtin == builtin_type::void_ptr_type &&
+                _expression->m_base_expression->m_type->m_classification ==
+                    ast_type_classification::actor_type;
   is_bitcast |= _expression->m_type->m_classification ==
                     ast_type_classification::reference &&
                 _expression->m_base_expression->m_type->m_builtin ==
                     builtin_type::void_ptr_type;
   is_bitcast |= _expression->m_type->m_classification ==
                     ast_type_classification::shared_reference &&
+                _expression->m_base_expression->m_type->m_builtin ==
+                    builtin_type::void_ptr_type;
+  is_bitcast |= _expression->m_type->m_classification ==
+                    ast_type_classification::actor_type &&
                 _expression->m_base_expression->m_type->m_builtin ==
                     builtin_type::void_ptr_type;
   is_bitcast |= _expression->m_type->m_classification ==
@@ -1018,6 +1061,12 @@ llvm::Value* internal::jit_compiler_context::get_cast(
                 _expression->m_type->m_static_array_size == 0 &&
                 _expression->m_base_expression->m_type->m_classification ==
                     ast_type_classification::runtime_array;
+
+  is_bitcast |= _expression->m_type->m_builtin ==
+                    builtin_type::unresolved_function_type &&
+                _expression->m_base_expression->m_type->m_classification ==
+                    ast_type_classification::function_pointer;
+
 
   if (is_bitcast) {
     return m_function_builder->CreateBitCast(
@@ -1052,9 +1101,13 @@ llvm::Value* internal::jit_compiler_context::get_builtin(
     const ast_builtin_expression* _builtin) {
   switch (_builtin->m_builtin_type) {
     case builtin_expression_type::size_of: {
+      auto type = _builtin->m_extra_types[0];
       llvm::Type* t = get_type(_builtin->m_extra_types[0]);
       if (!t) {
         return nullptr;
+      }
+      if (type->m_classification == ast_type_classification::actor_type) {
+        t = t->getContainedType(0);
       }
       return llvm::ConstantInt::get(
           m_size_t, m_data_layout.getTypeAllocSize(t));
@@ -1112,7 +1165,44 @@ llvm::Value* internal::jit_compiler_context::get_builtin(
       v = m_function_builder->CreateSub(v, s);
       return m_function_builder->CreateIntToPtr(v, shared_obj_ptr_type);
     }
+    case builtin_expression_type::pointer_to_actor: {
+      llvm::Value* v = get_expression(_builtin->m_expressions[0].get());
+      if (!v) {
+        return nullptr;
+      }
+      llvm::Type* shared_obj_type =
+          get_type(_builtin->m_type->m_implicitly_contained_type);
+      llvm::Type* shared_obj_ptr_type = get_type(_builtin->m_type);
+      if (!shared_obj_type || !shared_obj_ptr_type) {
+        return nullptr;
+      }
+
+      v = m_function_builder->CreatePtrToInt(v, m_size_t);
+      llvm::Value* s = llvm::ConstantInt::get(
+          m_size_t, m_data_layout.getTypeAllocSize(shared_obj_type));
+      v = m_function_builder->CreateSub(v, s);
+      return m_function_builder->CreateIntToPtr(v, shared_obj_ptr_type);
+    }
     case builtin_expression_type::shared_to_pointer: {
+      llvm::Value* v = get_expression(_builtin->m_expressions[0].get());
+      if (!v) {
+        return nullptr;
+      }
+      llvm::Type* shared_obj_type = get_type(
+          _builtin->m_expressions[0]->m_type->m_implicitly_contained_type);
+      llvm::Type* vp_type = get_type(_builtin->m_type);
+
+      if (!shared_obj_type || !vp_type) {
+        return nullptr;
+      }
+
+      v = m_function_builder->CreatePtrToInt(v, m_size_t);
+      llvm::Value* s = llvm::ConstantInt::get(
+          m_size_t, m_data_layout.getTypeAllocSize(shared_obj_type));
+      v = m_function_builder->CreateAdd(v, s);
+      return m_function_builder->CreateIntToPtr(v, vp_type);
+    }
+    case builtin_expression_type::actor_to_pointer: {
       llvm::Value* v = get_expression(_builtin->m_expressions[0].get());
       if (!v) {
         return nullptr;
@@ -1172,10 +1262,11 @@ llvm::Value* internal::jit_compiler_context::get_member_access(
 
   const ast_type* struct_type = _access->m_base_expression->m_type;
   uint32_t offset = _access->m_member_offset;
-  if (_access->m_base_expression->m_type->m_classification !=
-          ast_type_classification::reference &&
-      _access->m_base_expression->m_type->m_classification !=
-          ast_type_classification::shared_reference) {
+  if (struct_type->m_classification != ast_type_classification::reference &&
+      struct_type->m_classification !=
+          ast_type_classification::shared_reference &&
+      struct_type->m_classification !=
+          ast_type_classification::actor_type) {
     llvm::LoadInst* load = llvm::dyn_cast<llvm::LoadInst>(v);
     if (!load) {
       return nullptr;
@@ -1183,7 +1274,8 @@ llvm::Value* internal::jit_compiler_context::get_member_access(
     v = load->getOperand(0);
     load->removeFromParent();
     delete load;
-  } else {
+  } else if (struct_type->m_classification != 
+             ast_type_classification::actor_type) {
     struct_type =
         _access->m_base_expression->m_type->m_implicitly_contained_type;
   }
@@ -1192,15 +1284,22 @@ llvm::Value* internal::jit_compiler_context::get_member_access(
     offset = m_external_types[struct_type].m_fixup_offsets[offset];
   }
 
-  llvm::Value* gep[2] = {i32(0), i32(0)};
   if (_access->m_is_synchronized) {
-    v = m_function_builder->CreateLoad(
-        m_function_builder->CreateInBoundsGEP(
-            v, llvm::ArrayRef<llvm::Value*>(&gep[0], 2)),
-        "__actor_data");
+    if (_access->m_is_synchronized_function) {
+      llvm::Value* gep[2] = {i32(0), i32(0)};
+      v = m_function_builder->CreateLoad(
+          m_function_builder->CreateInBoundsGEP(
+              v, llvm::ArrayRef<llvm::Value*>(&gep[0], 2)),
+          "__actor_data_public");
+    } else {
+      llvm::Value* gep[2] = {i32(0), i32(1)};
+      v = m_function_builder->CreateLoad(
+          m_function_builder->CreateInBoundsGEP(
+              v, llvm::ArrayRef<llvm::Value*>(&gep[0], 2)),
+          "__actor_data_private");
+    }
   }
-
-  gep[1] = i32(offset);
+  llvm::Value* gep[2] = {i32(0), i32(offset)};
   v = m_function_builder->CreateLoad(
       m_function_builder->CreateInBoundsGEP(
           v, llvm::ArrayRef<llvm::Value*>(&gep[0], 2)),
@@ -1398,8 +1497,8 @@ llvm::Value* internal::jit_compiler_context::get_id(const ast_id* _id) {
           m_function_parameters.find(&m_current_ast_function->m_parameters[0]);
 
       if (_id->m_declaration->m_is_synchronized) {
-        llvm::Value* gep[3] = {
-            i32(0), i32(0), i32(_id->m_declaration->m_indirected_offset)};
+        llvm::Value* gep[4] = {i32(0), i32(1), i32(0),
+            i32(_id->m_declaration->m_indirected_offset)};
 
         llvm::Value* pThis = m_function_builder->CreateLoad(param->second);
         llvm::Value* pActorData = m_function_builder->CreateLoad(
@@ -1408,8 +1507,8 @@ llvm::Value* internal::jit_compiler_context::get_id(const ast_id* _id) {
 
         return m_function_builder->CreateLoad(
             m_function_builder->CreateInBoundsGEP(
-                pActorData, llvm::ArrayRef<llvm::Value*>(&gep[1], 2)),
-            "_this->__actor_data");
+                pActorData, llvm::ArrayRef<llvm::Value*>(&gep[2], 2)),
+            "_this->__actor_data_public");
       } else {
         llvm::Value* gep[2] = {
             i32(0), i32(_id->m_declaration->m_indirected_offset)};

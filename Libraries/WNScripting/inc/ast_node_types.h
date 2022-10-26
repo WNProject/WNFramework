@@ -136,7 +136,6 @@ protected:
   ast_type(containers::deque<ast_type*>* _types) {
     _types->push_back(this);
   }
-
   memory::unique_ptr<ast_type> clone(memory::allocator* _allocator,
       containers::deque<ast_type*>* _types) const {
     memory::unique_ptr<ast_type> other =
@@ -154,6 +153,7 @@ protected:
     other->m_mangled_name = containers::string(_allocator, m_mangled_name);
     other->m_structure_members =
         containers::deque<memory::unique_ptr<ast_declaration>>(_allocator);
+    other->m_is_synchronized = m_is_synchronized;
     for (const auto& m : m_structure_members) {
       other->m_structure_members.push_back(clone_ast_node(_allocator, m.get()));
     }
@@ -192,6 +192,7 @@ public:
     }
 
     if (m_classification != ast_type_classification::shared_reference &&
+        m_classification != ast_type_classification::actor_type &&
         m_classification != ast_type_classification::reference &&
         !(m_classification == ast_type_classification::primitive &&
             m_builtin == builtin_type::nullptr_type)) {
@@ -203,6 +204,7 @@ public:
         m_builtin == builtin_type::nullptr_type) {
       if (_other->m_classification ==
               ast_type_classification::shared_reference ||
+          _other->m_classification == ast_type_classification::actor_type ||
           _other->m_classification == ast_type_classification::slice_type) {
         return true;
       }
@@ -213,7 +215,13 @@ public:
       return false;
     }
 
+    if (m_classification == ast_type_classification::reference &&
+        _other->m_builtin == builtin_type::void_ptr_type) {
+      return true;
+    }
+
     if (_other->m_classification != ast_type_classification::shared_reference &&
+        _other->m_classification != ast_type_classification::actor_type &&
         _other->m_classification != ast_type_classification::reference) {
       // You cannot cast to a non-ref type.
       return false;
@@ -312,6 +320,9 @@ public:
         m_mangled_name = containers::string(_allocator, "R");
         m_mangled_name += m_implicitly_contained_type->m_mangled_name;
         return;
+      case ast_type_classification::actor_type:
+        m_mangled_name = containers::string(_allocator, "T");
+        break;
       case ast_type_classification::weak_reference:
         m_mangled_name = containers::string(_allocator, "O");
         m_mangled_name += m_implicitly_contained_type->m_mangled_name;
@@ -372,6 +383,12 @@ public:
     return m_external_member_functions;
   }
 
+  bool is_synchronized() const {
+    return m_is_synchronized ||
+           (m_implicitly_contained_type &&
+               m_implicitly_contained_type->is_synchronized());
+  }
+
   // is_arithmetic_type == true iff all normal arithmetic operations
   // are permitted on this type.
   bool m_is_arithmetic_type = false;
@@ -407,6 +424,7 @@ public:
   bool m_struct_is_class = false;
   bool m_struct_is_defined = false;
   bool m_pass_by_reference = false;
+  bool m_is_synchronized = false;
   // m_overloaded_construction_child point to the
   // child/parent if allocated type looks
   // different than the script representation
@@ -426,6 +444,7 @@ public:
   const ast_function* m_constructor = nullptr;
   const ast_function* m_destructor = nullptr;
   const ast_function* m_assignment = nullptr;
+  const ast_function* m_actor_update = nullptr;
 
   containers::hash_map<containers::string_view, external_member>&
   initialized_contained_externals(memory::allocator* _allocator) {
@@ -703,13 +722,17 @@ struct ast_function : public ast_node {
   struct parameter {
     ~parameter() {}
 
-    parameter(containers::string _name, const ast_type* _type)
-      : m_name(core::move(_name)), m_type(_type) {}
+    parameter(containers::string _name, const ast_function* function,
+        const ast_type* _type)
+      : m_name(core::move(_name)), m_type(_type), m_function(function) {}
 
     parameter(parameter&& _other)
-      : m_name(core::move(_other.m_name)), m_type(_other.m_type) {}
+      : m_name(core::move(_other.m_name)),
+        m_type(_other.m_type),
+        m_function(_other.m_function) {}
     containers::string m_name;
     const ast_type* m_type;
+    const ast_function* m_function;
   };
 
   containers::deque<ast_function::parameter>& initialized_parameters(
@@ -722,12 +745,17 @@ struct ast_function : public ast_node {
 
   void calculate_mangled_name(memory::allocator* _allocator) {
     containers::string mangled_name(_allocator);
-
     containers::string name(_allocator);
     char count[11] = {
         0,
     };
-    if (m_is_member_function) {
+    if (m_is_member_function && m_parameters[0].m_type->is_synchronized()) {
+      memory::writeuint32(count,
+          static_cast<uint32_t>(m_parameters[0].m_type->m_name.size()), 10);
+      name += count;
+      name += m_parameters[0].m_type->m_name;
+    } else if (m_is_member_function &&
+               !m_parameters[0].m_type->is_synchronized()) {
       memory::writeuint32(count,
           static_cast<uint32_t>(
               m_parameters[0]
@@ -755,6 +783,7 @@ struct ast_function : public ast_node {
   containers::string m_name;
   containers::string m_mangled_name;
   containers::deque<ast_function::parameter> m_parameters;
+  const ast_type* m_action_call_type = nullptr;
   memory::unique_ptr<ast_scope_block> m_scope;
   const ast_type* m_return_type;
   const ast_type* m_function_pointer_type;
@@ -765,6 +794,9 @@ struct ast_function : public ast_node {
   bool m_is_builtin = false;
   bool m_is_external_pseudo = false;
   bool m_is_non_scripting = false;
+  bool m_is_synchronized = false;
+  bool m_is_action_caller = false;
+  ast_function* m_action_function = nullptr;
 
   uint32_t m_virtual_index = 0xFFFFFFFF;
 
@@ -776,10 +808,13 @@ struct ast_function : public ast_node {
     d->m_mangled_name = containers::string(_allocator, m_mangled_name);
     d->m_scope = clone_ast_node(_allocator, m_scope.get());
     d->m_return_type = m_return_type;
+    d->m_is_synchronized = m_is_synchronized;
+    d->m_action_function = m_action_function;
+    d->m_is_action_caller = m_is_action_caller;
     auto& params = d->initialized_parameters(_allocator);
     for (auto& param : m_parameters) {
-      params.emplace_back(
-          containers::string(_allocator, param.m_name), param.m_type);
+      params.emplace_back(containers::string(_allocator, param.m_name),
+          param.m_function, param.m_type);
     }
     return d;
   }
@@ -879,6 +914,8 @@ struct ast_member_access_expression : public ast_expression {
   memory::unique_ptr<ast_expression> m_base_expression;
   uint32_t m_member_offset = static_cast<uint32_t>(-1);
   bool m_is_synchronized = false;
+  bool m_is_synchronized_function = false;
+  bool m_is_this = false;
 
   memory::unique_ptr<ast_node> clone(
       memory::allocator* _allocator) const override {
@@ -888,6 +925,7 @@ struct ast_member_access_expression : public ast_expression {
     d->m_member_name = containers::string(_allocator, m_member_name);
     d->m_base_expression = clone_ast_node(_allocator, m_base_expression.get());
     d->m_member_offset = m_member_offset;
+    d->m_is_this = m_is_this;
     return d;
   }
 };
@@ -981,6 +1019,8 @@ enum class builtin_expression_type {
   none,
   pointer_to_shared,
   shared_to_pointer,
+  pointer_to_actor,
+  actor_to_pointer,
   size_of,
   align_of,
   atomic_inc,
