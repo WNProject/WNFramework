@@ -72,6 +72,52 @@ bool inline engine::get_member_function(containers::string_view _name,
 }
 
 template <typename T, typename... Args>
+bool inline engine::get_named_member_function(containers::string_view _name,
+    containers::string_view _object_type,
+    script_function<T, Args...>* _function) const {
+  return get_named_function_internal<T, Args...>(
+             _name, _object_type, _function, false) ||
+         get_named_function_internal<T, Args...>(
+             _name, _object_type, _function, true);
+}
+
+template <typename T, typename... Args>
+bool inline engine::get_named_function_internal(containers::string_view _name,
+    containers::string_view _object_name,
+    script_function<T, Args...>* _function, bool is_actor) const {
+  containers::dynamic_array<containers::string_view> signature_types =
+      m_type_manager.get_mangled_names<T, Args...>();
+
+  containers::string s = get_mangled_name(m_allocator, _name, _object_name);
+
+  bool first = true;
+  bool second = false;
+  for (auto& param : signature_types) {
+    if (first) {
+      first = false;
+      second = true;
+    } else if (second) {
+      char count[11] = {0};
+      s += is_actor ? "T" : "P";
+      memory::writeuint32(
+          count, static_cast<uint32_t>(_object_name.size()), 10);
+      s += count;
+      s += _object_name;
+      second = false;
+      continue;
+    }
+    s += param;
+  }
+
+  if (m_type_manager.is_pass_by_reference(m_type_manager.get_type<T>())) {
+    s += m_type_manager.get_mangled_name<T>();
+  }
+
+  _function->m_function = get_function_pointer(s);
+  return _function->m_function != nullptr;
+}
+
+template <typename T, typename... Args>
 bool inline engine::get_function_internal(containers::string_view _name,
     script_function<T, Args...>* _function, bool _is_member) const {
   containers::dynamic_array<containers::string_view> signature_types =
@@ -125,7 +171,7 @@ struct member_maker {
       typename get_thunk_passed_type<Args>::type... args) {
     tls_resetter reset;
     auto r = (*fn)(get_thunk_passed_type<Args>::unwrap(args)...);
-    return get_thunk_passed_type<R>::wrap(r);
+    return get_thunk_passed_type<R>::wrap_return(r);
   }
 
   template <R (*fn)(Args...)>
@@ -134,7 +180,7 @@ struct member_maker {
       typename get_thunk_passed_type<R>::ret_type* _ret) {
     tls_resetter reset;
     auto r = (*fn)(get_thunk_passed_type<Args>::unwrap(args)...);
-    *_ret = get_thunk_passed_type<R>::wrap(r);
+    *_ret = get_thunk_passed_type<R>::wrap_return(r);
   }
 };
 
@@ -221,8 +267,13 @@ void inline engine::register_cpp_type() {
 template <>
 void inline engine::export_script_type<void>() {}
 
+template <>
+void inline engine::export_script_actor_type<void>() {}
+
 template <typename T>
 void inline engine::export_script_type() {
+  static_assert(core::is_base_of<script_object_type, T>::value,
+      "Registered type must be child of script_object_type");
   export_script_type<typename T::parent_type>();
   if (m_object_types.find(core::type_id<T>::value()) != m_object_types.end()) {
     return;
@@ -242,6 +293,28 @@ void inline engine::export_script_type() {
 }
 
 template <typename T>
+void inline engine::export_script_actor_type() {
+  static_assert(core::is_base_of<script_actor_type, T>::value,
+      "Registered type must be child of script_object_type");
+  export_script_actor_type<typename T::parent_type>();
+  if (m_actor_types.find(core::type_id<T>::value()) != m_actor_types.end()) {
+    return;
+  }
+
+  m_type_manager.export_script_actor_type<T>();
+  memory::unique_ptr<T> t = memory::make_unique<T>(m_allocator);
+  t->m_allocator = m_allocator;
+  t->m_name = T::exported_name();
+  t->m_engine = this;
+  fill_parent_type<typename T::parent_type>(t.get());
+  m_actor_types[core::type_id<T>::value()] = core::move(t);
+  if (!T::required_script().empty()) {
+    m_additional_includes.push_back(
+        T::required_script().to_string(m_allocator));
+  }
+}
+
+template <typename T>
 bool inline engine::register_named_constant(
     const containers::string_view& _name, const T& value) {
   const ast_type* type = m_type_manager.get_type<T>();
@@ -251,9 +324,22 @@ bool inline engine::register_named_constant(
 
 template <typename T>
 bool inline engine::resolve_script_type() {
+  static_assert(core::is_base_of<script_object_type, T>::value,
+      "Registered type must be child of script_object_type");
   auto t = m_object_types.find(core::type_id<T>::value());
   WN_DEBUG_ASSERT(
       t != m_object_types.end(), "Cannot resolve type that is not exported");
+  T* ot = static_cast<T*>(t->second.get());
+  return resolve_script_type_internal(ot);
+}
+
+template <typename T>
+bool inline engine::resolve_script_actor_type() {
+  static_assert(core::is_base_of<script_actor_type, T>::value,
+      "Registered type must be child of script_actor_type");
+  auto t = m_actor_types.find(core::type_id<T>::value());
+  WN_DEBUG_ASSERT(
+      t != m_actor_types.end(), "Cannot resolve type that is not exported");
   T* ot = static_cast<T*>(t->second.get());
   return resolve_script_type_internal(ot);
 }
@@ -283,6 +369,21 @@ bool inline engine::fill_parent_type(script_object_type* _t) {
 }
 
 template <>
+bool inline engine::fill_parent_type<void>(script_actor_type* _t) {
+  _t->m_parent = nullptr;
+  return true;
+}
+
+template <typename T>
+bool inline engine::fill_parent_type(script_actor_type* _t) {
+  auto t = m_actor_types.find(core::type_id<T>::value());
+  WN_DEBUG_ASSERT(
+      t != m_actor_types.end(), "Cannot resolve type that as not exported");
+  _t->m_parent = t->second.get();
+  return true;
+}
+
+template <>
 bool inline engine::resolve_script_type_internal<void>(void*) {
   return true;
 }
@@ -301,6 +402,7 @@ void inline engine::register_child_cpp_type() {
 
 template <typename T, typename... Args>
 shared_cpp_pointer<T> inline engine::make_shared_cpp(Args&&... args) {
+  tls_resetter reset(&m_tls_data);
   void* v = allocate_shared(sizeof(T));
 
   memory::construct_at<T>(v, core::forward<Args>(args)...);

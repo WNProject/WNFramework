@@ -44,6 +44,8 @@ int32_t wn_application_main(
 
   int32_t ret = 0;
   {
+    engine_base::context ctx(_application_data->system_allocator);
+
     profiling::allocator file_system_allocator(
         _application_data->system_allocator, "FileSystem");
     profiling::allocator scripting_allocator(
@@ -54,6 +56,8 @@ int32_t wn_application_main(
         _application_data->system_allocator, "Renderer");
     profiling::allocator support_allocator(
         _application_data->system_allocator, "Support");
+    profiling::allocator actor_allocator(
+        _application_data->system_allocator, "Actors");
     // TODO: If we ever need a logger in file-systems add it here.
     logging::log* scripting_logger = _application_data->default_log;
 
@@ -86,7 +90,7 @@ int32_t wn_application_main(
     memory::unique_ptr<scripting::engine> scripting_engine =
         scripting::factory().get_engine(&scripting_allocator,
             scripting::scripting_engine_type::jit_engine, script_mapping.get(),
-            scripting_logger, &support_allocator);
+            scripting_logger, &support_allocator, &actor_allocator, &ctx);
 
     engine::register_scripting(scripting_engine.get());
     engine_base::register_context(scripting_engine.get());
@@ -163,25 +167,12 @@ int32_t wn_application_main(
     }
     command_line_mgr.set_global_program_name(
         _application_data->executable_data->argv[0]);
-    engine_base::context ctx;
     ctx.m_ui_allocator = &ui_allocator;
     ctx.m_allocator = _application_data->system_allocator;
     ctx.m_application_data = _application_data;
     ctx.m_engine = scripting_engine.get();
     ctx.m_log = _application_data->default_log;
-
-    file_system::mapping_ptr content_ptrs[2];
-    content_ptrs[0] = fs_factory.make_mapping(&file_system_allocator,
-        wn::file_system::mapping_type::development_assets);
-    content_ptrs[1] = fs_factory.make_mapping(
-        &file_system_allocator, wn::file_system::mapping_type::memory_backed);
-    content_ptrs[1]->initialize_files(engine_scripts::get_files());
-
-    file_system::mapping_ptr content_mapping =
-        fs_factory.overlay_readonly_mappings(
-            &file_system_allocator, content_ptrs);
-
-    ctx.m_file_mapping = content_mapping.get();
+    ctx.m_file_mapping = script_mapping.get();
     bool cmd_err = false;
     for (int32_t i = script_dir.empty() ? 1 : 2;
          i < _application_data->executable_data->argc; ++i) {

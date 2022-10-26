@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "WNContainers/inc/WNHashSet.h"
 #include "WNContainers/inc/WNStringView.h"
 #include "WNFileSystem/inc/WNFactory.h"
 #include "WNLogging/inc/WNConsoleLogger.h"
@@ -19,6 +20,86 @@ using namespace wn;
 int res_fn(void* user_data) {
   return (int)(uintptr_t)(user_data);
 }
+
+struct res_test : scripting::script_actor_type {
+  using parent_type = void;
+  void export_type(scripting::engine::script_type_importer<res_test>*) {}
+
+  static wn::containers::string_view exported_name() {
+    return "ResTest";
+  }
+
+  static wn::containers::string_view required_script() {
+    return nullptr;
+  }
+
+  static void register_scripting(scripting::engine* _engine) {
+    _engine->export_script_actor_type<res_test>();
+  }
+  static bool resolve_scripting(scripting::engine* _engine) {
+    return _engine->resolve_script_actor_type<res_test>();
+  }
+};
+
+class res_test_resource : public scripting::resource_manager {
+public:
+  res_test_resource(memory::allocator* _allocator)
+    : scripting::resource_manager(
+          containers::string(_allocator, "ResourceTest")),
+      m_allocator(_allocator) {}
+  bool convert_to_function(containers::string_view _resource_data,
+      containers::string_view, logging::log*, containers::string* dat,
+      core::optional<uintptr_t>* _user_data) override {
+    (void)_user_data;
+    dat->append("getNew").append(_resource_data);
+    return true;
+  }
+  bool setup_resource(
+      containers::string_view _res, containers::string* _out_string) override {
+    *_out_string += _res;
+    *_out_string += ".resdummy";
+    return true;
+  }
+  containers::string_view get_file_extension() const override {
+    return ".resdummy";
+  }
+  scripting::convert_type convert_file(logging::log*, file_system::mapping*,
+      containers::string_view _file_name, containers::string*,
+      containers::string* out_string) override {
+    *out_string = R"(
+Actor ResTest {
+    @synchronized CString name = "";
+    @synchronized CString class_name = "";
+    CString get_name() {
+        return name;
+    }
+    CString get_class_name() {
+        return class_name;
+    }
+})";
+    *out_string += "Actor ";
+    *out_string += _file_name.substr(0, _file_name.size() - 9);
+    *out_string += R"( : ResTest
+{
+  @synchronized Int x = 4;
+}
+)";
+    *out_string += _file_name.substr(0, _file_name.size() - 9);
+    *out_string += " getNew";
+    *out_string += _file_name.substr(0, _file_name.size() - 9);
+    *out_string += +"() {";
+    *out_string += _file_name.substr(0, _file_name.size() - 9);
+    *out_string += " x = ";
+    *out_string += _file_name.substr(0, _file_name.size() - 9);
+    *out_string += "(); ";
+    *out_string += "return x; }\n";
+    return scripting::convert_type::success;
+  }
+
+private:
+  memory::allocator* m_allocator;
+  containers::string s;
+};
 
 class test_resource : public scripting::resource_manager {
 public:
@@ -70,25 +151,17 @@ private:
   memory::basic_allocator m_allocator;
 };
 
-template <uint32_t N>
-bool call_function(logging::log* _log, wn::scripting::engine* e,
+template <typename T>
+bool call_function0(logging::log* _log, scripting::engine* e,
     const containers::string_view name,
-    const containers::dynamic_array<int32_t>&, int32_t expected_return) {
-  WN_RELEASE_ASSERT("Not implemented", N);
-  return false;
-}
-
-template <>
-bool call_function<0>(logging::log* _log, scripting::engine* e,
-    const containers::string_view name,
-    const containers::dynamic_array<int32_t>&, int32_t expected_return) {
-  scripting::script_function<int32_t> func;
+    const containers::dynamic_array<int32_t>&, T expected_return) {
+  scripting::script_function<T> func;
   if (!e->get_function(name, &func)) {
     _log->log_error(
         "Could not find function ", name, " with ", 0, " parameters");
     return false;
   }
-  int32_t ret = e->invoke(func);
+  T ret = e->invoke(func);
   if (expected_return != ret) {
     _log->log_error(
         name, " returned: ", ret, " but we expected: ", expected_return);
@@ -97,17 +170,17 @@ bool call_function<0>(logging::log* _log, scripting::engine* e,
   return true;
 }
 
-template <>
-bool call_function<1>(logging::log* _log, scripting::engine* e,
+template <typename T>
+bool call_function1(logging::log* _log, scripting::engine* e,
     const containers::string_view name,
-    const containers::dynamic_array<int32_t>& a, int32_t expected_return) {
-  scripting::script_function<int32_t, int32_t> func;
+    const containers::dynamic_array<int32_t>& a, T expected_return) {
+  scripting::script_function<T, int32_t> func;
   if (!e->get_function(name, &func)) {
     _log->log_error(
         "Could not find function ", name, " with ", 1, " parameter");
     return false;
   }
-  int32_t ret = e->invoke(func, a[0]);
+  T ret = e->invoke(func, a[0]);
   if (expected_return != ret) {
     _log->log_error(
         name, " returned: ", ret, " but we expected: ", expected_return);
@@ -116,17 +189,17 @@ bool call_function<1>(logging::log* _log, scripting::engine* e,
   return true;
 }
 
-template <>
-bool call_function<2>(logging::log* _log, scripting::engine* e,
+template <typename T>
+bool call_function2(logging::log* _log, scripting::engine* e,
     const containers::string_view name,
-    const containers::dynamic_array<int32_t>& a, int32_t expected_return) {
-  scripting::script_function<int32_t, int32_t, int32_t> func;
+    const containers::dynamic_array<int32_t>& a, T expected_return) {
+  scripting::script_function<T, int32_t, int32_t> func;
   if (!e->get_function(name, &func)) {
     _log->log_error(
         "Could not find function ", name, " with ", 2, " parameters");
     return false;
   }
-  int32_t ret = e->invoke(func, a[0], a[1]);
+  T ret = e->invoke(func, a[0], a[1]);
   if (expected_return != ret) {
     _log->log_error(
         name, " returned: ", ret, " but we expected: ", expected_return);
@@ -135,17 +208,17 @@ bool call_function<2>(logging::log* _log, scripting::engine* e,
   return true;
 }
 
-template <>
-bool call_function<3>(logging::log* _log, scripting::engine* e,
+template <typename T>
+bool call_function3(logging::log* _log, scripting::engine* e,
     const containers::string_view name,
-    const containers::dynamic_array<int32_t>& a, int32_t expected_return) {
-  scripting::script_function<int32_t, int32_t, int32_t, int32_t> func;
+    const containers::dynamic_array<int32_t>& a, T expected_return) {
+  scripting::script_function<T, int32_t, int32_t, int32_t> func;
   if (!e->get_function(name, &func)) {
     _log->log_error(
         "Could not find function ", name, " with ", 3, " parameters");
     return false;
   }
-  int32_t ret = e->invoke(func, a[0], a[1], a[2]);
+  T ret = e->invoke(func, a[0], a[1], a[2]);
   if (expected_return != ret) {
     _log->log_error(
         name, " returned: ", ret, " but we expected: ", expected_return);
@@ -154,17 +227,17 @@ bool call_function<3>(logging::log* _log, scripting::engine* e,
   return true;
 }
 
-template <>
-bool call_function<4>(logging::log* _log, scripting::engine* e,
+template <typename T>
+bool call_function4(logging::log* _log, scripting::engine* e,
     const containers::string_view name,
-    const containers::dynamic_array<int32_t>& a, int32_t expected_return) {
-  scripting::script_function<int32_t, int32_t, int32_t, int32_t, int32_t> func;
+    const containers::dynamic_array<int32_t>& a, T expected_return) {
+  scripting::script_function<T, int32_t, int32_t, int32_t, int32_t> func;
   if (!e->get_function(name, &func)) {
     _log->log_error(
         "Could not find function ", name, " with ", 3, " parameters");
     return false;
   }
-  int32_t ret = e->invoke(func, a[0], a[1], a[2], a[3]);
+  T ret = e->invoke(func, a[0], a[1], a[2], a[3]);
   if (expected_return != ret) {
     _log->log_error(
         name, " returned: ", ret, " but we expected: ", expected_return);
@@ -175,21 +248,21 @@ bool call_function<4>(logging::log* _log, scripting::engine* e,
 
 enum class test_types : uint8_t { jit = 1 << 0, c = 1 << 1 };
 
+template <typename T>
 bool call(logging::log* _log, scripting::engine* e,
     containers::string_view _name,
-    const containers::dynamic_array<int32_t>& _values,
-    int32_t expected_return) {
+    const containers::dynamic_array<int32_t>& _values, T expected_return) {
   switch (_values.size()) {
     case 0:
-      return call_function<0>(_log, e, _name, _values, expected_return);
+      return call_function0<T>(_log, e, _name, _values, expected_return);
     case 1:
-      return call_function<1>(_log, e, _name, _values, expected_return);
+      return call_function1<T>(_log, e, _name, _values, expected_return);
     case 2:
-      return call_function<2>(_log, e, _name, _values, expected_return);
+      return call_function2<T>(_log, e, _name, _values, expected_return);
     case 3:
-      return call_function<3>(_log, e, _name, _values, expected_return);
+      return call_function3<T>(_log, e, _name, _values, expected_return);
     case 4:
-      return call_function<4>(_log, e, _name, _values, expected_return);
+      return call_function4<T>(_log, e, _name, _values, expected_return);
     default:
       WN_RELEASE_ASSERT(false, "Error: unimplemented number of values");
   }
@@ -200,10 +273,52 @@ static int32_t increment_number(int32_t i) {
   return i + 1;
 }
 
+class test_runtime : public wn::scripting::scripting_runtime {
+public:
+  test_runtime(wn::memory::allocator* _allocator)
+    : m_allocator(_allocator), m_actors(_allocator) {}
+
+  wn::scripting::actor_header* allocate_actor(size_t size) override {
+    auto t = reinterpret_cast<wn::scripting::actor_header*>(
+        m_allocator->allocate(size));
+    m_actors.insert(t);
+    return t;
+  }
+
+  void free_actor(wn::scripting::actor_header* actor) override {
+    if (actor->destructor) {
+      actor->destructor(actor + 1);
+    }
+    m_actors.erase(m_actors.find(actor));
+    return m_allocator->deallocate(actor);
+  }
+
+  void call_actor_function(wn::scripting::actor_function* function) override {
+    function->function(function);
+  }
+
+  void update_actors() {
+    for (auto& it : m_actors) {
+      it->update_values(it + 1);
+    }
+  }
+
+  wn::memory::allocator* m_allocator;
+  wn::containers::hash_set<wn::scripting::actor_header*> m_actors;
+};
+
+// This is just for testing, but we just want a simple way to update our actors.
+static memory::unique_ptr<test_runtime> _rt;
+
+static void update_actors() {
+  _rt->update_actors();
+}
+
 int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
   executable::wn_dummy();
   uint8_t tests_to_run = 0xff;
   script_test_allocator allocator;
+  _rt = wn::memory::make_unique<test_runtime>(&allocator, &allocator);
 
   containers::string_view test_file;
   containers::string_view data_dir;
@@ -213,6 +328,7 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
   bool verbose = false;
   bool only_jit = false;
   bool only_c = false;
+
   for (size_t i = 0; i < static_cast<size_t>(_executable_data->argc); ++i) {
     if (containers::string_view("--test_file") ==
         containers::string_view(_executable_data->argv[i])) {
@@ -278,9 +394,9 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
 
   scripting::factory script_factory;
 
-  memory::unique_ptr<scripting::engine> jit =
-      script_factory.get_engine(&allocator,
-          scripting::scripting_engine_type::jit_engine, files.get(), log.log());
+  memory::unique_ptr<scripting::engine> jit = script_factory.get_engine(
+      &allocator, scripting::scripting_engine_type::jit_engine, files.get(),
+      log.log(), &allocator, &allocator, _rt.get());
 
   memory::unique_ptr<scripting::translator> translator =
       script_factory.get_translator(&allocator,
@@ -290,7 +406,12 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
   // Register increment_number
   jit->register_function<decltype(&increment_number), &increment_number>(
       "increment_number");
+  jit->register_function<decltype(&update_actors), &update_actors>(
+      "update_actors");
+  res_test::register_scripting(jit.get());
+
   translator->register_cpp_function("increment_number", &increment_number);
+  translator->register_cpp_function("update_actors", &update_actors);
 
   // Register a named constant;
   const int32_t constant_a = 42;
@@ -304,6 +425,10 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
       memory::make_unique<test_resource>(&allocator, &allocator));
   translator->register_resource<int>(
       memory::make_unique<test_resource>(&allocator, &allocator));
+  jit->register_resource<scripting::script_actor_pointer<res_test>>(
+      memory::make_unique<res_test_resource>(&allocator, &allocator));
+  translator->register_resource<scripting::script_actor_pointer<res_test>>(
+      memory::make_unique<res_test_resource>(&allocator, &allocator));
 
   auto test_file_string = test_file.to_string(&allocator);
   file_system::result res;
@@ -331,6 +456,7 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
       return -1;
     }
     log.log()->log_info("Finished testing JIT");
+    res_test::resolve_scripting(jit.get());
   }
   bool success = true;
   do {
@@ -412,8 +538,23 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
           }
 
           log.log()->log_info("Calling JIT function ", to_view(matches[1]));
-          bool this_success = call(log.log(), jit.get(), to_view(matches[1]),
-              parameters, return_val);
+          bool this_success = call<int32_t>(log.log(), jit.get(),
+              to_view(matches[1]), parameters, return_val);
+          if (!success) {
+            if (return_val <= std::numeric_limits<uint8_t>::max() &&
+                return_val >= 0) {
+              log.log()->log_info(
+                  "Trying again to find function with Char return ",
+                  to_view(matches[1]));
+              this_success =
+                  call<uint8_t>(log.log(), jit.get(), to_view(matches[1]),
+                      parameters, static_cast<uint8_t>(return_val));
+              if (this_success) {
+                log.log()->log_info(
+                    "Char version succeeded ", to_view(matches[1]));
+              }
+            }
+          }
           log.log()->log_info("JIT function ", to_view(matches[1]), ": ",
               this_success ? "SUCCESS" : "FAILURE");
           success &= this_success;
@@ -422,5 +563,6 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
     }
   } while (false);
   log.log()->flush();
+  _rt.reset();
   return success ? 0 : -1;
 }

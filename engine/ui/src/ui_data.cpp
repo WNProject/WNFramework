@@ -11,11 +11,11 @@ namespace engine {
 namespace ui {
 
 void ui_data::register_scripting(scripting::engine* _engine) {
-  _engine->export_script_type<ui_data>();
+  _engine->export_script_actor_type<ui_data>();
 }
 
 bool ui_data::resolve_scripting(scripting::engine* _engine) {
-  return _engine->resolve_script_type<ui_data>();
+  return _engine->resolve_script_actor_type<ui_data>();
 }
 
 }  // namespace ui

@@ -187,9 +187,9 @@ TEST(scripting_engine_factory, external) {
               &allocator, wn::file_system::mapping_type::memory_backed);
   mapping->initialize_files(external_test_assets::get_files());
 
-  wn::memory::unique_ptr<wn::scripting::engine> jit =
-      factory.get_engine(&allocator,
-          wn::scripting::scripting_engine_type::jit_engine, mapping.get(), log);
+  wn::memory::unique_ptr<wn::scripting::engine> jit = factory.get_engine(
+      &allocator, wn::scripting::scripting_engine_type::jit_engine,
+      mapping.get(), log, &allocator, &allocator, nullptr);
 
   wn::memory::unique_ptr<wn::scripting::translator> translator =
       factory.get_translator(&allocator,

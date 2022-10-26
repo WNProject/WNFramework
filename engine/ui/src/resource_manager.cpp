@@ -16,7 +16,7 @@ namespace ui {
 
 void resource_manager::register_scripting(
     memory::allocator* _allocator, scripting::engine* _engine) {
-  _engine->register_resource<scripting::shared_script_pointer<ui_data>>(
+  _engine->register_resource<scripting::script_actor_pointer<ui_data>>(
       memory::make_unique<resource_manager>(_allocator, _engine, _allocator));
 }
 

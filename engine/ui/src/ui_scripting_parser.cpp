@@ -353,18 +353,21 @@ bool ui_scripting_parser::parse_ui(file_system::mapping* _mapping,
     *_out_string += "\"\n";
   }
   *_out_string += "include \"ui/renderable_ui.wns\"\n\n";
-  *_out_string += "class ";
+  *_out_string += "Actor ";
   *_out_string += *_out_ui_name;
   *_out_string += " : RenderableUI {\n";
   *_out_string += " .name = \"";
   *_out_string += _file_name;
   *_out_string += "\";\n";
+  *_out_string += " .class_name = \"";
+  *_out_string += *_out_ui_name;
+  *_out_string += "\";\n";
   *_out_string += out_string;
-  *_out_string += "\n}\n\n shared ";
+  *_out_string += "\n}\n\n ";
 
   *_out_string += *_out_ui_name;
-  *_out_string += " getNew" + *_out_ui_name + " () { shared " + *_out_ui_name +
-                  " x = shared " + *_out_ui_name + "(); \n" + "return x; }\n";
+  *_out_string += " getNew" + *_out_ui_name + " () { " + *_out_ui_name +
+                  " x = " + *_out_ui_name + "(); \n" + "return x; }\n";
 
   return document != nullptr;
 }

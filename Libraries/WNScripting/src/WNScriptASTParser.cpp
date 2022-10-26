@@ -119,12 +119,13 @@ using namespace antlr3;
 
 
 
-ANTLR_UINT8* WNScriptASTParserTokenNames[81+4]
+ANTLR_UINT8* WNScriptASTParserTokenNames[82+4]
      = {
         (ANTLR_UINT8*) "<invalid>",
         (ANTLR_UINT8*) "<EOR>",
         (ANTLR_UINT8*) "<DOWN>",
         (ANTLR_UINT8*) "<UP>",
+        (ANTLR_UINT8*) "ACTION",
         (ANTLR_UINT8*) "ACTOR",
         (ANTLR_UINT8*) "BOOL",
         (ANTLR_UINT8*) "BOOL_TYPE",
@@ -282,1007 +283,1055 @@ static ANTLR_UINT8**	getTokenNames()
 
 
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_objectType1318_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_objectType1318( FOLLOW_TYPE_in_objectType1318_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_objectType1324_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_objectType1324( FOLLOW_TYPE_in_objectType1324_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_VOID_TYPE_in_scalarType1350_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_VOID_TYPE_in_scalarType1350( FOLLOW_VOID_TYPE_in_scalarType1350_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_VOID_TYPE_in_scalarType1356_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_VOID_TYPE_in_scalarType1356( FOLLOW_VOID_TYPE_in_scalarType1356_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_INT_TYPE_in_scalarType1362_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_INT_TYPE_in_scalarType1362( FOLLOW_INT_TYPE_in_scalarType1362_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_INT_TYPE_in_scalarType1368_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_INT_TYPE_in_scalarType1368( FOLLOW_INT_TYPE_in_scalarType1368_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_FLOAT_TYPE_in_scalarType1374_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_FLOAT_TYPE_in_scalarType1374( FOLLOW_FLOAT_TYPE_in_scalarType1374_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_FLOAT_TYPE_in_scalarType1380_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_FLOAT_TYPE_in_scalarType1380( FOLLOW_FLOAT_TYPE_in_scalarType1380_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_CHAR_TYPE_in_scalarType1386_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CHAR_TYPE_in_scalarType1386( FOLLOW_CHAR_TYPE_in_scalarType1386_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_CHAR_TYPE_in_scalarType1392_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CHAR_TYPE_in_scalarType1392( FOLLOW_CHAR_TYPE_in_scalarType1392_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_BOOL_TYPE_in_scalarType1398_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_BOOL_TYPE_in_scalarType1398( FOLLOW_BOOL_TYPE_in_scalarType1398_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_BOOL_TYPE_in_scalarType1404_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_BOOL_TYPE_in_scalarType1404( FOLLOW_BOOL_TYPE_in_scalarType1404_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_CPTR_TYPE_in_scalarType1410_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CPTR_TYPE_in_scalarType1410( FOLLOW_CPTR_TYPE_in_scalarType1410_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_CPTR_TYPE_in_scalarType1416_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CPTR_TYPE_in_scalarType1416( FOLLOW_CPTR_TYPE_in_scalarType1416_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_STRING_TYPE_in_scalarType1422_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_TYPE_in_scalarType1422( FOLLOW_STRING_TYPE_in_scalarType1422_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_STRING_TYPE_in_scalarType1428_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_TYPE_in_scalarType1428( FOLLOW_STRING_TYPE_in_scalarType1428_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_scalarType_in_arrayType1459_bits[]	= { ANTLR_UINT64_LIT(0x0000002000020000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_arrayType1459( FOLLOW_scalarType_in_arrayType1459_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_scalarType_in_arrayType1465_bits[]	= { ANTLR_UINT64_LIT(0x0000004000040000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_arrayType1465( FOLLOW_scalarType_in_arrayType1465_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_objectType_in_arrayType1475_bits[]	= { ANTLR_UINT64_LIT(0x0000002000020000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_objectType_in_arrayType1475( FOLLOW_objectType_in_arrayType1475_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_objectType_in_arrayType1481_bits[]	= { ANTLR_UINT64_LIT(0x0000004000040000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_objectType_in_arrayType1481( FOLLOW_objectType_in_arrayType1481_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SHARED_REF_in_arrayType1489_bits[]	= { ANTLR_UINT64_LIT(0x0080000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SHARED_REF_in_arrayType1489( FOLLOW_SHARED_REF_in_arrayType1489_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SHARED_REF_in_arrayType1495_bits[]	= { ANTLR_UINT64_LIT(0x0100000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SHARED_REF_in_arrayType1495( FOLLOW_SHARED_REF_in_arrayType1495_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_objectType_in_arrayType1493_bits[]	= { ANTLR_UINT64_LIT(0x0000002000020000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_objectType_in_arrayType1493( FOLLOW_objectType_in_arrayType1493_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_objectType_in_arrayType1499_bits[]	= { ANTLR_UINT64_LIT(0x0000004000040000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_objectType_in_arrayType1499( FOLLOW_objectType_in_arrayType1499_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_arrayType1527_bits[]	= { ANTLR_UINT64_LIT(0x0818404306008360) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_arrayType1527( FOLLOW_LSQBRACKET_in_arrayType1527_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_arrayType1533_bits[]	= { ANTLR_UINT64_LIT(0x103080860C0106C0) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_arrayType1533( FOLLOW_LSQBRACKET_in_arrayType1533_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_constant_in_arrayType1546_bits[]	= { ANTLR_UINT64_LIT(0x0000400000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_constant_in_arrayType1546( FOLLOW_constant_in_arrayType1546_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_constant_in_arrayType1552_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_constant_in_arrayType1552( FOLLOW_constant_in_arrayType1552_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_arrayType1568_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_arrayType1568( FOLLOW_RSQBRACKET_in_arrayType1568_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_arrayType1574_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_arrayType1574( FOLLOW_RSQBRACKET_in_arrayType1574_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_DLSQBRACKET_in_arrayType1597_bits[]	= { ANTLR_UINT64_LIT(0x0000000000200000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DLSQBRACKET_in_arrayType1597( FOLLOW_DLSQBRACKET_in_arrayType1597_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_DLSQBRACKET_in_arrayType1603_bits[]	= { ANTLR_UINT64_LIT(0x0000000000400000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DLSQBRACKET_in_arrayType1603( FOLLOW_DLSQBRACKET_in_arrayType1603_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_DRSQBRACKET_in_arrayType1599_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DRSQBRACKET_in_arrayType1599( FOLLOW_DRSQBRACKET_in_arrayType1599_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_DRSQBRACKET_in_arrayType1605_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DRSQBRACKET_in_arrayType1605( FOLLOW_DRSQBRACKET_in_arrayType1605_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_scalarType_in_sliceType1649_bits[]	= { ANTLR_UINT64_LIT(0x0006000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_sliceType1649( FOLLOW_scalarType_in_sliceType1649_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_scalarType_in_sliceType1655_bits[]	= { ANTLR_UINT64_LIT(0x000C000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_sliceType1655( FOLLOW_scalarType_in_sliceType1655_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SLICETOK_in_sliceType1665_bits[]	= { ANTLR_UINT64_LIT(0x0000000100000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SLICETOK_in_sliceType1665( FOLLOW_SLICETOK_in_sliceType1665_bits, 1 );
-
-static	ANTLR_BITWORD FOLLOW_INT_in_sliceType1667_bits[]	= { ANTLR_UINT64_LIT(0x0002000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_INT_in_sliceType1667( FOLLOW_INT_in_sliceType1667_bits, 1 );
-
-static	ANTLR_BITWORD FOLLOW_SLICETOK_in_sliceType1671_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static	ANTLR_BITWORD FOLLOW_SLICETOK_in_sliceType1671_bits[]	= { ANTLR_UINT64_LIT(0x0000000200000000) };
 static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SLICETOK_in_sliceType1671( FOLLOW_SLICETOK_in_sliceType1671_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SSOR_in_sliceType1690_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SSOR_in_sliceType1690( FOLLOW_SSOR_in_sliceType1690_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_INT_in_sliceType1673_bits[]	= { ANTLR_UINT64_LIT(0x0004000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_INT_in_sliceType1673( FOLLOW_INT_in_sliceType1673_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_objectType_in_compoundType1725_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_objectType_in_compoundType1725( FOLLOW_objectType_in_compoundType1725_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SLICETOK_in_sliceType1677_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SLICETOK_in_sliceType1677( FOLLOW_SLICETOK_in_sliceType1677_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_scalarType_in_nonArrayType1752_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_nonArrayType1752( FOLLOW_scalarType_in_nonArrayType1752_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SSOR_in_sliceType1696_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SSOR_in_sliceType1696( FOLLOW_SSOR_in_sliceType1696_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_objectType_in_nonArrayType1762_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_objectType_in_nonArrayType1762( FOLLOW_objectType_in_nonArrayType1762_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_objectType_in_compoundType1731_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_objectType_in_compoundType1731( FOLLOW_objectType_in_compoundType1731_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_compoundType_in_type1792_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_compoundType_in_type1792( FOLLOW_compoundType_in_type1792_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_scalarType_in_nonArrayType1758_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_nonArrayType1758( FOLLOW_scalarType_in_nonArrayType1758_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_arrayType_in_type1802_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arrayType_in_type1802( FOLLOW_arrayType_in_type1802_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_objectType_in_nonArrayType1768_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_objectType_in_nonArrayType1768( FOLLOW_objectType_in_nonArrayType1768_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_sliceType_in_type1812_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_sliceType_in_type1812( FOLLOW_sliceType_in_type1812_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_compoundType_in_type1798_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_compoundType_in_type1798( FOLLOW_compoundType_in_type1798_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_scalarType_in_type1822_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_type1822( FOLLOW_scalarType_in_type1822_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_arrayType_in_type1808_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arrayType_in_type1808( FOLLOW_arrayType_in_type1808_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_scalarType_in_param1854_bits[]	= { ANTLR_UINT64_LIT(0x0000000020000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_param1854( FOLLOW_scalarType_in_param1854_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_sliceType_in_type1818_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_sliceType_in_type1818( FOLLOW_sliceType_in_type1818_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ID_in_param1858_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1858( FOLLOW_ID_in_param1858_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_scalarType_in_type1828_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_type1828( FOLLOW_scalarType_in_type1828_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_compoundType_in_param1873_bits[]	= { ANTLR_UINT64_LIT(0x0000000020000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_compoundType_in_param1873( FOLLOW_compoundType_in_param1873_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_scalarType_in_param1860_bits[]	= { ANTLR_UINT64_LIT(0x0000000040000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_param1860( FOLLOW_scalarType_in_param1860_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ID_in_param1877_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1877( FOLLOW_ID_in_param1877_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ID_in_param1864_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1864( FOLLOW_ID_in_param1864_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_arrayType_in_param1892_bits[]	= { ANTLR_UINT64_LIT(0x0000000020000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arrayType_in_param1892( FOLLOW_arrayType_in_param1892_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_compoundType_in_param1879_bits[]	= { ANTLR_UINT64_LIT(0x0000000040000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_compoundType_in_param1879( FOLLOW_compoundType_in_param1879_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ID_in_param1896_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1896( FOLLOW_ID_in_param1896_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ID_in_param1883_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1883( FOLLOW_ID_in_param1883_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_sliceType_in_param1911_bits[]	= { ANTLR_UINT64_LIT(0x0000000020000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_sliceType_in_param1911( FOLLOW_sliceType_in_param1911_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_arrayType_in_param1898_bits[]	= { ANTLR_UINT64_LIT(0x0000000040000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arrayType_in_param1898( FOLLOW_arrayType_in_param1898_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ID_in_param1915_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1915( FOLLOW_ID_in_param1915_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ID_in_param1902_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1902( FOLLOW_ID_in_param1902_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SHARED_REF_in_param1928_bits[]	= { ANTLR_UINT64_LIT(0x0080000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SHARED_REF_in_param1928( FOLLOW_SHARED_REF_in_param1928_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_sliceType_in_param1917_bits[]	= { ANTLR_UINT64_LIT(0x0000000040000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_sliceType_in_param1917( FOLLOW_sliceType_in_param1917_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_compoundType_in_param1932_bits[]	= { ANTLR_UINT64_LIT(0x0000000020000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_compoundType_in_param1932( FOLLOW_compoundType_in_param1932_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ID_in_param1921_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1921( FOLLOW_ID_in_param1921_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ID_in_param1936_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1936( FOLLOW_ID_in_param1936_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SHARED_REF_in_param1934_bits[]	= { ANTLR_UINT64_LIT(0x0100000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SHARED_REF_in_param1934( FOLLOW_SHARED_REF_in_param1934_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_WEAK_REF_in_param1949_bits[]	= { ANTLR_UINT64_LIT(0x0080000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_WEAK_REF_in_param1949( FOLLOW_WEAK_REF_in_param1949_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_compoundType_in_param1938_bits[]	= { ANTLR_UINT64_LIT(0x0000000040000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_compoundType_in_param1938( FOLLOW_compoundType_in_param1938_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_compoundType_in_param1953_bits[]	= { ANTLR_UINT64_LIT(0x0000000020000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_compoundType_in_param1953( FOLLOW_compoundType_in_param1953_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ID_in_param1942_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1942( FOLLOW_ID_in_param1942_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ID_in_param1958_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1958( FOLLOW_ID_in_param1958_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_WEAK_REF_in_param1955_bits[]	= { ANTLR_UINT64_LIT(0x0100000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_WEAK_REF_in_param1955( FOLLOW_WEAK_REF_in_param1955_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_compoundType_in_param1973_bits[]	= { ANTLR_UINT64_LIT(0x0000020000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_compoundType_in_param1973( FOLLOW_compoundType_in_param1973_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_compoundType_in_param1959_bits[]	= { ANTLR_UINT64_LIT(0x0000000040000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_compoundType_in_param1959( FOLLOW_compoundType_in_param1959_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_QUESTION_in_param1975_bits[]	= { ANTLR_UINT64_LIT(0x0000000020000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_QUESTION_in_param1975( FOLLOW_QUESTION_in_param1975_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ID_in_param1964_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1964( FOLLOW_ID_in_param1964_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ID_in_param1980_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1980( FOLLOW_ID_in_param1980_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_compoundType_in_param1979_bits[]	= { ANTLR_UINT64_LIT(0x0000040000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_compoundType_in_param1979( FOLLOW_compoundType_in_param1979_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_param_in_paramList2012_bits[]	= { ANTLR_UINT64_LIT(0x0000000000001002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_param_in_paramList2012( FOLLOW_param_in_paramList2012_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_QUESTION_in_param1981_bits[]	= { ANTLR_UINT64_LIT(0x0000000040000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_QUESTION_in_param1981( FOLLOW_QUESTION_in_param1981_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_COMMA_in_paramList2025_bits[]	= { ANTLR_UINT64_LIT(0x1891000204008240) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COMMA_in_paramList2025( FOLLOW_COMMA_in_paramList2025_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ID_in_param1986_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_param1986( FOLLOW_ID_in_param1986_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_param_in_paramList2029_bits[]	= { ANTLR_UINT64_LIT(0x0000000000001002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_param_in_paramList2029( FOLLOW_param_in_paramList2029_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_param_in_paramList2018_bits[]	= { ANTLR_UINT64_LIT(0x0000000000002002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_param_in_paramList2018( FOLLOW_param_in_paramList2018_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_parameterList2061_bits[]	= { ANTLR_UINT64_LIT(0x1891000204008240) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_parameterList2061( FOLLOW_LBRACKET_in_parameterList2061_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_COMMA_in_paramList2031_bits[]	= { ANTLR_UINT64_LIT(0x3122000408010480) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COMMA_in_paramList2031( FOLLOW_COMMA_in_paramList2031_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_paramList_in_parameterList2063_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_paramList_in_parameterList2063( FOLLOW_paramList_in_parameterList2063_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_param_in_paramList2035_bits[]	= { ANTLR_UINT64_LIT(0x0000000000002002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_param_in_paramList2035( FOLLOW_param_in_paramList2035_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_parameterList2065_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_parameterList2065( FOLLOW_RBRACKET_in_parameterList2065_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_parameterList2067_bits[]	= { ANTLR_UINT64_LIT(0x3122000408010480) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_parameterList2067( FOLLOW_LBRACKET_in_parameterList2067_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_parameterList2082_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_parameterList2082( FOLLOW_LBRACKET_in_parameterList2082_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_paramList_in_parameterList2069_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_paramList_in_parameterList2069( FOLLOW_paramList_in_parameterList2069_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_parameterList2084_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_parameterList2084( FOLLOW_RBRACKET_in_parameterList2084_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_parameterList2071_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_parameterList2071( FOLLOW_RBRACKET_in_parameterList2071_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_80_in_assign_type2120_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_80_in_assign_type2120( FOLLOW_80_in_assign_type2120_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_parameterList2088_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_parameterList2088( FOLLOW_LBRACKET_in_parameterList2088_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_72_in_assign_type2134_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_72_in_assign_type2134( FOLLOW_72_in_assign_type2134_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_parameterList2090_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_parameterList2090( FOLLOW_RBRACKET_in_parameterList2090_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_74_in_assign_type2147_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_74_in_assign_type2147( FOLLOW_74_in_assign_type2147_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_81_in_assign_type2126_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_81_in_assign_type2126( FOLLOW_81_in_assign_type2126_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_70_in_assign_type2160_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_70_in_assign_type2160( FOLLOW_70_in_assign_type2160_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_73_in_assign_type2140_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_73_in_assign_type2140( FOLLOW_73_in_assign_type2140_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_77_in_assign_type2173_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_77_in_assign_type2173( FOLLOW_77_in_assign_type2173_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_75_in_assign_type2153_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_75_in_assign_type2153( FOLLOW_75_in_assign_type2153_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_66_in_assign_type2186_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_66_in_assign_type2186( FOLLOW_66_in_assign_type2186_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_71_in_assign_type2166_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_71_in_assign_type2166( FOLLOW_71_in_assign_type2166_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_arglist2244_bits[]	= { ANTLR_UINT64_LIT(0x0000000000001002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arglist2244( FOLLOW_expr_in_arglist2244_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_78_in_assign_type2179_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_78_in_assign_type2179( FOLLOW_78_in_assign_type2179_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_COMMA_in_arglist2277_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26189362), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COMMA_in_arglist2277( FOLLOW_COMMA_in_arglist2277_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_67_in_assign_type2192_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_67_in_assign_type2192( FOLLOW_67_in_assign_type2192_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_arglist2321_bits[]	= { ANTLR_UINT64_LIT(0x0000000000001002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arglist2321( FOLLOW_expr_in_arglist2321_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_arglist2250_bits[]	= { ANTLR_UINT64_LIT(0x0000000000002002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arglist2250( FOLLOW_expr_in_arglist2250_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_cond_ex_in_expr2396_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_cond_ex_in_expr2396( FOLLOW_cond_ex_in_expr2396_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_COMMA_in_arglist2283_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3126C2), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COMMA_in_arglist2283( FOLLOW_COMMA_in_arglist2283_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_or_ex_in_cond_ex2434_bits[]	= { ANTLR_UINT64_LIT(0x0000020000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_or_ex_in_cond_ex2434( FOLLOW_or_ex_in_cond_ex2434_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_arglist2327_bits[]	= { ANTLR_UINT64_LIT(0x0000000000002002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arglist2327( FOLLOW_expr_in_arglist2327_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_QUESTION_in_cond_ex2457_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_QUESTION_in_cond_ex2457( FOLLOW_QUESTION_in_cond_ex2457_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_cond_ex_in_expr2402_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_cond_ex_in_expr2402( FOLLOW_cond_ex_in_expr2402_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_cond_ex2461_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_cond_ex2461( FOLLOW_expr_in_cond_ex2461_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_or_ex_in_cond_ex2440_bits[]	= { ANTLR_UINT64_LIT(0x0000040000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_or_ex_in_cond_ex2440( FOLLOW_or_ex_in_cond_ex2440_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_COLON_in_cond_ex2463_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COLON_in_cond_ex2463( FOLLOW_COLON_in_cond_ex2463_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_QUESTION_in_cond_ex2463_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_QUESTION_in_cond_ex2463( FOLLOW_QUESTION_in_cond_ex2463_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_cond_ex_in_cond_ex2467_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_cond_ex_in_cond_ex2467( FOLLOW_cond_ex_in_cond_ex2467_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_cond_ex2467_bits[]	= { ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_cond_ex2467( FOLLOW_expr_in_cond_ex2467_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_and_ex_in_or_ex2514_bits[]	= { ANTLR_UINT64_LIT(0x0004000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_and_ex_in_or_ex2514( FOLLOW_and_ex_in_or_ex2514_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_COLON_in_cond_ex2469_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COLON_in_cond_ex2469( FOLLOW_COLON_in_cond_ex2469_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_SSOR_in_or_ex2531_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SSOR_in_or_ex2531( FOLLOW_SSOR_in_or_ex2531_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_cond_ex_in_cond_ex2473_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_cond_ex_in_cond_ex2473( FOLLOW_cond_ex_in_cond_ex2473_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_and_ex_in_or_ex2535_bits[]	= { ANTLR_UINT64_LIT(0x0004000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_and_ex_in_or_ex2535( FOLLOW_and_ex_in_or_ex2535_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_and_ex_in_or_ex2520_bits[]	= { ANTLR_UINT64_LIT(0x0008000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_and_ex_in_or_ex2520( FOLLOW_and_ex_in_or_ex2520_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_bit_or_ex_in_and_ex2578_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000008) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_bit_or_ex_in_and_ex2578( FOLLOW_bit_or_ex_in_and_ex2578_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_SSOR_in_or_ex2537_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SSOR_in_or_ex2537( FOLLOW_SSOR_in_or_ex2537_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_67_in_and_ex2595_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_67_in_and_ex2595( FOLLOW_67_in_and_ex2595_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_and_ex_in_or_ex2541_bits[]	= { ANTLR_UINT64_LIT(0x0008000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_and_ex_in_or_ex2541( FOLLOW_and_ex_in_or_ex2541_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_bit_or_ex_in_and_ex2599_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000008) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_bit_or_ex_in_and_ex2599( FOLLOW_bit_or_ex_in_and_ex2599_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_bit_or_ex_in_and_ex2584_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000010) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_bit_or_ex_in_and_ex2584( FOLLOW_bit_or_ex_in_and_ex2584_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_bit_xor_ex_in_bit_or_ex2633_bits[]	= { ANTLR_UINT64_LIT(0x0002000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_bit_xor_ex_in_bit_or_ex2633( FOLLOW_bit_xor_ex_in_bit_or_ex2633_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_68_in_and_ex2601_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_68_in_and_ex2601( FOLLOW_68_in_and_ex2601_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_SLICETOK_in_bit_or_ex2650_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SLICETOK_in_bit_or_ex2650( FOLLOW_SLICETOK_in_bit_or_ex2650_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_bit_or_ex_in_and_ex2605_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000010) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_bit_or_ex_in_and_ex2605( FOLLOW_bit_or_ex_in_and_ex2605_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_bit_xor_ex_in_bit_or_ex2654_bits[]	= { ANTLR_UINT64_LIT(0x0002000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_bit_xor_ex_in_bit_or_ex2654( FOLLOW_bit_xor_ex_in_bit_or_ex2654_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_bit_xor_ex_in_bit_or_ex2639_bits[]	= { ANTLR_UINT64_LIT(0x0004000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_bit_xor_ex_in_bit_or_ex2639( FOLLOW_bit_xor_ex_in_bit_or_ex2639_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_bit_and_ex_in_bit_xor_ex2689_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000100000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_bit_and_ex_in_bit_xor_ex2689( FOLLOW_bit_and_ex_in_bit_xor_ex2689_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_SLICETOK_in_bit_or_ex2656_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SLICETOK_in_bit_or_ex2656( FOLLOW_SLICETOK_in_bit_or_ex2656_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_84_in_bit_xor_ex2706_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_84_in_bit_xor_ex2706( FOLLOW_84_in_bit_xor_ex2706_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_bit_xor_ex_in_bit_or_ex2660_bits[]	= { ANTLR_UINT64_LIT(0x0004000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_bit_xor_ex_in_bit_or_ex2660( FOLLOW_bit_xor_ex_in_bit_or_ex2660_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_bit_and_ex_in_bit_xor_ex2710_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000100000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_bit_and_ex_in_bit_xor_ex2710( FOLLOW_bit_and_ex_in_bit_xor_ex2710_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_bit_and_ex_in_bit_xor_ex2695_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000200000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_bit_and_ex_in_bit_xor_ex2695( FOLLOW_bit_and_ex_in_bit_xor_ex2695_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_eq_ex_in_bit_and_ex2745_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000010) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_eq_ex_in_bit_and_ex2745( FOLLOW_eq_ex_in_bit_and_ex2745_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_85_in_bit_xor_ex2712_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_85_in_bit_xor_ex2712( FOLLOW_85_in_bit_xor_ex2712_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_68_in_bit_and_ex2762_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_68_in_bit_and_ex2762( FOLLOW_68_in_bit_and_ex2762_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_bit_and_ex_in_bit_xor_ex2716_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000200000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_bit_and_ex_in_bit_xor_ex2716( FOLLOW_bit_and_ex_in_bit_xor_ex2716_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_eq_ex_in_bit_and_ex2766_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000010) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_eq_ex_in_bit_and_ex2766( FOLLOW_eq_ex_in_bit_and_ex2766_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_eq_ex_in_bit_and_ex2751_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000020) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_eq_ex_in_bit_and_ex2751( FOLLOW_eq_ex_in_bit_and_ex2751_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_rel_ex_in_eq_ex2804_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000020001) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_rel_ex_in_eq_ex2804( FOLLOW_rel_ex_in_eq_ex2804_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_69_in_bit_and_ex2768_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_69_in_bit_and_ex2768( FOLLOW_69_in_bit_and_ex2768_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_81_in_eq_ex2839_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_81_in_eq_ex2839( FOLLOW_81_in_eq_ex2839_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_eq_ex_in_bit_and_ex2772_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000020) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_eq_ex_in_bit_and_ex2772( FOLLOW_eq_ex_in_bit_and_ex2772_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_rel_ex_in_eq_ex2843_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000020001) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_rel_ex_in_eq_ex2843( FOLLOW_rel_ex_in_eq_ex2843_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_rel_ex_in_eq_ex2810_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000040002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_rel_ex_in_eq_ex2810( FOLLOW_rel_ex_in_eq_ex2810_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_64_in_eq_ex2866_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_64_in_eq_ex2866( FOLLOW_64_in_eq_ex2866_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_82_in_eq_ex2845_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_82_in_eq_ex2845( FOLLOW_82_in_eq_ex2845_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_rel_ex_in_eq_ex2870_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000020001) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_rel_ex_in_eq_ex2870( FOLLOW_rel_ex_in_eq_ex2870_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_rel_ex_in_eq_ex2849_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000040002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_rel_ex_in_eq_ex2849( FOLLOW_rel_ex_in_eq_ex2849_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex2928_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x00000000000CC000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex2928( FOLLOW_add_ex_in_rel_ex2928_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_65_in_eq_ex2872_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_65_in_eq_ex2872( FOLLOW_65_in_eq_ex2872_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_78_in_rel_ex2964_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_78_in_rel_ex2964( FOLLOW_78_in_rel_ex2964_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_rel_ex_in_eq_ex2876_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000040002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_rel_ex_in_eq_ex2876( FOLLOW_rel_ex_in_eq_ex2876_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex2968_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x00000000000CC000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex2968( FOLLOW_add_ex_in_rel_ex2968_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex2934_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000198000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex2934( FOLLOW_add_ex_in_rel_ex2934_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_82_in_rel_ex2992_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_82_in_rel_ex2992( FOLLOW_82_in_rel_ex2992_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_79_in_rel_ex2970_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_79_in_rel_ex2970( FOLLOW_79_in_rel_ex2970_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex2996_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x00000000000CC000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex2996( FOLLOW_add_ex_in_rel_ex2996_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex2974_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000198000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex2974( FOLLOW_add_ex_in_rel_ex2974_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_79_in_rel_ex3020_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_79_in_rel_ex3020( FOLLOW_79_in_rel_ex3020_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_83_in_rel_ex2998_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_83_in_rel_ex2998( FOLLOW_83_in_rel_ex2998_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex3024_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x00000000000CC000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex3024( FOLLOW_add_ex_in_rel_ex3024_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex3002_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000198000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex3002( FOLLOW_add_ex_in_rel_ex3002_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_83_in_rel_ex3048_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_83_in_rel_ex3048( FOLLOW_83_in_rel_ex3048_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_80_in_rel_ex3026_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_80_in_rel_ex3026( FOLLOW_80_in_rel_ex3026_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex3052_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x00000000000CC000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex3052( FOLLOW_add_ex_in_rel_ex3052_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex3030_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000198000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex3030( FOLLOW_add_ex_in_rel_ex3030_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_mult_ex_in_add_ex3113_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000280) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_mult_ex_in_add_ex3113( FOLLOW_mult_ex_in_add_ex3113_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_84_in_rel_ex3054_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_84_in_rel_ex3054( FOLLOW_84_in_rel_ex3054_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_71_in_add_ex3148_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_71_in_add_ex3148( FOLLOW_71_in_add_ex3148_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_add_ex_in_rel_ex3058_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000198000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_add_ex_in_rel_ex3058( FOLLOW_add_ex_in_rel_ex3058_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_mult_ex_in_add_ex3152_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000280) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_mult_ex_in_add_ex3152( FOLLOW_mult_ex_in_add_ex3152_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_mult_ex_in_add_ex3119_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000500) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_mult_ex_in_add_ex3119( FOLLOW_mult_ex_in_add_ex3119_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_73_in_add_ex3174_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_73_in_add_ex3174( FOLLOW_73_in_add_ex3174_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_72_in_add_ex3154_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_72_in_add_ex3154( FOLLOW_72_in_add_ex3154_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_mult_ex_in_add_ex3178_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000280) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_mult_ex_in_add_ex3178( FOLLOW_mult_ex_in_add_ex3178_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_mult_ex_in_add_ex3158_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000500) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_mult_ex_in_add_ex3158( FOLLOW_mult_ex_in_add_ex3158_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_unary_ex_in_mult_ex3237_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000001022) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_mult_ex3237( FOLLOW_unary_ex_in_mult_ex3237_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_74_in_add_ex3180_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_74_in_add_ex3180( FOLLOW_74_in_add_ex3180_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_69_in_mult_ex3276_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_69_in_mult_ex3276( FOLLOW_69_in_mult_ex3276_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_mult_ex_in_add_ex3184_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000000500) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_mult_ex_in_add_ex3184( FOLLOW_mult_ex_in_add_ex3184_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_unary_ex_in_mult_ex3280_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000001022) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_mult_ex3280( FOLLOW_unary_ex_in_mult_ex3280_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_unary_ex_in_mult_ex3243_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000002044) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_mult_ex3243( FOLLOW_unary_ex_in_mult_ex3243_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_76_in_mult_ex3306_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_76_in_mult_ex3306( FOLLOW_76_in_mult_ex3306_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_70_in_mult_ex3282_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_70_in_mult_ex3282( FOLLOW_70_in_mult_ex3282_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_unary_ex_in_mult_ex3310_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000001022) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_mult_ex3310( FOLLOW_unary_ex_in_mult_ex3310_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_unary_ex_in_mult_ex3286_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000002044) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_mult_ex3286( FOLLOW_unary_ex_in_mult_ex3286_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_65_in_mult_ex3336_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_65_in_mult_ex3336( FOLLOW_65_in_mult_ex3336_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_77_in_mult_ex3312_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_77_in_mult_ex3312( FOLLOW_77_in_mult_ex3312_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_unary_ex_in_mult_ex3340_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000001022) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_mult_ex3340( FOLLOW_unary_ex_in_mult_ex3340_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_unary_ex_in_mult_ex3316_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000002044) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_mult_ex3316( FOLLOW_unary_ex_in_mult_ex3316_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_post_ex_in_unary_ex3392_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_post_ex_in_unary_ex3392( FOLLOW_post_ex_in_unary_ex3392_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_66_in_mult_ex3342_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_66_in_mult_ex3342( FOLLOW_66_in_mult_ex3342_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_DOUBINC_in_unary_ex3405_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DOUBINC_in_unary_ex3405( FOLLOW_DOUBINC_in_unary_ex3405_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_unary_ex_in_mult_ex3346_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000002044) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_mult_ex3346( FOLLOW_unary_ex_in_mult_ex3346_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_unary_ex_in_unary_ex3409_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_unary_ex3409( FOLLOW_unary_ex_in_unary_ex3409_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_post_ex_in_unary_ex3398_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_post_ex_in_unary_ex3398( FOLLOW_post_ex_in_unary_ex3398_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_DOUBDEC_in_unary_ex3422_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DOUBDEC_in_unary_ex3422( FOLLOW_DOUBDEC_in_unary_ex3422_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_DOUBINC_in_unary_ex3411_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DOUBINC_in_unary_ex3411( FOLLOW_DOUBINC_in_unary_ex3411_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_unary_ex_in_unary_ex3426_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_unary_ex3426( FOLLOW_unary_ex_in_unary_ex3426_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_unary_ex_in_unary_ex3415_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_unary_ex3415( FOLLOW_unary_ex_in_unary_ex3415_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_73_in_unary_ex3439_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_73_in_unary_ex3439( FOLLOW_73_in_unary_ex3439_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_DOUBDEC_in_unary_ex3428_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DOUBDEC_in_unary_ex3428( FOLLOW_DOUBDEC_in_unary_ex3428_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_unary_ex_in_unary_ex3443_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_unary_ex3443( FOLLOW_unary_ex_in_unary_ex3443_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_unary_ex_in_unary_ex3432_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_unary_ex3432( FOLLOW_unary_ex_in_unary_ex3432_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_63_in_unary_ex3457_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_63_in_unary_ex3457( FOLLOW_63_in_unary_ex3457_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_74_in_unary_ex3445_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_74_in_unary_ex3445( FOLLOW_74_in_unary_ex3445_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_unary_ex_in_unary_ex3461_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_unary_ex3461( FOLLOW_unary_ex_in_unary_ex3461_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_unary_ex_in_unary_ex3449_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_unary_ex3449( FOLLOW_unary_ex_in_unary_ex3449_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_post_ex_proper3499_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_post_ex_proper3499( FOLLOW_LSQBRACKET_in_post_ex_proper3499_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_64_in_unary_ex3463_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_64_in_unary_ex3463( FOLLOW_64_in_unary_ex3463_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_post_ex_proper3503_bits[]	= { ANTLR_UINT64_LIT(0x0000400000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_post_ex_proper3503( FOLLOW_expr_in_post_ex_proper3503_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_unary_ex_in_unary_ex3467_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_unary_ex_in_unary_ex3467( FOLLOW_unary_ex_in_unary_ex3467_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_post_ex_proper3507_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_post_ex_proper3507( FOLLOW_RSQBRACKET_in_post_ex_proper3507_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_post_ex_proper3505_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_post_ex_proper3505( FOLLOW_LSQBRACKET_in_post_ex_proper3505_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_post_ex_proper3522_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_post_ex_proper3522( FOLLOW_LBRACKET_in_post_ex_proper3522_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_post_ex_proper3509_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_post_ex_proper3509( FOLLOW_expr_in_post_ex_proper3509_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_post_ex_proper3526_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_post_ex_proper3526( FOLLOW_RBRACKET_in_post_ex_proper3526_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_post_ex_proper3513_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_post_ex_proper3513( FOLLOW_RSQBRACKET_in_post_ex_proper3513_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_post_ex_proper3554_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_post_ex_proper3554( FOLLOW_LBRACKET_in_post_ex_proper3554_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_post_ex_proper3528_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_post_ex_proper3528( FOLLOW_LBRACKET_in_post_ex_proper3528_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_arglist_in_post_ex_proper3560_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arglist_in_post_ex_proper3560( FOLLOW_arglist_in_post_ex_proper3560_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_post_ex_proper3532_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_post_ex_proper3532( FOLLOW_RBRACKET_in_post_ex_proper3532_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_post_ex_proper3564_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_post_ex_proper3564( FOLLOW_RBRACKET_in_post_ex_proper3564_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_post_ex_proper3560_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_post_ex_proper3560( FOLLOW_LBRACKET_in_post_ex_proper3560_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_75_in_post_ex_proper3577_bits[]	= { ANTLR_UINT64_LIT(0x0000000020000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_75_in_post_ex_proper3577( FOLLOW_75_in_post_ex_proper3577_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_arglist_in_post_ex_proper3566_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arglist_in_post_ex_proper3566( FOLLOW_arglist_in_post_ex_proper3566_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ID_in_post_ex_proper3581_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_post_ex_proper3581( FOLLOW_ID_in_post_ex_proper3581_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_post_ex_proper3570_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_post_ex_proper3570( FOLLOW_RBRACKET_in_post_ex_proper3570_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_DOUBINC_in_post_ex_proper3608_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DOUBINC_in_post_ex_proper3608( FOLLOW_DOUBINC_in_post_ex_proper3608_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_76_in_post_ex_proper3583_bits[]	= { ANTLR_UINT64_LIT(0x0000000040000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_76_in_post_ex_proper3583( FOLLOW_76_in_post_ex_proper3583_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_DOUBDEC_in_post_ex_proper3637_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DOUBDEC_in_post_ex_proper3637( FOLLOW_DOUBDEC_in_post_ex_proper3637_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ID_in_post_ex_proper3587_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_post_ex_proper3587( FOLLOW_ID_in_post_ex_proper3587_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACE_in_post_ex_proper3683_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_post_ex_proper3683( FOLLOW_LBRACE_in_post_ex_proper3683_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_DOUBINC_in_post_ex_proper3614_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DOUBINC_in_post_ex_proper3614( FOLLOW_DOUBINC_in_post_ex_proper3614_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_post_ex_proper3703_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_post_ex_proper3703( FOLLOW_expr_in_post_ex_proper3703_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_DOUBDEC_in_post_ex_proper3643_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DOUBDEC_in_post_ex_proper3643( FOLLOW_DOUBDEC_in_post_ex_proper3643_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_COLON_in_post_ex_proper3720_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COLON_in_post_ex_proper3720( FOLLOW_COLON_in_post_ex_proper3720_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_LBRACE_in_post_ex_proper3689_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_post_ex_proper3689( FOLLOW_LBRACE_in_post_ex_proper3689_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_post_ex_proper3737_bits[]	= { ANTLR_UINT64_LIT(0x0000040000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_post_ex_proper3737( FOLLOW_expr_in_post_ex_proper3737_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_post_ex_proper3709_bits[]	= { ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_post_ex_proper3709( FOLLOW_expr_in_post_ex_proper3709_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACE_in_post_ex_proper3757_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_post_ex_proper3757( FOLLOW_RBRACE_in_post_ex_proper3757_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_COLON_in_post_ex_proper3726_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COLON_in_post_ex_proper3726( FOLLOW_COLON_in_post_ex_proper3726_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_prim_ex_in_post_ex3804_bits[]	= { ANTLR_UINT64_LIT(0x0000002C00180002), ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_prim_ex_in_post_ex3804( FOLLOW_prim_ex_in_post_ex3804_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_expr_in_post_ex_proper3743_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_post_ex_proper3743( FOLLOW_expr_in_post_ex_proper3743_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_post_ex_proper_in_post_ex3823_bits[]	= { ANTLR_UINT64_LIT(0x0000002C00180002), ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_post_ex_proper_in_post_ex3823( FOLLOW_post_ex_proper_in_post_ex3823_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_RBRACE_in_post_ex_proper3763_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_post_ex_proper3763( FOLLOW_RBRACE_in_post_ex_proper3763_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_assignment_or_expression3854_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000012544) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_assignment_or_expression3854( FOLLOW_expr_in_assignment_or_expression3854_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_prim_ex_in_post_ex3810_bits[]	= { ANTLR_UINT64_LIT(0x0000005800300002), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_prim_ex_in_post_ex3810( FOLLOW_prim_ex_in_post_ex3810_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_assign_type_in_assignment_or_expression3886_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_assign_type_in_assignment_or_expression3886( FOLLOW_assign_type_in_assignment_or_expression3886_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_post_ex_proper_in_post_ex3829_bits[]	= { ANTLR_UINT64_LIT(0x0000005800300002), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_post_ex_proper_in_post_ex3829( FOLLOW_post_ex_proper_in_post_ex3829_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_assignment_or_expression3890_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_assignment_or_expression3890( FOLLOW_expr_in_assignment_or_expression3890_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_assignment_or_expression3860_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002), ANTLR_UINT64_LIT(0x0000000000024A88) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_assignment_or_expression3860( FOLLOW_expr_in_assignment_or_expression3860_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_INT_in_constant3956_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_INT_in_constant3956( FOLLOW_INT_in_constant3956_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_assign_type_in_assignment_or_expression3892_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_assign_type_in_assignment_or_expression3892( FOLLOW_assign_type_in_assignment_or_expression3892_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_FLOAT_in_constant3974_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_FLOAT_in_constant3974( FOLLOW_FLOAT_in_constant3974_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_assignment_or_expression3896_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_assignment_or_expression3896( FOLLOW_expr_in_assignment_or_expression3896_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_CHAR_in_constant3990_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CHAR_in_constant3990( FOLLOW_CHAR_in_constant3990_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_INT_in_constant3962_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_INT_in_constant3962( FOLLOW_INT_in_constant3962_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_STRING_in_constant4007_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_constant4007( FOLLOW_STRING_in_constant4007_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_FLOAT_in_constant3980_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_FLOAT_in_constant3980( FOLLOW_FLOAT_in_constant3980_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_BOOL_in_constant4022_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_BOOL_in_constant4022( FOLLOW_BOOL_in_constant4022_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_CHAR_in_constant3996_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CHAR_in_constant3996( FOLLOW_CHAR_in_constant3996_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_NULLTOK_in_constant4039_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_NULLTOK_in_constant4039( FOLLOW_NULLTOK_in_constant4039_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_STRING_in_constant4013_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_constant4013( FOLLOW_STRING_in_constant4013_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_scalarType_in_constant4054_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_constant4054( FOLLOW_scalarType_in_constant4054_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_BOOL_in_constant4028_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_BOOL_in_constant4028( FOLLOW_BOOL_in_constant4028_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACE_in_constant4058_bits[]	= { ANTLR_UINT64_LIT(0x0008000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_constant4058( FOLLOW_LBRACE_in_constant4058_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_NULLTOK_in_constant4045_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_NULLTOK_in_constant4045( FOLLOW_NULLTOK_in_constant4045_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_STRING_in_constant4062_bits[]	= { ANTLR_UINT64_LIT(0x0000040000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_constant4062( FOLLOW_STRING_in_constant4062_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_scalarType_in_constant4060_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_constant4060( FOLLOW_scalarType_in_constant4060_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACE_in_constant4066_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_constant4066( FOLLOW_RBRACE_in_constant4066_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACE_in_constant4064_bits[]	= { ANTLR_UINT64_LIT(0x0010000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_constant4064( FOLLOW_LBRACE_in_constant4064_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LENGTH_in_builtin_unary4095_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LENGTH_in_builtin_unary4095( FOLLOW_LENGTH_in_builtin_unary4095_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_STRING_in_constant4068_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_constant4068( FOLLOW_STRING_in_constant4068_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_builtin_unary4097_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_builtin_unary4097( FOLLOW_LBRACKET_in_builtin_unary4097_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_RBRACE_in_constant4072_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_constant4072( FOLLOW_RBRACE_in_constant4072_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_builtin_unary4099_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_builtin_unary4099( FOLLOW_expr_in_builtin_unary4099_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LENGTH_in_builtin_unary4101_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LENGTH_in_builtin_unary4101( FOLLOW_LENGTH_in_builtin_unary4101_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_builtin_unary4101_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_builtin_unary4101( FOLLOW_RBRACKET_in_builtin_unary4101_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_builtin_unary4103_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_builtin_unary4103( FOLLOW_LBRACKET_in_builtin_unary4103_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_ID_in_non_array_prim_ex4130_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_non_array_prim_ex4130( FOLLOW_ID_in_non_array_prim_ex4130_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_builtin_unary4105_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_builtin_unary4105( FOLLOW_expr_in_builtin_unary4105_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_non_array_prim_ex4144_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_non_array_prim_ex4144( FOLLOW_LBRACKET_in_non_array_prim_ex4144_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_builtin_unary4107_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_builtin_unary4107( FOLLOW_RBRACKET_in_builtin_unary4107_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_non_array_prim_ex4148_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_non_array_prim_ex4148( FOLLOW_expr_in_non_array_prim_ex4148_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ID_in_non_array_prim_ex4136_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_non_array_prim_ex4136( FOLLOW_ID_in_non_array_prim_ex4136_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_non_array_prim_ex4152_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_non_array_prim_ex4152( FOLLOW_RBRACKET_in_non_array_prim_ex4152_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_non_array_prim_ex4150_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_non_array_prim_ex4150( FOLLOW_LBRACKET_in_non_array_prim_ex4150_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_RESOURCE_in_non_array_prim_ex4164_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RESOURCE_in_non_array_prim_ex4164( FOLLOW_RESOURCE_in_non_array_prim_ex4164_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_non_array_prim_ex4154_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_non_array_prim_ex4154( FOLLOW_expr_in_non_array_prim_ex4154_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_non_array_prim_ex4168_bits[]	= { ANTLR_UINT64_LIT(0x0008000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_non_array_prim_ex4168( FOLLOW_LBRACKET_in_non_array_prim_ex4168_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_non_array_prim_ex4158_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_non_array_prim_ex4158( FOLLOW_RBRACKET_in_non_array_prim_ex4158_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_STRING_in_non_array_prim_ex4172_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_non_array_prim_ex4172( FOLLOW_STRING_in_non_array_prim_ex4172_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RESOURCE_in_non_array_prim_ex4170_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RESOURCE_in_non_array_prim_ex4170( FOLLOW_RESOURCE_in_non_array_prim_ex4170_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_non_array_prim_ex4176_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_non_array_prim_ex4176( FOLLOW_RBRACKET_in_non_array_prim_ex4176_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_non_array_prim_ex4174_bits[]	= { ANTLR_UINT64_LIT(0x0010000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_non_array_prim_ex4174( FOLLOW_LBRACKET_in_non_array_prim_ex4174_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RESOURCE_in_non_array_prim_ex4188_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RESOURCE_in_non_array_prim_ex4188( FOLLOW_RESOURCE_in_non_array_prim_ex4188_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_STRING_in_non_array_prim_ex4178_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_non_array_prim_ex4178( FOLLOW_STRING_in_non_array_prim_ex4178_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_non_array_prim_ex4192_bits[]	= { ANTLR_UINT64_LIT(0x0008000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_non_array_prim_ex4192( FOLLOW_LBRACKET_in_non_array_prim_ex4192_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_non_array_prim_ex4182_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_non_array_prim_ex4182( FOLLOW_RBRACKET_in_non_array_prim_ex4182_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_STRING_in_non_array_prim_ex4196_bits[]	= { ANTLR_UINT64_LIT(0x0000000000001000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_non_array_prim_ex4196( FOLLOW_STRING_in_non_array_prim_ex4196_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RESOURCE_in_non_array_prim_ex4194_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RESOURCE_in_non_array_prim_ex4194( FOLLOW_RESOURCE_in_non_array_prim_ex4194_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_COMMA_in_non_array_prim_ex4198_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COMMA_in_non_array_prim_ex4198( FOLLOW_COMMA_in_non_array_prim_ex4198_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_non_array_prim_ex4198_bits[]	= { ANTLR_UINT64_LIT(0x0010000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_non_array_prim_ex4198( FOLLOW_LBRACKET_in_non_array_prim_ex4198_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_arglist_in_non_array_prim_ex4202_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arglist_in_non_array_prim_ex4202( FOLLOW_arglist_in_non_array_prim_ex4202_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_STRING_in_non_array_prim_ex4202_bits[]	= { ANTLR_UINT64_LIT(0x0000000000002000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_non_array_prim_ex4202( FOLLOW_STRING_in_non_array_prim_ex4202_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_non_array_prim_ex4206_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_non_array_prim_ex4206( FOLLOW_RBRACKET_in_non_array_prim_ex4206_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_COMMA_in_non_array_prim_ex4204_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COMMA_in_non_array_prim_ex4204( FOLLOW_COMMA_in_non_array_prim_ex4204_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_constant_in_non_array_prim_ex4220_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_constant_in_non_array_prim_ex4220( FOLLOW_constant_in_non_array_prim_ex4220_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_arglist_in_non_array_prim_ex4208_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arglist_in_non_array_prim_ex4208( FOLLOW_arglist_in_non_array_prim_ex4208_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_scalarType_in_non_array_prim_ex4235_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_non_array_prim_ex4235( FOLLOW_scalarType_in_non_array_prim_ex4235_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_non_array_prim_ex4212_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_non_array_prim_ex4212( FOLLOW_RBRACKET_in_non_array_prim_ex4212_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_cast_in_non_array_prim_ex4241_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_cast_in_non_array_prim_ex4241( FOLLOW_cast_in_non_array_prim_ex4241_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_constant_in_non_array_prim_ex4226_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_constant_in_non_array_prim_ex4226( FOLLOW_constant_in_non_array_prim_ex4226_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_objectType_in_non_array_prim_ex4256_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_objectType_in_non_array_prim_ex4256( FOLLOW_objectType_in_non_array_prim_ex4256_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_scalarType_in_non_array_prim_ex4241_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_scalarType_in_non_array_prim_ex4241( FOLLOW_scalarType_in_non_array_prim_ex4241_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_structInit_in_non_array_prim_ex4260_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_structInit_in_non_array_prim_ex4260( FOLLOW_structInit_in_non_array_prim_ex4260_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_cast_in_non_array_prim_ex4247_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_cast_in_non_array_prim_ex4247( FOLLOW_cast_in_non_array_prim_ex4247_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SHARED_REF_in_non_array_prim_ex4272_bits[]	= { ANTLR_UINT64_LIT(0x0080000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SHARED_REF_in_non_array_prim_ex4272( FOLLOW_SHARED_REF_in_non_array_prim_ex4272_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_objectType_in_non_array_prim_ex4262_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_objectType_in_non_array_prim_ex4262( FOLLOW_objectType_in_non_array_prim_ex4262_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_objectType_in_non_array_prim_ex4276_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_objectType_in_non_array_prim_ex4276( FOLLOW_objectType_in_non_array_prim_ex4276_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_structInit_in_non_array_prim_ex4266_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_structInit_in_non_array_prim_ex4266( FOLLOW_structInit_in_non_array_prim_ex4266_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_structInit_in_non_array_prim_ex4280_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_structInit_in_non_array_prim_ex4280( FOLLOW_structInit_in_non_array_prim_ex4280_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SHARED_REF_in_non_array_prim_ex4278_bits[]	= { ANTLR_UINT64_LIT(0x0100000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SHARED_REF_in_non_array_prim_ex4278( FOLLOW_SHARED_REF_in_non_array_prim_ex4278_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_builtin_unary_in_non_array_prim_ex4294_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_builtin_unary_in_non_array_prim_ex4294( FOLLOW_builtin_unary_in_non_array_prim_ex4294_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_objectType_in_non_array_prim_ex4282_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_objectType_in_non_array_prim_ex4282( FOLLOW_objectType_in_non_array_prim_ex4282_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_non_array_prim_ex_in_prim_ex4323_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_non_array_prim_ex_in_prim_ex4323( FOLLOW_non_array_prim_ex_in_prim_ex4323_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_structInit_in_non_array_prim_ex4286_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_structInit_in_non_array_prim_ex4286( FOLLOW_structInit_in_non_array_prim_ex4286_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_nonArrayType_in_prim_ex4337_bits[]	= { ANTLR_UINT64_LIT(0x0000002000020000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_nonArrayType_in_prim_ex4337( FOLLOW_nonArrayType_in_prim_ex4337_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_builtin_unary_in_non_array_prim_ex4300_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_builtin_unary_in_non_array_prim_ex4300( FOLLOW_builtin_unary_in_non_array_prim_ex4300_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_arrayInit_in_prim_ex4341_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arrayInit_in_prim_ex4341( FOLLOW_arrayInit_in_prim_ex4341_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_non_array_prim_ex_in_prim_ex4329_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_non_array_prim_ex_in_prim_ex4329( FOLLOW_non_array_prim_ex_in_prim_ex4329_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SHARED_REF_in_prim_ex4353_bits[]	= { ANTLR_UINT64_LIT(0x0890000204008240) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SHARED_REF_in_prim_ex4353( FOLLOW_SHARED_REF_in_prim_ex4353_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_nonArrayType_in_prim_ex4343_bits[]	= { ANTLR_UINT64_LIT(0x0000004000040000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_nonArrayType_in_prim_ex4343( FOLLOW_nonArrayType_in_prim_ex4343_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_nonArrayType_in_prim_ex4357_bits[]	= { ANTLR_UINT64_LIT(0x0000002000020000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_nonArrayType_in_prim_ex4357( FOLLOW_nonArrayType_in_prim_ex4357_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_arrayInit_in_prim_ex4347_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arrayInit_in_prim_ex4347( FOLLOW_arrayInit_in_prim_ex4347_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_arrayInit_in_prim_ex4361_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arrayInit_in_prim_ex4361( FOLLOW_arrayInit_in_prim_ex4361_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SHARED_REF_in_prim_ex4359_bits[]	= { ANTLR_UINT64_LIT(0x1120000408010480) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SHARED_REF_in_prim_ex4359( FOLLOW_SHARED_REF_in_prim_ex4359_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_cast4390_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_cast4390( FOLLOW_LBRACKET_in_cast4390_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_nonArrayType_in_prim_ex4363_bits[]	= { ANTLR_UINT64_LIT(0x0000004000040000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_nonArrayType_in_prim_ex4363( FOLLOW_nonArrayType_in_prim_ex4363_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_cast4394_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_cast4394( FOLLOW_expr_in_cast4394_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_arrayInit_in_prim_ex4367_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arrayInit_in_prim_ex4367( FOLLOW_arrayInit_in_prim_ex4367_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_cast4398_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_cast4398( FOLLOW_RBRACKET_in_cast4398_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_cast4396_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_cast4396( FOLLOW_LBRACKET_in_cast4396_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_structInit4428_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_structInit4428( FOLLOW_LBRACKET_in_structInit4428_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_cast4400_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_cast4400( FOLLOW_expr_in_cast4400_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_structInit4432_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_structInit4432( FOLLOW_RBRACKET_in_structInit4432_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_cast4404_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_cast4404( FOLLOW_RBRACKET_in_cast4404_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_structInit4446_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_structInit4446( FOLLOW_LBRACKET_in_structInit4446_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_structInit4434_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_structInit4434( FOLLOW_LBRACKET_in_structInit4434_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_arglist_in_structInit4450_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arglist_in_structInit4450( FOLLOW_arglist_in_structInit4450_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_structInit4438_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_structInit4438( FOLLOW_RBRACKET_in_structInit4438_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_structInit4454_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_structInit4454( FOLLOW_RBRACKET_in_structInit4454_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_structInit4452_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_structInit4452( FOLLOW_LBRACKET_in_structInit4452_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_arrayInit4506_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_arrayInit4506( FOLLOW_LSQBRACKET_in_arrayInit4506_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_arglist_in_structInit4456_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arglist_in_structInit4456( FOLLOW_arglist_in_structInit4456_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_arrayInit4510_bits[]	= { ANTLR_UINT64_LIT(0x0000400000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arrayInit4510( FOLLOW_expr_in_arrayInit4510_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_structInit4460_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_structInit4460( FOLLOW_RBRACKET_in_structInit4460_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_arrayInit4512_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_arrayInit4512( FOLLOW_RSQBRACKET_in_arrayInit4512_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_arrayInit4512_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_arrayInit4512( FOLLOW_LSQBRACKET_in_arrayInit4512_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_DLSQBRACKET_in_arrayInit4539_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DLSQBRACKET_in_arrayInit4539( FOLLOW_DLSQBRACKET_in_arrayInit4539_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_expr_in_arrayInit4516_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arrayInit4516( FOLLOW_expr_in_arrayInit4516_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_arrayInit4543_bits[]	= { ANTLR_UINT64_LIT(0x0000000000200000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arrayInit4543( FOLLOW_expr_in_arrayInit4543_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_arrayInit4518_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_arrayInit4518( FOLLOW_RSQBRACKET_in_arrayInit4518_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_DRSQBRACKET_in_arrayInit4545_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DRSQBRACKET_in_arrayInit4545( FOLLOW_DRSQBRACKET_in_arrayInit4545_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_DLSQBRACKET_in_arrayInit4545_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DLSQBRACKET_in_arrayInit4545( FOLLOW_DLSQBRACKET_in_arrayInit4545_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_arrayInit4564_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_arrayInit4564( FOLLOW_LBRACKET_in_arrayInit4564_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_expr_in_arrayInit4549_bits[]	= { ANTLR_UINT64_LIT(0x0000000000400000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arrayInit4549( FOLLOW_expr_in_arrayInit4549_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_arrayInit4568_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arrayInit4568( FOLLOW_expr_in_arrayInit4568_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_DRSQBRACKET_in_arrayInit4551_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DRSQBRACKET_in_arrayInit4551( FOLLOW_DRSQBRACKET_in_arrayInit4551_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_arrayInit4572_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_arrayInit4572( FOLLOW_RBRACKET_in_arrayInit4572_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_arrayInit4570_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_arrayInit4570( FOLLOW_LBRACKET_in_arrayInit4570_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_arrayInit4614_bits[]	= { ANTLR_UINT64_LIT(0x0000400000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_arrayInit4614( FOLLOW_LSQBRACKET_in_arrayInit4614_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_arrayInit4574_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_arrayInit4574( FOLLOW_expr_in_arrayInit4574_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_arrayInit4616_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_arrayInit4616( FOLLOW_RSQBRACKET_in_arrayInit4616_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_arrayInit4578_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_arrayInit4578( FOLLOW_RBRACKET_in_arrayInit4578_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_DLSQBRACKET_in_arrayInit4622_bits[]	= { ANTLR_UINT64_LIT(0x0000000000200000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DLSQBRACKET_in_arrayInit4622( FOLLOW_DLSQBRACKET_in_arrayInit4622_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LSQBRACKET_in_arrayInit4620_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LSQBRACKET_in_arrayInit4620( FOLLOW_LSQBRACKET_in_arrayInit4620_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_DRSQBRACKET_in_arrayInit4624_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DRSQBRACKET_in_arrayInit4624( FOLLOW_DRSQBRACKET_in_arrayInit4624_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RSQBRACKET_in_arrayInit4622_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RSQBRACKET_in_arrayInit4622( FOLLOW_RSQBRACKET_in_arrayInit4622_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_arrayInit4643_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_arrayInit4643( FOLLOW_LBRACKET_in_arrayInit4643_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_DLSQBRACKET_in_arrayInit4628_bits[]	= { ANTLR_UINT64_LIT(0x0000000000400000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DLSQBRACKET_in_arrayInit4628( FOLLOW_DLSQBRACKET_in_arrayInit4628_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_arglist_in_arrayInit4647_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arglist_in_arrayInit4647( FOLLOW_arglist_in_arrayInit4647_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_DRSQBRACKET_in_arrayInit4630_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DRSQBRACKET_in_arrayInit4630( FOLLOW_DRSQBRACKET_in_arrayInit4630_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_arrayInit4651_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_arrayInit4651( FOLLOW_RBRACKET_in_arrayInit4651_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_arrayInit4649_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_arrayInit4649( FOLLOW_LBRACKET_in_arrayInit4649_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_param_in_declaration4694_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000000), ANTLR_UINT64_LIT(0x0000000000010000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_param_in_declaration4694( FOLLOW_param_in_declaration4694_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_arglist_in_arrayInit4653_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_arglist_in_arrayInit4653( FOLLOW_arglist_in_arrayInit4653_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_80_in_declaration4729_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_80_in_declaration4729( FOLLOW_80_in_declaration4729_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_arrayInit4657_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_arrayInit4657( FOLLOW_RBRACKET_in_arrayInit4657_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_declaration4736_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_declaration4736( FOLLOW_expr_in_declaration4736_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_param_in_declaration4700_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000000), ANTLR_UINT64_LIT(0x0000000000020000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_param_in_declaration4700( FOLLOW_param_in_declaration4700_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_75_in_inherited_declaration4786_bits[]	= { ANTLR_UINT64_LIT(0x0000000020000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_75_in_inherited_declaration4786( FOLLOW_75_in_inherited_declaration4786_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_81_in_declaration4735_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_81_in_declaration4735( FOLLOW_81_in_declaration4735_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_ID_in_inherited_declaration4790_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000000), ANTLR_UINT64_LIT(0x0000000000010000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_inherited_declaration4790( FOLLOW_ID_in_inherited_declaration4790_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_expr_in_declaration4742_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_declaration4742( FOLLOW_expr_in_declaration4742_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_80_in_inherited_declaration4803_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26198360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_80_in_inherited_declaration4803( FOLLOW_80_in_inherited_declaration4803_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_76_in_inherited_declaration4792_bits[]	= { ANTLR_UINT64_LIT(0x0000000040000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_76_in_inherited_declaration4792( FOLLOW_76_in_inherited_declaration4792_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_inherited_declaration4839_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_inherited_declaration4839( FOLLOW_expr_in_inherited_declaration4839_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ID_in_inherited_declaration4796_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000000), ANTLR_UINT64_LIT(0x0000000000020000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ID_in_inherited_declaration4796( FOLLOW_ID_in_inherited_declaration4796_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_DEFAULT_in_inherited_declaration4865_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DEFAULT_in_inherited_declaration4865( FOLLOW_DEFAULT_in_inherited_declaration4865_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_81_in_inherited_declaration4809_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3306C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_81_in_inherited_declaration4809( FOLLOW_81_in_inherited_declaration4809_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_declaration_in_instructionScalar4921_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_instructionScalar4921( FOLLOW_declaration_in_instructionScalar4921_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_inherited_declaration4845_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_inherited_declaration4845( FOLLOW_expr_in_inherited_declaration4845_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_assignment_or_expression_in_instructionScalar4934_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_assignment_or_expression_in_instructionScalar4934( FOLLOW_assignment_or_expression_in_instructionScalar4934_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_DEFAULT_in_inherited_declaration4871_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DEFAULT_in_inherited_declaration4871( FOLLOW_DEFAULT_in_inherited_declaration4871_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_CONTINUE_in_continueInst4964_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CONTINUE_in_continueInst4964( FOLLOW_CONTINUE_in_continueInst4964_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_declaration_in_instructionScalar4927_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_instructionScalar4927( FOLLOW_declaration_in_instructionScalar4927_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_continueInst4968_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_continueInst4968( FOLLOW_SEMICOLON_in_continueInst4968_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_assignment_or_expression_in_instructionScalar4940_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_assignment_or_expression_in_instructionScalar4940( FOLLOW_assignment_or_expression_in_instructionScalar4940_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_BREAK_in_breakInst4994_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_BREAK_in_breakInst4994( FOLLOW_BREAK_in_breakInst4994_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_CONTINUE_in_continueInst4970_bits[]	= { ANTLR_UINT64_LIT(0x0001000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CONTINUE_in_continueInst4970( FOLLOW_CONTINUE_in_continueInst4970_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_breakInst4998_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_breakInst4998( FOLLOW_SEMICOLON_in_breakInst4998_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_continueInst4974_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_continueInst4974( FOLLOW_SEMICOLON_in_continueInst4974_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RETURN_in_returnInst5025_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RETURN_in_returnInst5025( FOLLOW_RETURN_in_returnInst5025_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_BREAK_in_breakInst5000_bits[]	= { ANTLR_UINT64_LIT(0x0001000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_BREAK_in_breakInst5000( FOLLOW_BREAK_in_breakInst5000_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_returnInst5027_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_returnInst5027( FOLLOW_expr_in_returnInst5027_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_breakInst5004_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_breakInst5004( FOLLOW_SEMICOLON_in_breakInst5004_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_returnInst5031_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_returnInst5031( FOLLOW_SEMICOLON_in_returnInst5031_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RETURN_in_returnInst5031_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RETURN_in_returnInst5031( FOLLOW_RETURN_in_returnInst5031_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_RETURN_in_returnInst5045_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RETURN_in_returnInst5045( FOLLOW_RETURN_in_returnInst5045_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_returnInst5033_bits[]	= { ANTLR_UINT64_LIT(0x0001000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_returnInst5033( FOLLOW_expr_in_returnInst5033_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_returnInst5049_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_returnInst5049( FOLLOW_SEMICOLON_in_returnInst5049_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_returnInst5037_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_returnInst5037( FOLLOW_SEMICOLON_in_returnInst5037_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_WHILE_in_whileInst5082_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_WHILE_in_whileInst5082( FOLLOW_WHILE_in_whileInst5082_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RETURN_in_returnInst5051_bits[]	= { ANTLR_UINT64_LIT(0x0001000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RETURN_in_returnInst5051( FOLLOW_RETURN_in_returnInst5051_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_whileInst5084_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_whileInst5084( FOLLOW_LBRACKET_in_whileInst5084_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_returnInst5055_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_returnInst5055( FOLLOW_SEMICOLON_in_returnInst5055_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_whileInst5086_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_whileInst5086( FOLLOW_expr_in_whileInst5086_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_WHILE_in_whileInst5088_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_WHILE_in_whileInst5088( FOLLOW_WHILE_in_whileInst5088_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_whileInst5088_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_whileInst5088( FOLLOW_RBRACKET_in_whileInst5088_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_whileInst5090_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_whileInst5090( FOLLOW_LBRACKET_in_whileInst5090_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_instruction_list_in_whileInst5090_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_whileInst5090( FOLLOW_instruction_list_in_whileInst5090_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_whileInst5092_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_whileInst5092( FOLLOW_expr_in_whileInst5092_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_DO_in_doInst5126_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DO_in_doInst5126( FOLLOW_DO_in_doInst5126_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_whileInst5094_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_whileInst5094( FOLLOW_RBRACKET_in_whileInst5094_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_instruction_list_in_doInst5128_bits[]	= { ANTLR_UINT64_LIT(0x2000000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_doInst5128( FOLLOW_instruction_list_in_doInst5128_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_instruction_list_in_whileInst5096_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_whileInst5096( FOLLOW_instruction_list_in_whileInst5096_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_WHILE_in_doInst5130_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_WHILE_in_doInst5130( FOLLOW_WHILE_in_doInst5130_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_DO_in_doInst5132_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_DO_in_doInst5132( FOLLOW_DO_in_doInst5132_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_doInst5132_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_doInst5132( FOLLOW_LBRACKET_in_doInst5132_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_instruction_list_in_doInst5134_bits[]	= { ANTLR_UINT64_LIT(0x4000000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_doInst5134( FOLLOW_instruction_list_in_doInst5134_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_doInst5134_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_doInst5134( FOLLOW_expr_in_doInst5134_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_WHILE_in_doInst5136_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_WHILE_in_doInst5136( FOLLOW_WHILE_in_doInst5136_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_doInst5136_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_doInst5136( FOLLOW_RBRACKET_in_doInst5136_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_doInst5138_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_doInst5138( FOLLOW_LBRACKET_in_doInst5138_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_doInst5138_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_doInst5138( FOLLOW_SEMICOLON_in_doInst5138_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_doInst5140_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_doInst5140( FOLLOW_expr_in_doInst5140_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_FOR_in_forInst5170_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_FOR_in_forInst5170( FOLLOW_FOR_in_forInst5170_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_doInst5142_bits[]	= { ANTLR_UINT64_LIT(0x0001000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_doInst5142( FOLLOW_RBRACKET_in_doInst5142_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_forInst5172_bits[]	= { ANTLR_UINT64_LIT(0x9899905B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_forInst5172( FOLLOW_LBRACKET_in_forInst5172_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_doInst5144_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_doInst5144( FOLLOW_SEMICOLON_in_doInst5144_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_instructionScalar_in_forInst5200_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instructionScalar_in_forInst5200( FOLLOW_instructionScalar_in_forInst5200_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_FOR_in_forInst5176_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_FOR_in_forInst5176( FOLLOW_FOR_in_forInst5176_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_forInst5206_bits[]	= { ANTLR_UINT64_LIT(0x8899905B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_forInst5206( FOLLOW_SEMICOLON_in_forInst5206_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_forInst5178_bits[]	= { ANTLR_UINT64_LIT(0x313320B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_forInst5178( FOLLOW_LBRACKET_in_forInst5178_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_forInst5231_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_forInst5231( FOLLOW_expr_in_forInst5231_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_instructionScalar_in_forInst5206_bits[]	= { ANTLR_UINT64_LIT(0x0001000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instructionScalar_in_forInst5206( FOLLOW_instructionScalar_in_forInst5206_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_forInst5245_bits[]	= { ANTLR_UINT64_LIT(0x9899185B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_forInst5245( FOLLOW_SEMICOLON_in_forInst5245_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_forInst5212_bits[]	= { ANTLR_UINT64_LIT(0x113320B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_forInst5212( FOLLOW_SEMICOLON_in_forInst5212_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_instructionScalar_in_forInst5270_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instructionScalar_in_forInst5270( FOLLOW_instructionScalar_in_forInst5270_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_forInst5237_bits[]	= { ANTLR_UINT64_LIT(0x0001000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_forInst5237( FOLLOW_expr_in_forInst5237_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_forInst5276_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_forInst5276( FOLLOW_RBRACKET_in_forInst5276_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_forInst5251_bits[]	= { ANTLR_UINT64_LIT(0x313230B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_forInst5251( FOLLOW_SEMICOLON_in_forInst5251_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_instruction_list_in_forInst5301_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_forInst5301( FOLLOW_instruction_list_in_forInst5301_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_instructionScalar_in_forInst5276_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instructionScalar_in_forInst5276( FOLLOW_instructionScalar_in_forInst5276_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ELSE_in_elsemiddle5349_bits[]	= { ANTLR_UINT64_LIT(0x0000000040000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ELSE_in_elsemiddle5349( FOLLOW_ELSE_in_elsemiddle5349_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_forInst5282_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_forInst5282( FOLLOW_RBRACKET_in_forInst5282_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_IF_in_elsemiddle5351_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_IF_in_elsemiddle5351( FOLLOW_IF_in_elsemiddle5351_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_instruction_list_in_forInst5307_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_forInst5307( FOLLOW_instruction_list_in_forInst5307_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_elsemiddle5353_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_elsemiddle5353( FOLLOW_LBRACKET_in_elsemiddle5353_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_ELSE_in_elsemiddle5355_bits[]	= { ANTLR_UINT64_LIT(0x0000000080000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ELSE_in_elsemiddle5355( FOLLOW_ELSE_in_elsemiddle5355_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_elsemiddle5355_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_elsemiddle5355( FOLLOW_expr_in_elsemiddle5355_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_IF_in_elsemiddle5357_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_IF_in_elsemiddle5357( FOLLOW_IF_in_elsemiddle5357_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_elsemiddle5357_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_elsemiddle5357( FOLLOW_RBRACKET_in_elsemiddle5357_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_elsemiddle5359_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_elsemiddle5359( FOLLOW_LBRACKET_in_elsemiddle5359_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_instruction_list_in_elsemiddle5359_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_elsemiddle5359( FOLLOW_instruction_list_in_elsemiddle5359_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_elsemiddle5361_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_elsemiddle5361( FOLLOW_expr_in_elsemiddle5361_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ELSE_in_endif5392_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ELSE_in_endif5392( FOLLOW_ELSE_in_endif5392_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_elsemiddle5363_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_elsemiddle5363( FOLLOW_RBRACKET_in_elsemiddle5363_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_instruction_list_in_endif5394_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_endif5394( FOLLOW_instruction_list_in_endif5394_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_instruction_list_in_elsemiddle5365_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_elsemiddle5365( FOLLOW_instruction_list_in_elsemiddle5365_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_IF_in_ifInst5424_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_IF_in_ifInst5424( FOLLOW_IF_in_ifInst5424_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ELSE_in_endif5398_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ELSE_in_endif5398( FOLLOW_ELSE_in_endif5398_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_ifInst5426_bits[]	= { ANTLR_UINT64_LIT(0x8899105B26188360), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_ifInst5426( FOLLOW_LBRACKET_in_ifInst5426_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_instruction_list_in_endif5400_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_endif5400( FOLLOW_instruction_list_in_endif5400_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_expr_in_ifInst5428_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_ifInst5428( FOLLOW_expr_in_ifInst5428_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_IF_in_ifInst5430_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_IF_in_ifInst5430( FOLLOW_IF_in_ifInst5430_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_ifInst5430_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_ifInst5430( FOLLOW_RBRACKET_in_ifInst5430_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_ifInst5432_bits[]	= { ANTLR_UINT64_LIT(0x113220B64C3106C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_ifInst5432( FOLLOW_LBRACKET_in_ifInst5432_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_instruction_list_in_ifInst5432_bits[]	= { ANTLR_UINT64_LIT(0x0000000000400002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_ifInst5432( FOLLOW_instruction_list_in_ifInst5432_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_expr_in_ifInst5434_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_expr_in_ifInst5434( FOLLOW_expr_in_ifInst5434_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_elsemiddle_in_ifInst5449_bits[]	= { ANTLR_UINT64_LIT(0x0000000000400002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_elsemiddle_in_ifInst5449( FOLLOW_elsemiddle_in_ifInst5449_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_ifInst5436_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_ifInst5436( FOLLOW_RBRACKET_in_ifInst5436_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_endif_in_ifInst5469_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_endif_in_ifInst5469( FOLLOW_endif_in_ifInst5469_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_instruction_list_in_ifInst5438_bits[]	= { ANTLR_UINT64_LIT(0x0000000000800002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_ifInst5438( FOLLOW_instruction_list_in_ifInst5438_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ifInst_in_instruction5503_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ifInst_in_instruction5503( FOLLOW_ifInst_in_instruction5503_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_elsemiddle_in_ifInst5455_bits[]	= { ANTLR_UINT64_LIT(0x0000000000800002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_elsemiddle_in_ifInst5455( FOLLOW_elsemiddle_in_ifInst5455_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_whileInst_in_instruction5524_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_whileInst_in_instruction5524( FOLLOW_whileInst_in_instruction5524_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_endif_in_ifInst5475_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_endif_in_ifInst5475( FOLLOW_endif_in_ifInst5475_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_doInst_in_instruction5541_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_doInst_in_instruction5541( FOLLOW_doInst_in_instruction5541_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ifInst_in_instruction5509_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ifInst_in_instruction5509( FOLLOW_ifInst_in_instruction5509_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_forInst_in_instruction5561_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_forInst_in_instruction5561( FOLLOW_forInst_in_instruction5561_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_whileInst_in_instruction5530_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_whileInst_in_instruction5530( FOLLOW_whileInst_in_instruction5530_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_instructionScalar_in_instruction5581_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instructionScalar_in_instruction5581( FOLLOW_instructionScalar_in_instruction5581_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_doInst_in_instruction5547_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_doInst_in_instruction5547( FOLLOW_doInst_in_instruction5547_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_instruction5583_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_instruction5583( FOLLOW_SEMICOLON_in_instruction5583_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_forInst_in_instruction5567_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_forInst_in_instruction5567( FOLLOW_forInst_in_instruction5567_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_breakInst_in_instruction5596_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_breakInst_in_instruction5596( FOLLOW_breakInst_in_instruction5596_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_instructionScalar_in_instruction5587_bits[]	= { ANTLR_UINT64_LIT(0x0001000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instructionScalar_in_instruction5587( FOLLOW_instructionScalar_in_instruction5587_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_continueInst_in_instruction5609_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_continueInst_in_instruction5609( FOLLOW_continueInst_in_instruction5609_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_instruction5589_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_instruction5589( FOLLOW_SEMICOLON_in_instruction5589_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_returnInst_in_instruction5622_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_returnInst_in_instruction5622( FOLLOW_returnInst_in_instruction5622_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_breakInst_in_instruction5602_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_breakInst_in_instruction5602( FOLLOW_breakInst_in_instruction5602_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_instruction_list_in_instruction5635_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_instruction5635( FOLLOW_instruction_list_in_instruction5635_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_continueInst_in_instruction5615_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_continueInst_in_instruction5615( FOLLOW_continueInst_in_instruction5615_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACE_in_instruction_list5667_bits[]	= { ANTLR_UINT64_LIT(0xB899345F6E1CC3E0), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_instruction_list5667( FOLLOW_LBRACE_in_instruction_list5667_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_returnInst_in_instruction5628_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_returnInst_in_instruction5628( FOLLOW_returnInst_in_instruction5628_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_instruction_in_instruction_list5684_bits[]	= { ANTLR_UINT64_LIT(0xB899345F6E1CC3E0), ANTLR_UINT64_LIT(0x0000000000000200) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_in_instruction_list5684( FOLLOW_instruction_in_instruction_list5684_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_instruction_list_in_instruction5641_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_instruction5641( FOLLOW_instruction_list_in_instruction5641_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACE_in_instruction_list5701_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_instruction_list5701( FOLLOW_RBRACE_in_instruction_list5701_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_LBRACE_in_instruction_list5673_bits[]	= { ANTLR_UINT64_LIT(0x713268BEDC3987C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_instruction_list5673( FOLLOW_LBRACE_in_instruction_list5673_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_param_in_function5731_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_param_in_function5731( FOLLOW_param_in_function5731_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_instruction_in_instruction_list5690_bits[]	= { ANTLR_UINT64_LIT(0x713268BEDC3987C0), ANTLR_UINT64_LIT(0x0000000000000401) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_in_instruction_list5690( FOLLOW_instruction_in_instruction_list5690_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_parameterList_in_function5733_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_parameterList_in_function5733( FOLLOW_parameterList_in_function5733_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACE_in_instruction_list5707_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_instruction_list5707( FOLLOW_RBRACE_in_instruction_list5707_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_instruction_list_in_function5735_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_function5735( FOLLOW_instruction_list_in_function5735_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_param_in_function5737_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_param_in_function5737( FOLLOW_param_in_function5737_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_STRUCT_in_structDecl5787_bits[]	= { ANTLR_UINT64_LIT(0x0080000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRUCT_in_structDecl5787( FOLLOW_STRUCT_in_structDecl5787_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_parameterList_in_function5739_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_parameterList_in_function5739( FOLLOW_parameterList_in_function5739_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_structDecl5791_bits[]	= { ANTLR_UINT64_LIT(0x0000000C00000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_structDecl5791( FOLLOW_TYPE_in_structDecl5791_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_instruction_list_in_function5741_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_instruction_list_in_function5741( FOLLOW_instruction_list_in_function5741_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_STRUCT_in_structDecl5811_bits[]	= { ANTLR_UINT64_LIT(0x0080000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRUCT_in_structDecl5811( FOLLOW_STRUCT_in_structDecl5811_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_STRUCT_in_structDecl5793_bits[]	= { ANTLR_UINT64_LIT(0x0100000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRUCT_in_structDecl5793( FOLLOW_STRUCT_in_structDecl5793_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_structDecl5815_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_structDecl5815( FOLLOW_TYPE_in_structDecl5815_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_structDecl5797_bits[]	= { ANTLR_UINT64_LIT(0x0000001800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_structDecl5797( FOLLOW_TYPE_in_structDecl5797_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_COLON_in_structDecl5817_bits[]	= { ANTLR_UINT64_LIT(0x0080000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COLON_in_structDecl5817( FOLLOW_COLON_in_structDecl5817_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_STRUCT_in_structDecl5817_bits[]	= { ANTLR_UINT64_LIT(0x0100000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRUCT_in_structDecl5817( FOLLOW_STRUCT_in_structDecl5817_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_structDecl5821_bits[]	= { ANTLR_UINT64_LIT(0x0000000C00000000) };
+static	ANTLR_BITWORD FOLLOW_TYPE_in_structDecl5821_bits[]	= { ANTLR_UINT64_LIT(0x0000000000001000) };
 static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_structDecl5821( FOLLOW_TYPE_in_structDecl5821_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_parameterList_in_structDecl5849_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_parameterList_in_structDecl5849( FOLLOW_parameterList_in_structDecl5849_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_COLON_in_structDecl5823_bits[]	= { ANTLR_UINT64_LIT(0x0100000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COLON_in_structDecl5823( FOLLOW_COLON_in_structDecl5823_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACE_in_structDecl5867_bits[]	= { ANTLR_UINT64_LIT(0x1891040204008240), ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_structDecl5867( FOLLOW_LBRACE_in_structDecl5867_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_structDecl5827_bits[]	= { ANTLR_UINT64_LIT(0x0000001800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_structDecl5827( FOLLOW_TYPE_in_structDecl5827_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_declaration_in_structDecl5910_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_structDecl5910( FOLLOW_declaration_in_structDecl5910_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_parameterList_in_structDecl5855_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_parameterList_in_structDecl5855( FOLLOW_parameterList_in_structDecl5855_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_structDecl5914_bits[]	= { ANTLR_UINT64_LIT(0x1891040204008240), ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_structDecl5914( FOLLOW_SEMICOLON_in_structDecl5914_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_LBRACE_in_structDecl5873_bits[]	= { ANTLR_UINT64_LIT(0x3122080408010480), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_structDecl5873( FOLLOW_LBRACE_in_structDecl5873_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_inherited_declaration_in_structDecl5940_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_inherited_declaration_in_structDecl5940( FOLLOW_inherited_declaration_in_structDecl5940_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_declaration_in_structDecl5916_bits[]	= { ANTLR_UINT64_LIT(0x0001000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_structDecl5916( FOLLOW_declaration_in_structDecl5916_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_structDecl5944_bits[]	= { ANTLR_UINT64_LIT(0x1891040204008240), ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_structDecl5944( FOLLOW_SEMICOLON_in_structDecl5944_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_structDecl5920_bits[]	= { ANTLR_UINT64_LIT(0x3122080408010480), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_structDecl5920( FOLLOW_SEMICOLON_in_structDecl5920_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_function_in_structDecl5970_bits[]	= { ANTLR_UINT64_LIT(0x1891040204008240), ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_structDecl5970( FOLLOW_function_in_structDecl5970_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_inherited_declaration_in_structDecl5946_bits[]	= { ANTLR_UINT64_LIT(0x0001000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_inherited_declaration_in_structDecl5946( FOLLOW_inherited_declaration_in_structDecl5946_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACE_in_structDecl6009_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_structDecl6009( FOLLOW_RBRACE_in_structDecl6009_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_structDecl5950_bits[]	= { ANTLR_UINT64_LIT(0x3122080408010480), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_structDecl5950( FOLLOW_SEMICOLON_in_structDecl5950_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_ACTOR_in_classDecl6062_bits[]	= { ANTLR_UINT64_LIT(0x0080000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ACTOR_in_classDecl6062( FOLLOW_ACTOR_in_classDecl6062_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_function_in_structDecl5976_bits[]	= { ANTLR_UINT64_LIT(0x3122080408010480), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_structDecl5976( FOLLOW_function_in_structDecl5976_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl6066_bits[]	= { ANTLR_UINT64_LIT(0x0000000C00000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl6066( FOLLOW_TYPE_in_classDecl6066_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_RBRACE_in_structDecl6015_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_structDecl6015( FOLLOW_RBRACE_in_structDecl6015_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_ACTOR_in_classDecl6086_bits[]	= { ANTLR_UINT64_LIT(0x0080000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ACTOR_in_classDecl6086( FOLLOW_ACTOR_in_classDecl6086_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ACTOR_in_classDecl6068_bits[]	= { ANTLR_UINT64_LIT(0x0100000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ACTOR_in_classDecl6068( FOLLOW_ACTOR_in_classDecl6068_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl6090_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl6090( FOLLOW_TYPE_in_classDecl6090_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl6072_bits[]	= { ANTLR_UINT64_LIT(0x0000001800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl6072( FOLLOW_TYPE_in_classDecl6072_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_COLON_in_classDecl6092_bits[]	= { ANTLR_UINT64_LIT(0x0080000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COLON_in_classDecl6092( FOLLOW_COLON_in_classDecl6092_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ACTOR_in_classDecl6092_bits[]	= { ANTLR_UINT64_LIT(0x0100000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ACTOR_in_classDecl6092( FOLLOW_ACTOR_in_classDecl6092_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl6096_bits[]	= { ANTLR_UINT64_LIT(0x0000000C00000000) };
+static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl6096_bits[]	= { ANTLR_UINT64_LIT(0x0000000000001000) };
 static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl6096( FOLLOW_TYPE_in_classDecl6096_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_CLASS_in_classDecl6116_bits[]	= { ANTLR_UINT64_LIT(0x0080000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CLASS_in_classDecl6116( FOLLOW_CLASS_in_classDecl6116_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_COLON_in_classDecl6098_bits[]	= { ANTLR_UINT64_LIT(0x0100000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COLON_in_classDecl6098( FOLLOW_COLON_in_classDecl6098_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl6120_bits[]	= { ANTLR_UINT64_LIT(0x0000000C00000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl6120( FOLLOW_TYPE_in_classDecl6120_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl6102_bits[]	= { ANTLR_UINT64_LIT(0x0000001800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl6102( FOLLOW_TYPE_in_classDecl6102_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_CLASS_in_classDecl6140_bits[]	= { ANTLR_UINT64_LIT(0x0080000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CLASS_in_classDecl6140( FOLLOW_CLASS_in_classDecl6140_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_CLASS_in_classDecl6122_bits[]	= { ANTLR_UINT64_LIT(0x0100000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CLASS_in_classDecl6122( FOLLOW_CLASS_in_classDecl6122_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl6144_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl6144( FOLLOW_TYPE_in_classDecl6144_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl6126_bits[]	= { ANTLR_UINT64_LIT(0x0000001800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl6126( FOLLOW_TYPE_in_classDecl6126_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_COLON_in_classDecl6146_bits[]	= { ANTLR_UINT64_LIT(0x0080000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COLON_in_classDecl6146( FOLLOW_COLON_in_classDecl6146_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_CLASS_in_classDecl6146_bits[]	= { ANTLR_UINT64_LIT(0x0100000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_CLASS_in_classDecl6146( FOLLOW_CLASS_in_classDecl6146_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl6150_bits[]	= { ANTLR_UINT64_LIT(0x0000000C00000000) };
+static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl6150_bits[]	= { ANTLR_UINT64_LIT(0x0000000000001000) };
 static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl6150( FOLLOW_TYPE_in_classDecl6150_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_parameterList_in_classDecl6178_bits[]	= { ANTLR_UINT64_LIT(0x0000000400000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_parameterList_in_classDecl6178( FOLLOW_parameterList_in_classDecl6178_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_COLON_in_classDecl6152_bits[]	= { ANTLR_UINT64_LIT(0x0100000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_COLON_in_classDecl6152( FOLLOW_COLON_in_classDecl6152_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACE_in_classDecl6196_bits[]	= { ANTLR_UINT64_LIT(0x1CD1050204008240), ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_classDecl6196( FOLLOW_LBRACE_in_classDecl6196_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_TYPE_in_classDecl6156_bits[]	= { ANTLR_UINT64_LIT(0x0000001800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_TYPE_in_classDecl6156( FOLLOW_TYPE_in_classDecl6156_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_declaration_in_classDecl6239_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_classDecl6239( FOLLOW_declaration_in_classDecl6239_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_parameterList_in_classDecl6184_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_parameterList_in_classDecl6184( FOLLOW_parameterList_in_classDecl6184_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_classDecl6243_bits[]	= { ANTLR_UINT64_LIT(0x1CD1050204008240), ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_classDecl6243( FOLLOW_SEMICOLON_in_classDecl6243_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_LBRACE_in_classDecl6202_bits[]	= { ANTLR_UINT64_LIT(0x39A20A0408010490), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACE_in_classDecl6202( FOLLOW_LBRACE_in_classDecl6202_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_SYNCHRONIZED_in_classDecl6267_bits[]	= { ANTLR_UINT64_LIT(0x1891000204008240) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SYNCHRONIZED_in_classDecl6267( FOLLOW_SYNCHRONIZED_in_classDecl6267_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_declaration_in_classDecl6245_bits[]	= { ANTLR_UINT64_LIT(0x0001000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_classDecl6245( FOLLOW_declaration_in_classDecl6245_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_declaration_in_classDecl6271_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_classDecl6271( FOLLOW_declaration_in_classDecl6271_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_classDecl6249_bits[]	= { ANTLR_UINT64_LIT(0x39A20A0408010490), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_classDecl6249( FOLLOW_SEMICOLON_in_classDecl6249_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_classDecl6275_bits[]	= { ANTLR_UINT64_LIT(0x1CD1050204008240), ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_classDecl6275( FOLLOW_SEMICOLON_in_classDecl6275_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_SYNCHRONIZED_in_classDecl6273_bits[]	= { ANTLR_UINT64_LIT(0x3122000408010480) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SYNCHRONIZED_in_classDecl6273( FOLLOW_SYNCHRONIZED_in_classDecl6273_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_inherited_declaration_in_classDecl6302_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_inherited_declaration_in_classDecl6302( FOLLOW_inherited_declaration_in_classDecl6302_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_declaration_in_classDecl6277_bits[]	= { ANTLR_UINT64_LIT(0x0001000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_declaration_in_classDecl6277( FOLLOW_declaration_in_classDecl6277_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_classDecl6306_bits[]	= { ANTLR_UINT64_LIT(0x1CD1050204008240), ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_classDecl6306( FOLLOW_SEMICOLON_in_classDecl6306_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_classDecl6281_bits[]	= { ANTLR_UINT64_LIT(0x39A20A0408010490), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_classDecl6281( FOLLOW_SEMICOLON_in_classDecl6281_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_SYNCHRONIZED_in_classDecl6330_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000000), ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SYNCHRONIZED_in_classDecl6330( FOLLOW_SYNCHRONIZED_in_classDecl6330_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_inherited_declaration_in_classDecl6308_bits[]	= { ANTLR_UINT64_LIT(0x0001000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_inherited_declaration_in_classDecl6308( FOLLOW_inherited_declaration_in_classDecl6308_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_inherited_declaration_in_classDecl6334_bits[]	= { ANTLR_UINT64_LIT(0x0000800000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_inherited_declaration_in_classDecl6334( FOLLOW_inherited_declaration_in_classDecl6334_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_classDecl6312_bits[]	= { ANTLR_UINT64_LIT(0x39A20A0408010490), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_classDecl6312( FOLLOW_SEMICOLON_in_classDecl6312_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_classDecl6338_bits[]	= { ANTLR_UINT64_LIT(0x1CD1050204008240), ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_classDecl6338( FOLLOW_SEMICOLON_in_classDecl6338_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_SYNCHRONIZED_in_classDecl6336_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000000), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SYNCHRONIZED_in_classDecl6336( FOLLOW_SYNCHRONIZED_in_classDecl6336_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_function_in_classDecl6364_bits[]	= { ANTLR_UINT64_LIT(0x1CD1050204008240), ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl6364( FOLLOW_function_in_classDecl6364_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_inherited_declaration_in_classDecl6340_bits[]	= { ANTLR_UINT64_LIT(0x0001000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_inherited_declaration_in_classDecl6340( FOLLOW_inherited_declaration_in_classDecl6340_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_VIRTUAL_in_classDecl6393_bits[]	= { ANTLR_UINT64_LIT(0x1891000204008240) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_VIRTUAL_in_classDecl6393( FOLLOW_VIRTUAL_in_classDecl6393_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SEMICOLON_in_classDecl6344_bits[]	= { ANTLR_UINT64_LIT(0x39A20A0408010490), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SEMICOLON_in_classDecl6344( FOLLOW_SEMICOLON_in_classDecl6344_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_function_in_classDecl6397_bits[]	= { ANTLR_UINT64_LIT(0x1CD1050204008240), ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl6397( FOLLOW_function_in_classDecl6397_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_function_in_classDecl6370_bits[]	= { ANTLR_UINT64_LIT(0x39A20A0408010490), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl6370( FOLLOW_function_in_classDecl6370_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_OVERRIDE_in_classDecl6423_bits[]	= { ANTLR_UINT64_LIT(0x1891000204008240) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_OVERRIDE_in_classDecl6423( FOLLOW_OVERRIDE_in_classDecl6423_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SYNCHRONIZED_in_classDecl6399_bits[]	= { ANTLR_UINT64_LIT(0x3122000408010480) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SYNCHRONIZED_in_classDecl6399( FOLLOW_SYNCHRONIZED_in_classDecl6399_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_function_in_classDecl6427_bits[]	= { ANTLR_UINT64_LIT(0x1CD1050204008240), ANTLR_UINT64_LIT(0x0000000000000800) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl6427( FOLLOW_function_in_classDecl6427_bits, 2 );
+static	ANTLR_BITWORD FOLLOW_function_in_classDecl6403_bits[]	= { ANTLR_UINT64_LIT(0x39A20A0408010490), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl6403( FOLLOW_function_in_classDecl6403_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACE_in_classDecl6463_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_classDecl6463( FOLLOW_RBRACE_in_classDecl6463_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ACTION_in_classDecl6432_bits[]	= { ANTLR_UINT64_LIT(0x3122000408010480) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ACTION_in_classDecl6432( FOLLOW_ACTION_in_classDecl6432_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_RESOURCE_in_topLevelRes6491_bits[]	= { ANTLR_UINT64_LIT(0x0000000800000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RESOURCE_in_topLevelRes6491( FOLLOW_RESOURCE_in_topLevelRes6491_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_function_in_classDecl6436_bits[]	= { ANTLR_UINT64_LIT(0x39A20A0408010490), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl6436( FOLLOW_function_in_classDecl6436_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_LBRACKET_in_topLevelRes6495_bits[]	= { ANTLR_UINT64_LIT(0x0008000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_topLevelRes6495( FOLLOW_LBRACKET_in_topLevelRes6495_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_VIRTUAL_in_classDecl6465_bits[]	= { ANTLR_UINT64_LIT(0x3122000408010480) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_VIRTUAL_in_classDecl6465( FOLLOW_VIRTUAL_in_classDecl6465_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_STRING_in_topLevelRes6499_bits[]	= { ANTLR_UINT64_LIT(0x0000080000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_topLevelRes6499( FOLLOW_STRING_in_topLevelRes6499_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_function_in_classDecl6469_bits[]	= { ANTLR_UINT64_LIT(0x39A20A0408010490), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl6469( FOLLOW_function_in_classDecl6469_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_RBRACKET_in_topLevelRes6503_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_topLevelRes6503( FOLLOW_RBRACKET_in_topLevelRes6503_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_SYNCHRONIZED_in_classDecl6495_bits[]	= { ANTLR_UINT64_LIT(0x0800000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SYNCHRONIZED_in_classDecl6495( FOLLOW_SYNCHRONIZED_in_classDecl6495_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_INCLUDE_in_inc6532_bits[]	= { ANTLR_UINT64_LIT(0x0008000000000000) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_INCLUDE_in_inc6532( FOLLOW_INCLUDE_in_inc6532_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_VIRTUAL_in_classDecl6497_bits[]	= { ANTLR_UINT64_LIT(0x3122000408010480) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_VIRTUAL_in_classDecl6497( FOLLOW_VIRTUAL_in_classDecl6497_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_STRING_in_inc6534_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_inc6534( FOLLOW_STRING_in_inc6534_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_function_in_classDecl6501_bits[]	= { ANTLR_UINT64_LIT(0x39A20A0408010490), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl6501( FOLLOW_function_in_classDecl6501_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_inc_in_program6563_bits[]	= { ANTLR_UINT64_LIT(0x18B1100284008652) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_inc_in_program6563( FOLLOW_inc_in_program6563_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_ACTION_in_classDecl6527_bits[]	= { ANTLR_UINT64_LIT(0x0800000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ACTION_in_classDecl6527( FOLLOW_ACTION_in_classDecl6527_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_function_in_program6602_bits[]	= { ANTLR_UINT64_LIT(0x18B1100204008652) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_program6602( FOLLOW_function_in_program6602_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_VIRTUAL_in_classDecl6529_bits[]	= { ANTLR_UINT64_LIT(0x3122000408010480) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_VIRTUAL_in_classDecl6529( FOLLOW_VIRTUAL_in_classDecl6529_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_structDecl_in_program6624_bits[]	= { ANTLR_UINT64_LIT(0x18B1100204008652) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_structDecl_in_program6624( FOLLOW_structDecl_in_program6624_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_function_in_classDecl6533_bits[]	= { ANTLR_UINT64_LIT(0x39A20A0408010490), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl6533( FOLLOW_function_in_classDecl6533_bits, 2 );
 
-static	ANTLR_BITWORD FOLLOW_classDecl_in_program6644_bits[]	= { ANTLR_UINT64_LIT(0x18B1100204008652) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_classDecl_in_program6644( FOLLOW_classDecl_in_program6644_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_OVERRIDE_in_classDecl6559_bits[]	= { ANTLR_UINT64_LIT(0x3122000408010480) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_OVERRIDE_in_classDecl6559( FOLLOW_OVERRIDE_in_classDecl6559_bits, 1 );
 
-static	ANTLR_BITWORD FOLLOW_topLevelRes_in_program6665_bits[]	= { ANTLR_UINT64_LIT(0x18B1100204008652) };
-static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_topLevelRes_in_program6665( FOLLOW_topLevelRes_in_program6665_bits, 1 );
+static	ANTLR_BITWORD FOLLOW_function_in_classDecl6563_bits[]	= { ANTLR_UINT64_LIT(0x39A20A0408010490), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl6563( FOLLOW_function_in_classDecl6563_bits, 2 );
+
+static	ANTLR_BITWORD FOLLOW_SYNCHRONIZED_in_classDecl6589_bits[]	= { ANTLR_UINT64_LIT(0x0000020000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_SYNCHRONIZED_in_classDecl6589( FOLLOW_SYNCHRONIZED_in_classDecl6589_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_OVERRIDE_in_classDecl6591_bits[]	= { ANTLR_UINT64_LIT(0x3122000408010480) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_OVERRIDE_in_classDecl6591( FOLLOW_OVERRIDE_in_classDecl6591_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_function_in_classDecl6595_bits[]	= { ANTLR_UINT64_LIT(0x39A20A0408010490), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl6595( FOLLOW_function_in_classDecl6595_bits, 2 );
+
+static	ANTLR_BITWORD FOLLOW_ACTION_in_classDecl6621_bits[]	= { ANTLR_UINT64_LIT(0x0000020000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_ACTION_in_classDecl6621( FOLLOW_ACTION_in_classDecl6621_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_OVERRIDE_in_classDecl6623_bits[]	= { ANTLR_UINT64_LIT(0x3122000408010480) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_OVERRIDE_in_classDecl6623( FOLLOW_OVERRIDE_in_classDecl6623_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_function_in_classDecl6627_bits[]	= { ANTLR_UINT64_LIT(0x39A20A0408010490), ANTLR_UINT64_LIT(0x0000000000001000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_classDecl6627( FOLLOW_function_in_classDecl6627_bits, 2 );
+
+static	ANTLR_BITWORD FOLLOW_RBRACE_in_classDecl6663_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACE_in_classDecl6663( FOLLOW_RBRACE_in_classDecl6663_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_RESOURCE_in_topLevelRes6691_bits[]	= { ANTLR_UINT64_LIT(0x0000001000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RESOURCE_in_topLevelRes6691( FOLLOW_RESOURCE_in_topLevelRes6691_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_LBRACKET_in_topLevelRes6695_bits[]	= { ANTLR_UINT64_LIT(0x0010000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_LBRACKET_in_topLevelRes6695( FOLLOW_LBRACKET_in_topLevelRes6695_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_STRING_in_topLevelRes6699_bits[]	= { ANTLR_UINT64_LIT(0x0000100000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_topLevelRes6699( FOLLOW_STRING_in_topLevelRes6699_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_RBRACKET_in_topLevelRes6703_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_RBRACKET_in_topLevelRes6703( FOLLOW_RBRACKET_in_topLevelRes6703_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_INCLUDE_in_inc6732_bits[]	= { ANTLR_UINT64_LIT(0x0010000000000000) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_INCLUDE_in_inc6732( FOLLOW_INCLUDE_in_inc6732_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_STRING_in_inc6734_bits[]	= { ANTLR_UINT64_LIT(0x0000000000000002) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_STRING_in_inc6734( FOLLOW_STRING_in_inc6734_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_inc_in_program6763_bits[]	= { ANTLR_UINT64_LIT(0x3162200508010CA2) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_inc_in_program6763( FOLLOW_inc_in_program6763_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_function_in_program6802_bits[]	= { ANTLR_UINT64_LIT(0x3162200408010CA2) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_function_in_program6802( FOLLOW_function_in_program6802_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_structDecl_in_program6824_bits[]	= { ANTLR_UINT64_LIT(0x3162200408010CA2) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_structDecl_in_program6824( FOLLOW_structDecl_in_program6824_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_classDecl_in_program6844_bits[]	= { ANTLR_UINT64_LIT(0x3162200408010CA2) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_classDecl_in_program6844( FOLLOW_classDecl_in_program6844_bits, 1 );
+
+static	ANTLR_BITWORD FOLLOW_topLevelRes_in_program6865_bits[]	= { ANTLR_UINT64_LIT(0x3162200408010CA2) };
+static  WNScriptASTParserImplTraits::BitsetListType FOLLOW_topLevelRes_in_program6865( FOLLOW_topLevelRes_in_program6865_bits, 1 );
 
 
 
@@ -1313,7 +1362,7 @@ WNScriptASTParser::objectType()
 
     {
         {
-            TYPE1 =  this->matchToken(TYPE, &FOLLOW_TYPE_in_objectType1318);
+            TYPE1 =  this->matchToken(TYPE, &FOLLOW_TYPE_in_objectType1324);
             if  (this->hasException())
             {
                 goto ruleobjectTypeEx;
@@ -1429,7 +1478,7 @@ WNScriptASTParser::scalarType()
             {
         	case 1:
         	    {
-        	        VOID_TYPE2 =  this->matchToken(VOID_TYPE, &FOLLOW_VOID_TYPE_in_scalarType1350);
+        	        VOID_TYPE2 =  this->matchToken(VOID_TYPE, &FOLLOW_VOID_TYPE_in_scalarType1356);
         	        if  (this->hasException())
         	        {
         	            goto rulescalarTypeEx;
@@ -1445,7 +1494,7 @@ WNScriptASTParser::scalarType()
         	    break;
         	case 2:
         	    {
-        	        INT_TYPE3 =  this->matchToken(INT_TYPE, &FOLLOW_INT_TYPE_in_scalarType1362);
+        	        INT_TYPE3 =  this->matchToken(INT_TYPE, &FOLLOW_INT_TYPE_in_scalarType1368);
         	        if  (this->hasException())
         	        {
         	            goto rulescalarTypeEx;
@@ -1461,7 +1510,7 @@ WNScriptASTParser::scalarType()
         	    break;
         	case 3:
         	    {
-        	        FLOAT_TYPE4 =  this->matchToken(FLOAT_TYPE, &FOLLOW_FLOAT_TYPE_in_scalarType1374);
+        	        FLOAT_TYPE4 =  this->matchToken(FLOAT_TYPE, &FOLLOW_FLOAT_TYPE_in_scalarType1380);
         	        if  (this->hasException())
         	        {
         	            goto rulescalarTypeEx;
@@ -1477,7 +1526,7 @@ WNScriptASTParser::scalarType()
         	    break;
         	case 4:
         	    {
-        	        CHAR_TYPE5 =  this->matchToken(CHAR_TYPE, &FOLLOW_CHAR_TYPE_in_scalarType1386);
+        	        CHAR_TYPE5 =  this->matchToken(CHAR_TYPE, &FOLLOW_CHAR_TYPE_in_scalarType1392);
         	        if  (this->hasException())
         	        {
         	            goto rulescalarTypeEx;
@@ -1493,7 +1542,7 @@ WNScriptASTParser::scalarType()
         	    break;
         	case 5:
         	    {
-        	        BOOL_TYPE6 =  this->matchToken(BOOL_TYPE, &FOLLOW_BOOL_TYPE_in_scalarType1398);
+        	        BOOL_TYPE6 =  this->matchToken(BOOL_TYPE, &FOLLOW_BOOL_TYPE_in_scalarType1404);
         	        if  (this->hasException())
         	        {
         	            goto rulescalarTypeEx;
@@ -1509,7 +1558,7 @@ WNScriptASTParser::scalarType()
         	    break;
         	case 6:
         	    {
-        	        CPTR_TYPE7 =  this->matchToken(CPTR_TYPE, &FOLLOW_CPTR_TYPE_in_scalarType1410);
+        	        CPTR_TYPE7 =  this->matchToken(CPTR_TYPE, &FOLLOW_CPTR_TYPE_in_scalarType1416);
         	        if  (this->hasException())
         	        {
         	            goto rulescalarTypeEx;
@@ -1525,7 +1574,7 @@ WNScriptASTParser::scalarType()
         	    break;
         	case 7:
         	    {
-        	        STRING_TYPE8 =  this->matchToken(STRING_TYPE, &FOLLOW_STRING_TYPE_in_scalarType1422);
+        	        STRING_TYPE8 =  this->matchToken(STRING_TYPE, &FOLLOW_STRING_TYPE_in_scalarType1428);
         	        if  (this->hasException())
         	        {
         	            goto rulescalarTypeEx;
@@ -1628,7 +1677,7 @@ WNScriptASTParser::arrayType()
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_scalarType_in_arrayType1459);
+            	        this->followPush(FOLLOW_scalarType_in_arrayType1465);
             	        scalarType9=scalarType();
 
             	        this->followPop();
@@ -1649,7 +1698,7 @@ WNScriptASTParser::arrayType()
             	    break;
             	case 2:
             	    {
-            	        this->followPush(FOLLOW_objectType_in_arrayType1475);
+            	        this->followPush(FOLLOW_objectType_in_arrayType1481);
             	        a=objectType();
 
             	        this->followPop();
@@ -1671,14 +1720,14 @@ WNScriptASTParser::arrayType()
             	    break;
             	case 3:
             	    {
-            	         this->matchToken(SHARED_REF, &FOLLOW_SHARED_REF_in_arrayType1489);
+            	         this->matchToken(SHARED_REF, &FOLLOW_SHARED_REF_in_arrayType1495);
             	        if  (this->hasException())
             	        {
             	            goto rulearrayTypeEx;
             	        }
 
 
-            	        this->followPush(FOLLOW_objectType_in_arrayType1493);
+            	        this->followPush(FOLLOW_objectType_in_arrayType1499);
             	        b=objectType();
 
             	        this->followPop();
@@ -1733,7 +1782,7 @@ WNScriptASTParser::arrayType()
             	    {
             	        {
             	            {
-            	                LSQBRACKET10 =  this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_arrayType1527);
+            	                LSQBRACKET10 =  this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_arrayType1533);
             	                if  (this->hasException())
             	                {
             	                    goto rulearrayTypeEx;
@@ -1775,7 +1824,7 @@ WNScriptASTParser::arrayType()
             	                {
             	            	case 1:
             	            	    {
-            	            	        this->followPush(FOLLOW_constant_in_arrayType1546);
+            	            	        this->followPush(FOLLOW_constant_in_arrayType1552);
             	            	        constant11=constant();
 
             	            	        this->followPop();
@@ -1798,7 +1847,7 @@ WNScriptASTParser::arrayType()
             	            }
 
             	            {
-            	                RSQBRACKET12 =  this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_arrayType1568);
+            	                RSQBRACKET12 =  this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_arrayType1574);
             	                if  (this->hasException())
             	                {
             	                    goto rulearrayTypeEx;
@@ -1821,14 +1870,14 @@ WNScriptASTParser::arrayType()
             	case 2:
             	    {
             	        {
-            	            DLSQBRACKET13 =  this->matchToken(DLSQBRACKET, &FOLLOW_DLSQBRACKET_in_arrayType1597);
+            	            DLSQBRACKET13 =  this->matchToken(DLSQBRACKET, &FOLLOW_DLSQBRACKET_in_arrayType1603);
             	            if  (this->hasException())
             	            {
             	                goto rulearrayTypeEx;
             	            }
 
 
-            	            DRSQBRACKET14 =  this->matchToken(DRSQBRACKET, &FOLLOW_DRSQBRACKET_in_arrayType1599);
+            	            DRSQBRACKET14 =  this->matchToken(DRSQBRACKET, &FOLLOW_DRSQBRACKET_in_arrayType1605);
             	            if  (this->hasException())
             	            {
             	                goto rulearrayTypeEx;
@@ -1894,7 +1943,7 @@ WNScriptASTParser::sliceType()
     {
         {
             {
-                this->followPush(FOLLOW_scalarType_in_sliceType1649);
+                this->followPush(FOLLOW_scalarType_in_sliceType1655);
                 a=scalarType();
 
                 this->followPop();
@@ -1946,21 +1995,21 @@ WNScriptASTParser::sliceType()
                 	case 1:
                 	    {
                 	        {
-                	            b =  this->matchToken(SLICETOK, &FOLLOW_SLICETOK_in_sliceType1665);
+                	            b =  this->matchToken(SLICETOK, &FOLLOW_SLICETOK_in_sliceType1671);
                 	            if  (this->hasException())
                 	            {
                 	                goto rulesliceTypeEx;
                 	            }
 
 
-                	            INT15 =  this->matchToken(INT, &FOLLOW_INT_in_sliceType1667);
+                	            INT15 =  this->matchToken(INT, &FOLLOW_INT_in_sliceType1673);
                 	            if  (this->hasException())
                 	            {
                 	                goto rulesliceTypeEx;
                 	            }
 
 
-                	            c =  this->matchToken(SLICETOK, &FOLLOW_SLICETOK_in_sliceType1671);
+                	            c =  this->matchToken(SLICETOK, &FOLLOW_SLICETOK_in_sliceType1677);
                 	            if  (this->hasException())
                 	            {
                 	                goto rulesliceTypeEx;
@@ -1983,7 +2032,7 @@ WNScriptASTParser::sliceType()
                 	case 2:
                 	    {
                 	        {
-                	            d =  this->matchToken(SSOR, &FOLLOW_SSOR_in_sliceType1690);
+                	            d =  this->matchToken(SSOR, &FOLLOW_SSOR_in_sliceType1696);
                 	            if  (this->hasException())
                 	            {
                 	                goto rulesliceTypeEx;
@@ -2049,7 +2098,7 @@ WNScriptASTParser::compoundType()
 
     {
         {
-            this->followPush(FOLLOW_objectType_in_compoundType1725);
+            this->followPush(FOLLOW_objectType_in_compoundType1731);
             objectType16=objectType();
 
             this->followPop();
@@ -2144,7 +2193,7 @@ WNScriptASTParser::nonArrayType()
             {
         	case 1:
         	    {
-        	        this->followPush(FOLLOW_scalarType_in_nonArrayType1752);
+        	        this->followPush(FOLLOW_scalarType_in_nonArrayType1758);
         	        scalarType17=scalarType();
 
         	        this->followPop();
@@ -2164,7 +2213,7 @@ WNScriptASTParser::nonArrayType()
         	    break;
         	case 2:
         	    {
-        	        this->followPush(FOLLOW_objectType_in_nonArrayType1762);
+        	        this->followPush(FOLLOW_objectType_in_nonArrayType1768);
         	        objectType18=objectType();
 
         	        this->followPop();
@@ -2519,7 +2568,7 @@ WNScriptASTParser::type()
             {
         	case 1:
         	    {
-        	        this->followPush(FOLLOW_compoundType_in_type1792);
+        	        this->followPush(FOLLOW_compoundType_in_type1798);
         	        compoundType19=compoundType();
 
         	        this->followPop();
@@ -2539,7 +2588,7 @@ WNScriptASTParser::type()
         	    break;
         	case 2:
         	    {
-        	        this->followPush(FOLLOW_arrayType_in_type1802);
+        	        this->followPush(FOLLOW_arrayType_in_type1808);
         	        arrayType20=arrayType();
 
         	        this->followPop();
@@ -2559,7 +2608,7 @@ WNScriptASTParser::type()
         	    break;
         	case 3:
         	    {
-        	        this->followPush(FOLLOW_sliceType_in_type1812);
+        	        this->followPush(FOLLOW_sliceType_in_type1818);
         	        sliceType21=sliceType();
 
         	        this->followPop();
@@ -2579,7 +2628,7 @@ WNScriptASTParser::type()
         	    break;
         	case 4:
         	    {
-        	        this->followPush(FOLLOW_scalarType_in_type1822);
+        	        this->followPush(FOLLOW_scalarType_in_type1828);
         	        scalarType22=scalarType();
 
         	        this->followPop();
@@ -2996,7 +3045,7 @@ WNScriptASTParser::param()
             {
         	case 1:
         	    {
-        	        this->followPush(FOLLOW_scalarType_in_param1854);
+        	        this->followPush(FOLLOW_scalarType_in_param1860);
         	        scalarType23=scalarType();
 
         	        this->followPop();
@@ -3006,7 +3055,7 @@ WNScriptASTParser::param()
         	        }
 
 
-        	        a =  this->matchToken(ID, &FOLLOW_ID_in_param1858);
+        	        a =  this->matchToken(ID, &FOLLOW_ID_in_param1864);
         	        if  (this->hasException())
         	        {
         	            goto ruleparamEx;
@@ -3026,7 +3075,7 @@ WNScriptASTParser::param()
         	    break;
         	case 2:
         	    {
-        	        this->followPush(FOLLOW_compoundType_in_param1873);
+        	        this->followPush(FOLLOW_compoundType_in_param1879);
         	        bb=compoundType();
 
         	        this->followPop();
@@ -3036,7 +3085,7 @@ WNScriptASTParser::param()
         	        }
 
 
-        	        aa =  this->matchToken(ID, &FOLLOW_ID_in_param1877);
+        	        aa =  this->matchToken(ID, &FOLLOW_ID_in_param1883);
         	        if  (this->hasException())
         	        {
         	            goto ruleparamEx;
@@ -3058,7 +3107,7 @@ WNScriptASTParser::param()
         	    break;
         	case 3:
         	    {
-        	        this->followPush(FOLLOW_arrayType_in_param1892);
+        	        this->followPush(FOLLOW_arrayType_in_param1898);
         	        cc=arrayType();
 
         	        this->followPop();
@@ -3068,7 +3117,7 @@ WNScriptASTParser::param()
         	        }
 
 
-        	        dd =  this->matchToken(ID, &FOLLOW_ID_in_param1896);
+        	        dd =  this->matchToken(ID, &FOLLOW_ID_in_param1902);
         	        if  (this->hasException())
         	        {
         	            goto ruleparamEx;
@@ -3090,7 +3139,7 @@ WNScriptASTParser::param()
         	    break;
         	case 4:
         	    {
-        	        this->followPush(FOLLOW_sliceType_in_param1911);
+        	        this->followPush(FOLLOW_sliceType_in_param1917);
         	        ee=sliceType();
 
         	        this->followPop();
@@ -3100,7 +3149,7 @@ WNScriptASTParser::param()
         	        }
 
 
-        	        ff =  this->matchToken(ID, &FOLLOW_ID_in_param1915);
+        	        ff =  this->matchToken(ID, &FOLLOW_ID_in_param1921);
         	        if  (this->hasException())
         	        {
         	            goto ruleparamEx;
@@ -3122,14 +3171,14 @@ WNScriptASTParser::param()
         	    break;
         	case 5:
         	    {
-        	        SHARED_REF24 =  this->matchToken(SHARED_REF, &FOLLOW_SHARED_REF_in_param1928);
+        	        SHARED_REF24 =  this->matchToken(SHARED_REF, &FOLLOW_SHARED_REF_in_param1934);
         	        if  (this->hasException())
         	        {
         	            goto ruleparamEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_compoundType_in_param1932);
+        	        this->followPush(FOLLOW_compoundType_in_param1938);
         	        b=compoundType();
 
         	        this->followPop();
@@ -3139,7 +3188,7 @@ WNScriptASTParser::param()
         	        }
 
 
-        	        c =  this->matchToken(ID, &FOLLOW_ID_in_param1936);
+        	        c =  this->matchToken(ID, &FOLLOW_ID_in_param1942);
         	        if  (this->hasException())
         	        {
         	            goto ruleparamEx;
@@ -3160,14 +3209,14 @@ WNScriptASTParser::param()
         	    break;
         	case 6:
         	    {
-        	        WEAK_REF25 =  this->matchToken(WEAK_REF, &FOLLOW_WEAK_REF_in_param1949);
+        	        WEAK_REF25 =  this->matchToken(WEAK_REF, &FOLLOW_WEAK_REF_in_param1955);
         	        if  (this->hasException())
         	        {
         	            goto ruleparamEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_compoundType_in_param1953);
+        	        this->followPush(FOLLOW_compoundType_in_param1959);
         	        d=compoundType();
 
         	        this->followPop();
@@ -3177,7 +3226,7 @@ WNScriptASTParser::param()
         	        }
 
 
-        	        e =  this->matchToken(ID, &FOLLOW_ID_in_param1958);
+        	        e =  this->matchToken(ID, &FOLLOW_ID_in_param1964);
         	        if  (this->hasException())
         	        {
         	            goto ruleparamEx;
@@ -3198,7 +3247,7 @@ WNScriptASTParser::param()
         	    break;
         	case 7:
         	    {
-        	        this->followPush(FOLLOW_compoundType_in_param1973);
+        	        this->followPush(FOLLOW_compoundType_in_param1979);
         	        f=compoundType();
 
         	        this->followPop();
@@ -3208,14 +3257,14 @@ WNScriptASTParser::param()
         	        }
 
 
-        	         this->matchToken(QUESTION, &FOLLOW_QUESTION_in_param1975);
+        	         this->matchToken(QUESTION, &FOLLOW_QUESTION_in_param1981);
         	        if  (this->hasException())
         	        {
         	            goto ruleparamEx;
         	        }
 
 
-        	        g =  this->matchToken(ID, &FOLLOW_ID_in_param1980);
+        	        g =  this->matchToken(ID, &FOLLOW_ID_in_param1986);
         	        if  (this->hasException())
         	        {
         	            goto ruleparamEx;
@@ -3278,7 +3327,7 @@ WNScriptASTParser::paramList()
 
     {
         {
-            this->followPush(FOLLOW_param_in_paramList2012);
+            this->followPush(FOLLOW_param_in_paramList2018);
             a=param();
 
             this->followPop();
@@ -3313,14 +3362,14 @@ WNScriptASTParser::paramList()
                 {
             	case 1:
             	    {
-            	         this->matchToken(COMMA, &FOLLOW_COMMA_in_paramList2025);
+            	         this->matchToken(COMMA, &FOLLOW_COMMA_in_paramList2031);
             	        if  (this->hasException())
             	        {
             	            goto ruleparamListEx;
             	        }
 
 
-            	        this->followPush(FOLLOW_param_in_paramList2029);
+            	        this->followPush(FOLLOW_param_in_paramList2035);
             	        b=param();
 
             	        this->followPop();
@@ -3449,14 +3498,14 @@ WNScriptASTParser::parameterList()
             {
         	case 1:
         	    {
-        	        LBRACKET27 =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_parameterList2061);
+        	        LBRACKET27 =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_parameterList2067);
         	        if  (this->hasException())
         	        {
         	            goto ruleparameterListEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_paramList_in_parameterList2063);
+        	        this->followPush(FOLLOW_paramList_in_parameterList2069);
         	        paramList26=paramList();
 
         	        this->followPop();
@@ -3466,7 +3515,7 @@ WNScriptASTParser::parameterList()
         	        }
 
 
-        	        RBRACKET28 =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_parameterList2065);
+        	        RBRACKET28 =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_parameterList2071);
         	        if  (this->hasException())
         	        {
         	            goto ruleparameterListEx;
@@ -3483,14 +3532,14 @@ WNScriptASTParser::parameterList()
         	    break;
         	case 2:
         	    {
-        	         this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_parameterList2082);
+        	         this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_parameterList2088);
         	        if  (this->hasException())
         	        {
         	            goto ruleparameterListEx;
         	        }
 
 
-        	         this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_parameterList2084);
+        	         this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_parameterList2090);
         	        if  (this->hasException())
         	        {
         	            goto ruleparameterListEx;
@@ -3551,32 +3600,32 @@ WNScriptASTParser::assign_type()
 
             switch ( this->LA(1) )
             {
-            case 80:
+            case 81:
             	{
             		alt11=1;
             	}
                 break;
-            case 72:
+            case 73:
             	{
             		alt11=2;
             	}
                 break;
-            case 74:
+            case 75:
             	{
             		alt11=3;
             	}
                 break;
-            case 70:
+            case 71:
             	{
             		alt11=4;
             	}
                 break;
-            case 77:
+            case 78:
             	{
             		alt11=5;
             	}
                 break;
-            case 66:
+            case 67:
             	{
             		alt11=6;
             	}
@@ -3596,7 +3645,7 @@ WNScriptASTParser::assign_type()
             {
         	case 1:
         	    {
-        	         this->matchToken(80, &FOLLOW_80_in_assign_type2120);
+        	         this->matchToken(81, &FOLLOW_81_in_assign_type2126);
         	        if  (this->hasException())
         	        {
         	            goto ruleassign_typeEx;
@@ -3612,7 +3661,7 @@ WNScriptASTParser::assign_type()
         	    break;
         	case 2:
         	    {
-        	         this->matchToken(72, &FOLLOW_72_in_assign_type2134);
+        	         this->matchToken(73, &FOLLOW_73_in_assign_type2140);
         	        if  (this->hasException())
         	        {
         	            goto ruleassign_typeEx;
@@ -3628,7 +3677,7 @@ WNScriptASTParser::assign_type()
         	    break;
         	case 3:
         	    {
-        	         this->matchToken(74, &FOLLOW_74_in_assign_type2147);
+        	         this->matchToken(75, &FOLLOW_75_in_assign_type2153);
         	        if  (this->hasException())
         	        {
         	            goto ruleassign_typeEx;
@@ -3644,7 +3693,7 @@ WNScriptASTParser::assign_type()
         	    break;
         	case 4:
         	    {
-        	         this->matchToken(70, &FOLLOW_70_in_assign_type2160);
+        	         this->matchToken(71, &FOLLOW_71_in_assign_type2166);
         	        if  (this->hasException())
         	        {
         	            goto ruleassign_typeEx;
@@ -3660,7 +3709,7 @@ WNScriptASTParser::assign_type()
         	    break;
         	case 5:
         	    {
-        	         this->matchToken(77, &FOLLOW_77_in_assign_type2173);
+        	         this->matchToken(78, &FOLLOW_78_in_assign_type2179);
         	        if  (this->hasException())
         	        {
         	            goto ruleassign_typeEx;
@@ -3676,7 +3725,7 @@ WNScriptASTParser::assign_type()
         	    break;
         	case 6:
         	    {
-        	         this->matchToken(66, &FOLLOW_66_in_assign_type2186);
+        	         this->matchToken(67, &FOLLOW_67_in_assign_type2192);
         	        if  (this->hasException())
         	        {
         	            goto ruleassign_typeEx;
@@ -3734,7 +3783,7 @@ WNScriptASTParser::arglist()
         {
             {
                 {
-                    this->followPush(FOLLOW_expr_in_arglist2244);
+                    this->followPush(FOLLOW_expr_in_arglist2250);
                     a=expr();
 
                     this->followPop();
@@ -3775,7 +3824,7 @@ WNScriptASTParser::arglist()
                 {
             	case 1:
             	    {
-            	         this->matchToken(COMMA, &FOLLOW_COMMA_in_arglist2277);
+            	         this->matchToken(COMMA, &FOLLOW_COMMA_in_arglist2283);
             	        if  (this->hasException())
             	        {
             	            goto rulearglistEx;
@@ -3807,8 +3856,8 @@ WNScriptASTParser::arglist()
             	            case STRING_TYPE:
             	            case TYPE:
             	            case VOID_TYPE:
-            	            case 63:
-            	            case 73:
+            	            case 64:
+            	            case 74:
             	            	{
             	            		alt12=1;
             	            	}
@@ -3835,7 +3884,7 @@ WNScriptASTParser::arglist()
             	        	case 1:
             	        	    {
             	        	        {
-            	        	            this->followPush(FOLLOW_expr_in_arglist2321);
+            	        	            this->followPush(FOLLOW_expr_in_arglist2327);
             	        	            d=expr();
 
             	        	            this->followPop();
@@ -3916,7 +3965,7 @@ WNScriptASTParser::expr()
 
     {
         {
-            this->followPush(FOLLOW_cond_ex_in_expr2396);
+            this->followPush(FOLLOW_cond_ex_in_expr2402);
             cond_ex29=cond_ex();
 
             this->followPop();
@@ -3974,7 +4023,7 @@ WNScriptASTParser::cond_ex()
 
     {
         {
-            this->followPush(FOLLOW_or_ex_in_cond_ex2434);
+            this->followPush(FOLLOW_or_ex_in_cond_ex2440);
             or_ex30=or_ex();
 
             this->followPop();
@@ -4005,14 +4054,14 @@ WNScriptASTParser::cond_ex()
                 {
             	case 1:
             	    {
-            	         this->matchToken(QUESTION, &FOLLOW_QUESTION_in_cond_ex2457);
+            	         this->matchToken(QUESTION, &FOLLOW_QUESTION_in_cond_ex2463);
             	        if  (this->hasException())
             	        {
             	            goto rulecond_exEx;
             	        }
 
 
-            	        this->followPush(FOLLOW_expr_in_cond_ex2461);
+            	        this->followPush(FOLLOW_expr_in_cond_ex2467);
             	        b=expr();
 
             	        this->followPop();
@@ -4022,14 +4071,14 @@ WNScriptASTParser::cond_ex()
             	        }
 
 
-            	         this->matchToken(COLON, &FOLLOW_COLON_in_cond_ex2463);
+            	         this->matchToken(COLON, &FOLLOW_COLON_in_cond_ex2469);
             	        if  (this->hasException())
             	        {
             	            goto rulecond_exEx;
             	        }
 
 
-            	        this->followPush(FOLLOW_cond_ex_in_cond_ex2467);
+            	        this->followPush(FOLLOW_cond_ex_in_cond_ex2473);
             	        c=cond_ex();
 
             	        this->followPop();
@@ -4095,7 +4144,7 @@ WNScriptASTParser::or_ex()
 
     {
         {
-            this->followPush(FOLLOW_and_ex_in_or_ex2514);
+            this->followPush(FOLLOW_and_ex_in_or_ex2520);
             a=and_ex();
 
             this->followPop();
@@ -4129,14 +4178,14 @@ WNScriptASTParser::or_ex()
                 {
             	case 1:
             	    {
-            	         this->matchToken(SSOR, &FOLLOW_SSOR_in_or_ex2531);
+            	         this->matchToken(SSOR, &FOLLOW_SSOR_in_or_ex2537);
             	        if  (this->hasException())
             	        {
             	            goto ruleor_exEx;
             	        }
 
 
-            	        this->followPush(FOLLOW_and_ex_in_or_ex2535);
+            	        this->followPush(FOLLOW_and_ex_in_or_ex2541);
             	        b=and_ex();
 
             	        this->followPop();
@@ -4206,7 +4255,7 @@ WNScriptASTParser::and_ex()
 
     {
         {
-            this->followPush(FOLLOW_bit_or_ex_in_and_ex2578);
+            this->followPush(FOLLOW_bit_or_ex_in_and_ex2584);
             a=bit_or_ex();
 
             this->followPop();
@@ -4228,7 +4277,7 @@ WNScriptASTParser::and_ex()
                 int alt16=2;
                 switch ( this->LA(1) )
                 {
-                case 67:
+                case 68:
                 	{
                 		alt16=1;
                 	}
@@ -4240,14 +4289,14 @@ WNScriptASTParser::and_ex()
                 {
             	case 1:
             	    {
-            	         this->matchToken(67, &FOLLOW_67_in_and_ex2595);
+            	         this->matchToken(68, &FOLLOW_68_in_and_ex2601);
             	        if  (this->hasException())
             	        {
             	            goto ruleand_exEx;
             	        }
 
 
-            	        this->followPush(FOLLOW_bit_or_ex_in_and_ex2599);
+            	        this->followPush(FOLLOW_bit_or_ex_in_and_ex2605);
             	        b=bit_or_ex();
 
             	        this->followPop();
@@ -4317,7 +4366,7 @@ WNScriptASTParser::bit_or_ex()
 
     {
         {
-            this->followPush(FOLLOW_bit_xor_ex_in_bit_or_ex2633);
+            this->followPush(FOLLOW_bit_xor_ex_in_bit_or_ex2639);
             a=bit_xor_ex();
 
             this->followPop();
@@ -4351,14 +4400,14 @@ WNScriptASTParser::bit_or_ex()
                 {
             	case 1:
             	    {
-            	         this->matchToken(SLICETOK, &FOLLOW_SLICETOK_in_bit_or_ex2650);
+            	         this->matchToken(SLICETOK, &FOLLOW_SLICETOK_in_bit_or_ex2656);
             	        if  (this->hasException())
             	        {
             	            goto rulebit_or_exEx;
             	        }
 
 
-            	        this->followPush(FOLLOW_bit_xor_ex_in_bit_or_ex2654);
+            	        this->followPush(FOLLOW_bit_xor_ex_in_bit_or_ex2660);
             	        b=bit_xor_ex();
 
             	        this->followPop();
@@ -4428,7 +4477,7 @@ WNScriptASTParser::bit_xor_ex()
 
     {
         {
-            this->followPush(FOLLOW_bit_and_ex_in_bit_xor_ex2689);
+            this->followPush(FOLLOW_bit_and_ex_in_bit_xor_ex2695);
             a=bit_and_ex();
 
             this->followPop();
@@ -4450,7 +4499,7 @@ WNScriptASTParser::bit_xor_ex()
                 int alt18=2;
                 switch ( this->LA(1) )
                 {
-                case 84:
+                case 85:
                 	{
                 		alt18=1;
                 	}
@@ -4462,14 +4511,14 @@ WNScriptASTParser::bit_xor_ex()
                 {
             	case 1:
             	    {
-            	         this->matchToken(84, &FOLLOW_84_in_bit_xor_ex2706);
+            	         this->matchToken(85, &FOLLOW_85_in_bit_xor_ex2712);
             	        if  (this->hasException())
             	        {
             	            goto rulebit_xor_exEx;
             	        }
 
 
-            	        this->followPush(FOLLOW_bit_and_ex_in_bit_xor_ex2710);
+            	        this->followPush(FOLLOW_bit_and_ex_in_bit_xor_ex2716);
             	        b=bit_and_ex();
 
             	        this->followPop();
@@ -4539,7 +4588,7 @@ WNScriptASTParser::bit_and_ex()
 
     {
         {
-            this->followPush(FOLLOW_eq_ex_in_bit_and_ex2745);
+            this->followPush(FOLLOW_eq_ex_in_bit_and_ex2751);
             a=eq_ex();
 
             this->followPop();
@@ -4561,7 +4610,7 @@ WNScriptASTParser::bit_and_ex()
                 int alt19=2;
                 switch ( this->LA(1) )
                 {
-                case 68:
+                case 69:
                 	{
                 		alt19=1;
                 	}
@@ -4573,14 +4622,14 @@ WNScriptASTParser::bit_and_ex()
                 {
             	case 1:
             	    {
-            	         this->matchToken(68, &FOLLOW_68_in_bit_and_ex2762);
+            	         this->matchToken(69, &FOLLOW_69_in_bit_and_ex2768);
             	        if  (this->hasException())
             	        {
             	            goto rulebit_and_exEx;
             	        }
 
 
-            	        this->followPush(FOLLOW_eq_ex_in_bit_and_ex2766);
+            	        this->followPush(FOLLOW_eq_ex_in_bit_and_ex2772);
             	        b=eq_ex();
 
             	        this->followPop();
@@ -4651,7 +4700,7 @@ WNScriptASTParser::eq_ex()
 
     {
         {
-            this->followPush(FOLLOW_rel_ex_in_eq_ex2804);
+            this->followPush(FOLLOW_rel_ex_in_eq_ex2810);
             a=rel_ex();
 
             this->followPop();
@@ -4673,12 +4722,12 @@ WNScriptASTParser::eq_ex()
                 int alt20=3;
                 switch ( this->LA(1) )
                 {
-                case 81:
+                case 82:
                 	{
                 		alt20=1;
                 	}
                     break;
-                case 64:
+                case 65:
                 	{
                 		alt20=2;
                 	}
@@ -4691,14 +4740,14 @@ WNScriptASTParser::eq_ex()
             	case 1:
             	    {
             	        {
-            	             this->matchToken(81, &FOLLOW_81_in_eq_ex2839);
+            	             this->matchToken(82, &FOLLOW_82_in_eq_ex2845);
             	            if  (this->hasException())
             	            {
             	                goto ruleeq_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_rel_ex_in_eq_ex2843);
+            	            this->followPush(FOLLOW_rel_ex_in_eq_ex2849);
             	            b=rel_ex();
 
             	            this->followPop();
@@ -4724,14 +4773,14 @@ WNScriptASTParser::eq_ex()
             	case 2:
             	    {
             	        {
-            	             this->matchToken(64, &FOLLOW_64_in_eq_ex2866);
+            	             this->matchToken(65, &FOLLOW_65_in_eq_ex2872);
             	            if  (this->hasException())
             	            {
             	                goto ruleeq_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_rel_ex_in_eq_ex2870);
+            	            this->followPush(FOLLOW_rel_ex_in_eq_ex2876);
             	            c=rel_ex();
 
             	            this->followPop();
@@ -4807,7 +4856,7 @@ WNScriptASTParser::rel_ex()
 
     {
         {
-            this->followPush(FOLLOW_add_ex_in_rel_ex2928);
+            this->followPush(FOLLOW_add_ex_in_rel_ex2934);
             a=add_ex();
 
             this->followPop();
@@ -4829,22 +4878,22 @@ WNScriptASTParser::rel_ex()
                 int alt21=5;
                 switch ( this->LA(1) )
                 {
-                case 78:
+                case 79:
                 	{
                 		alt21=1;
                 	}
                     break;
-                case 82:
+                case 83:
                 	{
                 		alt21=2;
                 	}
                     break;
-                case 79:
+                case 80:
                 	{
                 		alt21=3;
                 	}
                     break;
-                case 83:
+                case 84:
                 	{
                 		alt21=4;
                 	}
@@ -4857,14 +4906,14 @@ WNScriptASTParser::rel_ex()
             	case 1:
             	    {
             	        {
-            	             this->matchToken(78, &FOLLOW_78_in_rel_ex2964);
+            	             this->matchToken(79, &FOLLOW_79_in_rel_ex2970);
             	            if  (this->hasException())
             	            {
             	                goto rulerel_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_add_ex_in_rel_ex2968);
+            	            this->followPush(FOLLOW_add_ex_in_rel_ex2974);
             	            b=add_ex();
 
             	            this->followPop();
@@ -4890,14 +4939,14 @@ WNScriptASTParser::rel_ex()
             	case 2:
             	    {
             	        {
-            	             this->matchToken(82, &FOLLOW_82_in_rel_ex2992);
+            	             this->matchToken(83, &FOLLOW_83_in_rel_ex2998);
             	            if  (this->hasException())
             	            {
             	                goto rulerel_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_add_ex_in_rel_ex2996);
+            	            this->followPush(FOLLOW_add_ex_in_rel_ex3002);
             	            c=add_ex();
 
             	            this->followPop();
@@ -4923,14 +4972,14 @@ WNScriptASTParser::rel_ex()
             	case 3:
             	    {
             	        {
-            	             this->matchToken(79, &FOLLOW_79_in_rel_ex3020);
+            	             this->matchToken(80, &FOLLOW_80_in_rel_ex3026);
             	            if  (this->hasException())
             	            {
             	                goto rulerel_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_add_ex_in_rel_ex3024);
+            	            this->followPush(FOLLOW_add_ex_in_rel_ex3030);
             	            d=add_ex();
 
             	            this->followPop();
@@ -4956,14 +5005,14 @@ WNScriptASTParser::rel_ex()
             	case 4:
             	    {
             	        {
-            	             this->matchToken(83, &FOLLOW_83_in_rel_ex3048);
+            	             this->matchToken(84, &FOLLOW_84_in_rel_ex3054);
             	            if  (this->hasException())
             	            {
             	                goto rulerel_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_add_ex_in_rel_ex3052);
+            	            this->followPush(FOLLOW_add_ex_in_rel_ex3058);
             	            e=add_ex();
 
             	            this->followPop();
@@ -5037,7 +5086,7 @@ WNScriptASTParser::add_ex()
 
     {
         {
-            this->followPush(FOLLOW_mult_ex_in_add_ex3113);
+            this->followPush(FOLLOW_mult_ex_in_add_ex3119);
             a=mult_ex();
 
             this->followPop();
@@ -5059,12 +5108,12 @@ WNScriptASTParser::add_ex()
                 int alt22=3;
                 switch ( this->LA(1) )
                 {
-                case 71:
+                case 72:
                 	{
                 		alt22=1;
                 	}
                     break;
-                case 73:
+                case 74:
                 	{
                 		alt22=2;
                 	}
@@ -5077,14 +5126,14 @@ WNScriptASTParser::add_ex()
             	case 1:
             	    {
             	        {
-            	             this->matchToken(71, &FOLLOW_71_in_add_ex3148);
+            	             this->matchToken(72, &FOLLOW_72_in_add_ex3154);
             	            if  (this->hasException())
             	            {
             	                goto ruleadd_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_mult_ex_in_add_ex3152);
+            	            this->followPush(FOLLOW_mult_ex_in_add_ex3158);
             	            b=mult_ex();
 
             	            this->followPop();
@@ -5110,14 +5159,14 @@ WNScriptASTParser::add_ex()
             	case 2:
             	    {
             	        {
-            	             this->matchToken(73, &FOLLOW_73_in_add_ex3174);
+            	             this->matchToken(74, &FOLLOW_74_in_add_ex3180);
             	            if  (this->hasException())
             	            {
             	                goto ruleadd_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_mult_ex_in_add_ex3178);
+            	            this->followPush(FOLLOW_mult_ex_in_add_ex3184);
             	            c=mult_ex();
 
             	            this->followPop();
@@ -5192,7 +5241,7 @@ WNScriptASTParser::mult_ex()
 
     {
         {
-            this->followPush(FOLLOW_unary_ex_in_mult_ex3237);
+            this->followPush(FOLLOW_unary_ex_in_mult_ex3243);
             a=unary_ex();
 
             this->followPop();
@@ -5214,17 +5263,17 @@ WNScriptASTParser::mult_ex()
                 int alt23=4;
                 switch ( this->LA(1) )
                 {
-                case 69:
+                case 70:
                 	{
                 		alt23=1;
                 	}
                     break;
-                case 76:
+                case 77:
                 	{
                 		alt23=2;
                 	}
                     break;
-                case 65:
+                case 66:
                 	{
                 		alt23=3;
                 	}
@@ -5237,14 +5286,14 @@ WNScriptASTParser::mult_ex()
             	case 1:
             	    {
             	        {
-            	             this->matchToken(69, &FOLLOW_69_in_mult_ex3276);
+            	             this->matchToken(70, &FOLLOW_70_in_mult_ex3282);
             	            if  (this->hasException())
             	            {
             	                goto rulemult_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_unary_ex_in_mult_ex3280);
+            	            this->followPush(FOLLOW_unary_ex_in_mult_ex3286);
             	            b=unary_ex();
 
             	            this->followPop();
@@ -5270,14 +5319,14 @@ WNScriptASTParser::mult_ex()
             	case 2:
             	    {
             	        {
-            	             this->matchToken(76, &FOLLOW_76_in_mult_ex3306);
+            	             this->matchToken(77, &FOLLOW_77_in_mult_ex3312);
             	            if  (this->hasException())
             	            {
             	                goto rulemult_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_unary_ex_in_mult_ex3310);
+            	            this->followPush(FOLLOW_unary_ex_in_mult_ex3316);
             	            c=unary_ex();
 
             	            this->followPop();
@@ -5303,14 +5352,14 @@ WNScriptASTParser::mult_ex()
             	case 3:
             	    {
             	        {
-            	             this->matchToken(65, &FOLLOW_65_in_mult_ex3336);
+            	             this->matchToken(66, &FOLLOW_66_in_mult_ex3342);
             	            if  (this->hasException())
             	            {
             	                goto rulemult_exEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_unary_ex_in_mult_ex3340);
+            	            this->followPush(FOLLOW_unary_ex_in_mult_ex3346);
             	            d=unary_ex();
 
             	            this->followPop();
@@ -5425,12 +5474,12 @@ WNScriptASTParser::unary_ex()
             		alt24=3;
             	}
                 break;
-            case 73:
+            case 74:
             	{
             		alt24=4;
             	}
                 break;
-            case 63:
+            case 64:
             	{
             		alt24=5;
             	}
@@ -5450,7 +5499,7 @@ WNScriptASTParser::unary_ex()
             {
         	case 1:
         	    {
-        	        this->followPush(FOLLOW_post_ex_in_unary_ex3392);
+        	        this->followPush(FOLLOW_post_ex_in_unary_ex3398);
         	        a=post_ex();
 
         	        this->followPop();
@@ -5470,14 +5519,14 @@ WNScriptASTParser::unary_ex()
         	    break;
         	case 2:
         	    {
-        	         this->matchToken(DOUBINC, &FOLLOW_DOUBINC_in_unary_ex3405);
+        	         this->matchToken(DOUBINC, &FOLLOW_DOUBINC_in_unary_ex3411);
         	        if  (this->hasException())
         	        {
         	            goto ruleunary_exEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_unary_ex_in_unary_ex3409);
+        	        this->followPush(FOLLOW_unary_ex_in_unary_ex3415);
         	        b=unary_ex();
 
         	        this->followPop();
@@ -5498,14 +5547,14 @@ WNScriptASTParser::unary_ex()
         	    break;
         	case 3:
         	    {
-        	         this->matchToken(DOUBDEC, &FOLLOW_DOUBDEC_in_unary_ex3422);
+        	         this->matchToken(DOUBDEC, &FOLLOW_DOUBDEC_in_unary_ex3428);
         	        if  (this->hasException())
         	        {
         	            goto ruleunary_exEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_unary_ex_in_unary_ex3426);
+        	        this->followPush(FOLLOW_unary_ex_in_unary_ex3432);
         	        c=unary_ex();
 
         	        this->followPop();
@@ -5526,14 +5575,14 @@ WNScriptASTParser::unary_ex()
         	    break;
         	case 4:
         	    {
-        	         this->matchToken(73, &FOLLOW_73_in_unary_ex3439);
+        	         this->matchToken(74, &FOLLOW_74_in_unary_ex3445);
         	        if  (this->hasException())
         	        {
         	            goto ruleunary_exEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_unary_ex_in_unary_ex3443);
+        	        this->followPush(FOLLOW_unary_ex_in_unary_ex3449);
         	        d=unary_ex();
 
         	        this->followPop();
@@ -5554,14 +5603,14 @@ WNScriptASTParser::unary_ex()
         	    break;
         	case 5:
         	    {
-        	         this->matchToken(63, &FOLLOW_63_in_unary_ex3457);
+        	         this->matchToken(64, &FOLLOW_64_in_unary_ex3463);
         	        if  (this->hasException())
         	        {
         	            goto ruleunary_exEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_unary_ex_in_unary_ex3461);
+        	        this->followPush(FOLLOW_unary_ex_in_unary_ex3467);
         	        d=unary_ex();
 
         	        this->followPop();
@@ -5677,8 +5726,8 @@ WNScriptASTParser::post_ex_proper()
             		case STRING_TYPE:
             		case TYPE:
             		case VOID_TYPE:
-            		case 63:
-            		case 73:
+            		case 64:
+            		case 74:
             			{
             				alt25=3;
             			}
@@ -5696,7 +5745,7 @@ WNScriptASTParser::post_ex_proper()
 
             	}
                 break;
-            case 75:
+            case 76:
             	{
             		alt25=4;
             	}
@@ -5731,14 +5780,14 @@ WNScriptASTParser::post_ex_proper()
             {
         	case 1:
         	    {
-        	        d =  this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_post_ex_proper3499);
+        	        d =  this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_post_ex_proper3505);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_expr_in_post_ex_proper3503);
+        	        this->followPush(FOLLOW_expr_in_post_ex_proper3509);
         	        a=expr();
 
         	        this->followPop();
@@ -5748,7 +5797,7 @@ WNScriptASTParser::post_ex_proper()
         	        }
 
 
-        	        e =  this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_post_ex_proper3507);
+        	        e =  this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_post_ex_proper3513);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
@@ -5765,14 +5814,14 @@ WNScriptASTParser::post_ex_proper()
         	    break;
         	case 2:
         	    {
-        	        f =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_post_ex_proper3522);
+        	        f =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_post_ex_proper3528);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
         	        }
 
 
-        	        g =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_post_ex_proper3526);
+        	        g =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_post_ex_proper3532);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
@@ -5788,14 +5837,14 @@ WNScriptASTParser::post_ex_proper()
         	    break;
         	case 3:
         	    {
-        	        h =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_post_ex_proper3554);
+        	        h =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_post_ex_proper3560);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_arglist_in_post_ex_proper3560);
+        	        this->followPush(FOLLOW_arglist_in_post_ex_proper3566);
         	        b=arglist();
 
         	        this->followPop();
@@ -5805,7 +5854,7 @@ WNScriptASTParser::post_ex_proper()
         	        }
 
 
-        	        i =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_post_ex_proper3564);
+        	        i =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_post_ex_proper3570);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
@@ -5822,14 +5871,14 @@ WNScriptASTParser::post_ex_proper()
         	    break;
         	case 4:
         	    {
-        	         this->matchToken(75, &FOLLOW_75_in_post_ex_proper3577);
+        	         this->matchToken(76, &FOLLOW_76_in_post_ex_proper3583);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
         	        }
 
 
-        	        c =  this->matchToken(ID, &FOLLOW_ID_in_post_ex_proper3581);
+        	        c =  this->matchToken(ID, &FOLLOW_ID_in_post_ex_proper3587);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
@@ -5845,7 +5894,7 @@ WNScriptASTParser::post_ex_proper()
         	    break;
         	case 5:
         	    {
-        	        DOUBINC31 =  this->matchToken(DOUBINC, &FOLLOW_DOUBINC_in_post_ex_proper3608);
+        	        DOUBINC31 =  this->matchToken(DOUBINC, &FOLLOW_DOUBINC_in_post_ex_proper3614);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
@@ -5861,7 +5910,7 @@ WNScriptASTParser::post_ex_proper()
         	    break;
         	case 6:
         	    {
-        	        DOUBDEC32 =  this->matchToken(DOUBDEC, &FOLLOW_DOUBDEC_in_post_ex_proper3637);
+        	        DOUBDEC32 =  this->matchToken(DOUBDEC, &FOLLOW_DOUBDEC_in_post_ex_proper3643);
         	        if  (this->hasException())
         	        {
         	            goto rulepost_ex_properEx;
@@ -5879,7 +5928,7 @@ WNScriptASTParser::post_ex_proper()
         	    {
         	        {
         	            {
-        	                aa =  this->matchToken(LBRACE, &FOLLOW_LBRACE_in_post_ex_proper3683);
+        	                aa =  this->matchToken(LBRACE, &FOLLOW_LBRACE_in_post_ex_proper3689);
         	                if  (this->hasException())
         	                {
         	                    goto rulepost_ex_properEx;
@@ -5895,7 +5944,7 @@ WNScriptASTParser::post_ex_proper()
 
 
         	            {
-        	                this->followPush(FOLLOW_expr_in_post_ex_proper3703);
+        	                this->followPush(FOLLOW_expr_in_post_ex_proper3709);
         	                bb=expr();
 
         	                this->followPop();
@@ -5914,7 +5963,7 @@ WNScriptASTParser::post_ex_proper()
         	            }
 
 
-        	             this->matchToken(COLON, &FOLLOW_COLON_in_post_ex_proper3720);
+        	             this->matchToken(COLON, &FOLLOW_COLON_in_post_ex_proper3726);
         	            if  (this->hasException())
         	            {
         	                goto rulepost_ex_properEx;
@@ -5922,7 +5971,7 @@ WNScriptASTParser::post_ex_proper()
 
 
         	            {
-        	                this->followPush(FOLLOW_expr_in_post_ex_proper3737);
+        	                this->followPush(FOLLOW_expr_in_post_ex_proper3743);
         	                cc=expr();
 
         	                this->followPop();
@@ -5942,7 +5991,7 @@ WNScriptASTParser::post_ex_proper()
 
 
         	            {
-        	                dd =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_post_ex_proper3757);
+        	                dd =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_post_ex_proper3763);
         	                if  (this->hasException())
         	                {
         	                    goto rulepost_ex_properEx;
@@ -6004,7 +6053,7 @@ WNScriptASTParser::post_ex()
 
     {
         {
-            this->followPush(FOLLOW_prim_ex_in_post_ex3804);
+            this->followPush(FOLLOW_prim_ex_in_post_ex3810);
             prim_ex33=prim_ex();
 
             this->followPop();
@@ -6031,7 +6080,7 @@ WNScriptASTParser::post_ex()
                 case LBRACE:
                 case LBRACKET:
                 case LSQBRACKET:
-                case 75:
+                case 76:
                 	{
                 		alt26=1;
                 	}
@@ -6043,7 +6092,7 @@ WNScriptASTParser::post_ex()
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_post_ex_proper_in_post_ex3823);
+            	        this->followPush(FOLLOW_post_ex_proper_in_post_ex3829);
             	        a=post_ex_proper();
 
             	        this->followPop();
@@ -6114,7 +6163,7 @@ WNScriptASTParser::assignment_or_expression()
 
     {
         {
-            this->followPush(FOLLOW_expr_in_assignment_or_expression3854);
+            this->followPush(FOLLOW_expr_in_assignment_or_expression3860);
             a=expr();
 
             this->followPop();
@@ -6128,12 +6177,12 @@ WNScriptASTParser::assignment_or_expression()
                 int alt27=2;
                 switch ( this->LA(1) )
                 {
-                case 66:
-                case 70:
-                case 72:
-                case 74:
-                case 77:
-                case 80:
+                case 67:
+                case 71:
+                case 73:
+                case 75:
+                case 78:
+                case 81:
                 	{
                 		alt27=1;
                 	}
@@ -6160,7 +6209,7 @@ WNScriptASTParser::assignment_or_expression()
             	case 1:
             	    {
             	        {
-            	            this->followPush(FOLLOW_assign_type_in_assignment_or_expression3886);
+            	            this->followPush(FOLLOW_assign_type_in_assignment_or_expression3892);
             	            b=assign_type();
 
             	            this->followPop();
@@ -6170,7 +6219,7 @@ WNScriptASTParser::assignment_or_expression()
             	            }
 
 
-            	            this->followPush(FOLLOW_expr_in_assignment_or_expression3890);
+            	            this->followPush(FOLLOW_expr_in_assignment_or_expression3896);
             	            c=expr();
 
             	            this->followPop();
@@ -6338,7 +6387,7 @@ WNScriptASTParser::constant()
             {
         	case 1:
         	    {
-        	        a =  this->matchToken(INT, &FOLLOW_INT_in_constant3956);
+        	        a =  this->matchToken(INT, &FOLLOW_INT_in_constant3962);
         	        if  (this->hasException())
         	        {
         	            goto ruleconstantEx;
@@ -6354,7 +6403,7 @@ WNScriptASTParser::constant()
         	    break;
         	case 2:
         	    {
-        	        b =  this->matchToken(FLOAT, &FOLLOW_FLOAT_in_constant3974);
+        	        b =  this->matchToken(FLOAT, &FOLLOW_FLOAT_in_constant3980);
         	        if  (this->hasException())
         	        {
         	            goto ruleconstantEx;
@@ -6370,7 +6419,7 @@ WNScriptASTParser::constant()
         	    break;
         	case 3:
         	    {
-        	        c =  this->matchToken(CHAR, &FOLLOW_CHAR_in_constant3990);
+        	        c =  this->matchToken(CHAR, &FOLLOW_CHAR_in_constant3996);
         	        if  (this->hasException())
         	        {
         	            goto ruleconstantEx;
@@ -6386,7 +6435,7 @@ WNScriptASTParser::constant()
         	    break;
         	case 4:
         	    {
-        	        d =  this->matchToken(STRING, &FOLLOW_STRING_in_constant4007);
+        	        d =  this->matchToken(STRING, &FOLLOW_STRING_in_constant4013);
         	        if  (this->hasException())
         	        {
         	            goto ruleconstantEx;
@@ -6402,7 +6451,7 @@ WNScriptASTParser::constant()
         	    break;
         	case 5:
         	    {
-        	        e =  this->matchToken(BOOL, &FOLLOW_BOOL_in_constant4022);
+        	        e =  this->matchToken(BOOL, &FOLLOW_BOOL_in_constant4028);
         	        if  (this->hasException())
         	        {
         	            goto ruleconstantEx;
@@ -6418,7 +6467,7 @@ WNScriptASTParser::constant()
         	    break;
         	case 6:
         	    {
-        	        g =  this->matchToken(NULLTOK, &FOLLOW_NULLTOK_in_constant4039);
+        	        g =  this->matchToken(NULLTOK, &FOLLOW_NULLTOK_in_constant4045);
         	        if  (this->hasException())
         	        {
         	            goto ruleconstantEx;
@@ -6434,7 +6483,7 @@ WNScriptASTParser::constant()
         	    break;
         	case 7:
         	    {
-        	        this->followPush(FOLLOW_scalarType_in_constant4054);
+        	        this->followPush(FOLLOW_scalarType_in_constant4060);
         	        f=scalarType();
 
         	        this->followPop();
@@ -6444,21 +6493,21 @@ WNScriptASTParser::constant()
         	        }
 
 
-        	        g =  this->matchToken(LBRACE, &FOLLOW_LBRACE_in_constant4058);
+        	        g =  this->matchToken(LBRACE, &FOLLOW_LBRACE_in_constant4064);
         	        if  (this->hasException())
         	        {
         	            goto ruleconstantEx;
         	        }
 
 
-        	        h =  this->matchToken(STRING, &FOLLOW_STRING_in_constant4062);
+        	        h =  this->matchToken(STRING, &FOLLOW_STRING_in_constant4068);
         	        if  (this->hasException())
         	        {
         	            goto ruleconstantEx;
         	        }
 
 
-        	        i =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_constant4066);
+        	        i =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_constant4072);
         	        if  (this->hasException())
         	        {
         	            goto ruleconstantEx;
@@ -6518,21 +6567,21 @@ WNScriptASTParser::builtin_unary()
 
     {
         {
-            LENGTH35 =  this->matchToken(LENGTH, &FOLLOW_LENGTH_in_builtin_unary4095);
+            LENGTH35 =  this->matchToken(LENGTH, &FOLLOW_LENGTH_in_builtin_unary4101);
             if  (this->hasException())
             {
                 goto rulebuiltin_unaryEx;
             }
 
 
-             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_builtin_unary4097);
+             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_builtin_unary4103);
             if  (this->hasException())
             {
                 goto rulebuiltin_unaryEx;
             }
 
 
-            this->followPush(FOLLOW_expr_in_builtin_unary4099);
+            this->followPush(FOLLOW_expr_in_builtin_unary4105);
             expr34=expr();
 
             this->followPop();
@@ -6542,7 +6591,7 @@ WNScriptASTParser::builtin_unary()
             }
 
 
-            RBRACKET36 =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_builtin_unary4101);
+            RBRACKET36 =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_builtin_unary4107);
             if  (this->hasException())
             {
                 goto rulebuiltin_unaryEx;
@@ -6922,7 +6971,7 @@ WNScriptASTParser::non_array_prim_ex()
             {
         	case 1:
         	    {
-        	        ID37 =  this->matchToken(ID, &FOLLOW_ID_in_non_array_prim_ex4130);
+        	        ID37 =  this->matchToken(ID, &FOLLOW_ID_in_non_array_prim_ex4136);
         	        if  (this->hasException())
         	        {
         	            goto rulenon_array_prim_exEx;
@@ -6938,14 +6987,14 @@ WNScriptASTParser::non_array_prim_ex()
         	    break;
         	case 2:
         	    {
-        	        ba =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_non_array_prim_ex4144);
+        	        ba =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_non_array_prim_ex4150);
         	        if  (this->hasException())
         	        {
         	            goto rulenon_array_prim_exEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_expr_in_non_array_prim_ex4148);
+        	        this->followPush(FOLLOW_expr_in_non_array_prim_ex4154);
         	        a=expr();
 
         	        this->followPop();
@@ -6955,7 +7004,7 @@ WNScriptASTParser::non_array_prim_ex()
         	        }
 
 
-        	        bb =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_non_array_prim_ex4152);
+        	        bb =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_non_array_prim_ex4158);
         	        if  (this->hasException())
         	        {
         	            goto rulenon_array_prim_exEx;
@@ -6972,28 +7021,28 @@ WNScriptASTParser::non_array_prim_ex()
         	    break;
         	case 3:
         	    {
-        	        RESOURCE38 =  this->matchToken(RESOURCE, &FOLLOW_RESOURCE_in_non_array_prim_ex4164);
+        	        RESOURCE38 =  this->matchToken(RESOURCE, &FOLLOW_RESOURCE_in_non_array_prim_ex4170);
         	        if  (this->hasException())
         	        {
         	            goto rulenon_array_prim_exEx;
         	        }
 
 
-        	        rlb =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_non_array_prim_ex4168);
+        	        rlb =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_non_array_prim_ex4174);
         	        if  (this->hasException())
         	        {
         	            goto rulenon_array_prim_exEx;
         	        }
 
 
-        	        rls =  this->matchToken(STRING, &FOLLOW_STRING_in_non_array_prim_ex4172);
+        	        rls =  this->matchToken(STRING, &FOLLOW_STRING_in_non_array_prim_ex4178);
         	        if  (this->hasException())
         	        {
         	            goto rulenon_array_prim_exEx;
         	        }
 
 
-        	        rrb =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_non_array_prim_ex4176);
+        	        rrb =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_non_array_prim_ex4182);
         	        if  (this->hasException())
         	        {
         	            goto rulenon_array_prim_exEx;
@@ -7009,35 +7058,35 @@ WNScriptASTParser::non_array_prim_ex()
         	    break;
         	case 4:
         	    {
-        	        RESOURCE39 =  this->matchToken(RESOURCE, &FOLLOW_RESOURCE_in_non_array_prim_ex4188);
+        	        RESOURCE39 =  this->matchToken(RESOURCE, &FOLLOW_RESOURCE_in_non_array_prim_ex4194);
         	        if  (this->hasException())
         	        {
         	            goto rulenon_array_prim_exEx;
         	        }
 
 
-        	        rlb2 =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_non_array_prim_ex4192);
+        	        rlb2 =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_non_array_prim_ex4198);
         	        if  (this->hasException())
         	        {
         	            goto rulenon_array_prim_exEx;
         	        }
 
 
-        	        rls2 =  this->matchToken(STRING, &FOLLOW_STRING_in_non_array_prim_ex4196);
+        	        rls2 =  this->matchToken(STRING, &FOLLOW_STRING_in_non_array_prim_ex4202);
         	        if  (this->hasException())
         	        {
         	            goto rulenon_array_prim_exEx;
         	        }
 
 
-        	         this->matchToken(COMMA, &FOLLOW_COMMA_in_non_array_prim_ex4198);
+        	         this->matchToken(COMMA, &FOLLOW_COMMA_in_non_array_prim_ex4204);
         	        if  (this->hasException())
         	        {
         	            goto rulenon_array_prim_exEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_arglist_in_non_array_prim_ex4202);
+        	        this->followPush(FOLLOW_arglist_in_non_array_prim_ex4208);
         	        rla=arglist();
 
         	        this->followPop();
@@ -7047,7 +7096,7 @@ WNScriptASTParser::non_array_prim_ex()
         	        }
 
 
-        	        rrb2 =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_non_array_prim_ex4206);
+        	        rrb2 =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_non_array_prim_ex4212);
         	        if  (this->hasException())
         	        {
         	            goto rulenon_array_prim_exEx;
@@ -7065,7 +7114,7 @@ WNScriptASTParser::non_array_prim_ex()
         	    break;
         	case 5:
         	    {
-        	        this->followPush(FOLLOW_constant_in_non_array_prim_ex4220);
+        	        this->followPush(FOLLOW_constant_in_non_array_prim_ex4226);
         	        b=constant();
 
         	        this->followPop();
@@ -7085,7 +7134,7 @@ WNScriptASTParser::non_array_prim_ex()
         	    break;
         	case 6:
         	    {
-        	        this->followPush(FOLLOW_scalarType_in_non_array_prim_ex4235);
+        	        this->followPush(FOLLOW_scalarType_in_non_array_prim_ex4241);
         	        c=scalarType();
 
         	        this->followPop();
@@ -7096,7 +7145,7 @@ WNScriptASTParser::non_array_prim_ex()
 
 
         	        {
-        	            this->followPush(FOLLOW_cast_in_non_array_prim_ex4241);
+        	            this->followPush(FOLLOW_cast_in_non_array_prim_ex4247);
         	            f=cast();
 
         	            this->followPop();
@@ -7122,7 +7171,7 @@ WNScriptASTParser::non_array_prim_ex()
         	    break;
         	case 7:
         	    {
-        	        this->followPush(FOLLOW_objectType_in_non_array_prim_ex4256);
+        	        this->followPush(FOLLOW_objectType_in_non_array_prim_ex4262);
         	        e=objectType();
 
         	        this->followPop();
@@ -7132,7 +7181,7 @@ WNScriptASTParser::non_array_prim_ex()
         	        }
 
 
-        	        this->followPush(FOLLOW_structInit_in_non_array_prim_ex4260);
+        	        this->followPush(FOLLOW_structInit_in_non_array_prim_ex4266);
         	        h=structInit();
 
         	        this->followPop();
@@ -7155,14 +7204,14 @@ WNScriptASTParser::non_array_prim_ex()
         	    break;
         	case 8:
         	    {
-        	         this->matchToken(SHARED_REF, &FOLLOW_SHARED_REF_in_non_array_prim_ex4272);
+        	         this->matchToken(SHARED_REF, &FOLLOW_SHARED_REF_in_non_array_prim_ex4278);
         	        if  (this->hasException())
         	        {
         	            goto rulenon_array_prim_exEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_objectType_in_non_array_prim_ex4276);
+        	        this->followPush(FOLLOW_objectType_in_non_array_prim_ex4282);
         	        i=objectType();
 
         	        this->followPop();
@@ -7172,7 +7221,7 @@ WNScriptASTParser::non_array_prim_ex()
         	        }
 
 
-        	        this->followPush(FOLLOW_structInit_in_non_array_prim_ex4280);
+        	        this->followPush(FOLLOW_structInit_in_non_array_prim_ex4286);
         	        j=structInit();
 
         	        this->followPop();
@@ -7196,7 +7245,7 @@ WNScriptASTParser::non_array_prim_ex()
         	    break;
         	case 9:
         	    {
-        	        this->followPush(FOLLOW_builtin_unary_in_non_array_prim_ex4294);
+        	        this->followPush(FOLLOW_builtin_unary_in_non_array_prim_ex4300);
         	        u=builtin_unary();
 
         	        this->followPop();
@@ -7582,7 +7631,7 @@ WNScriptASTParser::prim_ex()
             {
         	case 1:
         	    {
-        	        this->followPush(FOLLOW_non_array_prim_ex_in_prim_ex4323);
+        	        this->followPush(FOLLOW_non_array_prim_ex_in_prim_ex4329);
         	        non_array_prim_ex40=non_array_prim_ex();
 
         	        this->followPop();
@@ -7602,7 +7651,7 @@ WNScriptASTParser::prim_ex()
         	    break;
         	case 2:
         	    {
-        	        this->followPush(FOLLOW_nonArrayType_in_prim_ex4337);
+        	        this->followPush(FOLLOW_nonArrayType_in_prim_ex4343);
         	        k=nonArrayType();
 
         	        this->followPop();
@@ -7612,7 +7661,7 @@ WNScriptASTParser::prim_ex()
         	        }
 
 
-        	        this->followPush(FOLLOW_arrayInit_in_prim_ex4341);
+        	        this->followPush(FOLLOW_arrayInit_in_prim_ex4347);
         	        l=arrayInit();
 
         	        this->followPop();
@@ -7635,14 +7684,14 @@ WNScriptASTParser::prim_ex()
         	    break;
         	case 3:
         	    {
-        	         this->matchToken(SHARED_REF, &FOLLOW_SHARED_REF_in_prim_ex4353);
+        	         this->matchToken(SHARED_REF, &FOLLOW_SHARED_REF_in_prim_ex4359);
         	        if  (this->hasException())
         	        {
         	            goto ruleprim_exEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_nonArrayType_in_prim_ex4357);
+        	        this->followPush(FOLLOW_nonArrayType_in_prim_ex4363);
         	        m=nonArrayType();
 
         	        this->followPop();
@@ -7652,7 +7701,7 @@ WNScriptASTParser::prim_ex()
         	        }
 
 
-        	        this->followPush(FOLLOW_arrayInit_in_prim_ex4361);
+        	        this->followPush(FOLLOW_arrayInit_in_prim_ex4367);
         	        n=arrayInit();
 
         	        this->followPop();
@@ -7717,14 +7766,14 @@ WNScriptASTParser::cast()
 
     {
         {
-            a =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_cast4390);
+            a =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_cast4396);
             if  (this->hasException())
             {
                 goto rulecastEx;
             }
 
 
-            this->followPush(FOLLOW_expr_in_cast4394);
+            this->followPush(FOLLOW_expr_in_cast4400);
             b=expr();
 
             this->followPop();
@@ -7734,7 +7783,7 @@ WNScriptASTParser::cast()
             }
 
 
-            c =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_cast4398);
+            c =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_cast4404);
             if  (this->hasException())
             {
                 goto rulecastEx;
@@ -7828,8 +7877,8 @@ WNScriptASTParser::structInit()
             		case STRING_TYPE:
             		case TYPE:
             		case VOID_TYPE:
-            		case 63:
-            		case 73:
+            		case 64:
+            		case 74:
             			{
             				alt31=2;
             			}
@@ -7863,14 +7912,14 @@ WNScriptASTParser::structInit()
         	case 1:
         	    {
         	        {
-        	            a =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_structInit4428);
+        	            a =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_structInit4434);
         	            if  (this->hasException())
         	            {
         	                goto rulestructInitEx;
         	            }
 
 
-        	            b =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_structInit4432);
+        	            b =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_structInit4438);
         	            if  (this->hasException())
         	            {
         	                goto rulestructInitEx;
@@ -7890,14 +7939,14 @@ WNScriptASTParser::structInit()
         	case 2:
         	    {
         	        {
-        	            c =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_structInit4446);
+        	            c =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_structInit4452);
         	            if  (this->hasException())
         	            {
         	                goto rulestructInitEx;
         	            }
 
 
-        	            this->followPush(FOLLOW_arglist_in_structInit4450);
+        	            this->followPush(FOLLOW_arglist_in_structInit4456);
         	            d=arglist();
 
         	            this->followPop();
@@ -7907,7 +7956,7 @@ WNScriptASTParser::structInit()
         	            }
 
 
-        	            e =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_structInit4454);
+        	            e =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_structInit4460);
         	            if  (this->hasException())
         	            {
         	                goto rulestructInitEx;
@@ -8008,8 +8057,8 @@ WNScriptASTParser::arrayInit()
             		case STRING_TYPE:
             		case TYPE:
             		case VOID_TYPE:
-            		case 63:
-            		case 73:
+            		case 64:
+            		case 74:
             			{
             				alt34=1;
             			}
@@ -8057,8 +8106,8 @@ WNScriptASTParser::arrayInit()
             		case STRING_TYPE:
             		case TYPE:
             		case VOID_TYPE:
-            		case 63:
-            		case 73:
+            		case 64:
+            		case 74:
             			{
             				alt34=1;
             			}
@@ -8122,14 +8171,14 @@ WNScriptASTParser::arrayInit()
         	            	case 1:
         	            	    {
         	            	        {
-        	            	             this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_arrayInit4506);
+        	            	             this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_arrayInit4512);
         	            	            if  (this->hasException())
         	            	            {
         	            	                goto rulearrayInitEx;
         	            	            }
 
 
-        	            	            this->followPush(FOLLOW_expr_in_arrayInit4510);
+        	            	            this->followPush(FOLLOW_expr_in_arrayInit4516);
         	            	            e=expr();
 
         	            	            this->followPop();
@@ -8139,7 +8188,7 @@ WNScriptASTParser::arrayInit()
         	            	            }
 
 
-        	            	             this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_arrayInit4512);
+        	            	             this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_arrayInit4518);
         	            	            if  (this->hasException())
         	            	            {
         	            	                goto rulearrayInitEx;
@@ -8160,14 +8209,14 @@ WNScriptASTParser::arrayInit()
         	            	case 2:
         	            	    {
         	            	        {
-        	            	             this->matchToken(DLSQBRACKET, &FOLLOW_DLSQBRACKET_in_arrayInit4539);
+        	            	             this->matchToken(DLSQBRACKET, &FOLLOW_DLSQBRACKET_in_arrayInit4545);
         	            	            if  (this->hasException())
         	            	            {
         	            	                goto rulearrayInitEx;
         	            	            }
 
 
-        	            	            this->followPush(FOLLOW_expr_in_arrayInit4543);
+        	            	            this->followPush(FOLLOW_expr_in_arrayInit4549);
         	            	            f=expr();
 
         	            	            this->followPop();
@@ -8177,7 +8226,7 @@ WNScriptASTParser::arrayInit()
         	            	            }
 
 
-        	            	             this->matchToken(DRSQBRACKET, &FOLLOW_DRSQBRACKET_in_arrayInit4545);
+        	            	             this->matchToken(DRSQBRACKET, &FOLLOW_DRSQBRACKET_in_arrayInit4551);
         	            	            if  (this->hasException())
         	            	            {
         	            	                goto rulearrayInitEx;
@@ -8200,14 +8249,14 @@ WNScriptASTParser::arrayInit()
         	            }
 
         	            {
-        	                 this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_arrayInit4564);
+        	                 this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_arrayInit4570);
         	                if  (this->hasException())
         	                {
         	                    goto rulearrayInitEx;
         	                }
 
 
-        	                this->followPush(FOLLOW_expr_in_arrayInit4568);
+        	                this->followPush(FOLLOW_expr_in_arrayInit4574);
         	                b=expr();
 
         	                this->followPop();
@@ -8217,7 +8266,7 @@ WNScriptASTParser::arrayInit()
         	                }
 
 
-        	                c =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_arrayInit4572);
+        	                c =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_arrayInit4578);
         	                if  (this->hasException())
         	                {
         	                    goto rulearrayInitEx;
@@ -8270,14 +8319,14 @@ WNScriptASTParser::arrayInit()
         	            	case 1:
         	            	    {
         	            	        {
-        	            	             this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_arrayInit4614);
+        	            	             this->matchToken(LSQBRACKET, &FOLLOW_LSQBRACKET_in_arrayInit4620);
         	            	            if  (this->hasException())
         	            	            {
         	            	                goto rulearrayInitEx;
         	            	            }
 
 
-        	            	             this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_arrayInit4616);
+        	            	             this->matchToken(RSQBRACKET, &FOLLOW_RSQBRACKET_in_arrayInit4622);
         	            	            if  (this->hasException())
         	            	            {
         	            	                goto rulearrayInitEx;
@@ -8292,14 +8341,14 @@ WNScriptASTParser::arrayInit()
         	            	case 2:
         	            	    {
         	            	        {
-        	            	             this->matchToken(DLSQBRACKET, &FOLLOW_DLSQBRACKET_in_arrayInit4622);
+        	            	             this->matchToken(DLSQBRACKET, &FOLLOW_DLSQBRACKET_in_arrayInit4628);
         	            	            if  (this->hasException())
         	            	            {
         	            	                goto rulearrayInitEx;
         	            	            }
 
 
-        	            	             this->matchToken(DRSQBRACKET, &FOLLOW_DRSQBRACKET_in_arrayInit4624);
+        	            	             this->matchToken(DRSQBRACKET, &FOLLOW_DRSQBRACKET_in_arrayInit4630);
         	            	            if  (this->hasException())
         	            	            {
         	            	                goto rulearrayInitEx;
@@ -8321,14 +8370,14 @@ WNScriptASTParser::arrayInit()
         	            }
 
         	            {
-        	                 this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_arrayInit4643);
+        	                 this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_arrayInit4649);
         	                if  (this->hasException())
         	                {
         	                    goto rulearrayInitEx;
         	                }
 
 
-        	                this->followPush(FOLLOW_arglist_in_arrayInit4647);
+        	                this->followPush(FOLLOW_arglist_in_arrayInit4653);
         	                g=arglist();
 
         	                this->followPop();
@@ -8338,7 +8387,7 @@ WNScriptASTParser::arrayInit()
         	                }
 
 
-        	                h =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_arrayInit4651);
+        	                h =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_arrayInit4657);
         	                if  (this->hasException())
         	                {
         	                    goto rulearrayInitEx;
@@ -8400,7 +8449,7 @@ WNScriptASTParser::declaration()
 
     {
         {
-            this->followPush(FOLLOW_param_in_declaration4694);
+            this->followPush(FOLLOW_param_in_declaration4700);
             a=param();
 
             this->followPop();
@@ -8419,7 +8468,7 @@ WNScriptASTParser::declaration()
 
             {
                 {
-                     this->matchToken(80, &FOLLOW_80_in_declaration4729);
+                     this->matchToken(81, &FOLLOW_81_in_declaration4735);
                     if  (this->hasException())
                     {
                         goto ruledeclarationEx;
@@ -8428,7 +8477,7 @@ WNScriptASTParser::declaration()
 
                     {
                         {
-                            this->followPush(FOLLOW_expr_in_declaration4736);
+                            this->followPush(FOLLOW_expr_in_declaration4742);
                             c=expr();
 
                             this->followPop();
@@ -8499,14 +8548,14 @@ WNScriptASTParser::inherited_declaration()
 
     {
         {
-             this->matchToken(75, &FOLLOW_75_in_inherited_declaration4786);
+             this->matchToken(76, &FOLLOW_76_in_inherited_declaration4792);
             if  (this->hasException())
             {
                 goto ruleinherited_declarationEx;
             }
 
 
-            a =  this->matchToken(ID, &FOLLOW_ID_in_inherited_declaration4790);
+            a =  this->matchToken(ID, &FOLLOW_ID_in_inherited_declaration4796);
             if  (this->hasException())
             {
                 goto ruleinherited_declarationEx;
@@ -8519,7 +8568,7 @@ WNScriptASTParser::inherited_declaration()
 
 
             {
-                 this->matchToken(80, &FOLLOW_80_in_inherited_declaration4803);
+                 this->matchToken(81, &FOLLOW_81_in_inherited_declaration4809);
                 if  (this->hasException())
                 {
                     goto ruleinherited_declarationEx;
@@ -8551,8 +8600,8 @@ WNScriptASTParser::inherited_declaration()
                     case STRING_TYPE:
                     case TYPE:
                     case VOID_TYPE:
-                    case 63:
-                    case 73:
+                    case 64:
+                    case 74:
                     	{
                     		alt35=1;
                     	}
@@ -8578,7 +8627,7 @@ WNScriptASTParser::inherited_declaration()
                 	case 1:
                 	    {
                 	        {
-                	            this->followPush(FOLLOW_expr_in_inherited_declaration4839);
+                	            this->followPush(FOLLOW_expr_in_inherited_declaration4845);
                 	            c=expr();
 
                 	            this->followPop();
@@ -8603,7 +8652,7 @@ WNScriptASTParser::inherited_declaration()
                 	case 2:
                 	    {
                 	        {
-                	            d =  this->matchToken(DEFAULT, &FOLLOW_DEFAULT_in_inherited_declaration4865);
+                	            d =  this->matchToken(DEFAULT, &FOLLOW_DEFAULT_in_inherited_declaration4871);
                 	            if  (this->hasException())
                 	            {
                 	                goto ruleinherited_declarationEx;
@@ -8756,21 +8805,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -8827,21 +8876,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -8898,21 +8947,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -8969,21 +9018,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -9040,21 +9089,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -9111,21 +9160,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -9194,21 +9243,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -9323,21 +9372,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -9452,21 +9501,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -9581,21 +9630,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -9710,21 +9759,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -9839,21 +9888,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -9968,21 +10017,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -10054,8 +10103,8 @@ WNScriptASTParser::instructionScalar()
             				case RESOURCE:
             				case SHARED_REF:
             				case TYPE:
-            				case 63:
-            				case 73:
+            				case 64:
+            				case 74:
             					{
             						alt36=2;
             					}
@@ -10125,8 +10174,8 @@ WNScriptASTParser::instructionScalar()
             				case STRING_TYPE:
             				case TYPE:
             				case VOID_TYPE:
-            				case 63:
-            				case 73:
+            				case 64:
+            				case 74:
             					{
             						alt36=2;
             					}
@@ -10244,21 +10293,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -10315,21 +10364,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -10386,21 +10435,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -10457,21 +10506,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -10528,21 +10577,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -10599,21 +10648,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -10682,21 +10731,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -10811,21 +10860,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -10940,21 +10989,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -11069,21 +11118,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -11198,21 +11247,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -11327,21 +11376,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -11456,21 +11505,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -11542,8 +11591,8 @@ WNScriptASTParser::instructionScalar()
             				case RESOURCE:
             				case SHARED_REF:
             				case TYPE:
-            				case 63:
-            				case 73:
+            				case 64:
+            				case 74:
             					{
             						alt36=2;
             					}
@@ -11613,8 +11662,8 @@ WNScriptASTParser::instructionScalar()
             				case STRING_TYPE:
             				case TYPE:
             				case VOID_TYPE:
-            				case 63:
-            				case 73:
+            				case 64:
+            				case 74:
             					{
             						alt36=2;
             					}
@@ -11732,21 +11781,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -11803,21 +11852,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -11874,21 +11923,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -11945,21 +11994,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -12016,21 +12065,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -12087,21 +12136,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -12170,21 +12219,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -12299,21 +12348,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -12428,21 +12477,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -12557,21 +12606,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -12686,21 +12735,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -12815,21 +12864,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -12944,21 +12993,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -13030,8 +13079,8 @@ WNScriptASTParser::instructionScalar()
             				case RESOURCE:
             				case SHARED_REF:
             				case TYPE:
-            				case 63:
-            				case 73:
+            				case 64:
+            				case 74:
             					{
             						alt36=2;
             					}
@@ -13101,8 +13150,8 @@ WNScriptASTParser::instructionScalar()
             				case STRING_TYPE:
             				case TYPE:
             				case VOID_TYPE:
-            				case 63:
-            				case 73:
+            				case 64:
+            				case 74:
             					{
             						alt36=2;
             					}
@@ -13220,21 +13269,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -13291,21 +13340,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -13362,21 +13411,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -13433,21 +13482,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -13504,21 +13553,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -13575,21 +13624,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -13658,21 +13707,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -13787,21 +13836,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -13916,21 +13965,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -14045,21 +14094,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -14174,21 +14223,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -14303,21 +14352,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -14432,21 +14481,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -14518,8 +14567,8 @@ WNScriptASTParser::instructionScalar()
             				case RESOURCE:
             				case SHARED_REF:
             				case TYPE:
-            				case 63:
-            				case 73:
+            				case 64:
+            				case 74:
             					{
             						alt36=2;
             					}
@@ -14589,8 +14638,8 @@ WNScriptASTParser::instructionScalar()
             				case STRING_TYPE:
             				case TYPE:
             				case VOID_TYPE:
-            				case 63:
-            				case 73:
+            				case 64:
+            				case 74:
             					{
             						alt36=2;
             					}
@@ -14708,21 +14757,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -14779,21 +14828,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -14850,21 +14899,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -14921,21 +14970,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -14992,21 +15041,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -15063,21 +15112,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -15146,21 +15195,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -15275,21 +15324,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -15404,21 +15453,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -15533,21 +15582,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -15662,21 +15711,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -15791,21 +15840,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -15920,21 +15969,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -16006,8 +16055,8 @@ WNScriptASTParser::instructionScalar()
             				case RESOURCE:
             				case SHARED_REF:
             				case TYPE:
-            				case 63:
-            				case 73:
+            				case 64:
+            				case 74:
             					{
             						alt36=2;
             					}
@@ -16077,8 +16126,8 @@ WNScriptASTParser::instructionScalar()
             				case STRING_TYPE:
             				case TYPE:
             				case VOID_TYPE:
-            				case 63:
-            				case 73:
+            				case 64:
+            				case 74:
             					{
             						alt36=2;
             					}
@@ -16196,21 +16245,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -16267,21 +16316,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -16338,21 +16387,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -16409,21 +16458,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -16480,21 +16529,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -16551,21 +16600,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -16634,21 +16683,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -16763,21 +16812,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -16892,21 +16941,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -17021,21 +17070,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -17150,21 +17199,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -17279,21 +17328,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -17408,21 +17457,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -17494,8 +17543,8 @@ WNScriptASTParser::instructionScalar()
             				case RESOURCE:
             				case SHARED_REF:
             				case TYPE:
-            				case 63:
-            				case 73:
+            				case 64:
+            				case 74:
             					{
             						alt36=2;
             					}
@@ -17565,8 +17614,8 @@ WNScriptASTParser::instructionScalar()
             				case STRING_TYPE:
             				case TYPE:
             				case VOID_TYPE:
-            				case 63:
-            				case 73:
+            				case 64:
+            				case 74:
             					{
             						alt36=2;
             					}
@@ -17684,21 +17733,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -17755,21 +17804,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -17826,21 +17875,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -17897,21 +17946,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -17968,21 +18017,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -18039,21 +18088,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -18122,21 +18171,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -18251,21 +18300,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -18380,21 +18429,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -18509,21 +18558,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -18638,21 +18687,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -18767,21 +18816,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -18896,21 +18945,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -18982,8 +19031,8 @@ WNScriptASTParser::instructionScalar()
             				case RESOURCE:
             				case SHARED_REF:
             				case TYPE:
-            				case 63:
-            				case 73:
+            				case 64:
+            				case 74:
             					{
             						alt36=2;
             					}
@@ -19053,8 +19102,8 @@ WNScriptASTParser::instructionScalar()
             				case STRING_TYPE:
             				case TYPE:
             				case VOID_TYPE:
-            				case 63:
-            				case 73:
+            				case 64:
+            				case 74:
             					{
             						alt36=2;
             					}
@@ -19171,21 +19220,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -19242,21 +19291,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -19313,21 +19362,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -19384,21 +19433,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -19455,21 +19504,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -19526,21 +19575,21 @@ WNScriptASTParser::instructionScalar()
             						case QUESTION:
             						case SLICETOK:
             						case SSOR:
-            						case 64:
             						case 65:
-            						case 67:
+            						case 66:
             						case 68:
             						case 69:
-            						case 71:
-            						case 73:
-            						case 75:
+            						case 70:
+            						case 72:
+            						case 74:
             						case 76:
-            						case 78:
+            						case 77:
             						case 79:
-            						case 81:
+            						case 80:
             						case 82:
             						case 83:
             						case 84:
+            						case 85:
             							{
             								alt36=2;
             							}
@@ -19609,21 +19658,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -19738,21 +19787,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -19867,21 +19916,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -19996,21 +20045,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -20125,21 +20174,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -20254,21 +20303,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -20383,21 +20432,21 @@ WNScriptASTParser::instructionScalar()
             												case QUESTION:
             												case SLICETOK:
             												case SSOR:
-            												case 64:
             												case 65:
-            												case 67:
+            												case 66:
             												case 68:
             												case 69:
-            												case 71:
-            												case 73:
-            												case 75:
+            												case 70:
+            												case 72:
+            												case 74:
             												case 76:
-            												case 78:
+            												case 77:
             												case 79:
-            												case 81:
+            												case 80:
             												case 82:
             												case 83:
             												case 84:
+            												case 85:
             													{
             														alt36=2;
             													}
@@ -20469,8 +20518,8 @@ WNScriptASTParser::instructionScalar()
             				case RESOURCE:
             				case SHARED_REF:
             				case TYPE:
-            				case 63:
-            				case 73:
+            				case 64:
+            				case 74:
             					{
             						alt36=2;
             					}
@@ -20540,8 +20589,8 @@ WNScriptASTParser::instructionScalar()
             				case STRING_TYPE:
             				case TYPE:
             				case VOID_TYPE:
-            				case 63:
-            				case 73:
+            				case 64:
+            				case 74:
             					{
             						alt36=2;
             					}
@@ -20655,21 +20704,21 @@ WNScriptASTParser::instructionScalar()
             								case QUESTION:
             								case SLICETOK:
             								case SSOR:
-            								case 64:
             								case 65:
-            								case 67:
+            								case 66:
             								case 68:
             								case 69:
-            								case 71:
-            								case 73:
-            								case 75:
+            								case 70:
+            								case 72:
+            								case 74:
             								case 76:
-            								case 78:
+            								case 77:
             								case 79:
-            								case 81:
+            								case 80:
             								case 82:
             								case 83:
             								case 84:
+            								case 85:
             									{
             										alt36=2;
             									}
@@ -20726,21 +20775,21 @@ WNScriptASTParser::instructionScalar()
             								case QUESTION:
             								case SLICETOK:
             								case SSOR:
-            								case 64:
             								case 65:
-            								case 67:
+            								case 66:
             								case 68:
             								case 69:
-            								case 71:
-            								case 73:
-            								case 75:
+            								case 70:
+            								case 72:
+            								case 74:
             								case 76:
-            								case 78:
+            								case 77:
             								case 79:
-            								case 81:
+            								case 80:
             								case 82:
             								case 83:
             								case 84:
+            								case 85:
             									{
             										alt36=2;
             									}
@@ -20797,21 +20846,21 @@ WNScriptASTParser::instructionScalar()
             								case QUESTION:
             								case SLICETOK:
             								case SSOR:
-            								case 64:
             								case 65:
-            								case 67:
+            								case 66:
             								case 68:
             								case 69:
-            								case 71:
-            								case 73:
-            								case 75:
+            								case 70:
+            								case 72:
+            								case 74:
             								case 76:
-            								case 78:
+            								case 77:
             								case 79:
-            								case 81:
+            								case 80:
             								case 82:
             								case 83:
             								case 84:
+            								case 85:
             									{
             										alt36=2;
             									}
@@ -20868,21 +20917,21 @@ WNScriptASTParser::instructionScalar()
             								case QUESTION:
             								case SLICETOK:
             								case SSOR:
-            								case 64:
             								case 65:
-            								case 67:
+            								case 66:
             								case 68:
             								case 69:
-            								case 71:
-            								case 73:
-            								case 75:
+            								case 70:
+            								case 72:
+            								case 74:
             								case 76:
-            								case 78:
+            								case 77:
             								case 79:
-            								case 81:
+            								case 80:
             								case 82:
             								case 83:
             								case 84:
+            								case 85:
             									{
             										alt36=2;
             									}
@@ -20939,21 +20988,21 @@ WNScriptASTParser::instructionScalar()
             								case QUESTION:
             								case SLICETOK:
             								case SSOR:
-            								case 64:
             								case 65:
-            								case 67:
+            								case 66:
             								case 68:
             								case 69:
-            								case 71:
-            								case 73:
-            								case 75:
+            								case 70:
+            								case 72:
+            								case 74:
             								case 76:
-            								case 78:
+            								case 77:
             								case 79:
-            								case 81:
+            								case 80:
             								case 82:
             								case 83:
             								case 84:
+            								case 85:
             									{
             										alt36=2;
             									}
@@ -21010,21 +21059,21 @@ WNScriptASTParser::instructionScalar()
             								case QUESTION:
             								case SLICETOK:
             								case SSOR:
-            								case 64:
             								case 65:
-            								case 67:
+            								case 66:
             								case 68:
             								case 69:
-            								case 71:
-            								case 73:
-            								case 75:
+            								case 70:
+            								case 72:
+            								case 74:
             								case 76:
-            								case 78:
+            								case 77:
             								case 79:
-            								case 81:
+            								case 80:
             								case 82:
             								case 83:
             								case 84:
+            								case 85:
             									{
             										alt36=2;
             									}
@@ -21093,21 +21142,21 @@ WNScriptASTParser::instructionScalar()
             														case QUESTION:
             														case SLICETOK:
             														case SSOR:
-            														case 64:
             														case 65:
-            														case 67:
+            														case 66:
             														case 68:
             														case 69:
-            														case 71:
-            														case 73:
-            														case 75:
+            														case 70:
+            														case 72:
+            														case 74:
             														case 76:
-            														case 78:
+            														case 77:
             														case 79:
-            														case 81:
+            														case 80:
             														case 82:
             														case 83:
             														case 84:
+            														case 85:
             															{
             																alt36=2;
             															}
@@ -21222,21 +21271,21 @@ WNScriptASTParser::instructionScalar()
             														case QUESTION:
             														case SLICETOK:
             														case SSOR:
-            														case 64:
             														case 65:
-            														case 67:
+            														case 66:
             														case 68:
             														case 69:
-            														case 71:
-            														case 73:
-            														case 75:
+            														case 70:
+            														case 72:
+            														case 74:
             														case 76:
-            														case 78:
+            														case 77:
             														case 79:
-            														case 81:
+            														case 80:
             														case 82:
             														case 83:
             														case 84:
+            														case 85:
             															{
             																alt36=2;
             															}
@@ -21351,21 +21400,21 @@ WNScriptASTParser::instructionScalar()
             														case QUESTION:
             														case SLICETOK:
             														case SSOR:
-            														case 64:
             														case 65:
-            														case 67:
+            														case 66:
             														case 68:
             														case 69:
-            														case 71:
-            														case 73:
-            														case 75:
+            														case 70:
+            														case 72:
+            														case 74:
             														case 76:
-            														case 78:
+            														case 77:
             														case 79:
-            														case 81:
+            														case 80:
             														case 82:
             														case 83:
             														case 84:
+            														case 85:
             															{
             																alt36=2;
             															}
@@ -21480,21 +21529,21 @@ WNScriptASTParser::instructionScalar()
             														case QUESTION:
             														case SLICETOK:
             														case SSOR:
-            														case 64:
             														case 65:
-            														case 67:
+            														case 66:
             														case 68:
             														case 69:
-            														case 71:
-            														case 73:
-            														case 75:
+            														case 70:
+            														case 72:
+            														case 74:
             														case 76:
-            														case 78:
+            														case 77:
             														case 79:
-            														case 81:
+            														case 80:
             														case 82:
             														case 83:
             														case 84:
+            														case 85:
             															{
             																alt36=2;
             															}
@@ -21609,21 +21658,21 @@ WNScriptASTParser::instructionScalar()
             														case QUESTION:
             														case SLICETOK:
             														case SSOR:
-            														case 64:
             														case 65:
-            														case 67:
+            														case 66:
             														case 68:
             														case 69:
-            														case 71:
-            														case 73:
-            														case 75:
+            														case 70:
+            														case 72:
+            														case 74:
             														case 76:
-            														case 78:
+            														case 77:
             														case 79:
-            														case 81:
+            														case 80:
             														case 82:
             														case 83:
             														case 84:
+            														case 85:
             															{
             																alt36=2;
             															}
@@ -21738,21 +21787,21 @@ WNScriptASTParser::instructionScalar()
             														case QUESTION:
             														case SLICETOK:
             														case SSOR:
-            														case 64:
             														case 65:
-            														case 67:
+            														case 66:
             														case 68:
             														case 69:
-            														case 71:
-            														case 73:
-            														case 75:
+            														case 70:
+            														case 72:
+            														case 74:
             														case 76:
-            														case 78:
+            														case 77:
             														case 79:
-            														case 81:
+            														case 80:
             														case 82:
             														case 83:
             														case 84:
+            														case 85:
             															{
             																alt36=2;
             															}
@@ -21867,21 +21916,21 @@ WNScriptASTParser::instructionScalar()
             														case QUESTION:
             														case SLICETOK:
             														case SSOR:
-            														case 64:
             														case 65:
-            														case 67:
+            														case 66:
             														case 68:
             														case 69:
-            														case 71:
-            														case 73:
-            														case 75:
+            														case 70:
+            														case 72:
+            														case 74:
             														case 76:
-            														case 78:
+            														case 77:
             														case 79:
-            														case 81:
+            														case 80:
             														case 82:
             														case 83:
             														case 84:
+            														case 85:
             															{
             																alt36=2;
             															}
@@ -21953,8 +22002,8 @@ WNScriptASTParser::instructionScalar()
             						case RESOURCE:
             						case SHARED_REF:
             						case TYPE:
-            						case 63:
-            						case 73:
+            						case 64:
+            						case 74:
             							{
             								alt36=2;
             							}
@@ -22024,8 +22073,8 @@ WNScriptASTParser::instructionScalar()
             						case STRING_TYPE:
             						case TYPE:
             						case VOID_TYPE:
-            						case 63:
-            						case 73:
+            						case 64:
+            						case 74:
             							{
             								alt36=2;
             							}
@@ -22107,8 +22156,8 @@ WNScriptASTParser::instructionScalar()
             case NULLTOK:
             case RESOURCE:
             case STRING:
-            case 63:
-            case 73:
+            case 64:
+            case 74:
             	{
             		alt36=2;
             	}
@@ -22128,7 +22177,7 @@ WNScriptASTParser::instructionScalar()
             {
         	case 1:
         	    {
-        	        this->followPush(FOLLOW_declaration_in_instructionScalar4921);
+        	        this->followPush(FOLLOW_declaration_in_instructionScalar4927);
         	        declaration41=declaration();
 
         	        this->followPop();
@@ -22148,7 +22197,7 @@ WNScriptASTParser::instructionScalar()
         	    break;
         	case 2:
         	    {
-        	        this->followPush(FOLLOW_assignment_or_expression_in_instructionScalar4934);
+        	        this->followPush(FOLLOW_assignment_or_expression_in_instructionScalar4940);
         	        assignment_or_expression42=assignment_or_expression();
 
         	        this->followPop();
@@ -22209,14 +22258,14 @@ WNScriptASTParser::continueInst()
 
     {
         {
-            a =  this->matchToken(CONTINUE, &FOLLOW_CONTINUE_in_continueInst4964);
+            a =  this->matchToken(CONTINUE, &FOLLOW_CONTINUE_in_continueInst4970);
             if  (this->hasException())
             {
                 goto rulecontinueInstEx;
             }
 
 
-            b =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_continueInst4968);
+            b =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_continueInst4974);
             if  (this->hasException())
             {
                 goto rulecontinueInstEx;
@@ -22270,14 +22319,14 @@ WNScriptASTParser::breakInst()
 
     {
         {
-            a =  this->matchToken(BREAK, &FOLLOW_BREAK_in_breakInst4994);
+            a =  this->matchToken(BREAK, &FOLLOW_BREAK_in_breakInst5000);
             if  (this->hasException())
             {
                 goto rulebreakInstEx;
             }
 
 
-            b =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_breakInst4998);
+            b =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_breakInst5004);
             if  (this->hasException())
             {
                 goto rulebreakInstEx;
@@ -22370,8 +22419,8 @@ WNScriptASTParser::returnInst()
             		case STRING_TYPE:
             		case TYPE:
             		case VOID_TYPE:
-            		case 63:
-            		case 73:
+            		case 64:
+            		case 74:
             			{
             				alt37=1;
             			}
@@ -22404,14 +22453,14 @@ WNScriptASTParser::returnInst()
             {
         	case 1:
         	    {
-        	        a =  this->matchToken(RETURN, &FOLLOW_RETURN_in_returnInst5025);
+        	        a =  this->matchToken(RETURN, &FOLLOW_RETURN_in_returnInst5031);
         	        if  (this->hasException())
         	        {
         	            goto rulereturnInstEx;
         	        }
 
 
-        	        this->followPush(FOLLOW_expr_in_returnInst5027);
+        	        this->followPush(FOLLOW_expr_in_returnInst5033);
         	        expr43=expr();
 
         	        this->followPop();
@@ -22421,7 +22470,7 @@ WNScriptASTParser::returnInst()
         	        }
 
 
-        	        b =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_returnInst5031);
+        	        b =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_returnInst5037);
         	        if  (this->hasException())
         	        {
         	            goto rulereturnInstEx;
@@ -22438,14 +22487,14 @@ WNScriptASTParser::returnInst()
         	    break;
         	case 2:
         	    {
-        	        c =  this->matchToken(RETURN, &FOLLOW_RETURN_in_returnInst5045);
+        	        c =  this->matchToken(RETURN, &FOLLOW_RETURN_in_returnInst5051);
         	        if  (this->hasException())
         	        {
         	            goto rulereturnInstEx;
         	        }
 
 
-        	        d =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_returnInst5049);
+        	        d =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_returnInst5055);
         	        if  (this->hasException())
         	        {
         	            goto rulereturnInstEx;
@@ -22502,21 +22551,21 @@ WNScriptASTParser::whileInst()
 
     {
         {
-            WHILE46 =  this->matchToken(WHILE, &FOLLOW_WHILE_in_whileInst5082);
+            WHILE46 =  this->matchToken(WHILE, &FOLLOW_WHILE_in_whileInst5088);
             if  (this->hasException())
             {
                 goto rulewhileInstEx;
             }
 
 
-             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_whileInst5084);
+             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_whileInst5090);
             if  (this->hasException())
             {
                 goto rulewhileInstEx;
             }
 
 
-            this->followPush(FOLLOW_expr_in_whileInst5086);
+            this->followPush(FOLLOW_expr_in_whileInst5092);
             expr44=expr();
 
             this->followPop();
@@ -22526,14 +22575,14 @@ WNScriptASTParser::whileInst()
             }
 
 
-             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_whileInst5088);
+             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_whileInst5094);
             if  (this->hasException())
             {
                 goto rulewhileInstEx;
             }
 
 
-            this->followPush(FOLLOW_instruction_list_in_whileInst5090);
+            this->followPush(FOLLOW_instruction_list_in_whileInst5096);
             instruction_list45=instruction_list();
 
             this->followPop();
@@ -22595,14 +22644,14 @@ WNScriptASTParser::doInst()
 
     {
         {
-            DO49 =  this->matchToken(DO, &FOLLOW_DO_in_doInst5126);
+            DO49 =  this->matchToken(DO, &FOLLOW_DO_in_doInst5132);
             if  (this->hasException())
             {
                 goto ruledoInstEx;
             }
 
 
-            this->followPush(FOLLOW_instruction_list_in_doInst5128);
+            this->followPush(FOLLOW_instruction_list_in_doInst5134);
             instruction_list48=instruction_list();
 
             this->followPop();
@@ -22612,21 +22661,21 @@ WNScriptASTParser::doInst()
             }
 
 
-             this->matchToken(WHILE, &FOLLOW_WHILE_in_doInst5130);
+             this->matchToken(WHILE, &FOLLOW_WHILE_in_doInst5136);
             if  (this->hasException())
             {
                 goto ruledoInstEx;
             }
 
 
-             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_doInst5132);
+             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_doInst5138);
             if  (this->hasException())
             {
                 goto ruledoInstEx;
             }
 
 
-            this->followPush(FOLLOW_expr_in_doInst5134);
+            this->followPush(FOLLOW_expr_in_doInst5140);
             expr47=expr();
 
             this->followPop();
@@ -22636,14 +22685,14 @@ WNScriptASTParser::doInst()
             }
 
 
-             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_doInst5136);
+             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_doInst5142);
             if  (this->hasException())
             {
                 goto ruledoInstEx;
             }
 
 
-            SEMICOLON50 =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_doInst5138);
+            SEMICOLON50 =  this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_doInst5144);
             if  (this->hasException())
             {
                 goto ruledoInstEx;
@@ -22701,14 +22750,14 @@ WNScriptASTParser::forInst()
 
     {
         {
-            FOR51 =  this->matchToken(FOR, &FOLLOW_FOR_in_forInst5170);
+            FOR51 =  this->matchToken(FOR, &FOLLOW_FOR_in_forInst5176);
             if  (this->hasException())
             {
                 goto ruleforInstEx;
             }
 
 
-             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_forInst5172);
+             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_forInst5178);
             if  (this->hasException())
             {
                 goto ruleforInstEx;
@@ -22746,8 +22795,8 @@ WNScriptASTParser::forInst()
                     case TYPE:
                     case VOID_TYPE:
                     case WEAK_REF:
-                    case 63:
-                    case 73:
+                    case 64:
+                    case 74:
                     	{
                     		alt38=1;
                     	}
@@ -22758,7 +22807,7 @@ WNScriptASTParser::forInst()
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_instructionScalar_in_forInst5200);
+            	        this->followPush(FOLLOW_instructionScalar_in_forInst5206);
             	        a=instructionScalar();
 
             	        this->followPop();
@@ -22780,7 +22829,7 @@ WNScriptASTParser::forInst()
                 }
             }
 
-             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_forInst5206);
+             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_forInst5212);
             if  (this->hasException())
             {
                 goto ruleforInstEx;
@@ -22812,8 +22861,8 @@ WNScriptASTParser::forInst()
                     case STRING_TYPE:
                     case TYPE:
                     case VOID_TYPE:
-                    case 63:
-                    case 73:
+                    case 64:
+                    case 74:
                     	{
                     		alt39=1;
                     	}
@@ -22824,7 +22873,7 @@ WNScriptASTParser::forInst()
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_expr_in_forInst5231);
+            	        this->followPush(FOLLOW_expr_in_forInst5237);
             	        b=expr();
 
             	        this->followPop();
@@ -22846,7 +22895,7 @@ WNScriptASTParser::forInst()
                 }
             }
 
-             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_forInst5245);
+             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_forInst5251);
             if  (this->hasException())
             {
                 goto ruleforInstEx;
@@ -22879,8 +22928,8 @@ WNScriptASTParser::forInst()
                     case TYPE:
                     case VOID_TYPE:
                     case WEAK_REF:
-                    case 63:
-                    case 73:
+                    case 64:
+                    case 74:
                     	{
                     		alt40=1;
                     	}
@@ -22891,7 +22940,7 @@ WNScriptASTParser::forInst()
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_instructionScalar_in_forInst5270);
+            	        this->followPush(FOLLOW_instructionScalar_in_forInst5276);
             	        c=instructionScalar();
 
             	        this->followPop();
@@ -22913,7 +22962,7 @@ WNScriptASTParser::forInst()
                 }
             }
 
-             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_forInst5276);
+             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_forInst5282);
             if  (this->hasException())
             {
                 goto ruleforInstEx;
@@ -22921,7 +22970,7 @@ WNScriptASTParser::forInst()
 
 
             {
-                this->followPush(FOLLOW_instruction_list_in_forInst5301);
+                this->followPush(FOLLOW_instruction_list_in_forInst5307);
                 d=instruction_list();
 
                 this->followPop();
@@ -22983,28 +23032,28 @@ WNScriptASTParser::elsemiddle()
 
     {
         {
-            ELSE54 =  this->matchToken(ELSE, &FOLLOW_ELSE_in_elsemiddle5349);
+            ELSE54 =  this->matchToken(ELSE, &FOLLOW_ELSE_in_elsemiddle5355);
             if  (this->hasException())
             {
                 goto ruleelsemiddleEx;
             }
 
 
-             this->matchToken(IF, &FOLLOW_IF_in_elsemiddle5351);
+             this->matchToken(IF, &FOLLOW_IF_in_elsemiddle5357);
             if  (this->hasException())
             {
                 goto ruleelsemiddleEx;
             }
 
 
-             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_elsemiddle5353);
+             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_elsemiddle5359);
             if  (this->hasException())
             {
                 goto ruleelsemiddleEx;
             }
 
 
-            this->followPush(FOLLOW_expr_in_elsemiddle5355);
+            this->followPush(FOLLOW_expr_in_elsemiddle5361);
             expr52=expr();
 
             this->followPop();
@@ -23014,14 +23063,14 @@ WNScriptASTParser::elsemiddle()
             }
 
 
-             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_elsemiddle5357);
+             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_elsemiddle5363);
             if  (this->hasException())
             {
                 goto ruleelsemiddleEx;
             }
 
 
-            this->followPush(FOLLOW_instruction_list_in_elsemiddle5359);
+            this->followPush(FOLLOW_instruction_list_in_elsemiddle5365);
             instruction_list53=instruction_list();
 
             this->followPop();
@@ -23080,14 +23129,14 @@ WNScriptASTParser::endif()
 
     {
         {
-             this->matchToken(ELSE, &FOLLOW_ELSE_in_endif5392);
+             this->matchToken(ELSE, &FOLLOW_ELSE_in_endif5398);
             if  (this->hasException())
             {
                 goto ruleendifEx;
             }
 
 
-            this->followPush(FOLLOW_instruction_list_in_endif5394);
+            this->followPush(FOLLOW_instruction_list_in_endif5400);
             instruction_list55=instruction_list();
 
             this->followPop();
@@ -23147,21 +23196,21 @@ WNScriptASTParser::ifInst()
 
     {
         {
-            IF58 =  this->matchToken(IF, &FOLLOW_IF_in_ifInst5424);
+            IF58 =  this->matchToken(IF, &FOLLOW_IF_in_ifInst5430);
             if  (this->hasException())
             {
                 goto ruleifInstEx;
             }
 
 
-             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_ifInst5426);
+             this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_ifInst5432);
             if  (this->hasException())
             {
                 goto ruleifInstEx;
             }
 
 
-            this->followPush(FOLLOW_expr_in_ifInst5428);
+            this->followPush(FOLLOW_expr_in_ifInst5434);
             expr56=expr();
 
             this->followPop();
@@ -23171,14 +23220,14 @@ WNScriptASTParser::ifInst()
             }
 
 
-             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_ifInst5430);
+             this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_ifInst5436);
             if  (this->hasException())
             {
                 goto ruleifInstEx;
             }
 
 
-            this->followPush(FOLLOW_instruction_list_in_ifInst5432);
+            this->followPush(FOLLOW_instruction_list_in_ifInst5438);
             instruction_list57=instruction_list();
 
             this->followPop();
@@ -23224,7 +23273,7 @@ WNScriptASTParser::ifInst()
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_elsemiddle_in_ifInst5449);
+            	        this->followPush(FOLLOW_elsemiddle_in_ifInst5455);
             	        elsemiddle59=elsemiddle();
 
             	        this->followPop();
@@ -23267,7 +23316,7 @@ WNScriptASTParser::ifInst()
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_endif_in_ifInst5469);
+            	        this->followPush(FOLLOW_endif_in_ifInst5475);
             	        endif60=endif();
 
             	        this->followPop();
@@ -23388,8 +23437,8 @@ WNScriptASTParser::instruction()
             case TYPE:
             case VOID_TYPE:
             case WEAK_REF:
-            case 63:
-            case 73:
+            case 64:
+            case 74:
             	{
             		alt43=5;
             	}
@@ -23429,7 +23478,7 @@ WNScriptASTParser::instruction()
             {
         	case 1:
         	    {
-        	        this->followPush(FOLLOW_ifInst_in_instruction5503);
+        	        this->followPush(FOLLOW_ifInst_in_instruction5509);
         	        ifInst61=ifInst();
 
         	        this->followPop();
@@ -23449,7 +23498,7 @@ WNScriptASTParser::instruction()
         	    break;
         	case 2:
         	    {
-        	        this->followPush(FOLLOW_whileInst_in_instruction5524);
+        	        this->followPush(FOLLOW_whileInst_in_instruction5530);
         	        whileInst62=whileInst();
 
         	        this->followPop();
@@ -23469,7 +23518,7 @@ WNScriptASTParser::instruction()
         	    break;
         	case 3:
         	    {
-        	        this->followPush(FOLLOW_doInst_in_instruction5541);
+        	        this->followPush(FOLLOW_doInst_in_instruction5547);
         	        doInst63=doInst();
 
         	        this->followPop();
@@ -23489,7 +23538,7 @@ WNScriptASTParser::instruction()
         	    break;
         	case 4:
         	    {
-        	        this->followPush(FOLLOW_forInst_in_instruction5561);
+        	        this->followPush(FOLLOW_forInst_in_instruction5567);
         	        forInst64=forInst();
 
         	        this->followPop();
@@ -23509,7 +23558,7 @@ WNScriptASTParser::instruction()
         	    break;
         	case 5:
         	    {
-        	        this->followPush(FOLLOW_instructionScalar_in_instruction5581);
+        	        this->followPush(FOLLOW_instructionScalar_in_instruction5587);
         	        instructionScalar65=instructionScalar();
 
         	        this->followPop();
@@ -23519,7 +23568,7 @@ WNScriptASTParser::instruction()
         	        }
 
 
-        	         this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_instruction5583);
+        	         this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_instruction5589);
         	        if  (this->hasException())
         	        {
         	            goto ruleinstructionEx;
@@ -23536,7 +23585,7 @@ WNScriptASTParser::instruction()
         	    break;
         	case 6:
         	    {
-        	        this->followPush(FOLLOW_breakInst_in_instruction5596);
+        	        this->followPush(FOLLOW_breakInst_in_instruction5602);
         	        breakInst66=breakInst();
 
         	        this->followPop();
@@ -23556,7 +23605,7 @@ WNScriptASTParser::instruction()
         	    break;
         	case 7:
         	    {
-        	        this->followPush(FOLLOW_continueInst_in_instruction5609);
+        	        this->followPush(FOLLOW_continueInst_in_instruction5615);
         	        continueInst67=continueInst();
 
         	        this->followPop();
@@ -23576,7 +23625,7 @@ WNScriptASTParser::instruction()
         	    break;
         	case 8:
         	    {
-        	        this->followPush(FOLLOW_returnInst_in_instruction5622);
+        	        this->followPush(FOLLOW_returnInst_in_instruction5628);
         	        returnInst68=returnInst();
 
         	        this->followPop();
@@ -23596,7 +23645,7 @@ WNScriptASTParser::instruction()
         	    break;
         	case 9:
         	    {
-        	        this->followPush(FOLLOW_instruction_list_in_instruction5635);
+        	        this->followPush(FOLLOW_instruction_list_in_instruction5641);
         	        instruction_list69=instruction_list();
 
         	        this->followPop();
@@ -23657,7 +23706,7 @@ WNScriptASTParser::instruction_list()
 
     {
         {
-            lb =  this->matchToken(LBRACE, &FOLLOW_LBRACE_in_instruction_list5667);
+            lb =  this->matchToken(LBRACE, &FOLLOW_LBRACE_in_instruction_list5673);
             if  (this->hasException())
             {
                 goto ruleinstruction_listEx;
@@ -23700,8 +23749,8 @@ WNScriptASTParser::instruction_list()
                 case VOID_TYPE:
                 case WEAK_REF:
                 case WHILE:
-                case 63:
-                case 73:
+                case 64:
+                case 74:
                 	{
                 		alt44=1;
                 	}
@@ -23713,7 +23762,7 @@ WNScriptASTParser::instruction_list()
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_instruction_in_instruction_list5684);
+            	        this->followPush(FOLLOW_instruction_in_instruction_list5690);
             	        b=instruction();
 
             	        this->followPop();
@@ -23740,7 +23789,7 @@ WNScriptASTParser::instruction_list()
             loop44: ;
 
 
-            rb =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_instruction_list5701);
+            rb =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_instruction_list5707);
             if  (this->hasException())
             {
                 goto ruleinstruction_listEx;
@@ -23796,7 +23845,7 @@ WNScriptASTParser::function()
 
     {
         {
-            this->followPush(FOLLOW_param_in_function5731);
+            this->followPush(FOLLOW_param_in_function5737);
             param70=param();
 
             this->followPop();
@@ -23806,7 +23855,7 @@ WNScriptASTParser::function()
             }
 
 
-            this->followPush(FOLLOW_parameterList_in_function5733);
+            this->followPush(FOLLOW_parameterList_in_function5739);
             parameterList71=parameterList();
 
             this->followPop();
@@ -23816,7 +23865,7 @@ WNScriptASTParser::function()
             }
 
 
-            this->followPush(FOLLOW_instruction_list_in_function5735);
+            this->followPush(FOLLOW_instruction_list_in_function5741);
             instruction_list72=instruction_list();
 
             this->followPop();
@@ -23950,14 +23999,14 @@ WNScriptASTParser::structDecl()
             	case 1:
             	    {
             	        {
-            	            f =  this->matchToken(STRUCT, &FOLLOW_STRUCT_in_structDecl5787);
+            	            f =  this->matchToken(STRUCT, &FOLLOW_STRUCT_in_structDecl5793);
             	            if  (this->hasException())
             	            {
             	                goto rulestructDeclEx;
             	            }
 
 
-            	            c =  this->matchToken(TYPE, &FOLLOW_TYPE_in_structDecl5791);
+            	            c =  this->matchToken(TYPE, &FOLLOW_TYPE_in_structDecl5797);
             	            if  (this->hasException())
             	            {
             	                goto rulestructDeclEx;
@@ -23977,28 +24026,28 @@ WNScriptASTParser::structDecl()
             	case 2:
             	    {
             	        {
-            	            g =  this->matchToken(STRUCT, &FOLLOW_STRUCT_in_structDecl5811);
+            	            g =  this->matchToken(STRUCT, &FOLLOW_STRUCT_in_structDecl5817);
             	            if  (this->hasException())
             	            {
             	                goto rulestructDeclEx;
             	            }
 
 
-            	            d =  this->matchToken(TYPE, &FOLLOW_TYPE_in_structDecl5815);
+            	            d =  this->matchToken(TYPE, &FOLLOW_TYPE_in_structDecl5821);
             	            if  (this->hasException())
             	            {
             	                goto rulestructDeclEx;
             	            }
 
 
-            	             this->matchToken(COLON, &FOLLOW_COLON_in_structDecl5817);
+            	             this->matchToken(COLON, &FOLLOW_COLON_in_structDecl5823);
             	            if  (this->hasException())
             	            {
             	                goto rulestructDeclEx;
             	            }
 
 
-            	            e =  this->matchToken(TYPE, &FOLLOW_TYPE_in_structDecl5821);
+            	            e =  this->matchToken(TYPE, &FOLLOW_TYPE_in_structDecl5827);
             	            if  (this->hasException())
             	            {
             	                goto rulestructDeclEx;
@@ -24034,7 +24083,7 @@ WNScriptASTParser::structDecl()
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_parameterList_in_structDecl5849);
+            	        this->followPush(FOLLOW_parameterList_in_structDecl5855);
             	        parameterList73=parameterList();
 
             	        this->followPop();
@@ -24056,7 +24105,7 @@ WNScriptASTParser::structDecl()
                 }
             }
 
-             this->matchToken(LBRACE, &FOLLOW_LBRACE_in_structDecl5867);
+             this->matchToken(LBRACE, &FOLLOW_LBRACE_in_structDecl5873);
             if  (this->hasException())
             {
                 goto rulestructDeclEx;
@@ -24077,7 +24126,7 @@ WNScriptASTParser::structDecl()
                 			{
                 				switch ( this->LA(3) )
                 				{
-                				case 80:
+                				case 81:
                 					{
                 						alt47=1;
                 					}
@@ -24108,7 +24157,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -24145,7 +24194,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -24182,7 +24231,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -24219,7 +24268,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -24256,7 +24305,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -24293,7 +24342,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -24342,7 +24391,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -24406,7 +24455,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -24470,7 +24519,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -24534,7 +24583,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -24598,7 +24647,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -24662,7 +24711,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -24726,7 +24775,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -24774,7 +24823,7 @@ WNScriptASTParser::structDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt47=1;
                 									}
@@ -24811,7 +24860,7 @@ WNScriptASTParser::structDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt47=1;
                 									}
@@ -24852,7 +24901,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -24890,7 +24939,7 @@ WNScriptASTParser::structDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt47=1;
                 							}
@@ -24923,7 +24972,7 @@ WNScriptASTParser::structDecl()
                 			{
                 				switch ( this->LA(3) )
                 				{
-                				case 80:
+                				case 81:
                 					{
                 						alt47=1;
                 					}
@@ -24954,7 +25003,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -24991,7 +25040,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -25028,7 +25077,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -25065,7 +25114,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -25102,7 +25151,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -25139,7 +25188,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -25188,7 +25237,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -25252,7 +25301,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -25316,7 +25365,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -25380,7 +25429,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -25444,7 +25493,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -25508,7 +25557,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -25572,7 +25621,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -25620,7 +25669,7 @@ WNScriptASTParser::structDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt47=1;
                 									}
@@ -25657,7 +25706,7 @@ WNScriptASTParser::structDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt47=1;
                 									}
@@ -25698,7 +25747,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -25736,7 +25785,7 @@ WNScriptASTParser::structDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt47=1;
                 							}
@@ -25769,7 +25818,7 @@ WNScriptASTParser::structDecl()
                 			{
                 				switch ( this->LA(3) )
                 				{
-                				case 80:
+                				case 81:
                 					{
                 						alt47=1;
                 					}
@@ -25800,7 +25849,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -25837,7 +25886,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -25874,7 +25923,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -25911,7 +25960,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -25948,7 +25997,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -25985,7 +26034,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -26034,7 +26083,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -26098,7 +26147,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -26162,7 +26211,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -26226,7 +26275,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -26290,7 +26339,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -26354,7 +26403,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -26418,7 +26467,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -26466,7 +26515,7 @@ WNScriptASTParser::structDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt47=1;
                 									}
@@ -26503,7 +26552,7 @@ WNScriptASTParser::structDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt47=1;
                 									}
@@ -26544,7 +26593,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -26582,7 +26631,7 @@ WNScriptASTParser::structDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt47=1;
                 							}
@@ -26615,7 +26664,7 @@ WNScriptASTParser::structDecl()
                 			{
                 				switch ( this->LA(3) )
                 				{
-                				case 80:
+                				case 81:
                 					{
                 						alt47=1;
                 					}
@@ -26646,7 +26695,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -26683,7 +26732,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -26720,7 +26769,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -26757,7 +26806,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -26794,7 +26843,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -26831,7 +26880,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -26880,7 +26929,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -26944,7 +26993,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -27008,7 +27057,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -27072,7 +27121,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -27136,7 +27185,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -27200,7 +27249,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -27264,7 +27313,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -27312,7 +27361,7 @@ WNScriptASTParser::structDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt47=1;
                 									}
@@ -27349,7 +27398,7 @@ WNScriptASTParser::structDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt47=1;
                 									}
@@ -27390,7 +27439,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -27428,7 +27477,7 @@ WNScriptASTParser::structDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt47=1;
                 							}
@@ -27461,7 +27510,7 @@ WNScriptASTParser::structDecl()
                 			{
                 				switch ( this->LA(3) )
                 				{
-                				case 80:
+                				case 81:
                 					{
                 						alt47=1;
                 					}
@@ -27492,7 +27541,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -27529,7 +27578,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -27566,7 +27615,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -27603,7 +27652,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -27640,7 +27689,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -27677,7 +27726,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -27726,7 +27775,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -27790,7 +27839,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -27854,7 +27903,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -27918,7 +27967,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -27982,7 +28031,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -28046,7 +28095,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -28110,7 +28159,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -28158,7 +28207,7 @@ WNScriptASTParser::structDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt47=1;
                 									}
@@ -28195,7 +28244,7 @@ WNScriptASTParser::structDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt47=1;
                 									}
@@ -28236,7 +28285,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -28274,7 +28323,7 @@ WNScriptASTParser::structDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt47=1;
                 							}
@@ -28307,7 +28356,7 @@ WNScriptASTParser::structDecl()
                 			{
                 				switch ( this->LA(3) )
                 				{
-                				case 80:
+                				case 81:
                 					{
                 						alt47=1;
                 					}
@@ -28338,7 +28387,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -28375,7 +28424,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -28412,7 +28461,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -28449,7 +28498,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -28486,7 +28535,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -28523,7 +28572,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -28572,7 +28621,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -28636,7 +28685,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -28700,7 +28749,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -28764,7 +28813,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -28828,7 +28877,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -28892,7 +28941,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -28956,7 +29005,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -29004,7 +29053,7 @@ WNScriptASTParser::structDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt47=1;
                 									}
@@ -29041,7 +29090,7 @@ WNScriptASTParser::structDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt47=1;
                 									}
@@ -29082,7 +29131,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -29120,7 +29169,7 @@ WNScriptASTParser::structDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt47=1;
                 							}
@@ -29153,7 +29202,7 @@ WNScriptASTParser::structDecl()
                 			{
                 				switch ( this->LA(3) )
                 				{
-                				case 80:
+                				case 81:
                 					{
                 						alt47=1;
                 					}
@@ -29184,7 +29233,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -29221,7 +29270,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -29258,7 +29307,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -29295,7 +29344,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -29332,7 +29381,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -29369,7 +29418,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -29418,7 +29467,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -29482,7 +29531,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -29546,7 +29595,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -29610,7 +29659,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -29674,7 +29723,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -29738,7 +29787,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -29802,7 +29851,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -29850,7 +29899,7 @@ WNScriptASTParser::structDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt47=1;
                 									}
@@ -29887,7 +29936,7 @@ WNScriptASTParser::structDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt47=1;
                 									}
@@ -29928,7 +29977,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -29966,7 +30015,7 @@ WNScriptASTParser::structDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt47=1;
                 							}
@@ -29999,7 +30048,7 @@ WNScriptASTParser::structDecl()
                 			{
                 				switch ( this->LA(3) )
                 				{
-                				case 80:
+                				case 81:
                 					{
                 						alt47=1;
                 					}
@@ -30030,7 +30079,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -30067,7 +30116,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -30104,7 +30153,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -30141,7 +30190,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -30178,7 +30227,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -30215,7 +30264,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -30264,7 +30313,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -30328,7 +30377,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -30392,7 +30441,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -30456,7 +30505,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -30520,7 +30569,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -30584,7 +30633,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -30648,7 +30697,7 @@ WNScriptASTParser::structDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt47=1;
                 																	}
@@ -30696,7 +30745,7 @@ WNScriptASTParser::structDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt47=1;
                 									}
@@ -30733,7 +30782,7 @@ WNScriptASTParser::structDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt47=1;
                 									}
@@ -30766,7 +30815,7 @@ WNScriptASTParser::structDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt47=1;
                 							}
@@ -30815,7 +30864,7 @@ WNScriptASTParser::structDecl()
                 											{
                 												switch ( this->LA(7) )
                 												{
-                												case 80:
+                												case 81:
                 													{
                 														alt47=1;
                 													}
@@ -30852,7 +30901,7 @@ WNScriptASTParser::structDecl()
                 											{
                 												switch ( this->LA(7) )
                 												{
-                												case 80:
+                												case 81:
                 													{
                 														alt47=1;
                 													}
@@ -30889,7 +30938,7 @@ WNScriptASTParser::structDecl()
                 											{
                 												switch ( this->LA(7) )
                 												{
-                												case 80:
+                												case 81:
                 													{
                 														alt47=1;
                 													}
@@ -30926,7 +30975,7 @@ WNScriptASTParser::structDecl()
                 											{
                 												switch ( this->LA(7) )
                 												{
-                												case 80:
+                												case 81:
                 													{
                 														alt47=1;
                 													}
@@ -30963,7 +31012,7 @@ WNScriptASTParser::structDecl()
                 											{
                 												switch ( this->LA(7) )
                 												{
-                												case 80:
+                												case 81:
                 													{
                 														alt47=1;
                 													}
@@ -31000,7 +31049,7 @@ WNScriptASTParser::structDecl()
                 											{
                 												switch ( this->LA(7) )
                 												{
-                												case 80:
+                												case 81:
                 													{
                 														alt47=1;
                 													}
@@ -31049,7 +31098,7 @@ WNScriptASTParser::structDecl()
                 																	{
                 																		switch ( this->LA(10) )
                 																		{
-                																		case 80:
+                																		case 81:
                 																			{
                 																				alt47=1;
                 																			}
@@ -31113,7 +31162,7 @@ WNScriptASTParser::structDecl()
                 																	{
                 																		switch ( this->LA(10) )
                 																		{
-                																		case 80:
+                																		case 81:
                 																			{
                 																				alt47=1;
                 																			}
@@ -31177,7 +31226,7 @@ WNScriptASTParser::structDecl()
                 																	{
                 																		switch ( this->LA(10) )
                 																		{
-                																		case 80:
+                																		case 81:
                 																			{
                 																				alt47=1;
                 																			}
@@ -31241,7 +31290,7 @@ WNScriptASTParser::structDecl()
                 																	{
                 																		switch ( this->LA(10) )
                 																		{
-                																		case 80:
+                																		case 81:
                 																			{
                 																				alt47=1;
                 																			}
@@ -31305,7 +31354,7 @@ WNScriptASTParser::structDecl()
                 																	{
                 																		switch ( this->LA(10) )
                 																		{
-                																		case 80:
+                																		case 81:
                 																			{
                 																				alt47=1;
                 																			}
@@ -31369,7 +31418,7 @@ WNScriptASTParser::structDecl()
                 																	{
                 																		switch ( this->LA(10) )
                 																		{
-                																		case 80:
+                																		case 81:
                 																			{
                 																				alt47=1;
                 																			}
@@ -31433,7 +31482,7 @@ WNScriptASTParser::structDecl()
                 																	{
                 																		switch ( this->LA(10) )
                 																		{
-                																		case 80:
+                																		case 81:
                 																			{
                 																				alt47=1;
                 																			}
@@ -31481,7 +31530,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -31518,7 +31567,7 @@ WNScriptASTParser::structDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt47=1;
                 											}
@@ -31547,7 +31596,7 @@ WNScriptASTParser::structDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt47=1;
                 							}
@@ -31584,7 +31633,7 @@ WNScriptASTParser::structDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt47=1;
                 							}
@@ -31609,7 +31658,7 @@ WNScriptASTParser::structDecl()
 
                 	}
                     break;
-                case 75:
+                case 76:
                 	{
                 		alt47=2;
                 	}
@@ -31622,7 +31671,7 @@ WNScriptASTParser::structDecl()
             	case 1:
             	    {
             	        {
-            	            this->followPush(FOLLOW_declaration_in_structDecl5910);
+            	            this->followPush(FOLLOW_declaration_in_structDecl5916);
             	            a=declaration();
 
             	            this->followPop();
@@ -31638,7 +31687,7 @@ WNScriptASTParser::structDecl()
             	            }
 
 
-            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_structDecl5914);
+            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_structDecl5920);
             	            if  (this->hasException())
             	            {
             	                goto rulestructDeclEx;
@@ -31653,7 +31702,7 @@ WNScriptASTParser::structDecl()
             	case 2:
             	    {
             	        {
-            	            this->followPush(FOLLOW_inherited_declaration_in_structDecl5940);
+            	            this->followPush(FOLLOW_inherited_declaration_in_structDecl5946);
             	            j=inherited_declaration();
 
             	            this->followPop();
@@ -31669,7 +31718,7 @@ WNScriptASTParser::structDecl()
             	            }
 
 
-            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_structDecl5944);
+            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_structDecl5950);
             	            if  (this->hasException())
             	            {
             	                goto rulestructDeclEx;
@@ -31684,7 +31733,7 @@ WNScriptASTParser::structDecl()
             	case 3:
             	    {
             	        {
-            	            this->followPush(FOLLOW_function_in_structDecl5970);
+            	            this->followPush(FOLLOW_function_in_structDecl5976);
             	            b=function();
 
             	            this->followPop();
@@ -31714,7 +31763,7 @@ WNScriptASTParser::structDecl()
             loop47: ;
 
 
-            RBRACE74 =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_structDecl6009);
+            RBRACE74 =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_structDecl6015);
             if  (this->hasException())
             {
                 goto rulestructDeclEx;
@@ -31770,8 +31819,14 @@ WNScriptASTParser::classDecl()
     scripting::declaration* j;
     scripting::declaration* jj;
     scripting::function* b;
+    scripting::function* bb;
+    scripting::function* bbb;
     scripting::function* h;
+    scripting::function* hh;
+    scripting::function* hhh;
     scripting::function* i;
+    scripting::function* ii;
+    scripting::function* iii;
     scripting::parameter_list* parameterList75;
 
 
@@ -31894,14 +31949,14 @@ WNScriptASTParser::classDecl()
             	case 1:
             	    {
             	        {
-            	            ff =  this->matchToken(ACTOR, &FOLLOW_ACTOR_in_classDecl6062);
+            	            ff =  this->matchToken(ACTOR, &FOLLOW_ACTOR_in_classDecl6068);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	            cc =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl6066);
+            	            cc =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl6072);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
@@ -31921,28 +31976,28 @@ WNScriptASTParser::classDecl()
             	case 2:
             	    {
             	        {
-            	            gg =  this->matchToken(ACTOR, &FOLLOW_ACTOR_in_classDecl6086);
+            	            gg =  this->matchToken(ACTOR, &FOLLOW_ACTOR_in_classDecl6092);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	            dd =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl6090);
+            	            dd =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl6096);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	             this->matchToken(COLON, &FOLLOW_COLON_in_classDecl6092);
+            	             this->matchToken(COLON, &FOLLOW_COLON_in_classDecl6098);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	            ee =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl6096);
+            	            ee =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl6102);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
@@ -31962,14 +32017,14 @@ WNScriptASTParser::classDecl()
             	case 3:
             	    {
             	        {
-            	            f =  this->matchToken(CLASS, &FOLLOW_CLASS_in_classDecl6116);
+            	            f =  this->matchToken(CLASS, &FOLLOW_CLASS_in_classDecl6122);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	            c =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl6120);
+            	            c =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl6126);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
@@ -31989,28 +32044,28 @@ WNScriptASTParser::classDecl()
             	case 4:
             	    {
             	        {
-            	            g =  this->matchToken(CLASS, &FOLLOW_CLASS_in_classDecl6140);
+            	            g =  this->matchToken(CLASS, &FOLLOW_CLASS_in_classDecl6146);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	            d =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl6144);
+            	            d =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl6150);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	             this->matchToken(COLON, &FOLLOW_COLON_in_classDecl6146);
+            	             this->matchToken(COLON, &FOLLOW_COLON_in_classDecl6152);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	            e =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl6150);
+            	            e =  this->matchToken(TYPE, &FOLLOW_TYPE_in_classDecl6156);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
@@ -32046,7 +32101,7 @@ WNScriptASTParser::classDecl()
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_parameterList_in_classDecl6178);
+            	        this->followPush(FOLLOW_parameterList_in_classDecl6184);
             	        parameterList75=parameterList();
 
             	        this->followPop();
@@ -32068,7 +32123,7 @@ WNScriptASTParser::classDecl()
                 }
             }
 
-             this->matchToken(LBRACE, &FOLLOW_LBRACE_in_classDecl6196);
+             this->matchToken(LBRACE, &FOLLOW_LBRACE_in_classDecl6202);
             if  (this->hasException())
             {
                 goto ruleclassDeclEx;
@@ -32078,7 +32133,7 @@ WNScriptASTParser::classDecl()
 
             for (;;)
             {
-                int alt50=8;
+                int alt50=14;
                 switch ( this->LA(1) )
                 {
                 case VOID_TYPE:
@@ -32089,7 +32144,7 @@ WNScriptASTParser::classDecl()
                 			{
                 				switch ( this->LA(3) )
                 				{
-                				case 80:
+                				case 81:
                 					{
                 						alt50=1;
                 					}
@@ -32120,7 +32175,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -32157,7 +32212,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -32194,7 +32249,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -32231,7 +32286,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -32268,7 +32323,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -32305,7 +32360,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -32354,7 +32409,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -32418,7 +32473,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -32482,7 +32537,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -32546,7 +32601,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -32610,7 +32665,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -32674,7 +32729,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -32738,7 +32793,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -32786,7 +32841,7 @@ WNScriptASTParser::classDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt50=1;
                 									}
@@ -32823,7 +32878,7 @@ WNScriptASTParser::classDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt50=1;
                 									}
@@ -32864,7 +32919,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -32902,7 +32957,7 @@ WNScriptASTParser::classDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt50=1;
                 							}
@@ -32935,7 +32990,7 @@ WNScriptASTParser::classDecl()
                 			{
                 				switch ( this->LA(3) )
                 				{
-                				case 80:
+                				case 81:
                 					{
                 						alt50=1;
                 					}
@@ -32966,7 +33021,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -33003,7 +33058,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -33040,7 +33095,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -33077,7 +33132,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -33114,7 +33169,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -33151,7 +33206,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -33200,7 +33255,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -33264,7 +33319,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -33328,7 +33383,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -33392,7 +33447,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -33456,7 +33511,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -33520,7 +33575,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -33584,7 +33639,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -33632,7 +33687,7 @@ WNScriptASTParser::classDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt50=1;
                 									}
@@ -33669,7 +33724,7 @@ WNScriptASTParser::classDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt50=1;
                 									}
@@ -33710,7 +33765,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -33748,7 +33803,7 @@ WNScriptASTParser::classDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt50=1;
                 							}
@@ -33781,7 +33836,7 @@ WNScriptASTParser::classDecl()
                 			{
                 				switch ( this->LA(3) )
                 				{
-                				case 80:
+                				case 81:
                 					{
                 						alt50=1;
                 					}
@@ -33812,7 +33867,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -33849,7 +33904,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -33886,7 +33941,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -33923,7 +33978,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -33960,7 +34015,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -33997,7 +34052,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -34046,7 +34101,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -34110,7 +34165,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -34174,7 +34229,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -34238,7 +34293,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -34302,7 +34357,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -34366,7 +34421,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -34430,7 +34485,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -34478,7 +34533,7 @@ WNScriptASTParser::classDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt50=1;
                 									}
@@ -34515,7 +34570,7 @@ WNScriptASTParser::classDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt50=1;
                 									}
@@ -34556,7 +34611,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -34594,7 +34649,7 @@ WNScriptASTParser::classDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt50=1;
                 							}
@@ -34627,7 +34682,7 @@ WNScriptASTParser::classDecl()
                 			{
                 				switch ( this->LA(3) )
                 				{
-                				case 80:
+                				case 81:
                 					{
                 						alt50=1;
                 					}
@@ -34658,7 +34713,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -34695,7 +34750,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -34732,7 +34787,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -34769,7 +34824,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -34806,7 +34861,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -34843,7 +34898,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -34892,7 +34947,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -34956,7 +35011,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -35020,7 +35075,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -35084,7 +35139,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -35148,7 +35203,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -35212,7 +35267,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -35276,7 +35331,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -35324,7 +35379,7 @@ WNScriptASTParser::classDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt50=1;
                 									}
@@ -35361,7 +35416,7 @@ WNScriptASTParser::classDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt50=1;
                 									}
@@ -35402,7 +35457,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -35440,7 +35495,7 @@ WNScriptASTParser::classDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt50=1;
                 							}
@@ -35473,7 +35528,7 @@ WNScriptASTParser::classDecl()
                 			{
                 				switch ( this->LA(3) )
                 				{
-                				case 80:
+                				case 81:
                 					{
                 						alt50=1;
                 					}
@@ -35504,7 +35559,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -35541,7 +35596,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -35578,7 +35633,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -35615,7 +35670,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -35652,7 +35707,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -35689,7 +35744,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -35738,7 +35793,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -35802,7 +35857,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -35866,7 +35921,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -35930,7 +35985,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -35994,7 +36049,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -36058,7 +36113,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -36122,7 +36177,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -36170,7 +36225,7 @@ WNScriptASTParser::classDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt50=1;
                 									}
@@ -36207,7 +36262,7 @@ WNScriptASTParser::classDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt50=1;
                 									}
@@ -36248,7 +36303,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -36286,7 +36341,7 @@ WNScriptASTParser::classDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt50=1;
                 							}
@@ -36319,7 +36374,7 @@ WNScriptASTParser::classDecl()
                 			{
                 				switch ( this->LA(3) )
                 				{
-                				case 80:
+                				case 81:
                 					{
                 						alt50=1;
                 					}
@@ -36350,7 +36405,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -36387,7 +36442,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -36424,7 +36479,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -36461,7 +36516,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -36498,7 +36553,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -36535,7 +36590,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -36584,7 +36639,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -36648,7 +36703,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -36712,7 +36767,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -36776,7 +36831,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -36840,7 +36895,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -36904,7 +36959,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -36968,7 +37023,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -37016,7 +37071,7 @@ WNScriptASTParser::classDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt50=1;
                 									}
@@ -37053,7 +37108,7 @@ WNScriptASTParser::classDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt50=1;
                 									}
@@ -37094,7 +37149,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -37132,7 +37187,7 @@ WNScriptASTParser::classDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt50=1;
                 							}
@@ -37165,7 +37220,7 @@ WNScriptASTParser::classDecl()
                 			{
                 				switch ( this->LA(3) )
                 				{
-                				case 80:
+                				case 81:
                 					{
                 						alt50=1;
                 					}
@@ -37196,7 +37251,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -37233,7 +37288,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -37270,7 +37325,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -37307,7 +37362,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -37344,7 +37399,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -37381,7 +37436,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -37430,7 +37485,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -37494,7 +37549,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -37558,7 +37613,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -37622,7 +37677,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -37686,7 +37741,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -37750,7 +37805,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -37814,7 +37869,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -37862,7 +37917,7 @@ WNScriptASTParser::classDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt50=1;
                 									}
@@ -37899,7 +37954,7 @@ WNScriptASTParser::classDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt50=1;
                 									}
@@ -37940,7 +37995,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -37978,7 +38033,7 @@ WNScriptASTParser::classDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt50=1;
                 							}
@@ -38011,7 +38066,7 @@ WNScriptASTParser::classDecl()
                 			{
                 				switch ( this->LA(3) )
                 				{
-                				case 80:
+                				case 81:
                 					{
                 						alt50=1;
                 					}
@@ -38042,7 +38097,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -38079,7 +38134,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -38116,7 +38171,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -38153,7 +38208,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -38190,7 +38245,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -38227,7 +38282,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -38276,7 +38331,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -38340,7 +38395,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -38404,7 +38459,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -38468,7 +38523,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -38532,7 +38587,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -38596,7 +38651,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -38660,7 +38715,7 @@ WNScriptASTParser::classDecl()
                 															{
                 																switch ( this->LA(9) )
                 																{
-                																case 80:
+                																case 81:
                 																	{
                 																		alt50=1;
                 																	}
@@ -38708,7 +38763,7 @@ WNScriptASTParser::classDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt50=1;
                 									}
@@ -38745,7 +38800,7 @@ WNScriptASTParser::classDecl()
                 							{
                 								switch ( this->LA(5) )
                 								{
-                								case 80:
+                								case 81:
                 									{
                 										alt50=1;
                 									}
@@ -38778,7 +38833,7 @@ WNScriptASTParser::classDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt50=1;
                 							}
@@ -38827,7 +38882,7 @@ WNScriptASTParser::classDecl()
                 											{
                 												switch ( this->LA(7) )
                 												{
-                												case 80:
+                												case 81:
                 													{
                 														alt50=1;
                 													}
@@ -38864,7 +38919,7 @@ WNScriptASTParser::classDecl()
                 											{
                 												switch ( this->LA(7) )
                 												{
-                												case 80:
+                												case 81:
                 													{
                 														alt50=1;
                 													}
@@ -38901,7 +38956,7 @@ WNScriptASTParser::classDecl()
                 											{
                 												switch ( this->LA(7) )
                 												{
-                												case 80:
+                												case 81:
                 													{
                 														alt50=1;
                 													}
@@ -38938,7 +38993,7 @@ WNScriptASTParser::classDecl()
                 											{
                 												switch ( this->LA(7) )
                 												{
-                												case 80:
+                												case 81:
                 													{
                 														alt50=1;
                 													}
@@ -38975,7 +39030,7 @@ WNScriptASTParser::classDecl()
                 											{
                 												switch ( this->LA(7) )
                 												{
-                												case 80:
+                												case 81:
                 													{
                 														alt50=1;
                 													}
@@ -39012,7 +39067,7 @@ WNScriptASTParser::classDecl()
                 											{
                 												switch ( this->LA(7) )
                 												{
-                												case 80:
+                												case 81:
                 													{
                 														alt50=1;
                 													}
@@ -39061,7 +39116,7 @@ WNScriptASTParser::classDecl()
                 																	{
                 																		switch ( this->LA(10) )
                 																		{
-                																		case 80:
+                																		case 81:
                 																			{
                 																				alt50=1;
                 																			}
@@ -39125,7 +39180,7 @@ WNScriptASTParser::classDecl()
                 																	{
                 																		switch ( this->LA(10) )
                 																		{
-                																		case 80:
+                																		case 81:
                 																			{
                 																				alt50=1;
                 																			}
@@ -39189,7 +39244,7 @@ WNScriptASTParser::classDecl()
                 																	{
                 																		switch ( this->LA(10) )
                 																		{
-                																		case 80:
+                																		case 81:
                 																			{
                 																				alt50=1;
                 																			}
@@ -39253,7 +39308,7 @@ WNScriptASTParser::classDecl()
                 																	{
                 																		switch ( this->LA(10) )
                 																		{
-                																		case 80:
+                																		case 81:
                 																			{
                 																				alt50=1;
                 																			}
@@ -39317,7 +39372,7 @@ WNScriptASTParser::classDecl()
                 																	{
                 																		switch ( this->LA(10) )
                 																		{
-                																		case 80:
+                																		case 81:
                 																			{
                 																				alt50=1;
                 																			}
@@ -39381,7 +39436,7 @@ WNScriptASTParser::classDecl()
                 																	{
                 																		switch ( this->LA(10) )
                 																		{
-                																		case 80:
+                																		case 81:
                 																			{
                 																				alt50=1;
                 																			}
@@ -39445,7 +39500,7 @@ WNScriptASTParser::classDecl()
                 																	{
                 																		switch ( this->LA(10) )
                 																		{
-                																		case 80:
+                																		case 81:
                 																			{
                 																				alt50=1;
                 																			}
@@ -39493,7 +39548,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -39530,7 +39585,7 @@ WNScriptASTParser::classDecl()
                 									{
                 										switch ( this->LA(6) )
                 										{
-                										case 80:
+                										case 81:
                 											{
                 												alt50=1;
                 											}
@@ -39559,7 +39614,7 @@ WNScriptASTParser::classDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt50=1;
                 							}
@@ -39596,7 +39651,7 @@ WNScriptASTParser::classDecl()
                 					{
                 						switch ( this->LA(4) )
                 						{
-                						case 80:
+                						case 81:
                 							{
                 								alt50=1;
                 							}
@@ -39625,6 +39680,7585 @@ WNScriptASTParser::classDecl()
                 	{
                 		switch ( this->LA(2) )
                 		{
+                		case VIRTUAL:
+                			{
+                				alt50=9;
+                			}
+                		    break;
+                		case OVERRIDE:
+                			{
+                				alt50=12;
+                			}
+                		    break;
+                		case VOID_TYPE:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case ID:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case 81:
+                							{
+                								alt50=2;
+                							}
+                						    break;
+                						case LBRACKET:
+                							{
+                								alt50=6;
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case LSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case INT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case NULLTOK:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case VOID_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case INT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CPTR_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 81:
+                											{
+                												alt50=2;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=6;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case DLSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case DRSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 81:
+                											{
+                												alt50=2;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=6;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case SLICETOK:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case INT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case SLICETOK:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case SSOR:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 81:
+                									{
+                										alt50=2;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=6;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case INT_TYPE:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case ID:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case 81:
+                							{
+                								alt50=2;
+                							}
+                						    break;
+                						case LBRACKET:
+                							{
+                								alt50=6;
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case LSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case INT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case NULLTOK:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case VOID_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case INT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CPTR_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 81:
+                											{
+                												alt50=2;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=6;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case DLSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case DRSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 81:
+                											{
+                												alt50=2;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=6;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case SLICETOK:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case INT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case SLICETOK:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case SSOR:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 81:
+                									{
+                										alt50=2;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=6;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case FLOAT_TYPE:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case ID:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case 81:
+                							{
+                								alt50=2;
+                							}
+                						    break;
+                						case LBRACKET:
+                							{
+                								alt50=6;
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case LSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case INT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case NULLTOK:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case VOID_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case INT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CPTR_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 81:
+                											{
+                												alt50=2;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=6;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case DLSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case DRSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 81:
+                											{
+                												alt50=2;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=6;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case SLICETOK:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case INT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case SLICETOK:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case SSOR:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 81:
+                									{
+                										alt50=2;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=6;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case CHAR_TYPE:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case ID:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case 81:
+                							{
+                								alt50=2;
+                							}
+                						    break;
+                						case LBRACKET:
+                							{
+                								alt50=6;
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case LSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case INT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case NULLTOK:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case VOID_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case INT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CPTR_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 81:
+                											{
+                												alt50=2;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=6;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case DLSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case DRSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 81:
+                											{
+                												alt50=2;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=6;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case SLICETOK:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case INT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case SLICETOK:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case SSOR:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 81:
+                									{
+                										alt50=2;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=6;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case BOOL_TYPE:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case ID:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case 81:
+                							{
+                								alt50=2;
+                							}
+                						    break;
+                						case LBRACKET:
+                							{
+                								alt50=6;
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case LSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case INT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case NULLTOK:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case VOID_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case INT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CPTR_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 81:
+                											{
+                												alt50=2;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=6;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case DLSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case DRSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 81:
+                											{
+                												alt50=2;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=6;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case SLICETOK:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case INT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case SLICETOK:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case SSOR:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 81:
+                									{
+                										alt50=2;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=6;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case CPTR_TYPE:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case ID:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case 81:
+                							{
+                								alt50=2;
+                							}
+                						    break;
+                						case LBRACKET:
+                							{
+                								alt50=6;
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case LSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case INT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case NULLTOK:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case VOID_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case INT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CPTR_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 81:
+                											{
+                												alt50=2;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=6;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case DLSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case DRSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 81:
+                											{
+                												alt50=2;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=6;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case SLICETOK:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case INT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case SLICETOK:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case SSOR:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 81:
+                									{
+                										alt50=2;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=6;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case STRING_TYPE:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case ID:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case 81:
+                							{
+                								alt50=2;
+                							}
+                						    break;
+                						case LBRACKET:
+                							{
+                								alt50=6;
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case LSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case INT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case NULLTOK:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case VOID_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case INT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CPTR_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 81:
+                											{
+                												alt50=2;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=6;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case DLSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case DRSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 81:
+                											{
+                												alt50=2;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=6;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case SLICETOK:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case INT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case SLICETOK:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case SSOR:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 81:
+                									{
+                										alt50=2;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=6;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case TYPE:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case ID:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case 81:
+                							{
+                								alt50=2;
+                							}
+                						    break;
+                						case LBRACKET:
+                							{
+                								alt50=6;
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case LSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case INT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case NULLTOK:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case VOID_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case INT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case FLOAT_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CHAR_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case BOOL_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case CPTR_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case STRING_TYPE:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case LBRACE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case STRING:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case RBRACE:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RSQBRACKET:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case ID:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case 81:
+                																			{
+                																				alt50=2;
+                																			}
+                																		    break;
+                																		case LBRACKET:
+                																			{
+                																				alt50=6;
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case RSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 81:
+                											{
+                												alt50=2;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=6;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case DLSQBRACKET:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case DRSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case ID:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case 81:
+                											{
+                												alt50=2;
+                											}
+                										    break;
+                										case LBRACKET:
+                											{
+                												alt50=6;
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+                				case QUESTION:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 81:
+                									{
+                										alt50=2;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=6;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case SHARED_REF:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case LSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case INT:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RSQBRACKET:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case ID:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case 81:
+                															{
+                																alt50=2;
+                															}
+                														    break;
+                														case LBRACKET:
+                															{
+                																alt50=6;
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+                								case FLOAT:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RSQBRACKET:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case ID:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case 81:
+                															{
+                																alt50=2;
+                															}
+                														    break;
+                														case LBRACKET:
+                															{
+                																alt50=6;
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+                								case CHAR:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RSQBRACKET:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case ID:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case 81:
+                															{
+                																alt50=2;
+                															}
+                														    break;
+                														case LBRACKET:
+                															{
+                																alt50=6;
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+                								case STRING:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RSQBRACKET:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case ID:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case 81:
+                															{
+                																alt50=2;
+                															}
+                														    break;
+                														case LBRACKET:
+                															{
+                																alt50=6;
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+                								case BOOL:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RSQBRACKET:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case ID:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case 81:
+                															{
+                																alt50=2;
+                															}
+                														    break;
+                														case LBRACKET:
+                															{
+                																alt50=6;
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+                								case NULLTOK:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case RSQBRACKET:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case ID:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case 81:
+                															{
+                																alt50=2;
+                															}
+                														    break;
+                														case LBRACKET:
+                															{
+                																alt50=6;
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+                								case VOID_TYPE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case LBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case STRING:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RBRACE:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case RSQBRACKET:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case ID:
+                																			{
+                																				switch ( this->LA(11) )
+                																				{
+                																				case 81:
+                																					{
+                																						alt50=2;
+                																					}
+                																				    break;
+                																				case LBRACKET:
+                																					{
+                																						alt50=6;
+                																					}
+                																				    break;
+
+                																				}
+
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+                								case INT_TYPE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case LBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case STRING:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RBRACE:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case RSQBRACKET:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case ID:
+                																			{
+                																				switch ( this->LA(11) )
+                																				{
+                																				case 81:
+                																					{
+                																						alt50=2;
+                																					}
+                																				    break;
+                																				case LBRACKET:
+                																					{
+                																						alt50=6;
+                																					}
+                																				    break;
+
+                																				}
+
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+                								case FLOAT_TYPE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case LBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case STRING:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RBRACE:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case RSQBRACKET:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case ID:
+                																			{
+                																				switch ( this->LA(11) )
+                																				{
+                																				case 81:
+                																					{
+                																						alt50=2;
+                																					}
+                																				    break;
+                																				case LBRACKET:
+                																					{
+                																						alt50=6;
+                																					}
+                																				    break;
+
+                																				}
+
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+                								case CHAR_TYPE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case LBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case STRING:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RBRACE:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case RSQBRACKET:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case ID:
+                																			{
+                																				switch ( this->LA(11) )
+                																				{
+                																				case 81:
+                																					{
+                																						alt50=2;
+                																					}
+                																				    break;
+                																				case LBRACKET:
+                																					{
+                																						alt50=6;
+                																					}
+                																				    break;
+
+                																				}
+
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+                								case BOOL_TYPE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case LBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case STRING:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RBRACE:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case RSQBRACKET:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case ID:
+                																			{
+                																				switch ( this->LA(11) )
+                																				{
+                																				case 81:
+                																					{
+                																						alt50=2;
+                																					}
+                																				    break;
+                																				case LBRACKET:
+                																					{
+                																						alt50=6;
+                																					}
+                																				    break;
+
+                																				}
+
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+                								case CPTR_TYPE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case LBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case STRING:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RBRACE:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case RSQBRACKET:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case ID:
+                																			{
+                																				switch ( this->LA(11) )
+                																				{
+                																				case 81:
+                																					{
+                																						alt50=2;
+                																					}
+                																				    break;
+                																				case LBRACKET:
+                																					{
+                																						alt50=6;
+                																					}
+                																				    break;
+
+                																				}
+
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+                								case STRING_TYPE:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case LBRACE:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case STRING:
+                													{
+                														switch ( this->LA(8) )
+                														{
+                														case RBRACE:
+                															{
+                																switch ( this->LA(9) )
+                																{
+                																case RSQBRACKET:
+                																	{
+                																		switch ( this->LA(10) )
+                																		{
+                																		case ID:
+                																			{
+                																				switch ( this->LA(11) )
+                																				{
+                																				case 81:
+                																					{
+                																						alt50=2;
+                																					}
+                																				    break;
+                																				case LBRACKET:
+                																					{
+                																						alt50=6;
+                																					}
+                																				    break;
+
+                																				}
+
+                																			}
+                																		    break;
+
+                																		}
+
+                																	}
+                																    break;
+
+                																}
+
+                															}
+                														    break;
+
+                														}
+
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+                								case RSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case DLSQBRACKET:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case DRSQBRACKET:
+                									{
+                										switch ( this->LA(6) )
+                										{
+                										case ID:
+                											{
+                												switch ( this->LA(7) )
+                												{
+                												case 81:
+                													{
+                														alt50=2;
+                													}
+                												    break;
+                												case LBRACKET:
+                													{
+                														alt50=6;
+                													}
+                												    break;
+
+                												}
+
+                											}
+                										    break;
+
+                										}
+
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 81:
+                									{
+                										alt50=2;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=6;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case WEAK_REF:
+                			{
+                				switch ( this->LA(3) )
+                				{
+                				case TYPE:
+                					{
+                						switch ( this->LA(4) )
+                						{
+                						case ID:
+                							{
+                								switch ( this->LA(5) )
+                								{
+                								case 81:
+                									{
+                										alt50=2;
+                									}
+                								    break;
+                								case LBRACKET:
+                									{
+                										alt50=6;
+                									}
+                								    break;
+
+                								}
+
+                							}
+                						    break;
+
+                						}
+
+                					}
+                				    break;
+
+                				}
+
+                			}
+                		    break;
+                		case 76:
+                			{
+                				alt50=4;
+                			}
+                		    break;
+
+                		}
+
+                	}
+                    break;
+                case 76:
+                	{
+                		alt50=3;
+                	}
+                    break;
+                case ACTION:
+                	{
+                		switch ( this->LA(2) )
+                		{
+                		case VIRTUAL:
+                			{
+                				alt50=10;
+                			}
+                		    break;
+                		case OVERRIDE:
+                			{
+                				alt50=13;
+                			}
+                		    break;
                 		case BOOL_TYPE:
                 		case CHAR_TYPE:
                 		case CPTR_TYPE:
@@ -39636,12 +47270,7 @@ WNScriptASTParser::classDecl()
                 		case VOID_TYPE:
                 		case WEAK_REF:
                 			{
-                				alt50=2;
-                			}
-                		    break;
-                		case 75:
-                			{
-                				alt50=4;
+                				alt50=7;
                 			}
                 		    break;
 
@@ -39649,19 +47278,14 @@ WNScriptASTParser::classDecl()
 
                 	}
                     break;
-                case 75:
-                	{
-                		alt50=3;
-                	}
-                    break;
                 case VIRTUAL:
                 	{
-                		alt50=6;
+                		alt50=8;
                 	}
                     break;
                 case OVERRIDE:
                 	{
-                		alt50=7;
+                		alt50=11;
                 	}
                     break;
 
@@ -39672,7 +47296,7 @@ WNScriptASTParser::classDecl()
             	case 1:
             	    {
             	        {
-            	            this->followPush(FOLLOW_declaration_in_classDecl6239);
+            	            this->followPush(FOLLOW_declaration_in_classDecl6245);
             	            a=declaration();
 
             	            this->followPop();
@@ -39688,7 +47312,7 @@ WNScriptASTParser::classDecl()
             	            }
 
 
-            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_classDecl6243);
+            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_classDecl6249);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
@@ -39703,14 +47327,14 @@ WNScriptASTParser::classDecl()
             	case 2:
             	    {
             	        {
-            	             this->matchToken(SYNCHRONIZED, &FOLLOW_SYNCHRONIZED_in_classDecl6267);
+            	             this->matchToken(SYNCHRONIZED, &FOLLOW_SYNCHRONIZED_in_classDecl6273);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_declaration_in_classDecl6271);
+            	            this->followPush(FOLLOW_declaration_in_classDecl6277);
             	            aa=declaration();
 
             	            this->followPop();
@@ -39726,7 +47350,7 @@ WNScriptASTParser::classDecl()
             	            }
 
 
-            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_classDecl6275);
+            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_classDecl6281);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
@@ -39741,7 +47365,7 @@ WNScriptASTParser::classDecl()
             	case 3:
             	    {
             	        {
-            	            this->followPush(FOLLOW_inherited_declaration_in_classDecl6302);
+            	            this->followPush(FOLLOW_inherited_declaration_in_classDecl6308);
             	            j=inherited_declaration();
 
             	            this->followPop();
@@ -39757,7 +47381,7 @@ WNScriptASTParser::classDecl()
             	            }
 
 
-            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_classDecl6306);
+            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_classDecl6312);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
@@ -39772,14 +47396,14 @@ WNScriptASTParser::classDecl()
             	case 4:
             	    {
             	        {
-            	             this->matchToken(SYNCHRONIZED, &FOLLOW_SYNCHRONIZED_in_classDecl6330);
+            	             this->matchToken(SYNCHRONIZED, &FOLLOW_SYNCHRONIZED_in_classDecl6336);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_inherited_declaration_in_classDecl6334);
+            	            this->followPush(FOLLOW_inherited_declaration_in_classDecl6340);
             	            jj=inherited_declaration();
 
             	            this->followPop();
@@ -39795,7 +47419,7 @@ WNScriptASTParser::classDecl()
             	            }
 
 
-            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_classDecl6338);
+            	             this->matchToken(SEMICOLON, &FOLLOW_SEMICOLON_in_classDecl6344);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
@@ -39810,7 +47434,7 @@ WNScriptASTParser::classDecl()
             	case 5:
             	    {
             	        {
-            	            this->followPush(FOLLOW_function_in_classDecl6364);
+            	            this->followPush(FOLLOW_function_in_classDecl6370);
             	            b=function();
 
             	            this->followPop();
@@ -39834,14 +47458,78 @@ WNScriptASTParser::classDecl()
             	case 6:
             	    {
             	        {
-            	             this->matchToken(VIRTUAL, &FOLLOW_VIRTUAL_in_classDecl6393);
+            	             this->matchToken(SYNCHRONIZED, &FOLLOW_SYNCHRONIZED_in_classDecl6399);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_function_in_classDecl6397);
+            	            this->followPush(FOLLOW_function_in_classDecl6403);
+            	            bb=function();
+
+            	            this->followPop();
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            {
+            	                 bb
+            	                ->set_synchronized(true); node->add_function(bb
+            	                );
+            	            }
+
+
+            	        }
+
+
+            	    }
+            	    break;
+            	case 7:
+            	    {
+            	        {
+            	             this->matchToken(ACTION, &FOLLOW_ACTION_in_classDecl6432);
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            this->followPush(FOLLOW_function_in_classDecl6436);
+            	            bbb=function();
+
+            	            this->followPop();
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            {
+            	                 bbb
+            	                ->set_action(true); node->add_function(bbb
+            	                );
+            	            }
+
+
+            	        }
+
+
+            	    }
+            	    break;
+            	case 8:
+            	    {
+            	        {
+            	             this->matchToken(VIRTUAL, &FOLLOW_VIRTUAL_in_classDecl6465);
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            this->followPush(FOLLOW_function_in_classDecl6469);
             	            h=function();
 
             	            this->followPop();
@@ -39863,17 +47551,97 @@ WNScriptASTParser::classDecl()
 
             	    }
             	    break;
-            	case 7:
+            	case 9:
             	    {
             	        {
-            	             this->matchToken(OVERRIDE, &FOLLOW_OVERRIDE_in_classDecl6423);
+            	             this->matchToken(SYNCHRONIZED, &FOLLOW_SYNCHRONIZED_in_classDecl6495);
             	            if  (this->hasException())
             	            {
             	                goto ruleclassDeclEx;
             	            }
 
 
-            	            this->followPush(FOLLOW_function_in_classDecl6427);
+            	             this->matchToken(VIRTUAL, &FOLLOW_VIRTUAL_in_classDecl6497);
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            this->followPush(FOLLOW_function_in_classDecl6501);
+            	            hh=function();
+
+            	            this->followPop();
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            {
+            	                 hh
+            	                ->set_synchronized(true); node->add_function(hh
+            	                ); hh
+            	                ->set_is_virtual(true);
+            	            }
+
+
+            	        }
+
+
+            	    }
+            	    break;
+            	case 10:
+            	    {
+            	        {
+            	             this->matchToken(ACTION, &FOLLOW_ACTION_in_classDecl6527);
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	             this->matchToken(VIRTUAL, &FOLLOW_VIRTUAL_in_classDecl6529);
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            this->followPush(FOLLOW_function_in_classDecl6533);
+            	            hhh=function();
+
+            	            this->followPop();
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            {
+            	                 hhh
+            	                ->set_action(true); node->add_function(hhh
+            	                ); hhh
+            	                ->set_is_virtual(true);
+            	            }
+
+
+            	        }
+
+
+            	    }
+            	    break;
+            	case 11:
+            	    {
+            	        {
+            	             this->matchToken(OVERRIDE, &FOLLOW_OVERRIDE_in_classDecl6559);
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            this->followPush(FOLLOW_function_in_classDecl6563);
             	            i=function();
 
             	            this->followPop();
@@ -39895,6 +47663,86 @@ WNScriptASTParser::classDecl()
 
             	    }
             	    break;
+            	case 12:
+            	    {
+            	        {
+            	             this->matchToken(SYNCHRONIZED, &FOLLOW_SYNCHRONIZED_in_classDecl6589);
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	             this->matchToken(OVERRIDE, &FOLLOW_OVERRIDE_in_classDecl6591);
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            this->followPush(FOLLOW_function_in_classDecl6595);
+            	            ii=function();
+
+            	            this->followPop();
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            {
+            	                 ii
+            	                ->set_synchronized(true); node->add_function(ii
+            	                ); ii
+            	                ->set_is_override(true);
+            	            }
+
+
+            	        }
+
+
+            	    }
+            	    break;
+            	case 13:
+            	    {
+            	        {
+            	             this->matchToken(ACTION, &FOLLOW_ACTION_in_classDecl6621);
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	             this->matchToken(OVERRIDE, &FOLLOW_OVERRIDE_in_classDecl6623);
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            this->followPush(FOLLOW_function_in_classDecl6627);
+            	            iii=function();
+
+            	            this->followPop();
+            	            if  (this->hasException())
+            	            {
+            	                goto ruleclassDeclEx;
+            	            }
+
+
+            	            {
+            	                 iii
+            	                ->set_action(true); node->add_function(iii
+            	                ); iii
+            	                ->set_is_override(true);
+            	            }
+
+
+            	        }
+
+
+            	    }
+            	    break;
 
             	default:
             	    goto loop50;
@@ -39904,7 +47752,7 @@ WNScriptASTParser::classDecl()
             loop50: ;
 
 
-            RBRACE76 =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_classDecl6463);
+            RBRACE76 =  this->matchToken(RBRACE, &FOLLOW_RBRACE_in_classDecl6663);
             if  (this->hasException())
             {
                 goto ruleclassDeclEx;
@@ -39960,28 +47808,28 @@ WNScriptASTParser::topLevelRes()
 
     {
         {
-            RESOURCE77 =  this->matchToken(RESOURCE, &FOLLOW_RESOURCE_in_topLevelRes6491);
+            RESOURCE77 =  this->matchToken(RESOURCE, &FOLLOW_RESOURCE_in_topLevelRes6691);
             if  (this->hasException())
             {
                 goto ruletopLevelResEx;
             }
 
 
-            rlb =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_topLevelRes6495);
+            rlb =  this->matchToken(LBRACKET, &FOLLOW_LBRACKET_in_topLevelRes6695);
             if  (this->hasException())
             {
                 goto ruletopLevelResEx;
             }
 
 
-            rls =  this->matchToken(STRING, &FOLLOW_STRING_in_topLevelRes6499);
+            rls =  this->matchToken(STRING, &FOLLOW_STRING_in_topLevelRes6699);
             if  (this->hasException())
             {
                 goto ruletopLevelResEx;
             }
 
 
-            rrb =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_topLevelRes6503);
+            rrb =  this->matchToken(RBRACKET, &FOLLOW_RBRACKET_in_topLevelRes6703);
             if  (this->hasException())
             {
                 goto ruletopLevelResEx;
@@ -40033,14 +47881,14 @@ WNScriptASTParser::inc()
 
     {
         {
-             this->matchToken(INCLUDE, &FOLLOW_INCLUDE_in_inc6532);
+             this->matchToken(INCLUDE, &FOLLOW_INCLUDE_in_inc6732);
             if  (this->hasException())
             {
                 goto ruleincEx;
             }
 
 
-            STRING78 =  this->matchToken(STRING, &FOLLOW_STRING_in_inc6534);
+            STRING78 =  this->matchToken(STRING, &FOLLOW_STRING_in_inc6734);
             if  (this->hasException())
             {
                 goto ruleincEx;
@@ -40115,7 +47963,7 @@ WNScriptASTParser::program()
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_inc_in_program6563);
+            	        this->followPush(FOLLOW_inc_in_program6763);
             	        inc79=inc();
 
             	        this->followPop();
@@ -40185,7 +48033,7 @@ WNScriptASTParser::program()
                 {
             	case 1:
             	    {
-            	        this->followPush(FOLLOW_function_in_program6602);
+            	        this->followPush(FOLLOW_function_in_program6802);
             	        function80=function();
 
             	        this->followPop();
@@ -40205,7 +48053,7 @@ WNScriptASTParser::program()
             	    break;
             	case 2:
             	    {
-            	        this->followPush(FOLLOW_structDecl_in_program6624);
+            	        this->followPush(FOLLOW_structDecl_in_program6824);
             	        structDecl81=structDecl();
 
             	        this->followPop();
@@ -40225,7 +48073,7 @@ WNScriptASTParser::program()
             	    break;
             	case 3:
             	    {
-            	        this->followPush(FOLLOW_classDecl_in_program6644);
+            	        this->followPush(FOLLOW_classDecl_in_program6844);
             	        classDecl82=classDecl();
 
             	        this->followPop();
@@ -40245,7 +48093,7 @@ WNScriptASTParser::program()
             	    break;
             	case 4:
             	    {
-            	        this->followPush(FOLLOW_topLevelRes_in_program6665);
+            	        this->followPush(FOLLOW_topLevelRes_in_program6865);
             	        topLevelRes83=topLevelRes();
 
             	        this->followPop();

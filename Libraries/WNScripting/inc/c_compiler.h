@@ -93,6 +93,7 @@ private:
       containers::dynamic_array<containers::string>>
       m_vtable_functions;
   memory::allocator* m_allocator;
+  const ast_function* m_current_function = nullptr;
 };
 }  // namespace scripting
 }  // namespace wn

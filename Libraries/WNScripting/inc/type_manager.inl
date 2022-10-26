@@ -129,7 +129,7 @@ struct exporter : public exporter_base {
         T* t, typename get_thunk_passed_type<Args>::type... args) {
       tls_resetter reset;
       auto r = (*fn)(t, get_thunk_passed_type<Args>::unwrap(args)...);
-      return get_thunk_passed_type<R>::wrap(r);
+      return get_thunk_passed_type<R>::wrap_return(r);
     }
 
     template <R (*fn)(T*, Args...)>
@@ -138,7 +138,7 @@ struct exporter : public exporter_base {
         typename get_thunk_passed_type<R>::ret_type* _ret) {
       tls_resetter reset;
       auto r = (*fn)(t, get_thunk_passed_type<Args>::unwrap(args)...);
-      *_ret = get_thunk_passed_type<R>::wrap(r);
+      *_ret = get_thunk_passed_type<R>::wrap_return(r);
     }
   };
 
@@ -187,7 +187,7 @@ struct exporter : public exporter_base {
   void* get_pseudo_thunk() {
     void* v;
     if (decltype(get_pseudo_member_maker(fptr))::is_ret_by_ref) {
-      auto mt = decltype(
+      auto mt = decltype(  // This is a bit ugly
           get_pseudo_member_maker(fptr))::template return_member_thunk<fptr>;
       memcpy(&v, &mt, sizeof(uintptr_t));
     } else {
@@ -345,5 +345,19 @@ void type_manager::export_script_type() {
           nullptr, false);
 }
 
+template <typename T>
+void type_manager::export_script_actor_type() {
+  if (m_externally_visible_types.find(core::type_id<T>::value()) !=
+      m_externally_visible_types.end()) {
+    return;
+  }
+  containers::string_view name = T::exported_name();
+  export_script_actor_type(name);
+  ast_type* t = m_structure_types.find(name)->second.get();
+  m_externally_visible_types[core::type_id<T>::value()] = t;
+  m_externally_visible_types[core::type_id<script_actor_pointer<T>>::value()] =
+      t;
+  m_externally_visible_types[core::type_id<script_pointer<T>>::value()] = t;
+}
 }  // namespace scripting
 }  // namespace wn

@@ -138,6 +138,16 @@ struct exported_script_type<Rocket::Core::Element> {
         "set_class");
   }
 };
+
+template <>
+struct exported_script_type<Rocket::Core::ElementDocument> {
+  using parent_type = Rocket::Core::Element;
+  static containers::string_view exported_name() {
+    return "UiDocument";
+  }
+  static void export_type(
+      wn::scripting::exporter<Rocket::Core::ElementDocument>*) {}
+};
 }  // namespace scripting
 
 namespace engine {
@@ -146,14 +156,21 @@ namespace ui {
 void event_instancer::register_scripting(
     memory::allocator*, scripting::engine* _engine) {
   _engine->register_cpp_type<Rocket::Core::Element>();
+  _engine->register_child_cpp_type<Rocket::Core::ElementDocument>();
 }
 
-event_instancer::event_instancer(scripting::engine* _engine, logging::log* _log)
-  : m_engine(_engine), m_log(_log) {}
+event_instancer::event_instancer(scripting::engine* _engine,
+    memory::allocator* _allocator, logging::log* _log)
+  : m_engine(_engine), m_log(_log), m_contexts(_allocator) {}
 
 Rocket::Core::EventListener* event_instancer::InstanceEventListener(
     const Rocket::Core::String& value, Rocket::Core::Element* element) {
-  return new event_listener(m_engine, m_log, value, element);
+  if (m_contexts.find(element->GetOwnerDocument()) == m_contexts.end()) {
+    return new event_listener(
+        m_engine, m_log, m_currently_loading_doc, value, element);
+  }
+  auto& r = m_contexts[element->GetOwnerDocument()];
+  return new event_listener(m_engine, m_log, r, value, element);
 }
 
 void event_instancer::Release() {
@@ -161,12 +178,23 @@ void event_instancer::Release() {
 }
 
 event_listener::event_listener(scripting::engine* _engine, logging::log* _log,
+    scripting::script_actor_pointer<ui_data> ui_dat,
     const Rocket::Core::String& code, Rocket::Core::Element* element)
-  : m_engine(_engine), m_log(_log) {
+  : m_engine(_engine), m_log(_log), m_ui_data(ui_dat) {
   (void)element;
-  _engine->get_function(code.CString(), &m_callee);
-  if (!m_callee) {
-    _log->log_error("Could not find callback function ", code.CString());
+  if (code.Find("this.") == 0) {
+    const char* nm = m_ui_data.invoke(&ui_data::get_class_name);
+    _engine->get_named_member_function(
+        code.CString() + 5, nm, &m_member_callee);
+    if (!m_member_callee) {
+      _log->log_error(
+          "Could not find member callback function ", code.CString());
+    }
+  } else {
+    _engine->get_function(code.CString(), &m_callee);
+    if (!m_callee) {
+      _log->log_error("Could not find callback function ", code.CString());
+    }
   }
 }
 
@@ -175,6 +203,10 @@ event_listener::~event_listener() {}
 void event_listener::ProcessEvent(Rocket::Core::Event& event) {
   if (m_callee) {
     m_engine->invoke(m_callee, event.GetTargetElement());
+    return;
+  } else if (m_member_callee) {
+    m_engine->invoke(
+        m_member_callee, m_ui_data.unsafe_ptr(), event.GetTargetElement());
     return;
   }
   m_log->log_warning(

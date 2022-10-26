@@ -82,6 +82,8 @@ struct parse_ast_convertor::convertor_context {
   memory::unique_ptr<ast_expression>
   resolve_shared_struct_allocation_expression(
       const struct_allocation_expression* _expression);
+  memory::unique_ptr<ast_expression> resolve_actor_allocation_expression(
+      const struct_allocation_expression* _expression);
   memory::unique_ptr<ast_expression> resolve_member_access_expression(
       const member_access_expression* _expression);
   memory::unique_ptr<ast_expression> resolve_array_allocation_expression(
@@ -154,6 +156,8 @@ struct parse_ast_convertor::convertor_context {
   containers::deque<ast_scope_block*> m_nested_scopes;
   containers::deque<memory::unique_ptr<ast_statement>>* m_current_statements;
   containers::deque<memory::unique_ptr<ast_function>> m_constructor_destructors;
+  containers::deque<memory::unique_ptr<function>> m_action_helpers_parse;
+  containers::deque<memory::unique_ptr<ast_function>> m_action_helpers;
   ast_function* m_current_function;
   ast_declaration* m_return_decl;
   ast_function::parameter* m_return_parameter;

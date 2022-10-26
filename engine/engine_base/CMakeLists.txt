@@ -5,4 +5,5 @@ add_wn_library(
     src/context.cpp
   LIBS
     WNScripting
+    WNMultiTasking
 )

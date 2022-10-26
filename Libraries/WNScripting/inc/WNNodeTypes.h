@@ -1233,6 +1233,12 @@ public:
         m_allocator, m_allocator, _expr, _hand_ownership));
   }
 
+  void add_expression(
+      memory::unique_ptr<expression> _expr, bool _hand_ownership = false) {
+    m_expression_list.emplace_back(memory::make_unique<function_expression>(
+        m_allocator, core::move(_expr), _hand_ownership));
+  }
+
   containers::deque<memory::unique_ptr<function_expression>>&
   get_expressions() {
     return (m_expression_list);
@@ -1504,6 +1510,11 @@ struct expression_instruction : public instruction {
     : instruction(_allocator, node_type::expression_instruction),
       m_expression(memory::unique_ptr<expression>(m_allocator, _expr)) {}
 
+  expression_instruction(
+      memory::allocator* _allocator, memory::unique_ptr<expression> _expr)
+    : instruction(_allocator, node_type::expression_instruction),
+      m_expression(core::move(_expr)) {}
+
   expression_instruction(memory::allocator* _allocator)
     : instruction(_allocator, node_type::expression_instruction) {}
 
@@ -1644,11 +1655,22 @@ public:
       m_name(_allocator, _name),
       m_is_for_empty_function(false) {}
 
+  parameter(memory::allocator* _allocator, memory::unique_ptr<type> _type,
+      const char* _name)
+    : node(_allocator, scripting::node_type::parameter),
+      m_type(core::move(_type)),
+      m_name(_allocator, _name),
+      m_is_for_empty_function(false) {}
+
   explicit parameter(memory::allocator* _allocator)
     : node(_allocator, scripting::node_type::parameter) {}
 
   const containers::string_view get_name() const {
     return m_name.to_string_view();
+  }
+
+  const containers::string& get_name_str() const {
+    return m_name;
   }
 
   void set_name(const containers::string_view& view) {
@@ -1732,6 +1754,10 @@ public:
     m_expression = memory::unique_ptr<expression>(m_allocator, _expr);
   }
 
+  void add_expression_initializer(memory::unique_ptr<expression> _expr) {
+    m_expression = core::move(_expr);
+  }
+
   const expression* get_expression() const {
     return m_expression.get();
   }
@@ -1789,11 +1815,20 @@ public:
         memory::unique_ptr<parameter>(m_allocator, _param));
   }
 
+  parameter_list(
+      memory::allocator* _allocator, memory::unique_ptr<parameter> _param)
+    : parameter_list(_allocator) {
+    m_parameters.emplace_back(core::move(_param));
+  }
+
   void add_parameter(parameter* _param) {
     m_parameters.emplace_back(
         memory::unique_ptr<parameter>(m_allocator, _param));
   }
 
+  void add_parameter(memory::unique_ptr<parameter> _param) {
+    m_parameters.emplace_back(core::move(_param));
+  }
   void prepend_parameter(memory::unique_ptr<parameter>&& _param) {
     m_parameters.emplace_front(core::move(_param));
   }
@@ -1833,6 +1868,8 @@ public:
       m_parent_name(_allocator),
       m_is_class(_is_class),
       m_is_synchronized(false),
+      m_is_actor_base(false),
+      m_is_actor_callee(false),
       m_struct_members(_allocator),
       m_struct_functions(_allocator) {
     if (_parent_type) {
@@ -1851,6 +1888,22 @@ public:
 
   bool is_synchronized() const {
     return m_is_synchronized;
+  }
+
+  bool is_actor_base() const {
+    return m_is_actor_base;
+  }
+
+  void set_is_actor_base(bool val) {
+    m_is_actor_base = val;
+  }
+
+  bool is_actor_callee() const {
+    return m_is_actor_callee;
+  }
+
+  void set_is_actor_callee(bool val) {
+    m_is_actor_callee = val;
   }
 
   void add_struct_elem(
@@ -1902,6 +1955,10 @@ public:
         memory::unique_ptr<parameter_list>(m_allocator, _params);
   }
 
+  void set_constructor_parameters(memory::unique_ptr<parameter_list> _params) {
+    m_constructor_parameters = core::move(_params);
+  }
+
   const parameter_list* constructor_params() const {
     return m_constructor_parameters.get();
   }
@@ -1927,6 +1984,8 @@ public:
     t->m_name = containers::string(_allocator, m_name);
     t->m_parent_name = containers::string(_allocator, m_parent_name);
     t->m_is_class = m_is_class;
+    t->m_is_actor_base = m_is_actor_base;
+    t->m_is_actor_callee = m_is_actor_callee;
     t->m_struct_members =
         containers::deque<memory::unique_ptr<declaration>>(_allocator);
     t->m_struct_functions =
@@ -1948,6 +2007,8 @@ private:
   containers::string m_parent_name;
   bool m_is_class;
   bool m_is_synchronized;
+  bool m_is_actor_base;
+  bool m_is_actor_callee;
   containers::deque<memory::unique_ptr<declaration>> m_struct_members;
   containers::deque<memory::unique_ptr<function>> m_struct_functions;
   memory::unique_ptr<parameter_list> m_constructor_parameters;
@@ -1962,7 +2023,9 @@ public:
       m_parameters(memory::unique_ptr<parameter_list>(m_allocator, _params)),
       m_body(memory::unique_ptr<instruction_list>(m_allocator, _body)),
       m_is_override(false),
-      m_is_virtual(false) {}
+      m_is_virtual(false),
+      m_is_synchronized(false),
+      m_is_action(false) {}
 
   explicit function(memory::allocator* _allocator)
     : node(_allocator, node_type::function) {}
@@ -1976,7 +2039,9 @@ public:
       m_parameters(core::move(_params)),
       m_body(core::move(_body)),
       m_is_override(false),
-      m_is_virtual(false) {}
+      m_is_virtual(false),
+      m_is_synchronized(false),
+      m_is_action(false) {}
 
   void set_is_virtual(bool is_virtual) {
     m_is_virtual = is_virtual;
@@ -1988,6 +2053,22 @@ public:
 
   bool is_override() const {
     return m_is_override;
+  }
+
+  bool is_synchronized() const {
+    return m_is_synchronized;
+  }
+
+  void set_synchronized(bool val) {
+    m_is_synchronized = val;
+  }
+
+  bool is_action() const {
+    return m_is_action;
+  }
+
+  void set_action(bool val) {
+    m_is_action = val;
   }
 
   void set_is_override(bool is_override) {
@@ -2034,6 +2115,8 @@ public:
     t->m_body = clone_node(_allocator, m_body.get());
     t->m_is_override = m_is_override;
     t->m_is_virtual = m_is_virtual;
+    t->m_is_synchronized = m_is_synchronized;
+    t->m_is_action = m_is_action;
     return t;
   }
 
@@ -2043,6 +2126,8 @@ private:
   memory::unique_ptr<instruction_list> m_body;
   bool m_is_override;
   bool m_is_virtual;
+  bool m_is_synchronized;
+  bool m_is_action;
 };
 
 class assignment_instruction;

@@ -46,16 +46,15 @@ Int main(Context ctx) {
 
   MainDesc desc = MainDesc(context);
   context.register_description(desc);
-
-  shared MainGUI main_gui = @UIResource("assets/ui/main.rml");
   
-  UI ui = get_ui_renderer(ctx);
+  shared UI ui = get_ui_renderer(ctx);
   context.add_renderable_to_passes(ui, CString[]("Initial Pass"){0:1});
-  ui.add_document(main_gui, 100, 100);
-  ui.add_document(main_gui, 200, 200);
-  ui.add_document(main_gui, 300, 300);
+  Int doc1 = ui.add_document(@UIResource("assets/ui/main.rml"), 100, 100);
+  Int doc2 = ui.add_document(@UIResource("assets/ui/main.rml"), 200, 200);
+  Int doc3 = ui.add_document(@UIResource("assets/ui/main.rml"), 300, 300);
 
   while(true) {
+    ui.schedule_document_update(doc1);
     context.render();
     yield();
   }

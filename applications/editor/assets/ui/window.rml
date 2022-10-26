@@ -1,5 +1,6 @@
 <template name="window" content="content">
 <head>
+<script src="header.wns"></script>
 <style>
 titlebar {
 	display:block;
@@ -80,9 +81,9 @@ scrollbarhorizontal sliderbar
 <body onload="titlebar_onload" style="min-width:100px; min-height: 100px; width: 300px; height: 300px; display:block; position: absolute; background-color: #455A64;  border-color: gray; border-width: 3px; overflow: hidden;" class="window">
 	<titlebar>
 	<titlebarcontents>
-	<titlebaritem onclick="on_button_click" >Hello</titlebaritem>
-	<titlebaritem onclick="on_button_click" >World</titlebaritem>
-	<titlebaritem onclick="on_button_click" >WorldWorldHello</titlebaritem>
+	<titlebaritem onclick="this.on_button_click" >Hello</titlebaritem>
+	<titlebaritem onclick="this.on_button_click" >World</titlebaritem>
+	<titlebaritem onclick="this.on_button_click" >WorldWorldHello</titlebaritem>
 	</titlebarcontents>
 	</titlebar>
 	<div id="window">

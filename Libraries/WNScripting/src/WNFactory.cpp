@@ -12,11 +12,12 @@ namespace scripting {
 
 memory::unique_ptr<engine> factory::get_engine(memory::allocator* _allocator,
     scripting_engine_type _type, file_system::mapping* _file_mapping,
-    logging::log* _log, memory::allocator* _support_allocator) {
+    logging::log* _log, memory::allocator* _support_allocator,
+    memory::allocator* _actor_allocator, scripting_runtime* _runtime) {
   switch (_type) {
     case scripting_engine_type::jit_engine:
-      return memory::make_unique<jit_engine>(
-          _allocator, _allocator, _file_mapping, _log, _support_allocator);
+      return memory::make_unique<jit_engine>(_allocator, _allocator,
+          _file_mapping, _log, _support_allocator, _actor_allocator, _runtime);
     default:
       return nullptr;
   }
@@ -38,7 +39,13 @@ memory::unique_ptr<translator> factory::get_translator(
 void script_object_type::free(void* val) {
   // TODO(awoloszyn): Use the allocator here.
   // For now we allocated with malloc, so free with malloc
-  ::free(val);
+  m_engine->free_shared(val);
+}
+
+void script_actor_type::free(void* val) {
+  // TODO(awoloszyn): Use the allocator here.
+  // For now we allocated with malloc, so free with malloc
+  m_engine->free_shared(val);
 }
 
 void do_engine_free(const engine* _engine, void* v) {
