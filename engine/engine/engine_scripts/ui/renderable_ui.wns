@@ -2,13 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-class RenderableUI {
-    CString name = "";
-    CString class_name = "";
-    CString get_name() {
+Actor RenderableUI {
+    @synchronized CString name = "";
+    @synchronized CString class_name = "";
+    @synchronized CString get_name() {
         return name;
     }
-    CString get_class_name() {
+    @synchronized CString get_class_name() {
         return class_name;
     }
+
+    @synchronized virtual Void update(Int doc_idx, UiDocument doc) {}
 }

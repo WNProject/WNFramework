@@ -1207,8 +1207,10 @@ parse_ast_convertor::convertor_context::resolve_function_call(
     return id;
   }
 
-  if (!is_this && function_call->m_function->m_action_function &&
-      !m_current_function->m_is_action_caller) {
+  if ((!is_this && function_call->m_function->m_action_function &&
+      !m_current_function->m_is_action_caller) ||
+      (is_this && function_call->m_function->m_action_function && 
+          !m_current_function->m_action_function)) {
     // We are invoking an action on a different actor,
     // then instead of
     // foo->bar(a, b, c);

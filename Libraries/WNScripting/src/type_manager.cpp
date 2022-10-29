@@ -186,8 +186,6 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
     m_actor_header = memory::make_unique_delegated<ast_type>(m_allocator,
         [this](void* _mem) { return new (_mem) ast_type(&m_all_types); });
 
-    
-
     m_actor_header->m_name =
         containers::string(m_allocator, "_wns_actor_object");
     m_actor_header->m_builtin = builtin_type::not_builtin;
@@ -236,6 +234,23 @@ ast_type* type_manager::export_script_type(containers::string_view _type) {
   struct_type->m_name = _type.to_string(m_allocator);
   ast_type* return_type = struct_type.get();
   return_type->m_classification = ast_type_classification::struct_type;
+  return_type->calculate_mangled_name(m_allocator);
+  m_structure_types[return_type->m_name] = core::move(struct_type);
+
+  return return_type;
+}
+
+ast_type* type_manager::export_script_actor_type(
+    containers::string_view _type) {
+  auto it = m_structure_types.find(_type);
+  if (it != m_structure_types.end()) {
+    return it->second.get();
+  }
+  auto struct_type = memory::make_unique_delegated<ast_type>(m_allocator,
+      [this](void* _memory) { return new (_memory) ast_type(&m_all_types); });
+  struct_type->m_name = _type.to_string(m_allocator);
+  ast_type* return_type = struct_type.get();
+  return_type->m_classification = ast_type_classification::actor_type;
   return_type->calculate_mangled_name(m_allocator);
   m_structure_types[return_type->m_name] = core::move(struct_type);
 
@@ -329,7 +344,8 @@ containers::string_view exporter_base::add_contained_function(
 
 ast_type* type_manager::get_reference_of(const ast_type* _type,
     ast_type_classification _reference_type, used_type_set* _used) {
-  WN_DEBUG_ASSERT(!_type->is_synchronized(), "Dont try to take a reference to an actor");
+  WN_DEBUG_ASSERT(
+      !_type->is_synchronized(), "Dont try to take a reference to an actor");
   containers::hash_map<const ast_type*, memory::unique_ptr<ast_type>>*
       insertion_map;
   const char* prefix = "";
@@ -806,7 +822,9 @@ ast_vtable* type_manager::make_vtable(const containers::string_view& _name) {
 size_t type_manager::get_virtual_function(const containers::string_view& _name,
     const containers::dynamic_array<const ast_type*>& _types) const {
   const ast_type* ret_type = _types[0];
-  const ast_type* object_type = _types[1]->m_implicitly_contained_type;
+  const ast_type* object_type =
+      _types[1]->m_classification == ast_type_classification::actor_type
+      ? _types[1] :  _types[1]->m_implicitly_contained_type;
   size_t offs = 0;
 
   for (auto& it : object_type->m_vtable->m_functions) {

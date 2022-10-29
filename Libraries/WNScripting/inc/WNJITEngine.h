@@ -66,7 +66,7 @@ protected:
     auto it = m_c_pointers.find(_name.to_string(m_allocator));
     auto ret = it != m_c_pointers.end() ? it->second : nullptr;
     if (ret == nullptr) {
-      m_log->log_error("Could not find ", _name, " only pointers are:");
+      m_log->log_warning("Could not find ", _name, " only pointers are:");
       for (auto& x : m_pointers) {
         m_log->log_warning("  ", x.first);
       }

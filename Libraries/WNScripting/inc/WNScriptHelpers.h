@@ -163,6 +163,12 @@ template <typename T>
 struct is_shared_script_pointer<shared_script_pointer<T>> : core::true_type {};
 
 template <typename T>
+struct is_actor_pointer: core::false_type {};
+
+template <typename T>
+struct is_actor_pointer<script_actor_pointer<T>> : core::true_type {};
+
+template <typename T>
 struct is_shared_cpp_pointer : core::false_type {};
 
 template <typename T>
@@ -233,7 +239,7 @@ struct get_thunk_passed_type<U,
 template <typename U>
 struct get_thunk_passed_type<U,
     typename core::enable_if<core::disjunction<is_script_pointer<U>,
-        is_shared_script_pointer<U>, is_shared_cpp_pointer<U>>::value>::type> {
+        is_shared_script_pointer<U>, is_shared_cpp_pointer<U>, is_actor_pointer<U>>::value>::type> {
   using type = typename U::value_type*;
   using ret_type = typename U::value_type*;
   static inline typename U::value_type* wrap(const U& _u) {
@@ -245,6 +251,7 @@ struct get_thunk_passed_type<U,
 
   static inline U unwrap(typename U::value_type* _u) {
     U u(_u);
+
     fixup_return_type(u);
     return u;
   }
@@ -286,6 +293,15 @@ inline shared_script_pointer<T>& fixup_return_type(
       (*get_scripting_tls()->_object_types)[core::type_id<T>::value()].get()));
   return t;
 }
+
+template <typename T>
+inline script_actor_pointer<T>& fixup_return_type(
+    script_actor_pointer<T>& t) {
+  t.unsafe_set_type(reinterpret_cast<T*>(
+      (*get_scripting_tls()->_actor_types)[core::type_id<T>::value()].get()));
+  return t;
+}
+
 
 template <typename T>
 inline shared_cpp_pointer<T>& fixup_return_type(shared_cpp_pointer<T>& t) {

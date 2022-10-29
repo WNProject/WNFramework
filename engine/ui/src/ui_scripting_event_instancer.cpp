@@ -138,6 +138,16 @@ struct exported_script_type<Rocket::Core::Element> {
         "set_class");
   }
 };
+
+template <>
+struct exported_script_type<Rocket::Core::ElementDocument> {
+  using parent_type = Rocket::Core::Element;
+  static containers::string_view exported_name() {
+    return "UiDocument";
+  }
+  static void export_type(
+      wn::scripting::exporter<Rocket::Core::ElementDocument>*) {}
+};
 }  // namespace scripting
 
 namespace engine {
@@ -146,6 +156,7 @@ namespace ui {
 void event_instancer::register_scripting(
     memory::allocator*, scripting::engine* _engine) {
   _engine->register_cpp_type<Rocket::Core::Element>();
+  _engine->register_child_cpp_type<Rocket::Core::ElementDocument>();
 }
 
 event_instancer::event_instancer(scripting::engine* _engine,
@@ -168,7 +179,7 @@ void event_instancer::Release() {
 }
 
 event_listener::event_listener(scripting::engine* _engine, logging::log* _log,
-    scripting::shared_script_pointer<ui_data> ui_dat,
+    scripting::script_actor_pointer<ui_data> ui_dat,
     const Rocket::Core::String& code, Rocket::Core::Element* element)
   : m_engine(_engine), m_log(_log), m_ui_data(ui_dat) {
   (void)element;

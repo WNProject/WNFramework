@@ -42,6 +42,12 @@ void script_object_type::free(void* val) {
   ::free(val);
 }
 
+void script_actor_type::free(void* val) {
+  // TODO(awoloszyn): Use the allocator here.
+  // For now we allocated with malloc, so free with malloc
+  ::free(val);
+}
+
 void do_engine_free(const engine* _engine, void* v) {
   _engine->free_shared(v);
 }

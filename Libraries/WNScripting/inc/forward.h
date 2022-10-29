@@ -24,6 +24,16 @@ struct script_object_type {
   containers::string_view m_name;
   script_object_type* m_parent;
 };
+
+struct script_actor_type {
+  void free(void* val);
+
+  memory::allocator* m_allocator;
+  engine* m_engine;
+  containers::string_view m_name;
+  script_actor_type* m_parent;
+};
+
 template <typename T>
 class shared_script_pointer;
 
@@ -43,7 +53,7 @@ public:
   typename core::enable_if<core::is_same<void, typename X::ret_type>::value,
       typename X::ret_type>::type
   invoke(X T::*v, Args... args) {
-    return (type->*v).do_v(type->m_engine, *this, args...);
+    return (type->*v).do_(type->m_engine, *this, args...);
   }
 
   ~script_pointer() {}
@@ -192,6 +202,112 @@ private:
   friend class engine;
   friend class script_pointer<T>;
 };
+
+
+template <typename T>
+class script_actor_pointer {
+public:
+  using value_type = T;
+  template <typename X, typename... Args>
+  typename X::ret_type invoke(X T::*v, Args... args) {
+    auto sp = get();
+
+    return (type->*v).do_(type->m_engine, sp, args...);
+  }
+
+  script_pointer<T> get() {
+    return script_pointer<T>(val, type);
+  }
+
+  ~script_actor_pointer() {
+    release();
+  }
+
+  script_actor_pointer(const script_actor_pointer& _other)
+    : val(_other.val), type(_other.type) {
+    acquire();
+  }
+
+  script_actor_pointer& operator=(const script_actor_pointer& _other) {
+    val = _other.val;
+    type = _other.type;
+    acquire();
+    return *this;
+  }
+
+  script_actor_pointer(script_actor_pointer&& _other)
+    : val(_other.val), type(_other.type) {
+    _other.val = nullptr;
+    _other.type = nullptr;
+  }
+
+  script_actor_pointer() : val(nullptr), type(nullptr) {}
+  void* unsafe_ptr() {
+    return val;
+  }
+  const void* unsafe_ptr() const {
+    return val;
+  }
+
+  void* unsafe_pass() {
+    acquire();
+    return val;
+  }
+
+  void unsafe_set_type(T* _type) {
+    type = _type;
+  }
+
+  script_actor_pointer(void* t) : val(t) {
+    acquire();
+  }
+
+  template <typename Q = T>
+  typename core::enable_if<!core::is_same<typename Q::parent_type, void>::value,
+      script_actor_pointer<typename Q::parent_type>>::type
+  parent() {
+    return script_actor_pointer<typename T::parent_type>(
+        val, reinterpret_cast<typename T::parent_type*>(type->m_parent));
+  }
+
+private:
+  script_actor_pointer(void* v, T* t) : val(v), type(t) {
+    acquire();
+  }
+
+  struct actor_object_header {
+    void* user_data_1;
+    void* user_data_2;
+    std::atomic<size_t> m_ref_count;
+    void (*m_destructor)(void*);
+    void (*m_copier)(void*);
+  };
+
+  actor_object_header* header() {
+    return static_cast<actor_object_header*>(val) - 1;
+  }
+
+  void acquire() {
+    if (val) {
+      // When this is created (by the engine), then it will
+      // also fix up T* type, but not in the constructor for a variety of
+      // reasons
+      header()->m_ref_count++;
+    }
+  }
+
+  void release() {
+    if (val && --header()->m_ref_count == 0) {
+      WN_DEBUG_ASSERT(false, "Deleting actor here not supported");
+    }
+  }
+
+  void* val;
+  T* type;
+  friend class engine;
+  friend class script_pointer<T>;
+};
+
 
 template <typename T>
 script_pointer<T>::script_pointer(const shared_script_pointer<T>& _other)

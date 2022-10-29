@@ -171,7 +171,31 @@ void ui::initialize_for_renderpass(renderer::render_context* _renderer,
   m_documents.clear();
 }
 
+void ui::schedule_document_update(int32_t doc) {
+  multi_tasking::lock_guard<multi_tasking::mutex> lock(m_document_update_mutex);
+  m_documents_to_update.insert(doc);
+}
+
 void ui::update_render_data(size_t _frame_parity, command_list* _cmd_list) {
+  {
+    m_document_update_mutex.lock();
+    if (!m_documents_to_update.empty()) {
+      auto dtu = core::move(m_documents_to_update);
+      m_document_update_mutex.unlock();
+      PROFILE_REGION(UIDocumentUpdate);
+      for (auto& v : dtu) {
+        auto it = m_rocket_documents.find(v);
+        if (it == m_rocket_documents.end()) {
+          continue;
+        }
+        scripting::script_pointer<ui_data> dat =
+            m_instancer->get_element_context(it->second);
+        dat.invoke(&ui_data::update, v, it->second);
+      }
+    } else {
+      m_document_update_mutex.unlock();
+    }
+  }
   PROFILE_REGION(UIUpdateRenderData);
   wn::runtime::window::input_event evt;
   int key_modifier_state = get_key_modifier_state(m_window);
@@ -249,26 +273,28 @@ void ui::render(renderer::render_pass* _render_pass,
   m_renderer->set_render_command_list(nullptr);
 }
 
-void ui::add_document(
-    scripting::shared_script_pointer<ui_data> _data, int32_t _x, int32_t _y) {
+int32_t ui::add_document(
+    scripting::script_actor_pointer<ui_data> _data, int32_t _x, int32_t _y) {
   if (m_document_context) {
-    document_to_add a{_x, _y, core::move(_data)};
+    document_to_add a{_x, _y, core::move(_data), ++m_document_idx};
     add_doc(&a);
-    return;
+    return m_document_idx;
   }
   auto doc = memory::make_unique<document_to_add>(m_context->m_ui_allocator);
   doc->_x = _x;
   doc->_y = _y;
   doc->_data = core::move(_data);
+  doc->_idx = core::move(++m_document_idx);
   m_documents.push_back(core::move(doc));
+  return m_document_idx;
 }
 
 void ui::add_doc(document_to_add* _doc) {
   const char* element_name = _doc->_data.invoke(&ui_data::get_ui_name);
   m_instancer->register_currently_loading_doc(core::move(_doc->_data));
   auto document = m_document_context->LoadDocument(element_name);
-  m_instancer->add_element_context(document, 
-    m_instancer->release_currently_loading_doc());
+  m_instancer->add_element_context(
+      document, m_instancer->release_currently_loading_doc());
 
   document->SetProperty(
       "left", Rocket::Core::Property(_doc->_x, Rocket::Core::Property::PX));
@@ -278,7 +304,7 @@ void ui::add_doc(document_to_add* _doc) {
       "This should not be null, since we ALREADY parsed this once before for "
       "correctness");
   document->Show();
-  document->RemoveReference();
+  m_rocket_documents[_doc->_idx] = document;
 }
 
 }  // namespace ui

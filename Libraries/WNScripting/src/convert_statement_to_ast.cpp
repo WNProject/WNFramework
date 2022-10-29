@@ -42,10 +42,18 @@ bool parse_ast_convertor::convertor_context::resolve_return(
         params.push_back(core::move(null_as_vptr));
         params.push_back(core::move(make_cast(
             core::move(expr), m_type_manager->void_ptr_t(&m_used_types))));
-        expr = make_cast(call_function(_instruction,
-                             m_type_manager->assign_shared(&m_used_builtins),
+        if (m_current_function->m_return_type->m_classification ==
+            ast_type_classification::actor_type) {
+          expr = make_cast(call_function(_instruction,
+                             m_type_manager->assign_actor(&m_used_builtins),
                              core::move(params)),
-            etype);
+              etype);
+        } else {
+          expr = make_cast(call_function(_instruction,
+                             m_type_manager->assign_shared(&m_used_builtins),
+                               core::move(params)),
+              etype);
+        }
       }
     }
 
@@ -431,10 +439,18 @@ bool parse_ast_convertor::convertor_context::resolve_assignment(
         m_type_manager->void_ptr_t(&m_used_types)));
     params.push_back(
         make_cast(core::move(rhs), m_type_manager->void_ptr_t(&m_used_types)));
-    rhs = make_cast(
-        call_function(_assign, m_type_manager->assign_shared(&m_used_builtins),
-            core::move(params)),
-        lhs->m_type);
+    if (lhs->m_type->m_classification == ast_type_classification::actor_type) {
+      rhs = make_cast(call_function(_assign,
+                          m_type_manager->assign_actor(&m_used_builtins),
+                          core::move(params)),
+          lhs->m_type);
+    } else {
+      rhs = make_cast(call_function(_assign,
+                          m_type_manager->assign_shared(&m_used_builtins),
+                          core::move(params)),
+          lhs->m_type);
+    }
+    
   }
 
   memory::unique_ptr<ast_assignment> assign =

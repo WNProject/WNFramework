@@ -82,8 +82,8 @@ scrollbarhorizontal sliderbar
 	<titlebar>
 	<titlebarcontents>
 	<titlebaritem onclick="this.on_button_click" >Hello</titlebaritem>
-	<titlebaritem onclick="on_button_click" >World</titlebaritem>
-	<titlebaritem onclick="on_button_click" >WorldWorldHello</titlebaritem>
+	<titlebaritem onclick="this.on_button_click" >World</titlebaritem>
+	<titlebaritem onclick="this.on_button_click" >WorldWorldHello</titlebaritem>
 	</titlebarcontents>
 	</titlebar>
 	<div id="window">

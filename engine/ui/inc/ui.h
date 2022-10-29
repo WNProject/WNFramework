@@ -8,6 +8,7 @@
 #define __WN_ENGINE_UI_H__
 
 #include "Rocket/Core.h"
+#include "WNMultiTasking/inc/mutex.h"
 #include "WNWindow/inc/WNInputContext.h"
 #include "renderer/inc/renderable_object.h"
 #include "ui/inc/ui_data.h"
@@ -47,7 +48,9 @@ public:
   ui(engine_base::context* _context, scripting::engine* _engine)
     : m_context(_context),
       m_engine(_engine),
-      m_documents(_context->m_ui_allocator) {}
+      m_documents(_context->m_ui_allocator),
+      m_rocket_documents(_context->m_ui_allocator),
+      m_documents_to_update(_context->m_ui_allocator) {}
   virtual ~ui();
   void initialize_for_renderpass(renderer::render_context* _renderer,
       renderer::render_pass* _renderpass,
@@ -58,21 +61,23 @@ public:
   void update_render_data(
       size_t _frame_parity, runtime::graphics::command_list* cmd_list) override;
 
-  void add_document(
-      scripting::shared_script_pointer<ui_data> _data, int32_t _x, int32_t _y);
+  int32_t add_document(
+      scripting::script_actor_pointer<ui_data> _data, int32_t _x, int32_t _y);
+  void schedule_document_update(int32_t doc);
 
 private:
   struct document_to_add {
     int32_t _x;
     int32_t _y;
-    scripting::shared_script_pointer<ui_data> _data;
+    scripting::script_actor_pointer<ui_data> _data;
+    int32_t _idx;
   };
 
   void add_doc(document_to_add* doc);
 
   engine_base::context* m_context;
   scripting::engine* m_engine;
-  scripting::shared_script_pointer<ui_data> m_data;
+  scripting::script_actor_pointer<ui_data> m_data;
   runtime::window::window* m_window = nullptr;
   runtime::window::input_context* m_input_context;
   memory::unique_ptr<rocket_renderer> m_renderer;
@@ -80,10 +85,17 @@ private:
   memory::unique_ptr<rocket_system_interface> m_system_interface;
 
   containers::dynamic_array<memory::unique_ptr<document_to_add>> m_documents;
+  containers::hash_map<int32_t, Rocket::Core::ElementDocument*>
+      m_rocket_documents;
+  multi_tasking::mutex m_document_update_mutex;
+  containers::hash_set<int32_t> m_documents_to_update;
+  int32_t m_document_idx = 0;
 
   // Rocket stuff
   memory::unique_ptr<Rocket::Core::Context> m_rocket_context;
   memory::unique_ptr<event_instancer> m_instancer;
+
+  multi_tasking::mutex m_mutex;
 
   Rocket::Core::DocumentContext* m_document_context = nullptr;
   bool m_debugger_visible = false;

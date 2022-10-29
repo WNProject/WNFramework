@@ -165,6 +165,7 @@ parse_ast_convertor::convertor_context::get_id(
 
         return mae;
       }
+      num++;
     }
 
     for (auto& f : st->m_member_functions) {

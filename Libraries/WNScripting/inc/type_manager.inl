@@ -345,5 +345,20 @@ void type_manager::export_script_type() {
           nullptr, false);
 }
 
+template <typename T>
+void type_manager::export_script_actor_type() {
+  if (m_externally_visible_types.find(core::type_id<T>::value()) !=
+      m_externally_visible_types.end()) {
+    return;
+  }
+  containers::string_view name = T::exported_name();
+  export_script_actor_type(name);
+  ast_type* t = m_structure_types.find(name)->second.get();
+  m_externally_visible_types[core::type_id<T>::value()] = t;
+  m_externally_visible_types[core::type_id<script_actor_pointer<T>>::value()] =
+      t;
+  m_externally_visible_types[core::type_id<script_pointer<T>>::value()] =
+      t;
+}
 }  // namespace scripting
 }  // namespace wn

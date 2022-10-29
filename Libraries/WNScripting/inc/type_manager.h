@@ -67,13 +67,17 @@ public:
   void export_script_type();
 
   template <typename T>
+  void export_script_actor_type();
+
+  template <typename T>
   containers::string_view get_mangled_name() const {
     return internal_get_mangled_name(get_type<T>());
   }
 
   template <typename T>
   typename core::enable_if<!is_script_pointer<T>::value &&
-                               !is_shared_script_pointer<T>::value,
+                               !is_shared_script_pointer<T>::value &&
+                               !is_actor_pointer<T>::value,
       const ast_type*>::type
   get_type() {
     return m_externally_visible_types.find(core::type_id<T>::value())->second;
@@ -92,6 +96,12 @@ public:
   get_type() {
     return get_reference_of(get_type<typename T::value_type>(),
         ast_type_classification::shared_reference, nullptr);
+  }
+
+  template <typename T>
+  typename core::enable_if<is_actor_pointer<T>::value, const ast_type*>::type
+  get_type() {
+    return get_type<typename T::value_type>();
   }
 
   template <typename T>
@@ -246,6 +256,7 @@ public:
   }
 
   ast_type* export_script_type(containers::string_view _type);
+  ast_type* export_script_actor_type(containers::string_view _type);
 
   ast_type* register_external_type(containers::string_view _type);
   const ast_type* get_external_type(

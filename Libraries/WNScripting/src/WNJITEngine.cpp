@@ -453,27 +453,27 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
   ////MPM.run(*module.m_module);
   //
   //// TODO: figure out what optimizations to run eventually
- //  auto FPM =
- //      memory::make_unique<llvm::legacy::FunctionPassManager>(m_allocator,
- //      module.m_module);
-  //// Add some optimizations.
-   //FPM->add(llvm::createPromoteMemoryToRegisterPass());
-   //FPM->add(llvm::createInstructionCombiningPass());
-   //FPM->add(llvm::createReassociatePass());
-   //FPM->add(llvm::createConstantPropagationPass());
-   //FPM->add(llvm::createGVNPass());
-   //FPM->add(llvm::createCFGSimplificationPass());
-   //FPM->add(llvm::createDeadStoreEliminationPass());
-   //FPM->add(llvm::createDeadInstEliminationPass());
-   //FPM->add(llvm::createMemCpyOptPass());
-   //
-   //FPM->doInitialization();
-   //for (auto& F : *module.m_module)
-   // FPM->run(F);
+//   auto FPM =
+//       memory::make_unique<llvm::legacy::FunctionPassManager>(m_allocator,
+//       module.m_module);
+//  //// Add some optimizations.
+//   FPM->add(llvm::createPromoteMemoryToRegisterPass());
+//   FPM->add(llvm::createInstructionCombiningPass());
+//   FPM->add(llvm::createReassociatePass());
+//   FPM->add(llvm::createConstantPropagationPass());
+//   FPM->add(llvm::createGVNPass());
+//   FPM->add(llvm::createCFGSimplificationPass());
+//   FPM->add(llvm::createDeadStoreEliminationPass());
+//   FPM->add(llvm::createDeadInstEliminationPass());
+//   FPM->add(llvm::createMemCpyOptPass());
+//   
+//   FPM->doInitialization();
+//   for (auto& F : *module.m_module)
+//    FPM->run(F);
 
   // Uncomment to get debug information about the module out.
   // It is not really needed, but a good place to debug.
-  //module.m_module->dump();
+  // module.m_module->dump();
   {
     PROFILE_REGION(JitFinalize);
     module.m_engine->finalizeObject();

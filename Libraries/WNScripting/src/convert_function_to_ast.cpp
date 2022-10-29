@@ -22,13 +22,16 @@ parse_ast_convertor::convertor_context::pre_resolve_function(
     return nullptr;
   }
   fn->m_name = _function->get_signature()->get_name().to_string(m_allocator);
-
+  
   if (_implicit_this && _implicit_this->is_synchronized()) {
     if (_function->is_action() &&
         ret_ty != m_type_manager->void_t(&m_used_types)) {
       _function->log_line(m_log, logging::log_level::error);
       m_log->log_error("Actions on Actors must not return values");
       return nullptr;
+    }
+    if (!_function->is_synchronized()) {
+      //fn->m_name += "@";
     }
   }
 
@@ -123,6 +126,7 @@ parse_ast_convertor::convertor_context::pre_resolve_function(
       decl->add_expression_initializer(core::move(ex));
       callee_def->add_struct_elem(core::move(decl), false);
     }
+
     {
       auto decl = memory::make_unique<declaration>(m_allocator, m_allocator);
       decl->copy_location_from(_function->get_signature());

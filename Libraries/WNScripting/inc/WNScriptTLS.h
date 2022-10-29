@@ -14,6 +14,7 @@ namespace scripting {
 
 class engine;
 struct script_object_type;
+struct script_actor_type;
 
 struct actor_header {
   void* user_data;
@@ -50,6 +51,8 @@ struct scripting_tls_data final {
   engine* _engine;
   containers::hash_map<uintptr_t, memory::unique_ptr<script_object_type>>*
       _object_types;
+  containers::hash_map<uintptr_t, memory::unique_ptr<script_actor_type>>*
+      _actor_types;
   logging::log* _log;
   memory::allocator* _support_allocator;
   memory::allocator* _actor_allocator;
