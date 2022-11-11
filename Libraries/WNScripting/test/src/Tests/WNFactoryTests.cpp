@@ -16,7 +16,8 @@ TEST(scripting_engine_factory, creation) {
           wn::logging::get_null_logger())
           .make_mapping(
               &allocator, wn::file_system::mapping_type::memory_backed);
-  wn::memory::unique_ptr<wn::scripting::engine> engine = factory.get_engine(
-      &allocator, wn::scripting::scripting_engine_type::jit_engine,
-      mapping.get(), wn::logging::get_null_logger());
+  wn::memory::unique_ptr<wn::scripting::engine> engine =
+      factory.get_engine(&allocator,
+          wn::scripting::scripting_engine_type::jit_engine, mapping.get(),
+          wn::logging::get_null_logger(), &allocator, &allocator, nullptr);
 }

@@ -199,6 +199,7 @@ DEFAULT: 'default';
 NULLTOK: 'null';
 
 SYNCHRONIZED: '@synchronized';
+ACTION: '@action';
 ACTOR: 'Actor';
 
 
@@ -836,8 +837,14 @@ classDecl returns[scripting::struct_definition* node]
                   | (j=inherited_declaration { node->add_struct_elem($j.node);} SEMICOLON)
                   | (SYNCHRONIZED jj=inherited_declaration { node->add_struct_elem($j.node, true);} SEMICOLON)
                   | (b=function    { node->add_function($b.node); })
+                  | (SYNCHRONIZED bb=function    { $bb.node->set_synchronized(true); node->add_function($bb.node); })
+                  | (ACTION bbb=function    { $bbb.node->set_action(true); node->add_function($bbb.node); })
                   | (VIRTUAL h=function { node->add_function($h.node); $h.node->set_is_virtual(true); })
+                  | (SYNCHRONIZED VIRTUAL hh=function { $hh.node->set_synchronized(true); node->add_function($hh.node); $hh.node->set_is_virtual(true); })
+                  | (ACTION VIRTUAL hhh=function { $hhh.node->set_action(true); node->add_function($hhh.node); $hhh.node->set_is_virtual(true); })
                   | (OVERRIDE i=function { node->add_function($i.node); $i.node->set_is_override(true); })
+                  | (SYNCHRONIZED OVERRIDE ii=function { $ii.node->set_synchronized(true); node->add_function($ii.node); $ii.node->set_is_override(true); })
+                  | (ACTION OVERRIDE iii=function { $iii.node->set_action(true); node->add_function($iii.node); $iii.node->set_is_override(true); })
                 )*
             RBRACE  { SET_END_LOCATION(node, $RBRACE); }
     ;

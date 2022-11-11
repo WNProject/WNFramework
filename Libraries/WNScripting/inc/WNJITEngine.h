@@ -49,7 +49,8 @@ public:
 class jit_engine : public engine {
 public:
   jit_engine(memory::allocator* _allocator, file_system::mapping* _mapping,
-      logging::log* _log, memory::allocator* _support_allocator = nullptr);
+      logging::log* _log, memory::allocator* _support_allocator,
+      memory::allocator* _actor_allocator, scripting_runtime* _runtime);
   ~jit_engine();
   parse_error parse_file(const containers::string_view file) override;
   void free_shared(void* v) const override;
@@ -63,7 +64,17 @@ protected:
       }
     }
     auto it = m_c_pointers.find(_name.to_string(m_allocator));
-    return it != m_c_pointers.end() ? it->second : nullptr;
+    auto ret = it != m_c_pointers.end() ? it->second : nullptr;
+    if (ret == nullptr) {
+      m_log->log_warning("Could not find ", _name, " only pointers are:");
+      for (auto& x : m_pointers) {
+        m_log->log_warning("  ", x.first);
+      }
+      for (auto& x : m_c_pointers) {
+        m_log->log_warning("  ", x.first);
+      }
+    }
+    return ret;
   }
 
   bool register_c_function(containers::string_view name,

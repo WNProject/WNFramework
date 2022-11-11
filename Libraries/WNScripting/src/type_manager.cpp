@@ -156,27 +156,70 @@ type_manager::type_manager(memory::allocator* _allocator, logging::log* _log)
       containers::dynamic_array<const ast_type*>(
           m_allocator, {m_void_t.get(), m_void_ptr_t.get()}),
       nullptr);
+  // Shared Object header
+  {
+    m_shared_object_header =
+        memory::make_unique_delegated<ast_type>(m_allocator,
+            [this](void* _mem) { return new (_mem) ast_type(&m_all_types); });
 
-  m_shared_object_header = memory::make_unique_delegated<ast_type>(m_allocator,
-      [this](void* _mem) { return new (_mem) ast_type(&m_all_types); });
+    auto decl = memory::make_unique<ast_declaration>(_allocator, nullptr);
+    decl->m_type = m_size_t.get();
+    decl->m_name = containers::string(_allocator, "ref_count");
 
-  auto decl = memory::make_unique<ast_declaration>(_allocator, nullptr);
-  decl->m_type = m_size_t.get();
-  decl->m_name = containers::string(_allocator, "ref_count");
+    m_shared_object_header->m_name =
+        containers::string(m_allocator, "_wns_shared_object");
+    m_shared_object_header->m_builtin = builtin_type::not_builtin;
+    m_shared_object_header->m_classification =
+        ast_type_classification::struct_type;
+    m_shared_object_header->initialized_structure_members(m_allocator)
+        .push_back(core::move(decl));
 
-  m_shared_object_header->m_name =
-      containers::string(m_allocator, "_wns_shared_object");
-  m_shared_object_header->m_builtin = builtin_type::not_builtin;
-  m_shared_object_header->m_classification =
-      ast_type_classification::struct_type;
-  m_shared_object_header->initialized_structure_members(m_allocator)
-      .push_back(core::move(decl));
+    auto destruct = memory::make_unique<ast_declaration>(_allocator, nullptr);
+    destruct->m_type = m_destructor_fn_ptr_t;
+    destruct->m_name = containers::string(_allocator, "destructor");
+    m_shared_object_header->initialized_structure_members(m_allocator)
+        .push_back(core::move(destruct));
+  }
 
-  auto destruct = memory::make_unique<ast_declaration>(_allocator, nullptr);
-  destruct->m_type = m_destructor_fn_ptr_t;
-  destruct->m_name = containers::string(_allocator, "destructor");
-  m_shared_object_header->initialized_structure_members(m_allocator)
-      .push_back(core::move(destruct));
+  // Actor Header
+  {
+    m_actor_header = memory::make_unique_delegated<ast_type>(m_allocator,
+        [this](void* _mem) { return new (_mem) ast_type(&m_all_types); });
+
+    m_actor_header->m_name =
+        containers::string(m_allocator, "_wns_actor_object");
+    m_actor_header->m_builtin = builtin_type::not_builtin;
+    m_actor_header->m_classification = ast_type_classification::struct_type;
+    auto a_decl = memory::make_unique<ast_declaration>(_allocator, nullptr);
+    a_decl->m_type = m_void_ptr_t.get();
+    a_decl->m_name = containers::string(_allocator, "user_data");
+    m_actor_header->initialized_structure_members(m_allocator)
+        .push_back(core::move(a_decl));
+
+    auto a_decl2 = memory::make_unique<ast_declaration>(_allocator, nullptr);
+    a_decl2->m_type = m_void_ptr_t.get();
+    a_decl2->m_name = containers::string(_allocator, "user_data2");
+    m_actor_header->initialized_structure_members(m_allocator)
+        .push_back(core::move(a_decl2));
+
+    auto decl = memory::make_unique<ast_declaration>(_allocator, nullptr);
+    decl->m_type = m_size_t.get();
+    decl->m_name = containers::string(_allocator, "ref_count");
+    m_actor_header->initialized_structure_members(m_allocator)
+        .push_back(core::move(decl));
+
+    auto destruct = memory::make_unique<ast_declaration>(_allocator, nullptr);
+    destruct->m_type = m_destructor_fn_ptr_t;
+    destruct->m_name = containers::string(_allocator, "destructor");
+    m_actor_header->initialized_structure_members(m_allocator)
+        .push_back(core::move(destruct));
+
+    auto copy = memory::make_unique<ast_declaration>(_allocator, nullptr);
+    copy->m_type = m_destructor_fn_ptr_t;
+    copy->m_name = containers::string(_allocator, "update_values");
+    m_actor_header->initialized_structure_members(m_allocator)
+        .push_back(core::move(copy));
+  }
 }
 
 type_manager::~type_manager() {}
@@ -191,6 +234,23 @@ ast_type* type_manager::export_script_type(containers::string_view _type) {
   struct_type->m_name = _type.to_string(m_allocator);
   ast_type* return_type = struct_type.get();
   return_type->m_classification = ast_type_classification::struct_type;
+  return_type->calculate_mangled_name(m_allocator);
+  m_structure_types[return_type->m_name] = core::move(struct_type);
+
+  return return_type;
+}
+
+ast_type* type_manager::export_script_actor_type(
+    containers::string_view _type) {
+  auto it = m_structure_types.find(_type);
+  if (it != m_structure_types.end()) {
+    return it->second.get();
+  }
+  auto struct_type = memory::make_unique_delegated<ast_type>(m_allocator,
+      [this](void* _memory) { return new (_memory) ast_type(&m_all_types); });
+  struct_type->m_name = _type.to_string(m_allocator);
+  ast_type* return_type = struct_type.get();
+  return_type->m_classification = ast_type_classification::actor_type;
   return_type->calculate_mangled_name(m_allocator);
   m_structure_types[return_type->m_name] = core::move(struct_type);
 
@@ -267,7 +327,7 @@ containers::string_view exporter_base::add_contained_function(
     };
     memory::writeuint32(count + 1, i, 10);
     params.push_back(ast_function::parameter{
-        containers::string(m_allocator, count), _types[i]});
+        containers::string(m_allocator, count), func.get(), _types[i]});
   }
   func->m_is_member_function = true;
   func->m_return_type = _types[0];
@@ -284,6 +344,8 @@ containers::string_view exporter_base::add_contained_function(
 
 ast_type* type_manager::get_reference_of(const ast_type* _type,
     ast_type_classification _reference_type, used_type_set* _used) {
+  WN_DEBUG_ASSERT(
+      !_type->is_synchronized(), "Dont try to take a reference to an actor");
   containers::hash_map<const ast_type*, memory::unique_ptr<ast_type>>*
       insertion_map;
   const char* prefix = "";
@@ -431,7 +493,7 @@ ast_type* type_manager::get_runtime_array_of(
 }
 
 ast_type* type_manager::get_or_register_struct(containers::string_view _type,
-    used_type_set* _used, used_function_set* _used_functions) {
+    used_type_set* _used, used_function_set* _used_functions, bool is_actor) {
   auto it = m_structure_types.find(_type);
   if (it != m_structure_types.end()) {
     if (_used) {
@@ -455,7 +517,9 @@ ast_type* type_manager::get_or_register_struct(containers::string_view _type,
       [this](void* _memory) { return new (_memory) ast_type(&m_all_types); });
   struct_type->m_name = _type.to_string(m_allocator);
   ast_type* return_type = struct_type.get();
-  return_type->m_classification = ast_type_classification::struct_type;
+  return_type->m_classification = is_actor
+                                      ? ast_type_classification::actor_type
+                                      : ast_type_classification::struct_type;
   return_type->calculate_mangled_name(m_allocator);
   m_structure_types[return_type->m_name] = core::move(struct_type);
   if (_used) {
@@ -561,7 +625,8 @@ ast_function* type_manager::add_external(
 
     containers::string nm(m_allocator, "_");
     nm += count;
-    function_params.push_back(ast_function::parameter{core::move(nm), param});
+    function_params.push_back(
+        ast_function::parameter{core::move(nm), function.get(), param});
     c++;
   }
 
@@ -757,7 +822,10 @@ ast_vtable* type_manager::make_vtable(const containers::string_view& _name) {
 size_t type_manager::get_virtual_function(const containers::string_view& _name,
     const containers::dynamic_array<const ast_type*>& _types) const {
   const ast_type* ret_type = _types[0];
-  const ast_type* object_type = _types[1]->m_implicitly_contained_type;
+  const ast_type* object_type =
+      _types[1]->m_classification == ast_type_classification::actor_type
+          ? _types[1]
+          : _types[1]->m_implicitly_contained_type;
   size_t offs = 0;
 
   for (auto& it : object_type->m_vtable->m_functions) {

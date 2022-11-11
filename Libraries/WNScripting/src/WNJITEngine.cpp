@@ -98,18 +98,37 @@ struct object {
   void (*destructor)(void*);
 };
 
-// Temp this is going to have to change.
 void* do_allocate(wn_size_t i) {
-  void* t = memory::malloc(i.val);
+  void* t = get_scripting_tls()->_support_allocator->allocate(i.val);
   return t;
+}
+
+void* do_allocate_actor_data(wn_size_t i) {
+  void* t = get_scripting_tls()->_actor_allocator->allocate(i.val);
+  return t;
+}
+
+void* do_allocate_actor(wn_size_t i) {
+  void* t = reinterpret_cast<void*>(
+      get_scripting_tls()->_runtime->allocate_actor(i.val));
+  return t;
+}
+
+void do_free_actor(void* a) {
+  get_scripting_tls()->_runtime->free_actor(reinterpret_cast<actor_header*>(a));
+}
+
+void call_actor_function(void* a) {
+  get_scripting_tls()->_runtime->call_actor_function(
+      reinterpret_cast<actor_function*>(a));
 }
 
 // Temp this is going to have to change.
 void* do_allocate_array(wn_size_t i, wn_size_t _count) {
   // For now just return any-old malloc. We REALLY need to
   // start passing in alignment so we can handle this properly.
-
-  void* t = memory::malloc(sizeof(uint32_t) * 2 + (i.val * _count.val));
+  void* t = get_scripting_tls()->_support_allocator->allocate(
+      sizeof(uint32_t) * 2 + (i.val * _count.val));
   (*(uint32_t*)t) = static_cast<uint32_t>(_count.val);
   return t;
 }
@@ -119,7 +138,13 @@ void do_free(void* val) {
   if (val == nullptr) {
     return;
   }
-  memory::free(val);
+  get_scripting_tls()->_support_allocator->deallocate(val);
+}
+void do_free_actor_data(void* val) {
+  if (val == nullptr) {
+    return;
+  }
+  get_scripting_tls()->_actor_allocator->deallocate(val);
 }
 
 namespace {
@@ -217,8 +242,9 @@ CompiledModule::CompiledModule(CompiledModule&& _other)
 
 jit_engine::jit_engine(memory::allocator* _allocator,
     file_system::mapping* _mapping, logging::log* _log,
-    memory::allocator* _support_allocator)
-  : engine(_allocator, _log, _support_allocator),
+    memory::allocator* _support_allocator, memory::allocator* _actor_allocator,
+    scripting_runtime* _runtime)
+  : engine(_allocator, _log, _support_allocator, _actor_allocator, _runtime),
     m_file_mapping(_mapping),
     m_compilation_log(_log),
     m_context(memory::make_std_unique<llvm::LLVMContext>()),
@@ -237,8 +263,17 @@ jit_engine::jit_engine(memory::allocator* _allocator,
   llvm::InitializeNativeTargetAsmParser();
   register_function<decltype(&do_allocate), &do_allocate>("_allocate");
   register_function<decltype(&do_free), &do_free>("_free");
+  register_function<decltype(&do_allocate_actor), &do_allocate_actor>(
+      "_allocate_actor");
+  register_function<decltype(&do_free_actor), &do_free_actor>("_free_actor");
   register_function<decltype(&do_allocate_array), &do_allocate_array>(
       "_allocate_runtime_array");
+  register_function<decltype(&do_allocate_actor_data), &do_allocate_actor_data>(
+      "_allocate_actor_call");
+  register_function<decltype(&do_free_actor_data), &do_free_actor_data>(
+      "_free_actor_call");
+  register_function<decltype(&call_actor_function), &call_actor_function>(
+      "_call_actor_function");
   m_type_manager.finalize_builtins();
 }
 
@@ -272,12 +307,14 @@ CompiledModule& jit_engine::add_module(containers::string_view _file) {
 }
 
 void* jit_engine::allocate_shared(size_t size) {
+  tls_resetter reset(&m_tls_data);
   void* v = do_allocate(wn_size_t{sizeof(object) + size});
   memset(v, 0x00, sizeof(object));
   return static_cast<void*>(static_cast<uint8_t*>(v) + sizeof(object));
 }
 
 void jit_engine::free_shared(void* v) const {
+  tls_resetter reset(&m_tls_data);
   do_free(static_cast<uint8_t*>(v) - sizeof(object));
 }
 
@@ -420,22 +457,23 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
   ////MPM.run(*module.m_module);
   //
   //// TODO: figure out what optimizations to run eventually
-  // auto FPM =
-  //     memory::make_unique<llvm::legacy::FunctionPassManager>(m_allocator,
-  //     module.m_module);
-  //// Add some optimizations.
-  // FPM->add(llvm::createPromoteMemoryToRegisterPass());
-  // FPM->add(llvm::createInstructionCombiningPass());
-  // FPM->add(llvm::createReassociatePass());
-  // FPM->add(llvm::createConstantPropagationPass());
-  // FPM->add(llvm::createGVNPass());
-  // FPM->add(llvm::createCFGSimplificationPass());
-  // FPM->add(llvm::createDeadStoreEliminationPass());
-  // FPM->add(llvm::createDeadInstEliminationPass());
+  //   auto FPM =
+  //       memory::make_unique<llvm::legacy::FunctionPassManager>(m_allocator,
+  //       module.m_module);
+  //  //// Add some optimizations.
+  //   FPM->add(llvm::createPromoteMemoryToRegisterPass());
+  //   FPM->add(llvm::createInstructionCombiningPass());
+  //   FPM->add(llvm::createReassociatePass());
+  //   FPM->add(llvm::createConstantPropagationPass());
+  //   FPM->add(llvm::createGVNPass());
+  //   FPM->add(llvm::createCFGSimplificationPass());
+  //   FPM->add(llvm::createDeadStoreEliminationPass());
+  //   FPM->add(llvm::createDeadInstEliminationPass());
+  //   FPM->add(llvm::createMemCpyOptPass());
   //
-  // FPM->doInitialization();
-  // for (auto& F : *module.m_module)
-  //  FPM->run(F);
+  //   FPM->doInitialization();
+  //   for (auto& F : *module.m_module)
+  //    FPM->run(F);
 
   // Uncomment to get debug information about the module out.
   // It is not really needed, but a good place to debug.

@@ -19,6 +19,7 @@ const char* c_premable =
     "#define __wns_inline__ static inline;\n"
     "typdef void(*_vtable_function)();\n"
     "typedef const _vtable_function* _vtable;\n"
+    "typedef void (*_undefined_function)();\n"
     "";
 }  // namespace internal
 }  // namespace scripting

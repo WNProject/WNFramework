@@ -2,10 +2,67 @@
 <head>
 		<link type="text/template" href="window.rml"/>
     <link type="text/css" href="main.rcss"/>
-    <script src="header.wns"></script>
 <script>
-      // UIName=MainGUI
-    </script>
+// UIName=MainGUI
+@synchronized Void on_button_click(UiElement element) {
+   UiElement body = element.owner();
+
+   Int last_selection = body.get_first_child().get_int_attribute("current_tab_selected");
+   body.get_first_child().set_attribute("current_tab_selected", element.get_int_attribute("child_id"));
+
+   // Modify LastElement before current element in case 
+   // the user re-activates the current element.
+   UiElement last_element = body.get_first_child().get_first_child().get_child(last_selection); 
+   last_element.set_attribute(
+      "document_contents",
+      body.get_child(1).get_inner_rml().c_str()
+   );
+   last_element.set_class("passive_titlebar_item", true);
+   last_element.set_class("active_titlebar_item", false);
+   
+   body.get_child(1).set_inner_rml(
+      element.get_attribute("document_contents").c_str()
+   );
+   element.set_class("passive_titlebar_item", false);
+   element.set_class("active_titlebar_item", true);
+}
+
+@synchronized Void titlebar_onload(UiElement element) {
+   Int n_children = element.get_first_child().get_first_child().num_children();
+   element.get_first_child().set_attribute(
+      "titlebar_children",
+      n_children
+   );
+   element.get_first_child().set_attribute(
+      "current_tab_selected",
+      0
+   );
+
+   log_error().o("Hello World").end();
+   log_error().o("Titlebar Children").o(
+      element.get_first_child().get_int_attribute("titlebar_children")
+   ).end();
+   UiElement titlebar_contents = element.get_first_child().get_first_child();
+   for (Int i = 0; i < n_children; ++i) {
+      UiElement elem = titlebar_contents.get_child(i); 
+      if (i == 0) {
+         elem.set_attribute("document_contents", 
+            element.get_child(1).get_inner_rml().c_str()
+         );
+         elem.set_class("active_titlebar_item", true);
+      } else {
+         elem.set_attribute("document_contents", 
+            "Dummy dummy Dummy"
+         );
+         elem.set_class("passive_titlebar_item", true);
+      }
+      titlebar_contents.get_child(i).set_attribute("child_id", i);
+   }
+}
+@synchronized override Void update(Int doc_idx, UiDocument doc) {
+   log_error().o("Update: ").o(doc_idx).end();
+}
+</script>
 </head>
 <body template="window">
   <div style="padding: 1mm; display: inline;">

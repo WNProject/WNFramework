@@ -163,6 +163,12 @@ template <typename T>
 struct is_shared_script_pointer<shared_script_pointer<T>> : core::true_type {};
 
 template <typename T>
+struct is_actor_pointer : core::false_type {};
+
+template <typename T>
+struct is_actor_pointer<script_actor_pointer<T>> : core::true_type {};
+
+template <typename T>
 struct is_shared_cpp_pointer : core::false_type {};
 
 template <typename T>
@@ -199,6 +205,10 @@ struct get_thunk_passed_type {
   static inline U wrap(const U& u) {
     return u;
   }
+  static inline U wrap_return(const U& u) {
+    return u;
+  }
+
   static inline U unwrap(U u) {
     return u;
   }
@@ -221,6 +231,9 @@ struct get_thunk_passed_type<U,
     return &u;
   }
 
+  static inline U* wrap_return(U& u) {
+    return &u;
+  }
   static inline U unwrap(U* u) {
     return *u;
   }
@@ -232,8 +245,9 @@ struct get_thunk_passed_type<U,
 
 template <typename U>
 struct get_thunk_passed_type<U,
-    typename core::enable_if<core::disjunction<is_script_pointer<U>,
-        is_shared_script_pointer<U>, is_shared_cpp_pointer<U>>::value>::type> {
+    typename core::enable_if<
+        core::disjunction<is_script_pointer<U>, is_shared_script_pointer<U>,
+            is_shared_cpp_pointer<U>, is_actor_pointer<U>>::value>::type> {
   using type = typename U::value_type*;
   using ret_type = typename U::value_type*;
   static inline typename U::value_type* wrap(const U& _u) {
@@ -242,9 +256,15 @@ struct get_thunk_passed_type<U,
 
     return reinterpret_cast<typename U::value_type*>(v);
   }
+  static inline typename U::value_type* wrap_return(const U& _u) {
+    U& u = const_cast<U&>(_u);
+    void* v = u.unsafe_pass_return();
 
+    return reinterpret_cast<typename U::value_type*>(v);
+  }
   static inline U unwrap(typename U::value_type* _u) {
     U u(_u);
+
     fixup_return_type(u);
     return u;
   }
@@ -256,6 +276,11 @@ struct get_thunk_passed_type<U,
   using type = void*;
   using ret_type = void*;
   static inline void* wrap(const U& _u) {
+    void* v = _u.m_ptr;
+    return v;
+  }
+
+  static inline void* wrap_return(const U& _u) {
     void* v = _u.m_ptr;
     return v;
   }
@@ -284,6 +309,13 @@ inline shared_script_pointer<T>& fixup_return_type(
     shared_script_pointer<T>& t) {
   t.unsafe_set_type(reinterpret_cast<T*>(
       (*get_scripting_tls()->_object_types)[core::type_id<T>::value()].get()));
+  return t;
+}
+
+template <typename T>
+inline script_actor_pointer<T>& fixup_return_type(script_actor_pointer<T>& t) {
+  t.unsafe_set_type(reinterpret_cast<T*>(
+      (*get_scripting_tls()->_actor_types)[core::type_id<T>::value()].get()));
   return t;
 }
 

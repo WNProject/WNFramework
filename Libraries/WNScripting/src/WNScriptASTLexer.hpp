@@ -117,7 +117,6 @@ public:
 	enum Tokens
 	{
 		EOF_TOKEN = WNScriptASTLexerImplTraits::CommonTokenType::TOKEN_EOF
-		, T__63 = 63
 		, T__64 = 64
 		, T__65 = 65
 		, T__66 = 66
@@ -139,65 +138,67 @@ public:
 		, T__82 = 82
 		, T__83 = 83
 		, T__84 = 84
-		, ACTOR = 4
-		, BOOL = 5
-		, BOOL_TYPE = 6
-		, BREAK = 7
-		, CHAR = 8
-		, CHAR_TYPE = 9
-		, CLASS = 10
-		, COLON = 11
-		, COMMA = 12
-		, COMMENT = 13
-		, CONTINUE = 14
-		, CPTR_TYPE = 15
-		, DEFAULT = 16
-		, DLSQBRACKET = 17
-		, DO = 18
-		, DOUBDEC = 19
-		, DOUBINC = 20
-		, DRSQBRACKET = 21
-		, ELSE = 22
-		, ESC_SEQ = 23
-		, EXPONENT = 24
-		, FLOAT = 25
-		, FLOAT_TYPE = 26
-		, FOR = 27
-		, HEX_DIGIT = 28
-		, ID = 29
-		, IF = 30
-		, INCLUDE = 31
-		, INT = 32
-		, INT_TYPE = 33
-		, LBRACE = 34
-		, LBRACKET = 35
-		, LENGTH = 36
-		, LSQBRACKET = 37
-		, NULLTOK = 38
-		, OCTAL_ESC = 39
-		, OVERRIDE = 40
-		, QUESTION = 41
-		, RBRACE = 42
-		, RBRACKET = 43
-		, RESOURCE = 44
-		, RETURN = 45
-		, RSQBRACKET = 46
-		, SEMICOLON = 47
-		, SHARED_REF = 48
-		, SLICETOK = 49
-		, SSOR = 50
-		, STRING = 51
-		, STRING_TYPE = 52
-		, STRUCT = 53
-		, SYNCHRONIZED = 54
-		, TYPE = 55
-		, T_TYPE = 56
-		, UNICODE_ESC = 57
-		, VIRTUAL = 58
-		, VOID_TYPE = 59
-		, WEAK_REF = 60
-		, WHILE = 61
-		, WS = 62
+		, T__85 = 85
+		, ACTION = 4
+		, ACTOR = 5
+		, BOOL = 6
+		, BOOL_TYPE = 7
+		, BREAK = 8
+		, CHAR = 9
+		, CHAR_TYPE = 10
+		, CLASS = 11
+		, COLON = 12
+		, COMMA = 13
+		, COMMENT = 14
+		, CONTINUE = 15
+		, CPTR_TYPE = 16
+		, DEFAULT = 17
+		, DLSQBRACKET = 18
+		, DO = 19
+		, DOUBDEC = 20
+		, DOUBINC = 21
+		, DRSQBRACKET = 22
+		, ELSE = 23
+		, ESC_SEQ = 24
+		, EXPONENT = 25
+		, FLOAT = 26
+		, FLOAT_TYPE = 27
+		, FOR = 28
+		, HEX_DIGIT = 29
+		, ID = 30
+		, IF = 31
+		, INCLUDE = 32
+		, INT = 33
+		, INT_TYPE = 34
+		, LBRACE = 35
+		, LBRACKET = 36
+		, LENGTH = 37
+		, LSQBRACKET = 38
+		, NULLTOK = 39
+		, OCTAL_ESC = 40
+		, OVERRIDE = 41
+		, QUESTION = 42
+		, RBRACE = 43
+		, RBRACKET = 44
+		, RESOURCE = 45
+		, RETURN = 46
+		, RSQBRACKET = 47
+		, SEMICOLON = 48
+		, SHARED_REF = 49
+		, SLICETOK = 50
+		, SSOR = 51
+		, STRING = 52
+		, STRING_TYPE = 53
+		, STRUCT = 54
+		, SYNCHRONIZED = 55
+		, TYPE = 56
+		, T_TYPE = 57
+		, UNICODE_ESC = 58
+		, VIRTUAL = 59
+		, VOID_TYPE = 60
+		, WEAK_REF = 61
+		, WHILE = 62
+		, WS = 63
 	};
 
 };
@@ -225,7 +226,6 @@ public:
 
 
 
-    void  mT__63( );
     void  mT__64( );
     void  mT__65( );
     void  mT__66( );
@@ -247,6 +247,7 @@ public:
     void  mT__82( );
     void  mT__83( );
     void  mT__84( );
+    void  mT__85( );
     void  mLSQBRACKET( );
     void  mRSQBRACKET( );
     void  mDLSQBRACKET( );
@@ -289,6 +290,7 @@ public:
     void  mDEFAULT( );
     void  mNULLTOK( );
     void  mSYNCHRONIZED( );
+    void  mACTION( );
     void  mACTOR( );
     void  mBOOL( );
     void  mID( );

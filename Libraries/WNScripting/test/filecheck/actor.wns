@@ -1,13 +1,37 @@
-class X {
-  
-}
+// CHECK: typedef struct ____Foo__actor_data {
+// CHECK-NEXT:   int32_t x;
+// CHECK-NEXT: } __Foo__actor_data;
+// CHECK: typedef struct _____ZN3wns3Foo5set_xEvT3Fooi__call_params {
+// CHECK-NEXT:   _undefined_function _fn;
+// CHECK-NEXT:   Foo* __this;
+// CHECK-NEXT:   int32_t _f;
+// CHECK-NEXT: } ___ZN3wns3Foo5set_xEvT3Fooi__call_params;
 
 Actor Foo {
   @synchronized Int x = 4;
-  Int y = 3;
+  @synchronized Int get_x() {
+    return x;
+  }
+  Int get_x_() {
+    return x;
+  }
+// CHECK: ___ZN3wns3Foo5set_xEvT3Fooi__call_params* _ZN3wns51_construct____ZN3wns3Foo5set_xEvT3Fooi__call_paramsEP40___ZN3wns3Foo5set_xEvT3Fooi__call_paramsP40___ZN3wns3Foo5set_xEvT3Fooi__call_paramsFET3Fooi(___ZN3wns3Foo5set_xEvT3Fooi__call_params* _this, _undefined_function __fn, Foo* ___this, int32_t __f) {
+  @action Void set_x(Int f) {
+    x = f;
+  }
 }
 
+// RUN: main -> 4
 Int main() {
   Foo f = Foo();
+  f.set_x(32);
+  return f.x;
+}
+
+// RUN: main2 -> 32
+Int main2() {
+  Foo f = Foo();
+  f.set_x(32);
+  update_actors();
   return f.x;
 }

@@ -249,7 +249,8 @@ bool c_compiler::declare_type(const ast_type* _type) {
   if (_type->m_classification == ast_type_classification::primitive ||
       _type->m_classification == ast_type_classification::reference ||
       _type->m_classification == ast_type_classification::function_pointer ||
-      _type->m_classification == ast_type_classification::shared_reference) {
+      _type->m_classification == ast_type_classification::shared_reference ||
+      _type->m_classification == ast_type_classification::actor_type) {
     return true;
   }
   switch (_type->m_classification) {
@@ -499,7 +500,7 @@ bool c_compiler::write_function(const ast_function* _function) {
   if (!_function->m_scope) {
     return true;
   }
-
+  m_current_function = _function;
   if (!write_function_signature(_function)) {
     return false;
   }
@@ -508,6 +509,7 @@ bool c_compiler::write_function(const ast_function* _function) {
     return false;
   }
   m_output += "\n";
+  m_current_function = nullptr;
   return true;
 }
 
@@ -719,7 +721,7 @@ bool c_compiler::write_id(const ast_id* _expression) {
       if (!_expression->m_declaration->m_is_synchronized) {
         m_output += "_this->";
       } else {
-        m_output += "_this->__actor_data->";
+        m_output += "_this->__actor_data_private->";
       }
     }
     m_output += _expression->m_declaration->m_name;
@@ -1165,14 +1167,20 @@ bool c_compiler::write_member_access_expression(
   if (_expression->m_base_expression->m_type->m_classification ==
           ast_type_classification::reference ||
       _expression->m_base_expression->m_type->m_classification ==
-          ast_type_classification::shared_reference) {
+          ast_type_classification::shared_reference ||
+      _expression->m_base_expression->m_type->m_classification ==
+          ast_type_classification::actor_type) {
     m_output += "->";
   } else {
     m_output += ".";
   }
 
   if (_expression->m_is_synchronized) {
-    m_output += "__actor_data->";
+    if (_expression->m_is_synchronized_function) {
+      m_output += "__actor_data_public->";
+    } else {
+      m_output += "__actor_data_private->";
+    }
   }
 
   m_output += _expression->m_member_name;
@@ -1446,10 +1454,18 @@ bool c_compiler::write_cast_expression(const ast_cast_expression* _expression) {
   is_bitcast |= _expression->m_type->m_builtin == builtin_type::void_ptr_type &&
                 _expression->m_base_expression->m_type->m_classification ==
                     ast_type_classification::shared_reference;
+  is_bitcast |= _expression->m_type->m_builtin == builtin_type::void_ptr_type &&
+                _expression->m_base_expression->m_type->m_classification ==
+                    ast_type_classification::actor_type;
   is_bitcast |= _expression->m_type->m_classification ==
                     ast_type_classification::shared_reference &&
                 _expression->m_base_expression->m_type->m_classification ==
                     ast_type_classification::shared_reference;
+  is_bitcast |= _expression->m_type->m_classification ==
+                    ast_type_classification::actor_type &&
+                _expression->m_base_expression->m_type->m_classification ==
+                    ast_type_classification::actor_type;
+
   is_bitcast |= _expression->m_type->m_classification ==
                     ast_type_classification::reference &&
                 _expression->m_base_expression->m_type->m_classification ==
@@ -1464,6 +1480,10 @@ bool c_compiler::write_cast_expression(const ast_cast_expression* _expression) {
                     builtin_type::void_ptr_type;
   is_bitcast |= _expression->m_type->m_classification ==
                     ast_type_classification::shared_reference &&
+                _expression->m_base_expression->m_type->m_builtin ==
+                    builtin_type::void_ptr_type;
+  is_bitcast |= _expression->m_type->m_classification ==
+                    ast_type_classification::actor_type &&
                 _expression->m_base_expression->m_type->m_builtin ==
                     builtin_type::void_ptr_type;
   is_bitcast |= _expression->m_type->m_classification ==
@@ -1488,6 +1508,9 @@ bool c_compiler::write_cast_expression(const ast_cast_expression* _expression) {
   is_bitcast |= _expression->m_type->m_builtin == builtin_type::void_ptr_type &&
                 _expression->m_base_expression->m_type->m_classification ==
                     ast_type_classification::shared_reference;
+  is_bitcast |= _expression->m_type->m_builtin == builtin_type::void_ptr_type &&
+                _expression->m_base_expression->m_type->m_classification ==
+                    ast_type_classification::actor_type;
   is_bitcast |= _expression->m_type->m_classification ==
                     ast_type_classification::runtime_array &&
                 _expression->m_base_expression->m_type->m_builtin ==
@@ -1503,6 +1526,10 @@ bool c_compiler::write_cast_expression(const ast_cast_expression* _expression) {
                 _expression->m_type->m_static_array_size == 0 &&
                 _expression->m_base_expression->m_type->m_classification ==
                     ast_type_classification::runtime_array;
+  is_bitcast |= _expression->m_type->m_builtin ==
+                    builtin_type::unresolved_function_type &&
+                _expression->m_base_expression->m_type->m_classification ==
+                    ast_type_classification::function_pointer;
 
   if (is_bitcast) {
     m_output += "((";
@@ -1574,7 +1601,21 @@ bool c_compiler::write_builtin_expression(
       }
       m_output += ")) - 1)";
       return true;
+    case builtin_expression_type::pointer_to_actor:
+      m_output += "(((_wns_actor_object*)(";
+      if (!write_expression(_expression->m_expressions[0].get())) {
+        return false;
+      }
+      m_output += ")) - 1)";
+      return true;
     case builtin_expression_type::shared_to_pointer:
+      m_output += "(void*)(";
+      if (!write_expression(_expression->m_expressions[0].get())) {
+        return false;
+      }
+      m_output += " + 1)";
+      return true;
+    case builtin_expression_type::actor_to_pointer:
       m_output += "(void*)(";
       if (!write_expression(_expression->m_expressions[0].get())) {
         return false;
@@ -1727,6 +1768,10 @@ bool c_compiler::decode_type(const ast_type* _type) {
         case builtin_type::vtable_type:
           m_types[_type] = containers::string(m_allocator, "_vtable");
           return true;
+        case builtin_type::unresolved_function_type:
+          m_types[_type] =
+              containers::string(m_allocator, "_undefined_function");
+          return true;
         case builtin_type::not_builtin:
           WN_RELEASE_ASSERT(false, "You shouldn't get here");
           return false;
@@ -1772,6 +1817,9 @@ bool c_compiler::decode_type(const ast_type* _type) {
       }
       m_types[_type] = containers::string(m_allocator, "_shared_") +
                        m_types[_type->m_implicitly_contained_type];
+      return true;
+    case ast_type_classification::actor_type:
+      m_types[_type] = _type->m_name + "*";
       return true;
     case ast_type_classification::weak_reference:
       if (!decode_type(_type->m_implicitly_contained_type)) {

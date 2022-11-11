@@ -41,6 +41,7 @@ wn_create_call_test(
     COMMAND_POST_DIR
       --test_file
     UNIQUE_ARGS
+      actor.wns
       array_in_struct_tests.wns
       array_of_destructible.wns
       array_tests.wns
