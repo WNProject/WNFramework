@@ -65,7 +65,7 @@ int32_t wn_main(const wn::executable::executable_data* _data) {
   {
     main_application app;
     wn::multi_tasking::job_pool job_pool(
-        &root_allocator, log.log(), 2, 1024 * 1024 * 24, true);
+        &root_allocator, log.log(), 2, 1024 * 1024 * 2, true);
     wn::multi_tasking::signal_ptr main_done_signal = job_pool.get_signal();
     params.data.default_job_pool = &job_pool;
     // TODO(awoloszyn): Finish fiber job pool, start using that instead
