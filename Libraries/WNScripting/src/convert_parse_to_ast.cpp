@@ -214,6 +214,9 @@ bool parse_ast_convertor::convertor_context::walk_script_file(
         m_script_file->m_functions.push_back(
             core::move(m_action_helpers.back()));
         m_action_helpers.pop_back();
+        m_script_file->m_functions.push_back(
+            core::move(m_action_helpers.back()));
+        m_action_helpers.pop_back();
       }
       st_type->initialized_member_functions(m_allocator).push_back(fun.get());
       functions.push_back(core::make_pair(f.get(), fun.get()));

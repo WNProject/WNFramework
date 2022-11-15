@@ -1216,54 +1216,17 @@ parse_ast_convertor::convertor_context::resolve_function_call(
     // then instead of
     // foo->bar(a, b, c);
     // we instead call
-    // external_actor_act(__foo__bar__call_params_construct(external_get_call_param_mem(sizeof(__foo__bar__call_params)),
-    // foo, bar, a, b, c))
-
-    auto num_bytes =
-        memory::make_unique<ast_builtin_expression>(m_allocator, _call);
-    num_bytes->m_type = m_type_manager->size_t_t(&m_used_types);
-    num_bytes->initialized_extra_types(m_allocator)
-        .push_back(function_call->m_function->m_action_call_type);
-    num_bytes->m_builtin_type = builtin_expression_type::size_of;
-
-    auto alloc_call =
-        memory::make_unique<ast_function_call_expression>(m_allocator, _call);
-    alloc_call->m_function =
-        m_type_manager->allocate_actor_call(&m_used_externals);
-    alloc_call->initialized_parameters(m_allocator)
-        .push_back(core::move(num_bytes));
-    alloc_call->m_type = alloc_call->m_function->m_return_type;
-
-    auto constructor_call =
-        memory::make_unique<ast_function_call_expression>(m_allocator, _call);
-    constructor_call->m_function =
-        function_call->m_function->m_action_call_type->m_constructor;
-    constructor_call->m_parameters = core::move(function_call->m_parameters);
-
-    auto fn_ptr = memory::make_unique<ast_function_pointer_expression>(
-        m_allocator, _call);
-    fn_ptr->m_function = function_call->m_function->m_action_function;
-    fn_ptr->m_type =
-        function_call->m_function->m_action_function->m_function_pointer_type;
-
-    auto fn_ptr_as_void =
-        memory::make_unique<ast_cast_expression>(m_allocator, _call);
-    fn_ptr_as_void->m_type = m_type_manager->function_t(&m_used_types);
-    fn_ptr_as_void->m_base_expression = core::move(fn_ptr);
-
-    constructor_call->m_parameters.push_front(core::move(fn_ptr_as_void));
-    constructor_call->m_parameters.push_front(make_cast(core::move(alloc_call),
-        m_type_manager->get_reference_of(
-            function_call->m_function->m_action_call_type,
-            ast_type_classification::reference, &m_used_types)));
-    constructor_call->m_type = constructor_call->m_function->m_return_type;
-
+    // __call_action_bar(0, foo, a, b, c);
     function_call->m_function =
-        m_type_manager->call_actor_function(&m_used_builtins);
-    function_call->initialized_parameters(m_allocator)
-        .push_back(make_cast(core::move(constructor_call),
-            function_call->m_function->m_parameters[0].m_type));
+        function_call->m_function->m_action_call_function;
     function_call->m_type = function_call->m_function->m_return_type;
+
+    auto const_zero = memory::make_unique<ast_constant>(m_allocator, nullptr);
+    const_zero->m_type = m_type_manager->integral(32, &m_used_types);
+    const_zero->m_node_value.m_integer = 0;
+    const_zero->m_string_value = containers::string(m_allocator, "0");
+
+    function_call->m_parameters.push_front(core::move(const_zero));
   }
 
   return function_call;

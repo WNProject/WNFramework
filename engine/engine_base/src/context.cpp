@@ -47,7 +47,9 @@ void context::free_actor(scripting::actor_header* actor) {
   m_actors_to_delete.push_back(actor);
 }
 
-void context::call_actor_function(scripting::actor_function* function) {
+void context::call_actor_function(
+    int32_t delay, scripting::actor_function* function) {
+  (void)delay;
   auto eh = reinterpret_cast<engine_header*>(function->get_actor_header());
   size_t nv = eh->m_next_value++;
   m_application_data->default_job_pool->add_job(

@@ -202,11 +202,11 @@ event_listener::~event_listener() {}
 
 void event_listener::ProcessEvent(Rocket::Core::Event& event) {
   if (m_callee) {
-    m_engine->invoke(m_callee, event.GetTargetElement());
+    m_engine->invoke(m_callee, event.GetTargetElement()->GetId().CString());
     return;
   } else if (m_member_callee) {
-    m_engine->invoke(
-        m_member_callee, m_ui_data.unsafe_ptr(), event.GetTargetElement());
+    m_engine->invoke(m_member_callee, m_ui_data.unsafe_ptr(),
+        event.GetTargetElement()->GetId().CString());
     return;
   }
   m_log->log_warning(

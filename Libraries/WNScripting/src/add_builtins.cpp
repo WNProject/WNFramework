@@ -52,7 +52,7 @@ bool type_manager::add_builtin_functions() {
     return false;
   }
   if (m_externals_by_name.find(containers::string(m_allocator,
-          "_ZN3wns20_call_actor_functionEvPv")) == m_externals_by_name.end()) {
+          "_ZN3wns20_call_actor_functionEviPv")) == m_externals_by_name.end()) {
     m_log->log_error("External function _call_actor_function");
     return false;
   }
@@ -60,7 +60,7 @@ bool type_manager::add_builtin_functions() {
       m_externals_by_name["_ZN3wns20_allocate_actor_callEPvN3wns4sizeE"];
   m_free_actor_call = m_externals_by_name["_ZN3wns16_free_actor_callEvPv"];
   m_call_actor_function =
-      m_externals_by_name["_ZN3wns20_call_actor_functionEvPv"];
+      m_externals_by_name["_ZN3wns20_call_actor_functionEviPv"];
   add_allocate_shared();
   add_release_shared();
   add_assign_shared();

@@ -293,7 +293,9 @@ public:
     return m_allocator->deallocate(actor);
   }
 
-  void call_actor_function(wn::scripting::actor_function* function) override {
+  void call_actor_function(
+      int32_t delay, wn::scripting::actor_function* function) override {
+    (void)delay;
     function->function(function);
   }
 

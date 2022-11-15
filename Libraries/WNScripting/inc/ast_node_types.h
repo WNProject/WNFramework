@@ -797,6 +797,7 @@ struct ast_function : public ast_node {
   bool m_is_synchronized = false;
   bool m_is_action_caller = false;
   ast_function* m_action_function = nullptr;
+  ast_function* m_action_call_function = nullptr;
 
   uint32_t m_virtual_index = 0xFFFFFFFF;
 

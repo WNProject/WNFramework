@@ -118,9 +118,9 @@ void do_free_actor(void* a) {
   get_scripting_tls()->_runtime->free_actor(reinterpret_cast<actor_header*>(a));
 }
 
-void call_actor_function(void* a) {
+void call_actor_function(int32_t delay, void* a) {
   get_scripting_tls()->_runtime->call_actor_function(
-      reinterpret_cast<actor_function*>(a));
+      delay, reinterpret_cast<actor_function*>(a));
 }
 
 // Temp this is going to have to change.
