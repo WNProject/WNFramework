@@ -74,9 +74,8 @@ private:
   scripting::engine* m_engine;
   logging::log* m_log;
   scripting::script_actor_pointer<ui_data> m_ui_data;
-  wn::scripting::script_function<void, Rocket::Core::Element*> m_callee;
-  wn::scripting::script_function<void, void*, Rocket::Core::Element*>
-      m_member_callee;
+  wn::scripting::script_function<void, const char*> m_callee;
+  wn::scripting::script_function<void, void*, const char*> m_member_callee;
 };
 
 }  // namespace ui

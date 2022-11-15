@@ -71,6 +71,7 @@ c_translator::c_translator(memory::allocator* _allocator,
       external_function{"_call_actor_function",
           containers::dynamic_array<const ast_type*>(
               m_allocator, {m_type_manager.void_t(nullptr),
+                               m_type_manager.integral(32, nullptr),
                                m_type_manager.void_ptr_t(nullptr)})},
       true, false);
 

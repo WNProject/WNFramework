@@ -45,7 +45,7 @@ public:
   // accomplished immediately, but you are responsible for
   // making sure that no actor is completing 2 actions at
   // the same time.
-  virtual void call_actor_function(actor_function* function) = 0;
+  virtual void call_actor_function(int32_t delay, actor_function* function) = 0;
 };
 
 struct scripting_tls_data final {

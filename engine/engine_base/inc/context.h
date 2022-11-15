@@ -32,7 +32,8 @@ public:
 
   scripting::actor_header* allocate_actor(size_t size) override;
   void free_actor(scripting::actor_header* actor) override;
-  void call_actor_function(scripting::actor_function* function) override;
+  void call_actor_function(
+      int32_t delay, scripting::actor_function* function) override;
 
 private:
   containers::hash_set<scripting::actor_header*> m_actors;
