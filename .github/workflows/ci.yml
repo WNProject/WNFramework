@@ -24,7 +24,7 @@ jobs:
       changes-md: ${{steps.analysis.outputs.changes-md}}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 0
       - name: Analyze changes
@@ -124,13 +124,13 @@ jobs:
           changes_externals=${changes_externals//$'\n'/'\0'}
           changes_c_cpp=${changes_c_cpp//$'\n'/'\0'}
           changes_md=${changes_md//$'\n'/'\0'}
-          echo "::set-output name=run-build::$build"
-          echo "::set-output name=run-check-licenses::$check_licenses"
-          echo "::set-output name=run-format-check-c-cpp::$format_check_c_cpp"
-          echo "::set-output name=run-format-check-md::$format_check_md"
-          echo "::set-output name=changes-externals::$changes_externals"
-          echo "::set-output name=changes-c-cpp::$changes_c_cpp"
-          echo "::set-output name=changes-md::$changes_md"
+          echo "run-build=$build" >> $GITHUB_OUTPUT
+          echo "run-check-licenses=$check_licenses" >> $GITHUB_OUTPUT
+          echo "run-format-check-c-cpp=$format_check_c_cpp" >> $GITHUB_OUTPUT
+          echo "run-format-check-md=$format_check_md" >> $GITHUB_OUTPUT
+          echo "changes-externals=$changes_externals" >> $GITHUB_OUTPUT
+          echo "changes-c-cpp=$changes_c_cpp" >> $GITHUB_OUTPUT
+          echo "changes-md=$changes_md" >> $GITHUB_OUTPUT
   check-licenses:
     name: Check licenses
     needs: analyze-changes
@@ -139,7 +139,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
         with:
           submodules: true
       - name: Check external licenses
@@ -257,7 +257,7 @@ jobs:
     container: ghcr.io/wnproject/clang-format
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
       - name: Check formatting
         run: >
           echo -n '${{needs.analyze-changes.outputs.changes-c-cpp}}' |
@@ -271,7 +271,7 @@ jobs:
     container: ghcr.io/wnproject/markdown-lint
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
       - name: Check formatting
         run: >
           echo -n '${{needs.analyze-changes.outputs.changes-md}}' |
@@ -297,7 +297,7 @@ jobs:
       - name: Set up build environment
         run: mkdir build
       - name: Checkout
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
         with:
           path: ./source
           submodules: true
@@ -376,7 +376,7 @@ jobs:
       - name: Set up build environment
         run: mkdir build
       - name: Checkout
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
         with:
           path: ./source
           submodules: true
@@ -435,9 +435,9 @@ jobs:
           mkdir build
           $package = 'ghcr.io/wnproject/build-windows'
           $docker_image = "${package}:${{matrix.compiler}}".ToLower()
-          echo "::set-output name=docker-image::$docker_image"
+          "docker-image=$docker_image" >> $env:GITHUB_OUTPUT
       - name: Checkout
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
         with:
           path: ./source
           submodules: true

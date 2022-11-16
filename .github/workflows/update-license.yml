@@ -1,8 +1,5 @@
 name: Update license
 on:
-  push:
-    branches: master
-    paths: .github/workflows/update-license.yml
   schedule:
     - cron: '0 0 1 1 *'
   workflow_dispatch:
@@ -15,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
       - name: Determine year
         id: year
-        run: echo "::set-output name=value::$(date +%Y)"
-      - name: Switch to '${{env.BRANCH}}'
+        run: echo "value=$(date +%Y)" >> $GITHUB_OUTPUT
+      - name: Switch to 'auto/update-license'
         run: |
           git fetch origin +refs/heads/$BRANCH:refs/heads/$BRANCH || true
           git checkout $BRANCH || git checkout -b $BRANCH
@@ -27,35 +24,41 @@ jobs:
         run: >
           find . -type f -not -path './.git/*' -and
           -iregex '^.*\(\.\(h\|c\|cpp\|inl\|h\.in\|s\|py\|wns\)\|LICENSE\)$'
-          -exec sed -i -E "s/$REGEX/\1${{steps.year.outputs.value}}\4/" {} \;
+          -exec sed -i -E "s/$REGEX/\1$YEAR\4/" {} \;
+        env:
+          YEAR: ${{steps.year.outputs.value}}
       - name: Check for changes
         id: changes
-        run: git diff --exit-code || echo '::set-output name=exist::true'
+        run: >
+          git diff --exit-code &&
+          echo 'exist=false' >> $GITHUB_OUTPUT ||
+          echo 'exist=true' >> $GITHUB_OUTPUT
       - name: Create commit
-        if: steps.changes.outputs.exist
+        if: steps.changes.outputs.exist == 'true'
         run: |
           git reset --hard origin/master
           find . -type f -not -path './.git/*' -and \
           -iregex '^.*\(\.\(h\|c\|cpp\|inl\|h\.in\|s\|py\|wns\)\|LICENSE\)$' \
-          -exec sed -i -E "s/$REGEX/\1${{steps.year.outputs.value}}\4/" {} \;
+          -exec sed -i -E "s/$REGEX/\1$YEAR\4/" {} \;
           git config user.name $COMMIT_USERNAME
           git config user.email $COMMIT_EMAIL
           git add -u
-          git commit -m 'Update license year to ${{steps.year.outputs.value}}'
+          git commit -m "Update license year to $YEAR"
           git push --force origin $BRANCH
         env:
           COMMIT_USERNAME: ${{secrets.UPDATE_LICENSE_USER}}
           COMMIT_EMAIL: ${{secrets.UPDATE_LICENSE_EMAIL}}
+          YEAR: ${{steps.year.outputs.value}}
       - name: Create pull request
-        if: steps.changes.outputs.exist
+        if: steps.changes.outputs.exist == 'true'
         uses: actions/github-script@v5
         with:
           script: |
-            const [owner, repo] = '${{github.repository}}'.split('/');
+            const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
             const base = 'refs/heads/master';
-            const head = 'refs/heads/${{env.BRANCH}}';
+            const head = `refs/heads/${process.env.BRANCH}`;
             const labels = ['auto'];
-            const title = 'Update license year to ${{steps.year.outputs.value}}';
+            const title = `Update license year to ${process.env.YEAR}`;
             const pullRequests = await github.rest.pulls.list({
               head: `${owner}:${head}`,
               owner, repo, base
@@ -81,3 +84,6 @@ jobs:
             }
           result-encoding: string
           github-token: ${{secrets.UPDATE_LICENSE_TOKEN}}
+        env:
+          YEAR: ${{steps.year.outputs.value}}
+
