@@ -44,7 +44,8 @@ int32_t wn_application_main(
 
   int32_t ret = 0;
   {
-    engine_base::context ctx(_application_data->system_allocator);
+    engine_base::context ctx(
+        _application_data->system_allocator, _application_data);
 
     profiling::allocator file_system_allocator(
         _application_data->system_allocator, "FileSystem");
