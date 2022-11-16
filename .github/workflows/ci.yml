@@ -123,14 +123,16 @@ jobs:
           fi
           changes_externals=${changes_externals//$'\n'/'\0'}
           changes_c_cpp=${changes_c_cpp//$'\n'/'\0'}
-          changes_md=${changes_md//$'\n'/'\0'}
+          delimiter=$(head -c 16 /dev/urandom | base64)
           echo "run-build=$build" >> $GITHUB_OUTPUT
           echo "run-check-licenses=$check_licenses" >> $GITHUB_OUTPUT
           echo "run-format-check-c-cpp=$format_check_c_cpp" >> $GITHUB_OUTPUT
           echo "run-format-check-md=$format_check_md" >> $GITHUB_OUTPUT
           echo "changes-externals=$changes_externals" >> $GITHUB_OUTPUT
           echo "changes-c-cpp=$changes_c_cpp" >> $GITHUB_OUTPUT
-          echo "changes-md=$changes_md" >> $GITHUB_OUTPUT
+          echo "changes-md<<$delimiter" >> $GITHUB_OUTPUT
+          echo "$changes_md" >> $GITHUB_OUTPUT
+          echo "$delimiter" >> $GITHUB_OUTPUT
   check-licenses:
     name: Check licenses
     needs: analyze-changes
@@ -268,14 +270,13 @@ jobs:
     if: needs.analyze-changes.outputs.run-format-check-md == 'true'
     timeout-minutes: 5
     runs-on: ubuntu-latest
-    container: ghcr.io/wnproject/markdown-lint
     steps:
       - name: Checkout
         uses: actions/checkout@v3.1.0
       - name: Check formatting
-        run: >
-          echo -n '${{needs.analyze-changes.outputs.changes-md}}' |
-          xargs -0 markdownlint
+        uses: davidanson/markdownlint-cli2-action@v6.0.0
+        with:
+          globs: ${{needs.analyze-changes.outputs.changes-md}}
   build-android:
     name: Build Android
     needs: analyze-changes
