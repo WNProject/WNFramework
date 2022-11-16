@@ -86,4 +86,3 @@ jobs:
           github-token: ${{secrets.UPDATE_LICENSE_TOKEN}}
         env:
           YEAR: ${{steps.year.outputs.value}}
-
