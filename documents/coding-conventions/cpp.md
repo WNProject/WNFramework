@@ -125,9 +125,11 @@ compilation.
 
 ```cpp
 #pragma once
-
 #ifdef __WN_CONTAINERS_DEQUE_H__
 #define __WN_CONTAINERS_DEQUE_H__
+
+...
+
 #endif  // __WN_CONTAINERS_DEQUE_H__
 ```
 
@@ -142,6 +144,9 @@ comment should be included describing the section that was closed.
 #define MY_FOO
 #define MY_FOO(bar)
 #ifdef FOO
+
+...
+
 #endif  // FOO
 ```
 

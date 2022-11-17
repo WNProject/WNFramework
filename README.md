@@ -1,6 +1,6 @@
 # WNFramework
 
-[![License]](LICENSE)
+[![License][License]](LICENSE)
 [![C++ Version][C++ Version]][C++ Reference]
 [![CMake Version][CMake Version]][CMake Reference]
 [![CI][CI Badge]][CI Workflow]
