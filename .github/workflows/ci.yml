@@ -276,7 +276,9 @@ jobs:
     needs: analyze-changes
     if: needs.analyze-changes.outputs.run-build == 'true'
     timeout-minutes: 90
-    runs-on: ubuntu-latest
+    runs-on:
+      group: latest-large
+      labels: linux
     container: ghcr.io/wnproject/build-android
     strategy:
       fail-fast: false
@@ -352,7 +354,9 @@ jobs:
     needs: analyze-changes
     if: needs.analyze-changes.outputs.run-build == 'true'
     timeout-minutes: 90
-    runs-on: ubuntu-latest
+    runs-on:
+      group: latest-large
+      labels: linux
     container: ghcr.io/wnproject/build-linux:${{matrix.compiler}}
     strategy:
       fail-fast: false
@@ -413,7 +417,9 @@ jobs:
     needs: analyze-changes
     if: needs.analyze-changes.outputs.run-build == 'true'
     timeout-minutes: 90
-    runs-on: windows-latest
+    runs-on:
+      group: latest-large
+      labels: windows
     strategy:
       fail-fast: false
       matrix:
