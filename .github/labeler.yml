@@ -1,0 +1,11 @@
+documentation:
+  - '*.md'
+  - LICENSE
+github-actions:
+  - .github/workflows/*.yml
+submodules:
+  - any:
+      - externals/*
+    all:
+      - '!externals/CMakeLists.txt'
+      - '!externals/LICENSE.*'

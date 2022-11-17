@@ -1,17 +1,11 @@
 name: CI
 on:
-  pull_request:
-    branches: master
-  push:
-    branches: master
+  workflow_call:
 permissions:
   contents: read
-concurrency:
-  group: ci-${{github.ref}}
-  cancel-in-progress: ${{github.ref != 'refs/heads/master'}}
 jobs:
   analyze-changes:
-    name: Analyze changes
+    name: Analyze Changes
     timeout-minutes: 5
     runs-on: ubuntu-latest
     outputs:
@@ -134,7 +128,7 @@ jobs:
           echo "$changes_md" >> $GITHUB_OUTPUT
           echo "$delimiter" >> $GITHUB_OUTPUT
   check-licenses:
-    name: Check licenses
+    name: Check Licenses
     needs: analyze-changes
     if: needs.analyze-changes.outputs.run-check-licenses == 'true'
     timeout-minutes: 5
@@ -251,7 +245,7 @@ jobs:
             exit 1
           fi
   check-formatting-c-cpp:
-    name: Check formatting (C/C++)
+    name: Check Formatting (C/C++)
     needs: analyze-changes
     if: needs.analyze-changes.outputs.run-format-check-c-cpp == 'true'
     timeout-minutes: 5
@@ -265,7 +259,7 @@ jobs:
           echo -n '${{needs.analyze-changes.outputs.changes-c-cpp}}' |
           xargs -0 clang-format --dry-run --Werror
   check-formatting-md:
-    name: Check formatting (Markdown)
+    name: Check Formatting (Markdown)
     needs: analyze-changes
     if: needs.analyze-changes.outputs.run-format-check-md == 'true'
     timeout-minutes: 5
