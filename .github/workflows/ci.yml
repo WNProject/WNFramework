@@ -296,7 +296,7 @@ jobs:
         with:
           path: ./source
           submodules: true
-      - name: Set up gcs key
+      - name: Set up GCS key
         shell: bash
         run: echo "$GCS_KEY" > /tmp/gcs_key.json
         env:
@@ -375,7 +375,7 @@ jobs:
         with:
           path: ./source
           submodules: true
-      - name: Set up gcs key
+      - name: Set up GCS key
         shell: bash
         run: echo "$GCS_KEY" > /tmp/gcs_key.json
         env:
@@ -436,7 +436,7 @@ jobs:
         with:
           path: ./source
           submodules: true
-      - name: Set up gcs key
+      - name: Set up GCS key
         shell: bash
         run: echo "$GCS_KEY" > gcs_key.json
         env:
