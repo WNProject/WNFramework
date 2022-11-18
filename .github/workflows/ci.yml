@@ -25,6 +25,13 @@ on:
         required: false
         default: '**/*.md'
         type: string
+      use-sccache:
+        required: true
+        type: boolean
+      sccache-write:
+        required: false
+        default: false
+        type: boolean
 permissions:
   contents: read
 jobs:
@@ -188,7 +195,7 @@ jobs:
   build-android:
     name: Build Android
     if: inputs.run-build
-    timeout-minutes: 90
+    timeout-minutes: ${{github.actor == 'dependabot[bot]' && 120 || 60}}
     runs-on: ubuntu-latest
     container: ghcr.io/wnproject/build-android
     strategy:
@@ -209,10 +216,23 @@ jobs:
         with:
           path: ./source
           submodules: true
-      - name: Set up GCS key
+      - name: Set up GCS for sccache
+        if: inputs.use-sccache
         shell: bash
-        run: echo "$GCS_KEY" > /tmp/gcs_key.json
+        run: |
+          KEY_PATH="$RUNNER_TEMP/gcs_key.json"
+          echo "$GCS_KEY" > "$KEY_PATH"
+          echo "SCCACHE_GCS_BUCKET=$GCS_BUCKET" >> $GITHUB_ENV
+          echo "SCCACHE_GCS_KEY_PATH=$KEY_PATH" >> $GITHUB_ENV
+          RW_MODE=$(
+            [ "$INPUTS_SCCACHE_WRITE" == 'true' ] &&
+            echo 'READ_WRITE' ||
+            echo 'READ_ONLY'
+          )
+          echo "SCCACHE_GCS_RW_MODE=$RW_MODE" >> $GITHUB_ENV
         env:
+          INPUTS_SCCACHE_WRITE: ${{inputs.sccache-write}}
+          GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
           GCS_KEY: ${{secrets.SCCACHE_GCS_KEY}}
       - name: Run configuration
         working-directory: ./build
@@ -223,48 +243,33 @@ jobs:
           -DWN_ANDROID_ABIS="$ARCHITECTURE"
           -DWN_ANDROID_SDK=/opt/android-sdk
           -DWN_LOW_RESOURCE_MODE=ON
-          -DWN_USE_SCCACHE=ON
+          -DWN_USE_SCCACHE="$USE_SCCACHE"
           ../source
         env:
-          OVERLAY: ${{github.workspace}}/source/Overlays/Posix/Overlays/Android
-          SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
-          SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
-          SCCACHE_GCS_RW_MODE: READ_WRITE
           ARCHITECTURE: ${{matrix.architecture}}
           BUILT_TYPE: ${{matrix.build-type}}
+          OVERLAY: ${{github.workspace}}/source/Overlays/Posix/Overlays/Android
+          USE_SCCACHE: ${{inputs.use-sccache && 'ON' || 'OFF' }}
       - name: Run build (host tools)
         working-directory: ./build/host/externals/llvm-project/llvm
         run: cmake --build . --target llvm-tblgen
-        env:
-          SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
-          SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
-          SCCACHE_GCS_RW_MODE: READ_WRITE
       - name: 'Run build (platform: ${{matrix.architecture}})'
         working-directory: ./build/${{matrix.architecture}}
         run: cmake --build .
-        env:
-          SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
-          SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
-          SCCACHE_GCS_RW_MODE: READ_WRITE
       - name: Run build (apks)
         working-directory: ./build
         run: cmake --build .
-        env:
-          SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
-          SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
-          SCCACHE_GCS_RW_MODE: READ_WRITE
       - name: Run tests
         working-directory: ./build
         run: ctest -C "$BUILD_TYPE" -LE REQUIRES_HARDWARE --output-on-failure
         env:
           BUILD_TYPE: ${{matrix.build-type}}
       - name: Report build details
-        if: success() || failure()
         run: du -hbcs ./source ./build
   build-linux:
     name: Build Linux
     if: inputs.run-build
-    timeout-minutes: 90
+    timeout-minutes: ${{github.actor == 'dependabot[bot]' && 120 || 60}}
     runs-on: ubuntu-latest
     container: ghcr.io/wnproject/build-linux:${{matrix.compiler}}
     strategy:
@@ -288,10 +293,23 @@ jobs:
         with:
           path: ./source
           submodules: true
-      - name: Set up GCS key
+      - name: Set up GCS for sccache
+        if: inputs.use-sccache
         shell: bash
-        run: echo "$GCS_KEY" > /tmp/gcs_key.json
+        run: |
+          KEY_PATH="$RUNNER_TEMP/gcs_key.json"
+          echo "$GCS_KEY" > "$KEY_PATH"
+          echo "SCCACHE_GCS_BUCKET=$GCS_BUCKET" >> $GITHUB_ENV
+          echo "SCCACHE_GCS_KEY_PATH=$KEY_PATH" >> $GITHUB_ENV
+          RW_MODE=$(
+            [ "$INPUTS_SCCACHE_WRITE" == 'true' ] &&
+            echo 'READ_WRITE' ||
+            echo 'READ_ONLY'
+          )
+          echo "SCCACHE_GCS_RW_MODE=$RW_MODE" >> $GITHUB_ENV
         env:
+          INPUTS_SCCACHE_WRITE: ${{inputs.sccache-write}}
+          GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
           GCS_KEY: ${{secrets.SCCACHE_GCS_KEY}}
       - name: Run configuration
         working-directory: ./build
@@ -299,32 +317,25 @@ jobs:
           cmake -GNinja
           -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
           -DWN_LOW_RESOURCE_MODE=ON
-          -DWN_USE_SCCACHE=ON
+          -DWN_USE_SCCACHE="$USE_SCCACHE"
           ../source
         env:
-          SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
-          SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
-          SCCACHE_GCS_RW_MODE: READ_WRITE
           BUILD_TYPE: ${{matrix.build-type}}
+          USE_SCCACHE: ${{inputs.use-sccache && 'ON' || 'OFF' }}
       - name: Run build
         working-directory: ./build
         run: cmake --build .
-        env:
-          SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
-          SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
-          SCCACHE_GCS_RW_MODE: READ_WRITE
       - name: Run tests
         working-directory: ./build
         run: ctest -C "$BUILD_TYPE" -LE REQUIRES_HARDWARE --output-on-failure
         env:
           BUILD_TYPE: ${{matrix.build-type}}
       - name: Report build details
-        if: success() || failure()
         run: du -hbcs ./source ./build
   build-windows:
     name: Build Windows
     if: inputs.run-build
-    timeout-minutes: 90
+    timeout-minutes: ${{github.actor == 'dependabot[bot]' && 120 || 60}}
     runs-on: windows-latest
     strategy:
       fail-fast: false
@@ -350,10 +361,22 @@ jobs:
         with:
           path: ./source
           submodules: true
-      - name: Set up GCS key
+      - name: Set up GCS for sccache
+        if: inputs.use-sccache
         shell: bash
-        run: echo "$GCS_KEY" > gcs_key.json
+        run: |
+          KEY_PATH="$GITHUB_WORKSPACE/gcs_key.json"
+          echo "$GCS_KEY" > "$KEY_PATH"
+          echo "SCCACHE_GCS_BUCKET=$GCS_BUCKET" >> $GITHUB_ENV
+          RW_MODE=$(
+            [ "$INPUTS_SCCACHE_WRITE" == 'true' ] &&
+            echo 'READ_WRITE' ||
+            echo 'READ_ONLY'
+          )
+          echo "SCCACHE_GCS_RW_MODE=$RW_MODE" >> $GITHUB_ENV
         env:
+          INPUTS_SCCACHE_WRITE: ${{inputs.sccache-write}}
+          GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
           GCS_KEY: ${{secrets.SCCACHE_GCS_KEY}}
       - name: Pull container
         run: docker pull $env:DOCKER_IMAGE
@@ -362,35 +385,43 @@ jobs:
       - name: Run configuration
         run: >
           docker run --rm
-          -e SCCACHE_GCS_BUCKET=${{secrets.SCCACHE_GCS_BUCKET}}
+          -e "SCCACHE_GCS_BUCKET=$env:SCCACHE_GCS_BUCKET"
           -e SCCACHE_GCS_KEY_PATH=C:\workspace\gcs_key.json
-          -e SCCACHE_GCS_RW_MODE=READ_WRITE
+          -e "SCCACHE_GCS_RW_MODE=$env:SCCACHE_GCS_RW_MODE"
           -v ${{github.workspace}}:C:\workspace
-          ${{steps.build-environment.outputs.docker-image}}
+          $env:DOCKER_IMAGE
           cmake -GNinja -S C:\workspace\source -B C:\workspace\build
-          -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
+          -DCMAKE_BUILD_TYPE="$env:BUILD_TYPE"
           -DWN_LOW_RESOURCE_MODE=ON
-          -DWN_USE_SCCACHE=ON
+          -DWN_USE_SCCACHE="$env:USE_SCCACHE"
+        env:
+          BUILD_TYPE: ${{matrix.build-type}}
+          DOCKER_IMAGE: ${{steps.build-environment.outputs.docker-image}}
+          USE_SCCACHE: ${{inputs.use-sccache && 'ON' || 'OFF' }}
       - name: Run build
         run: >
           docker run --rm
-          -e SCCACHE_GCS_BUCKET=${{secrets.SCCACHE_GCS_BUCKET}}
+          -e "SCCACHE_GCS_BUCKET=$env:SCCACHE_GCS_BUCKET"
           -e SCCACHE_GCS_KEY_PATH=C:\workspace\gcs_key.json
-          -e SCCACHE_GCS_RW_MODE=READ_WRITE
+          -e "SCCACHE_GCS_RW_MODE=$env:SCCACHE_GCS_RW_MODE"
           -v ${{github.workspace}}:C:\workspace
-          ${{steps.build-environment.outputs.docker-image}}
+          $env:DOCKER_IMAGE
           cmake --build C:\workspace\build
+        env:
+          DOCKER_IMAGE: ${{steps.build-environment.outputs.docker-image}}
       - name: Run tests
         run: >
           docker run --rm
           -v ${{github.workspace}}:C:\workspace
-          ${{steps.build-environment.outputs.docker-image}}
+          $env:DOCKER_IMAGE
           "cd C:\workspace\build;
-          ctest -C ${{matrix.build-type}}
+          ctest -C "$env:BUILD_TYPE"
           -LE REQUIRES_HARDWARE
           --output-on-failure"
+        env:
+          BUILD_TYPE: ${{matrix.build-type}}
+          DOCKER_IMAGE: ${{steps.build-environment.outputs.docker-image}}
       - name: Report build details
-        if: success() || failure()
         shell: bash
         run: du -hbcs ./source ./build
   build:

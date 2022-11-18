@@ -14,3 +14,5 @@ jobs:
       run-check-licenses: true
       run-format-check-c-cpp: true
       run-format-check-md: true
+      use-sccache: ${{github.actor != 'dependabot[bot]'}}
+      sccache-write: true

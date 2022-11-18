@@ -136,3 +136,4 @@ jobs:
       changes-externals: ${{needs.analyze-changes.outputs.changes-externals}}
       changes-c-cpp: ${{needs.analyze-changes.outputs.changes-c-cpp}}
       changes-md: ${{needs.analyze-changes.outputs.changes-md}}
+      use-sccache: ${{github.actor != 'dependabot[bot]'}}
