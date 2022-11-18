@@ -23,9 +23,6 @@ struct exported_script_type<ui::ui> {
   static void export_type(T* _exporter) {
     _exporter->template register_nonvirtual_function<
         decltype(&ui::ui::add_document), &ui::ui::add_document>("add_document");
-    _exporter->template register_nonvirtual_function<
-        decltype(&ui::ui::schedule_document_update),
-        &ui::ui::schedule_document_update>("schedule_document_update");
   }
 };
 }  // namespace scripting

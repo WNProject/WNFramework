@@ -299,7 +299,7 @@ public:
     function->function(function);
   }
 
-  void update_actors() {
+  void update_actors() override {
     for (auto& it : m_actors) {
       it->update_values(it + 1);
     }
@@ -311,10 +311,6 @@ public:
 
 // This is just for testing, but we just want a simple way to update our actors.
 static memory::unique_ptr<test_runtime> _rt;
-
-static void update_actors() {
-  _rt->update_actors();
-}
 
 int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
   executable::wn_dummy();
@@ -408,12 +404,9 @@ int32_t wn_main(const ::wn::executable::executable_data* _executable_data) {
   // Register increment_number
   jit->register_function<decltype(&increment_number), &increment_number>(
       "increment_number");
-  jit->register_function<decltype(&update_actors), &update_actors>(
-      "update_actors");
   res_test::register_scripting(jit.get());
 
   translator->register_cpp_function("increment_number", &increment_number);
-  translator->register_cpp_function("update_actors", &update_actors);
 
   // Register a named constant;
   const int32_t constant_a = 42;

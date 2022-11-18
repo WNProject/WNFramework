@@ -10,7 +10,9 @@
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNContainers/inc/WNHashSet.h"
 #include "WNMultiTasking/inc/job_pool.h"
+#include "WNMultiTasking/inc/spin_lock.h"
 #include "WNScripting/inc/WNEngine.h"
+
 namespace wn {
 namespace file_system {
 class mapping;
@@ -20,8 +22,13 @@ namespace engine_base {
 class context : public scripting::scripting_runtime {
   // TODO(awoloszyn): Make this less public
 public:
-  context(memory::allocator* _allocator)
-    : m_actors(_allocator), m_actors_to_delete(_allocator) {}
+  context(memory::allocator* _allocator,
+      const runtime::application::application_data* _application_data)
+    : m_application_data(_application_data),
+      m_actors(_allocator),
+      m_actors_to_delete(_allocator),
+      m_update_signal(m_application_data->default_job_pool->get_signal()),
+      m_next_actions(_allocator) {}
 
   const runtime::application::application_data* m_application_data;
   scripting::engine* m_engine;
@@ -34,10 +41,16 @@ public:
   void free_actor(scripting::actor_header* actor) override;
   void call_actor_function(
       int32_t delay, scripting::actor_function* function) override;
+  void update_actors() override;
 
 private:
   containers::hash_set<scripting::actor_header*> m_actors;
-  containers::deque<scripting::actor_header*> m_actors_to_delete;
+  containers::hash_set<scripting::actor_header*> m_actors_to_delete;
+  std::atomic<size_t> m_pending_actions = 0;
+  std::atomic<size_t> m_update_count = 0;
+  multi_tasking::signal_ptr m_update_signal;
+  multi_tasking::spin_lock m_action_lock;
+  containers::deque<scripting::actor_function*> m_next_actions;
 };
 
 void register_context(scripting::engine* _engine);

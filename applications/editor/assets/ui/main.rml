@@ -4,17 +4,27 @@
     <link type="text/css" href="main.rcss"/>
 <script>
 // UIName=MainGUI
-@synchronized Void on_button_click(CString id) {
-   log_error().o("Click: ").o(id).end();
+@synchronized Int next_id = 0;
+@action Void on_button_click(CString id) {
+   if (id[0] == '1') {
+     next_id = 1;
+   } else if (id[0] == '2') {
+     next_id = 2;
+   } else if (id[0] == '3') {
+     next_id = 3;
+   }
+}
+@synchronized override Void update(UiDocument doc) {
+  log_error().o("Doing update for document").end();
+  if (next_id == 1) {
+    doc.get_child_by_id("content").set_inner_rml("One");
+  } else if (next_id == 2) {
+    doc.get_child_by_id("content").set_inner_rml("Two");
+  } else if (next_id == 3) {
+    doc.get_child_by_id("content").set_inner_rml("Three");
+  }
 }
 
-@synchronized Void titlebar_onload(CString id) {
-   log_error().o("Update: ").o(id).end();
-
-}
-@synchronized override Void update(Int doc_idx, UiDocument doc) {
-   
-}
 </script>
 </head>
 <body template="window">
