@@ -149,6 +149,6 @@ conventions check the guides below.
 [C++ Reference]: https://en.cppreference.com/w/cpp/17
 [CMake Version]: https://img.shields.io/badge/CMake-3.16.3-blue
 [CMake Reference]: https://cmake.org/cmake/help/v3.16
-[CI Badge]: https://github.com/WNProject/WNFramework/actions/workflows/ci.yml/badge.svg?branch=master
-[CI Workflow]: https://github.com/WNProject/WNFramework/actions/workflows/ci.yml?query=branch%3Amaster
+[CI Badge]: https://github.com/WNProject/WNFramework/actions/workflows/push.yml/badge.svg?branch=master
+[CI Workflow]: https://github.com/WNProject/WNFramework/actions/workflows/push.yml?query=branch%3Amaster
 [Visual Studio Command Line Tools]: https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line
