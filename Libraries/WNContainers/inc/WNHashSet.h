@@ -124,6 +124,11 @@ public:
     }
   }
 
+  hash_set& operator=(hash_set&& _other) {
+    m_map = core::move(_other.m_map);
+    return *this;
+  }
+
   bool empty() const {
     return m_map.empty();
   }
@@ -144,6 +149,10 @@ public:
   }
   const_iterator find(const key_type& key) const {
     return const_iterator(m_map.find(key));
+  }
+
+  void clear() {
+    return m_map.clear();
   }
 
   iterator erase(const_iterator _it) {

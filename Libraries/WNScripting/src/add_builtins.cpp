@@ -56,6 +56,11 @@ bool type_manager::add_builtin_functions() {
     m_log->log_error("External function _call_actor_function");
     return false;
   }
+  if (m_externals_by_name.find(containers::string(m_allocator,
+          "_ZN3wns13update_actorsEv")) == m_externals_by_name.end()) {
+    m_log->log_error("External function update_actors");
+    return false;
+  }
   m_allocate_actor_call =
       m_externals_by_name["_ZN3wns20_allocate_actor_callEPvN3wns4sizeE"];
   m_free_actor_call = m_externals_by_name["_ZN3wns16_free_actor_callEvPv"];

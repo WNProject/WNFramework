@@ -187,10 +187,10 @@ public:
   bool get_function(containers::string_view _name,
       script_function<R, Args...>* _function) const;
 
-  template <typename T, typename... Args>
-  bool inline get_named_member_function(containers::string_view _name,
+  template <typename... Args>
+  bool inline get_named_actor_function(containers::string_view _name,
       containers::string_view _object_type,
-      script_function<T, Args...>* _function) const;
+      script_function<void, int32_t, void*, Args...>* _function) const;
 
   template <typename R, typename... Args>
   R invoke(const script_function<R, Args...>& _function, Args... _args) const;
@@ -234,6 +234,9 @@ public:
 
   template <typename T, typename... Args>
   shared_cpp_pointer<T> make_shared_cpp(Args&&... args);
+
+  void act(scripting::actor_function* function);
+  void update(scripting::actor_header* actor);
 
   template <typename T>
   struct script_type_importer : public script_importer_base {
@@ -332,10 +335,10 @@ protected:
   bool get_function_internal(containers::string_view _name,
       script_function<R, Args...>* _function, bool _is_member) const;
 
-  template <typename R, typename... Args>
-  bool get_named_function_internal(containers::string_view _name,
+  template <typename... Args>
+  bool get_named_actor_function_internal(containers::string_view _name,
       containers::string_view _object_name,
-      script_function<R, Args...>* _function, bool is_actor) const;
+      script_function<void, int32_t, void*, Args...>* _function) const;
 
   template <typename R, typename... Args>
   size_t get_virtual_function(containers::string_view _name) const;

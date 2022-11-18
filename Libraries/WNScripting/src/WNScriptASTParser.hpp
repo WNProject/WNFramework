@@ -68,6 +68,9 @@
 #endif
 #ifdef _WN_CLANG
     #pragma clang diagnostic ignored "-Wunused-function"
+#if __clang_major__ >= 13
+    #pragma clang diagnostic ignored "-Wunused-but-set-variable"
+#endif
 #endif
 #ifdef _WN_GCC
     #pragma GCC diagnostic ignored "-Wunused-function"
