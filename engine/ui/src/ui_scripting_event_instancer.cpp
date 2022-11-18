@@ -95,6 +95,11 @@ void ui_set_class(
   return _element->SetClass(_class, _activate);
 }
 
+Rocket::Core::Element* ui_get_child_by_id(
+    Rocket::Core::Element* _element, const char* id) {
+  return _element->GetElementById(id);
+}
+
 }  // namespace
 
 namespace scripting {
@@ -136,6 +141,8 @@ struct exported_script_type<Rocket::Core::Element> {
         "owner");
     _exporter->register_pseudo_function<decltype(&ui_set_class), &ui_set_class>(
         "set_class");
+    _exporter->register_pseudo_function<decltype(&ui_get_child_by_id),
+        &ui_get_child_by_id>("get_child_by_id");
   }
 };
 
@@ -161,16 +168,19 @@ void event_instancer::register_scripting(
 
 event_instancer::event_instancer(scripting::engine* _engine,
     memory::allocator* _allocator, logging::log* _log)
-  : m_engine(_engine), m_log(_log), m_contexts(_allocator) {}
+  : m_engine(_engine),
+    m_log(_log),
+    m_contexts(_allocator),
+    m_dirty_documents(_allocator) {}
 
 Rocket::Core::EventListener* event_instancer::InstanceEventListener(
     const Rocket::Core::String& value, Rocket::Core::Element* element) {
   if (m_contexts.find(element->GetOwnerDocument()) == m_contexts.end()) {
     return new event_listener(
-        m_engine, m_log, m_currently_loading_doc, value, element);
+        m_engine, m_log, m_currently_loading_doc, this, value, element);
   }
   auto& r = m_contexts[element->GetOwnerDocument()];
-  return new event_listener(m_engine, m_log, r, value, element);
+  return new event_listener(m_engine, m_log, r, this, value, element);
 }
 
 void event_instancer::Release() {
@@ -179,13 +189,13 @@ void event_instancer::Release() {
 
 event_listener::event_listener(scripting::engine* _engine, logging::log* _log,
     scripting::script_actor_pointer<ui_data> ui_dat,
-    const Rocket::Core::String& code, Rocket::Core::Element* element)
-  : m_engine(_engine), m_log(_log), m_ui_data(ui_dat) {
+    event_instancer* _instancer, const Rocket::Core::String& code,
+    Rocket::Core::Element* element)
+  : m_engine(_engine), m_log(_log), m_ui_data(ui_dat), m_instancer(_instancer) {
   (void)element;
   if (code.Find("this.") == 0) {
     const char* nm = m_ui_data.invoke(&ui_data::get_class_name);
-    _engine->get_named_member_function(
-        code.CString() + 5, nm, &m_member_callee);
+    _engine->get_named_actor_function(code.CString() + 5, nm, &m_member_callee);
     if (!m_member_callee) {
       _log->log_error(
           "Could not find member callback function ", code.CString());
@@ -205,8 +215,10 @@ void event_listener::ProcessEvent(Rocket::Core::Event& event) {
     m_engine->invoke(m_callee, event.GetTargetElement()->GetId().CString());
     return;
   } else if (m_member_callee) {
-    m_engine->invoke(m_member_callee, m_ui_data.unsafe_ptr(),
+    m_engine->invoke(m_member_callee, 0, m_ui_data.unsafe_ptr(),
         event.GetTargetElement()->GetId().CString());
+    m_instancer->dirty_documents().insert(
+        event.GetTargetElement()->GetOwnerDocument());
     return;
   }
   m_log->log_warning(

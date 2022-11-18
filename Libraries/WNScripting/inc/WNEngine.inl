@@ -71,46 +71,37 @@ bool inline engine::get_member_function(containers::string_view _name,
   return get_function_internal<T, Args...>(_name, _function, true);
 }
 
-template <typename T, typename... Args>
-bool inline engine::get_named_member_function(containers::string_view _name,
+template <typename... Args>
+bool inline engine::get_named_actor_function(containers::string_view _name,
     containers::string_view _object_type,
-    script_function<T, Args...>* _function) const {
-  return get_named_function_internal<T, Args...>(
-             _name, _object_type, _function, false) ||
-         get_named_function_internal<T, Args...>(
-             _name, _object_type, _function, true);
+    script_function<void, int32_t, void*, Args...>* _function) const {
+  return get_named_actor_function_internal<Args...>(
+      _name, _object_type, _function);
 }
 
-template <typename T, typename... Args>
-bool inline engine::get_named_function_internal(containers::string_view _name,
-    containers::string_view _object_name,
-    script_function<T, Args...>* _function, bool is_actor) const {
+template <typename... Args>
+bool inline engine::get_named_actor_function_internal(
+    containers::string_view _name, containers::string_view _object_name,
+    script_function<void, int32_t, void*, Args...>* _function) const {
   containers::dynamic_array<containers::string_view> signature_types =
-      m_type_manager.get_mangled_names<T, Args...>();
+      m_type_manager.get_mangled_names<Args...>();
 
-  containers::string s = get_mangled_name(m_allocator, _name, _object_name);
+  containers::string nm(m_allocator, "__call__action__");
+  nm += _name;
 
-  bool first = true;
-  bool second = false;
-  for (auto& param : signature_types) {
-    if (first) {
-      first = false;
-      second = true;
-    } else if (second) {
-      char count[11] = {0};
-      s += is_actor ? "T" : "P";
-      memory::writeuint32(
-          count, static_cast<uint32_t>(_object_name.size()), 10);
-      s += count;
-      s += _object_name;
-      second = false;
-      continue;
-    }
-    s += param;
+  containers::string s = get_mangled_name(m_allocator, nm);
+
+  s += "v";  // void return
+  s += "i";  // count
+  {          // T[n]ActorName
+    char count[11] = {0};
+    s += "T";
+    memory::writeuint32(count, static_cast<uint32_t>(_object_name.size()), 10);
+    s += count;
+    s += _object_name;
   }
-
-  if (m_type_manager.is_pass_by_reference(m_type_manager.get_type<T>())) {
-    s += m_type_manager.get_mangled_name<T>();
+  for (auto& param : signature_types) {
+    s += param;
   }
 
   _function->m_function = get_function_pointer(s);
@@ -464,6 +455,15 @@ containers::string engine::get_resource_data(containers::string_view _file) {
   return m_type_manager.get_resource_data(_file);
 }
 
+void inline engine::act(scripting::actor_function* function) {
+  tls_resetter reset(&m_tls_data);
+  function->function(function);
+}
+
+void inline engine::update(scripting::actor_header* actor) {
+  tls_resetter reset(&m_tls_data);
+  actor->update_values(actor + 1);
+}
 }  // namespace scripting
 }  // namespace wn
 

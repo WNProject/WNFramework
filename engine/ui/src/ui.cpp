@@ -171,29 +171,19 @@ void ui::initialize_for_renderpass(renderer::render_context* _renderer,
   m_documents.clear();
 }
 
-void ui::schedule_document_update(int32_t doc) {
-  multi_tasking::lock_guard<multi_tasking::mutex> lock(m_document_update_mutex);
-  m_documents_to_update.insert(doc);
-}
-
 void ui::update_render_data(size_t _frame_parity, command_list* _cmd_list) {
   {
-    m_document_update_mutex.lock();
-    if (!m_documents_to_update.empty()) {
-      auto dtu = core::move(m_documents_to_update);
-      m_document_update_mutex.unlock();
-      PROFILE_REGION(UIDocumentUpdate);
-      for (auto& v : dtu) {
-        auto it = m_rocket_documents.find(v);
-        if (it == m_rocket_documents.end()) {
-          continue;
-        }
+    PROFILE_REGION(UIDocumentUpdate);
+    if (!m_instancer->dirty_documents().empty()) {
+      auto d = core::move(m_instancer->dirty_documents());
+      m_instancer->dirty_documents() =
+          containers::hash_set<Rocket::Core::ElementDocument*>(
+              m_context->m_ui_allocator);
+      for (auto& it : d) {
         scripting::script_pointer<ui_data> dat =
-            m_instancer->get_element_context(it->second);
-        dat.invoke(&ui_data::update, v, it->second);
+            m_instancer->get_element_context(it);
+        dat.invoke(&ui_data::update, it);
       }
-    } else {
-      m_document_update_mutex.unlock();
     }
   }
   PROFILE_REGION(UIUpdateRenderData);
