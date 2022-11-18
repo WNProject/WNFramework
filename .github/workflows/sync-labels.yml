@@ -1,4 +1,4 @@
-name: Sync labels
+name: Sync Labels
 on:
   push:
     branches: master
@@ -11,7 +11,7 @@ permissions:
   issues: write
 jobs:
   sync-labels:
-    name: Sync labels
+    name: Sync Labels
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

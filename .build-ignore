@@ -2,6 +2,7 @@
 .gitattributes
 .github/CODEOWNERS
 .github/dependabot.yml
+.github/labeler.yml
 .github/labels.yml
 .github/workflows/sync-labels.yml
 .github/workflows/update-license.yml
