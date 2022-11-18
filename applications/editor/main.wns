@@ -54,9 +54,12 @@ Int main(Context ctx) {
   Int doc3 = ui.add_document(@UIResource("assets/ui/main.rml"), 300, 300);
 
   while(true) {
-    ui.schedule_document_update(doc1);
-    context.render();
-    yield();
+
+    update_actors(); // This unblocks the next frames actions
+    context.render(); // This will spawn a bunch of work to actually render everything
+                           // at the moment this is synchronous.
+    // yield(); We don't need this any more, update_actors handles this for us.
+    //            It waits until there are no pending (at which point we can schedule a render).
   }
 
   return 32;

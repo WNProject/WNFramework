@@ -7,14 +7,14 @@
 #ifndef __WN_MULTI_TASKING_POSIX_INTERNAL_SYSTEM_YIELD_H__
 #define __WN_MULTI_TASKING_POSIX_INTERNAL_SYSTEM_YIELD_H__
 
-#include <pthread.h>
+#include <sched.h>
 
 namespace wn {
 namespace multi_tasking {
 namespace internal {
 
 inline int thread_yield() {
-  return ::pthread_yield();
+  return ::sched_yield();
 }
 
 }  // namespace internal

@@ -49,8 +49,7 @@ public:
     : m_context(_context),
       m_engine(_engine),
       m_documents(_context->m_ui_allocator),
-      m_rocket_documents(_context->m_ui_allocator),
-      m_documents_to_update(_context->m_ui_allocator) {}
+      m_rocket_documents(_context->m_ui_allocator) {}
   virtual ~ui();
   void initialize_for_renderpass(renderer::render_context* _renderer,
       renderer::render_pass* _renderpass,
@@ -63,7 +62,6 @@ public:
 
   int32_t add_document(
       scripting::script_actor_pointer<ui_data> _data, int32_t _x, int32_t _y);
-  void schedule_document_update(int32_t doc);
 
 private:
   struct document_to_add {
@@ -87,8 +85,6 @@ private:
   containers::dynamic_array<memory::unique_ptr<document_to_add>> m_documents;
   containers::hash_map<int32_t, Rocket::Core::ElementDocument*>
       m_rocket_documents;
-  multi_tasking::mutex m_document_update_mutex;
-  containers::hash_set<int32_t> m_documents_to_update;
   int32_t m_document_idx = 0;
 
   // Rocket stuff

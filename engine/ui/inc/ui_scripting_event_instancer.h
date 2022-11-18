@@ -50,6 +50,10 @@ public:
     return m_contexts[doc].get();
   }
 
+  containers::hash_set<Rocket::Core::ElementDocument*>& dirty_documents() {
+    return m_dirty_documents;
+  }
+
 private:
   scripting::engine* m_engine;
   logging::log* m_log;
@@ -57,13 +61,15 @@ private:
       scripting::script_actor_pointer<ui_data>>
       m_contexts;
   scripting::script_actor_pointer<ui_data> m_currently_loading_doc;
+  containers::hash_set<Rocket::Core::ElementDocument*> m_dirty_documents;
 };
 
 class event_listener : public Rocket::Core::EventListener {
 public:
   event_listener(scripting::engine* _engine, logging::log* _log,
       scripting::script_actor_pointer<ui_data> ui_dat,
-      const Rocket::Core::String& code, Rocket::Core::Element* element);
+      event_instancer* _instancer, const Rocket::Core::String& code,
+      Rocket::Core::Element* element);
 
   ~event_listener();
 
@@ -74,8 +80,10 @@ private:
   scripting::engine* m_engine;
   logging::log* m_log;
   scripting::script_actor_pointer<ui_data> m_ui_data;
+  event_instancer* m_instancer;
   wn::scripting::script_function<void, const char*> m_callee;
-  wn::scripting::script_function<void, void*, const char*> m_member_callee;
+  wn::scripting::script_function<void, int32_t, void*, const char*>
+      m_member_callee;
 };
 
 }  // namespace ui

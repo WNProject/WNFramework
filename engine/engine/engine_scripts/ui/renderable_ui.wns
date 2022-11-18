@@ -12,5 +12,5 @@ Actor RenderableUI {
         return class_name;
     }
 
-    @synchronized virtual Void update(Int doc_idx, UiDocument doc) {}
+    @synchronized virtual Void update(UiDocument doc) {}
 }
