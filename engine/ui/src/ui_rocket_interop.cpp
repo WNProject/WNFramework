@@ -11,9 +11,8 @@
 
 namespace {
 
-wn::containers::string_view get_string_view(
-    const Rocket::Core::String& string) {
-  return wn::containers::string_view(string.CString());
+wn::containers::string_view get_string_view(const Rml::String& string) {
+  return wn::containers::string_view(string.c_str());
 }
 
 struct ui_file {
@@ -29,42 +28,51 @@ namespace ui {
 
 rocket_system_interface::rocket_system_interface(
     wn::logging::log* _log, wn::runtime::window::window* _window)
-  : m_log(_log), m_start(time(0)), m_window(_window) {}
+  : m_log(_log),
+    m_start(std::chrono::high_resolution_clock::now()),
+    m_window(_window) {}
 
 bool rocket_system_interface::LogMessage(
-    Rocket::Core::Log::Type type, const Rocket::Core::String& message) {
+    Rml::Log::Type type, const Rml::String& message) {
   switch (type) {
-    case Rocket::Core::Log::LT_ALWAYS:
-      m_log->log_critical(message.CString());
+    case Rml::Log::LT_ALWAYS:
+      m_log->log_critical(message.c_str());
       break;
-    case Rocket::Core::Log::LT_ASSERT:
-      m_log->log_critical("ROCKET_ASSERT: ", message.CString());
+    case Rml::Log::LT_ASSERT:
+      m_log->log_critical("ROCKET_ASSERT: ", message.c_str());
       break;
-    case Rocket::Core::Log::LT_DEBUG:
-      m_log->log_debug(message.CString());
+    case Rml::Log::LT_DEBUG:
+      m_log->log_debug(message.c_str());
       break;
-    case Rocket::Core::Log::LT_ERROR:
-      m_log->log_error(message.CString());
+    case Rml::Log::LT_ERROR:
+      m_log->log_error(message.c_str());
       break;
-    case Rocket::Core::Log::LT_INFO:
-      m_log->log_info(message.CString());
+    case Rml::Log::LT_INFO:
+      m_log->log_info(message.c_str());
       break;
-    case Rocket::Core::Log::LT_WARNING:
-      m_log->log_warning(message.CString());
+    case Rml::Log::LT_WARNING:
+      m_log->log_warning(message.c_str());
       break;
-    case Rocket::Core::Log::LT_MAX:
-      m_log->log_critical(message.CString());
+    case Rml::Log::LT_MAX:
+      m_log->log_critical(message.c_str());
       break;
   }
   return true;
 }
 
-float rocket_system_interface::GetElapsedTime() {
-  return float(difftime(time(0), m_start));
+double rocket_system_interface::GetElapsedTime() {
+  double elapsed_time =
+      std::chrono::duration_cast<std::chrono::duration<double, std::ratio<1>>>(
+          std::chrono::high_resolution_clock::now() - m_start)
+          .count();
+  return elapsed_time;
 }
 
 // Activate keyboard (for touchscreen devices)
-void rocket_system_interface::ActivateKeyboard() {
+void rocket_system_interface::ActivateKeyboard(
+    Rml::Vector2f caret_position, float line_height) {
+  (void)caret_position;
+  (void)line_height;
   m_window->show_keyboard();
 }
 
@@ -77,29 +85,28 @@ rocket_file_interface::rocket_file_interface(
     wn::logging::log* _log, wn::file_system::mapping* _mapping)
   : m_log(_log), m_mapping(_mapping) {}
 
-Rocket::Core::FileHandle rocket_file_interface::Open(
-    const Rocket::Core::String& _path) {
+Rml::FileHandle rocket_file_interface::Open(const Rml::String& _path) {
   wn::file_system::result res = wn::file_system::result::ok;
   wn::file_system::file_ptr file =
       m_mapping->open_file(get_string_view(_path), res);
   if (res != wn::file_system::result::ok) {
-    return reinterpret_cast<Rocket::Core::FileHandle>(nullptr);
+    return reinterpret_cast<Rml::FileHandle>(nullptr);
   }
 
   // This makes me sad, eventually fix this
   ui_file* f = new ui_file();
   f->m_offset = 0;
   f->m_file = wn::core::move(file);
-  return reinterpret_cast<Rocket::Core::FileHandle>(f);
+  return reinterpret_cast<Rml::FileHandle>(f);
 }
 
-void rocket_file_interface::Close(Rocket::Core::FileHandle _file) {
+void rocket_file_interface::Close(Rml::FileHandle _file) {
   ui_file* f = reinterpret_cast<ui_file*>(_file);
   delete f;
 }
 
 size_t rocket_file_interface::Read(
-    void* _buffer, size_t _size, Rocket::Core::FileHandle _file) {
+    void* _buffer, size_t _size, Rml::FileHandle _file) {
   ui_file* f = reinterpret_cast<ui_file*>(_file);
 
   size_t to_read = wn::math::min(_size, f->m_file->size() - f->m_offset);
@@ -109,7 +116,7 @@ size_t rocket_file_interface::Read(
 }
 
 bool rocket_file_interface::Seek(
-    Rocket::Core::FileHandle _file, long _offset, int _origin) {
+    Rml::FileHandle _file, long _offset, int _origin) {
   ui_file* f = reinterpret_cast<ui_file*>(_file);
   WN_RELEASE_ASSERT(_offset >= 0, "_offset must be positive");
   size_t offs = static_cast<size_t>(_offset);
@@ -136,7 +143,7 @@ bool rocket_file_interface::Seek(
   return true;
 }
 
-size_t rocket_file_interface::Tell(Rocket::Core::FileHandle _file) {
+size_t rocket_file_interface::Tell(Rml::FileHandle _file) {
   ui_file* f = reinterpret_cast<ui_file*>(_file);
   return f->m_offset;
 }

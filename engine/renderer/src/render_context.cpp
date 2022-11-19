@@ -68,30 +68,16 @@ struct exported_script_type<renderer::render_context> {
 
 namespace {
 
-uint32_t select_adapter(engine_base::context* _context) {
-  uint32_t adapter = 0;
-
-  auto data = _context->m_application_data->executable_data;
-  for (signed_t i = 0; i < data->argc; ++i) {
-    if (data->argv[i] == containers::string_view("--adapter") &&
-        i < data->argc - 1) {
-      memory::readuint32(
-          data->argv[i + 1], adapter, strnlen(data->argv[i + 1], 10));
-    }
-  }
-  return adapter;
-}
-
 shared_cpp_pointer<engine::renderer::render_context>
 get_attachmentless_render_context(engine_base::context* _context) {
-  uint32_t adapter = select_adapter(_context);
+  uint32_t adapter = 0;
   return _context->m_engine->make_shared_cpp<engine::renderer::render_context>(
       _context->m_allocator, _context->m_log, nullptr, 0, 0, adapter);
 }
 
 shared_cpp_pointer<engine::renderer::render_context> get_render_context(
     engine_base::context* _context, int32_t _width, int32_t _height) {
-  uint32_t adapter = select_adapter(_context);
+  uint32_t adapter = 0;
   if (_width == 0 || _height == 0) {
     _context->m_log->log_error(
         "If you want to create a renderer without a default attachment"
@@ -105,7 +91,7 @@ shared_cpp_pointer<engine::renderer::render_context> get_render_context(
 shared_cpp_pointer<engine::renderer::render_context>
 get_render_context_with_window(
     engine_base::context* _context, window::window* _window) {
-  uint32_t adapter = select_adapter(_context);
+  uint32_t adapter = 0;
   return _context->m_engine->make_shared_cpp<engine::renderer::render_context>(
       _context->m_allocator, _context->m_log, _window, _window->width(),
       _window->height(), adapter);
@@ -115,7 +101,7 @@ shared_cpp_pointer<engine::renderer::render_context>
 get_render_context_with_window_and_adapter(
     engine_base::context* _context, window::window* _window, int32_t _adapter) {
   if (_adapter == -1) {
-    _adapter = select_adapter(_context);
+    _adapter = 0;
   }
   return _context->m_engine->make_shared_cpp<engine::renderer::render_context>(
       _context->m_allocator, _context->m_log, _window, _window->width(),
@@ -567,7 +553,8 @@ void render_context::register_description(
       rts.push_back(&m_render_targets[all_dts[i]]);
     }
     m_render_passes.push_back(render_pass(m_allocator, m_log, m_device.get(),
-        core::move(all_rp_descs[i]), core::move(rts), all_depth_descs[i]));
+        this, core::move(all_rp_descs[i]), core::move(rts), kNumDefaultBackings,
+        all_depth_descs[i]));
   }
 }
 

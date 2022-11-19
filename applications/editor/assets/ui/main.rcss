@@ -1,10 +1,10 @@
 
 div {
   display: block;
-  font-size: 10pt;
+  font-size: 13dp;
 }
 button {
-  font-size: 14pt;
+  font-size: 18dp;
   background-color: green;
 }
 button:hover {
@@ -12,13 +12,13 @@ button:hover {
 }
 textarea {
   display: block;
-  font-size: 14pt;
+  font-size: 18dp;
 }
 
 body {
   font-family: Fira Code;
   font-weight: normal;
   font-style: normal;
-  font-size: 14pt;
+  font-size: 18dp;
   color: black;
 }

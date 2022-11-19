@@ -219,6 +219,10 @@ public:
     return (type->*v).do_(type->m_engine, sp, args...);
   }
 
+  operator bool const() {
+    return val != nullptr;
+  }
+
   script_pointer<T> get() {
     return script_pointer<T>(val, type);
   }

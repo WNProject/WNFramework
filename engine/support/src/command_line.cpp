@@ -8,10 +8,8 @@ namespace wn {
 namespace support {
 
 template <typename T>
-command_line_param<T>* get_param(scripting::wn_size_t st) {
-  static_assert(sizeof(size_t) == sizeof(uintptr_t), "Invalid regex type");
-  return reinterpret_cast<command_line_param<T>*>(
-      static_cast<uintptr_t>(st.val));
+command_line_param<T>* get_param(void* st) {
+  return reinterpret_cast<command_line_param<T>*>(st);
 }
 
 void command_line_manager::register_scripting(
