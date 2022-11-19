@@ -255,9 +255,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.1.0
       - name: Check formatting
-        run: >
-          echo -n '${{needs.analyze-changes.outputs.changes-c-cpp}}' |
-          xargs -0 clang-format --dry-run --Werror
+        run: echo -n "$INPUT_CHANGES" | xargs -0 clang-format --dry-run --Werror
+        env:
+          INPUT_CHANGES: ${{needs.analyze-changes.outputs.changes-c-cpp}}
   check-formatting-md:
     name: Check Formatting (Markdown)
     needs: analyze-changes
@@ -305,9 +305,9 @@ jobs:
         working-directory: ./build
         run: >
           cmake -GNinja
-          -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
-          -DCMAKE_TOOLCHAIN_FILE=${OVERLAY}/android.toolchain.cmake
-          -DWN_ANDROID_ABIS=${{matrix.architecture}}
+          -DCMAKE_BUILD_TYPE="$BUILT_TYPE"
+          -DCMAKE_TOOLCHAIN_FILE="$OVERLAY/android.toolchain.cmake"
+          -DWN_ANDROID_ABIS="$ARCHITECTURE"
           -DWN_ANDROID_SDK=/opt/android-sdk
           -DWN_LOW_RESOURCE_MODE=ON
           -DWN_USE_SCCACHE=ON
@@ -317,6 +317,8 @@ jobs:
           SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
           SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
           SCCACHE_GCS_RW_MODE: READ_WRITE
+          ARCHITECTURE: ${{matrix.architecture}}
+          BUILT_TYPE: ${{matrix.build-type}}
       - name: Run build (host tools)
         working-directory: ./build/host/externals/llvm-project/llvm
         run: cmake --build . --target llvm-tblgen
@@ -340,10 +342,9 @@ jobs:
           SCCACHE_GCS_RW_MODE: READ_WRITE
       - name: Run tests
         working-directory: ./build
-        run: >
-          ctest -C ${{matrix.build-type}}
-          -LE REQUIRES_HARDWARE
-          --output-on-failure
+        run: ctest -C "$BUILD_TYPE" -LE REQUIRES_HARDWARE --output-on-failure
+        env:
+          BUILD_TYPE: ${{matrix.build-type}}
       - name: Report build details
         if: success() || failure()
         run: du -hbcs ./source ./build
@@ -384,7 +385,7 @@ jobs:
         working-directory: ./build
         run: >
           cmake -GNinja
-          -DCMAKE_BUILD_TYPE=${{matrix.build-type}}
+          -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
           -DWN_LOW_RESOURCE_MODE=ON
           -DWN_USE_SCCACHE=ON
           ../source
@@ -392,6 +393,7 @@ jobs:
           SCCACHE_GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
           SCCACHE_GCS_KEY_PATH: /tmp/gcs_key.json
           SCCACHE_GCS_RW_MODE: READ_WRITE
+          BUILD_TYPE: ${{matrix.build-type}}
       - name: Run build
         working-directory: ./build
         run: cmake --build .
@@ -401,10 +403,9 @@ jobs:
           SCCACHE_GCS_RW_MODE: READ_WRITE
       - name: Run tests
         working-directory: ./build
-        run: >
-          ctest -C ${{matrix.build-type}}
-          -LE REQUIRES_HARDWARE
-          --output-on-failure
+        run: ctest -C "$BUILD_TYPE" -LE REQUIRES_HARDWARE --output-on-failure
+        env:
+          BUILD_TYPE: ${{matrix.build-type}}
       - name: Report build details
         if: success() || failure()
         run: du -hbcs ./source ./build
@@ -429,8 +430,10 @@ jobs:
         run: |
           mkdir build
           $package = 'ghcr.io/wnproject/build-windows'
-          $docker_image = "${package}:${{matrix.compiler}}".ToLower()
+          $docker_image = "${package}:$env:COMPILER".ToLower()
           "docker-image=$docker_image" >> $env:GITHUB_OUTPUT
+        env:
+          COMPILER: ${{matrix.compiler}}
       - name: Checkout
         uses: actions/checkout@v3.1.0
         with:
@@ -442,7 +445,9 @@ jobs:
         env:
           GCS_KEY: ${{secrets.SCCACHE_GCS_KEY}}
       - name: Pull container
-        run: docker pull ${{steps.build-environment.outputs.docker-image}}
+        run: docker pull $env:DOCKER_IMAGE
+        env:
+          DOCKER_IMAGE: ${{steps.build-environment.outputs.docker-image}}
       - name: Run configuration
         run: >
           docker run --rm
@@ -490,7 +495,7 @@ jobs:
       - name: Accumulate build status
         shell: bash
         run: |
-          results=( ${{join(needs.*.result, ' ')}} )
+          results=( $BUILD_RESULTS )
           for result in "${results[@]}"; do
             if [ "$result" != success ] && [ "$result" != skipped ]; then
               echo Oh no...☹️ the build has failed!
@@ -498,3 +503,5 @@ jobs:
             fi
           done
           echo Yay! The build has succeeded! 🎉
+        env:
+          BUILD_RESULTS: ${{join(needs.*.result, ' ')}}
