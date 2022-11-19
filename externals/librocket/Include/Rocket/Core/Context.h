@@ -42,12 +42,15 @@ namespace Core {
 class Context {
 public:
   Context();
+
   bool LoadScriptContents() {
     return m_load_script_contents;
   }
+
   void SetLoadScriptContents(bool _load) {
     m_load_script_contents = _load;
   }
+
   template <typename T, typename... Args>
   void RegisterCachedType(T*& _key, Args&&... a) {
     void* v = static_cast<void*>(new T(a...));
