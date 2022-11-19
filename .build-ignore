@@ -1,7 +1,9 @@
 .clang-format
 .gitattributes
-.github/*.yml
 .github/CODEOWNERS
+.github/dependabot.yml
+.github/labeler.yml
+.github/labels.yml
 .github/workflows/push.yml
 .github/workflows/sync-labels.yml
 .github/workflows/update-license.yml
