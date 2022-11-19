@@ -1,11 +1,23 @@
+c/c++:
+  - '**/*.c'
+  - '**/*.cpp'
+  - '**/*.h'
+  - '**/*.inl'
+cmake:
+  - '**/*.cmake'
+  - '**/*.in'
+  - '**/CMakeLists.txt'
 documentation:
-  - '*.md'
-  - LICENSE
+  - '**/*.md'
+  - '**/LICENSE.*'
+  - '**/LICENSE'
 github-actions:
   - .github/workflows/*.yml
 submodules:
   - any:
       - externals/*
     all:
+      - '!externals/.patches/'
       - '!externals/CMakeLists.txt'
+      - '!externals/librocket/'
       - '!externals/LICENSE.*'

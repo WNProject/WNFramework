@@ -4,9 +4,15 @@
 - name: bug
   description: Something isn't working
   color: d73a4a
+- name: c/c++
+  description: Pull requests that updates C/C++ code
+  color: 00599c
 - name: clean-up
   description: Clean-up or refactor of something already existing
   color: a7afe5
+- name: cmake
+  description: Pull requests that updates CMake code
+  color: 064f8c
 - name: dependencies
   description: Pull requests that updates a dependency file
   color: 0366d6
