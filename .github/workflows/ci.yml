@@ -1,136 +1,36 @@
 name: CI
 on:
   workflow_call:
+    inputs:
+      run-build:
+        required: true
+        type: boolean
+      run-check-licenses:
+        required: true
+        type: boolean
+      run-format-check-c-cpp:
+        required: true
+        type: boolean
+      run-format-check-md:
+        required: true
+        type: boolean
+      changes-externals:
+        required: false
+        type: string
+      changes-c-cpp:
+        required: false
+        default: '**/*.+(c|cpp|h|hpp|inl)'
+        type: string
+      changes-md:
+        required: false
+        default: '**/*.md'
+        type: string
 permissions:
   contents: read
 jobs:
-  analyze-changes:
-    name: Analyze Changes
-    timeout-minutes: 5
-    runs-on: ubuntu-latest
-    outputs:
-      run-build: ${{steps.analysis.outputs.run-build}}
-      run-check-licenses: ${{steps.analysis.outputs.run-check-licenses}}
-      run-format-check-c-cpp: ${{steps.analysis.outputs.run-format-check-c-cpp}}
-      run-format-check-md: ${{steps.analysis.outputs.run-format-check-md}}
-      changes-externals: ${{steps.analysis.outputs.changes-externals}}
-      changes-c-cpp: ${{steps.analysis.outputs.changes-c-cpp}}
-      changes-md: ${{steps.analysis.outputs.changes-md}}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3.1.0
-        with:
-          fetch-depth: 0
-      - name: Analyze changes
-        id: analysis
-        shell: bash
-        run: |
-          if [ "$GITHUB_REF" == 'refs/heads/master' ]; then
-            build=true
-            check_licenses=true
-            format_check_c_cpp=true
-            format_check_md=true
-            changes_externals=$(
-              find externals/ -mindepth 1 -maxdepth 1 \
-              -type f -iname LICENSE.* -or -type d -and -not -iname .patches |
-              cut -d. -f2 | cut -d/ -f2 | sort | uniq
-            )
-            changes_c_cpp=$(
-              find . -type f \
-              -iregex '^.*\.\(c\|cpp\|h\|hpp\|inl\)$' -and -not \
-              -iregex '^\.\/externals.*$' | sort
-            )
-            changes_md=$(find . -type f -iname '*.md' | sort)
-          else
-            build_ignore=()
-            while IFS= read -r line || [[ "$line" ]]; do
-              build_ignore+=(':!'"$line")
-            done < .build-ignore
-            build_changes=$(
-              git diff --name-status origin/master HEAD -- ${build_ignore[@]} |
-              sort
-            )
-            if [ -z "$build_changes" ]; then
-              build=false
-            else
-              build=true
-            fi
-            changes_externals=$(
-              git diff --name-only origin/master HEAD -- \
-              externals/ ':!externals/CMakeLists.txt' ':!externals/*/*' |
-              cut -d. -f2 | cut -d/ -f2 | sort | uniq
-            )
-            if [ -z "$changes_externals" ]; then
-              check_licenses=false
-            else
-              check_licenses=true
-            fi
-            changes_c_cpp=$(
-              git diff --diff-filter=d --name-only origin/master HEAD -- \
-              ':!externals/*/*' '*.c' '*.cpp' '*.h' '*.hpp' '*.inl' \
-              .clang-format
-            )
-            if [ -z "$changes_c_cpp" ]; then
-              format_check_c_cpp=false
-            else
-              format_check_c_cpp=true
-              changes_c_cpp=$(
-                echo "$changes_c_cpp" | grep -v .clang-format || true | sort
-              )
-            fi
-            changes_md=$(
-              git diff --diff-filter=d --name-only origin/master HEAD -- \
-              '*.md' .markdownlintrc .markdownlintignore
-            )
-            if [ -z "$changes_md" ]; then
-              format_check_md=false
-            else
-              format_check_md=true
-              changes_md=$(
-                echo "$changes_md" | grep -v .markdownlint || true | sort
-              )
-            fi
-          fi
-          echo "Run build: $build"
-          echo "Run license check: $check_licenses"
-          echo "Run format check (C/C++): $format_check_c_cpp"
-          echo "Run format check (Markdown): $format_check_md"
-          if [ -z "$build_changes" ]; then
-            echo 'Changes affecting build: [none]'
-          else
-            echo -e "Changes affecting build:\n$build_changes"
-          fi
-          if [ -z "$changes_externals" ]; then
-            echo 'Changes (Externals): [none]'
-          else
-            echo -e "Changes (Externals):\n$changes_externals"
-          fi
-          if [ -z "$changes_c_cpp" ]; then
-            echo 'Changes (C/C++): [none]'
-          else
-            echo -e "Changes (C/C++):\n$changes_c_cpp"
-          fi
-          if [ -z "$changes_md" ]; then
-            echo 'Changes (Markdown): [none]'
-          else
-            echo -e "Changes (Markdown):\n$changes_md"
-          fi
-          changes_externals=${changes_externals//$'\n'/'\0'}
-          changes_c_cpp=${changes_c_cpp//$'\n'/'\0'}
-          delimiter=$(head -c 16 /dev/urandom | base64)
-          echo "run-build=$build" >> $GITHUB_OUTPUT
-          echo "run-check-licenses=$check_licenses" >> $GITHUB_OUTPUT
-          echo "run-format-check-c-cpp=$format_check_c_cpp" >> $GITHUB_OUTPUT
-          echo "run-format-check-md=$format_check_md" >> $GITHUB_OUTPUT
-          echo "changes-externals=$changes_externals" >> $GITHUB_OUTPUT
-          echo "changes-c-cpp=$changes_c_cpp" >> $GITHUB_OUTPUT
-          echo "changes-md<<$delimiter" >> $GITHUB_OUTPUT
-          echo "$changes_md" >> $GITHUB_OUTPUT
-          echo "$delimiter" >> $GITHUB_OUTPUT
   check-licenses:
     name: Check Licenses
-    needs: analyze-changes
-    if: needs.analyze-changes.outputs.run-check-licenses == 'true'
+    if: inputs.run-check-licenses
     timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
@@ -140,8 +40,16 @@ jobs:
           submodules: true
       - name: Check external licenses
         run: |
-          externals='${{needs.analyze-changes.outputs.changes-externals}}'
-          externals=${externals//'\0'/$'\n'}
+          if [ -z "$INPUTS_CHANGES" ]; then
+            externals=$(
+              find externals/ -mindepth 1 -maxdepth 1 \
+              -type f -iname LICENSE.* -or -type d -and -not -iname .patches |
+              cut -d. -f2 | cut -d/ -f2 | sort | uniq
+            )
+          else
+            externals="$INPUTS_CHANGES"
+            externals=${externals//'\0'/$'\n'}
+          fi
           ignore_list=(
             librocket
           )
@@ -244,10 +152,11 @@ jobs:
           if ! $result; then
             exit 1
           fi
+        env:
+          INPUTS_CHANGES: ${{inputs.changes-externals}}
   check-formatting-c-cpp:
     name: Check Formatting (C/C++)
-    needs: analyze-changes
-    if: needs.analyze-changes.outputs.run-format-check-c-cpp == 'true'
+    if: inputs.run-format-check-c-cpp
     timeout-minutes: 5
     runs-on: ubuntu-latest
     container: ghcr.io/wnproject/clang-format
@@ -255,13 +164,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.1.0
       - name: Check formatting
-        run: echo -n "$INPUT_CHANGES" | xargs -0 clang-format --dry-run --Werror
+        shell: bash
+        run: |
+          shopt -s extglob globstar nullglob
+          echo "$INPUTS_CHANGES" | xargs clang-format --dry-run --Werror
         env:
-          INPUT_CHANGES: ${{needs.analyze-changes.outputs.changes-c-cpp}}
+          INPUTS_CHANGES: ${{inputs.changes-c-cpp}}
   check-formatting-md:
     name: Check Formatting (Markdown)
-    needs: analyze-changes
-    if: needs.analyze-changes.outputs.run-format-check-md == 'true'
+    if: inputs.run-format-check-md
     timeout-minutes: 5
     runs-on: ubuntu-latest
     steps:
@@ -270,11 +181,10 @@ jobs:
       - name: Check formatting
         uses: davidanson/markdownlint-cli2-action@v6.0.0
         with:
-          globs: ${{needs.analyze-changes.outputs.changes-md}}
+          globs: ${{inputs.changes-md}}
   build-android:
     name: Build Android
-    needs: analyze-changes
-    if: needs.analyze-changes.outputs.run-build == 'true'
+    if: inputs.run-build
     timeout-minutes: 90
     runs-on: ubuntu-latest
     container: ghcr.io/wnproject/build-android
@@ -350,8 +260,7 @@ jobs:
         run: du -hbcs ./source ./build
   build-linux:
     name: Build Linux
-    needs: analyze-changes
-    if: needs.analyze-changes.outputs.run-build == 'true'
+    if: inputs.run-build
     timeout-minutes: 90
     runs-on: ubuntu-latest
     container: ghcr.io/wnproject/build-linux:${{matrix.compiler}}
@@ -411,8 +320,7 @@ jobs:
         run: du -hbcs ./source ./build
   build-windows:
     name: Build Windows
-    needs: analyze-changes
-    if: needs.analyze-changes.outputs.run-build == 'true'
+    if: inputs.run-build
     timeout-minutes: 90
     runs-on: windows-latest
     strategy:

@@ -43,7 +43,7 @@ subfolder called `build` within the root of the checked out code-base.
 
 #### Linux
 
-```sh
+```console
 cmake \
   -G[Ninja|"Unix Makefiles"] \
   -DCMAKE_C_COMPILER=[gcc|clang] \ # optional, default cc will be used
@@ -62,7 +62,7 @@ only `gcc/g++` **9**, **10** and **11** are supported along with `clang` **10**,
 
 #### Windows
 
-```sh
+```console
 cmake \
   -G[Ninja|"Visual Studio 15 2017"|"Visual Studio 16 2019"] \
   -Thost=x64 \  # Not needed for Ninja generator
@@ -85,7 +85,7 @@ required if you only have a single version of **Visual Studio** installed.
 
 #### Android
 
-```sh
+```console
 cmake \
   -G[Ninja|"Unix Makefiles"] \
   -DCMAKE_TOOLCHAIN_FILE=[WNFramework Root]/Overlays/Posix/Overlays/Android/android.toolchain.cmake \
@@ -106,7 +106,7 @@ All building is done via **CMake**. All steps below assume you are within a
 subfolder called `build` within the root of the code-base and a configuration
 has already completed successfully
 
-```sh
+```console
 cmake --build .
 ```
 
@@ -124,7 +124,7 @@ All testing is done via **CMake**. All steps below assume you are within a
 subfolder called `build` within the root of the code-base and a build has
 already completed successfully.
 
-```sh
+```console
 ctest
 ```
 
