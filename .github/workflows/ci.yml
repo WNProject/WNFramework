@@ -388,16 +388,16 @@ jobs:
       - name: Run configuration
         run: >
           docker run --rm
-          -e SCCACHE_GCS_BUCKET=$env:SCCACHE_GCS_BUCKET
+          -e SCCACHE_GCS_BUCKET="$env:SCCACHE_GCS_BUCKET"
           -e SCCACHE_GCS_KEY_PATH=C:\workspace\gcs_key.json
-          -e SCCACHE_GCS_RW_MODE=$env:SCCACHE_GCS_RW_MODE
-          -e SCCACHE_IGNORE_SERVER_IO_ERROR=$env:SCCACHE_IGNORE_SERVER_IO_ERROR
+          -e SCCACHE_GCS_RW_MODE="$env:SCCACHE_GCS_RW_MODE"
+          -e SCCACHE_IGNORE_SERVER_IO_ERROR="$env:SCCACHE_IGNORE_SERVER_IO_ERROR"
           -v ${{github.workspace}}:C:\workspace
           $env:DOCKER_IMAGE
           cmake -GNinja -S C:\workspace\source -B C:\workspace\build
-          -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE
+          -DCMAKE_BUILD_TYPE="$env:BUILD_TYPE"
           -DWN_LOW_RESOURCE_MODE=ON
-          -DWN_USE_SCCACHE=$env:USE_SCCACHE
+          -DWN_USE_SCCACHE="$env:USE_SCCACHE"
         env:
           BUILD_TYPE: ${{matrix.build-type}}
           DOCKER_IMAGE: ${{steps.build-environment.outputs.docker-image}}
@@ -405,10 +405,10 @@ jobs:
       - name: Run build
         run: >
           docker run --rm
-          -e SCCACHE_GCS_BUCKET=$env:SCCACHE_GCS_BUCKET
+          -e SCCACHE_GCS_BUCKET="$env:SCCACHE_GCS_BUCKET"
           -e SCCACHE_GCS_KEY_PATH=C:\workspace\gcs_key.json
-          -e SCCACHE_GCS_RW_MODE=$env:SCCACHE_GCS_RW_MODE
-          -e SCCACHE_IGNORE_SERVER_IO_ERROR=$env:SCCACHE_IGNORE_SERVER_IO_ERROR
+          -e SCCACHE_GCS_RW_MODE="$env:SCCACHE_GCS_RW_MODE"
+          -e SCCACHE_IGNORE_SERVER_IO_ERROR="$env:SCCACHE_IGNORE_SERVER_IO_ERROR"
           -v ${{github.workspace}}:C:\workspace
           $env:DOCKER_IMAGE
           cmake --build C:\workspace\build
