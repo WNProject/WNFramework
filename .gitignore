@@ -7,8 +7,8 @@
 *.sdf
 *.suo
 *.user
-build*/
-externals/*/*
-!externals/.patches/*
-!externals/librocket/*
+/build*/
+/externals/*/*
+!/externals/.patches/*
+!/externals/librocket/*
 ipch/

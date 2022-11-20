@@ -5,16 +5,19 @@
   description: Something isn't working
   color: d73a4a
 - name: c/c++
-  description: Pull requests that updates C/C++ code
+  description: Pull request that updates C/C++ code
   color: 00599c
 - name: clean-up
   description: Clean-up or refactor of something already existing
   color: a7afe5
 - name: cmake
-  description: Pull requests that updates CMake code
+  description: Pull request that updates CMake code
   color: 064f8c
+- name: docker
+  description: Pull request that updates Docker code
+  color: 21ceff
 - name: dependencies
-  description: Pull requests that updates a dependency file
+  description: Pull request that updates a dependency file
   color: 0366d6
 - name: documentation
   description: Improvements or additions to documentation
@@ -26,7 +29,7 @@
   description: New feature or request
   color: a2eeef
 - name: github-actions
-  description: Pull requests that updates GitHub Actions code
+  description: Pull request that updates GitHub Actions code
   color: 000000
 - name: good first issue
   description: Good for newcomers
@@ -41,7 +44,7 @@
   description: Further information is requested
   color: d876e3
 - name: submodules
-  description: Pull requests that update Submodule references
+  description: Pull request that updates Submodule references
   color: 000000
 - name: won't fix
   description: This will not be worked on
