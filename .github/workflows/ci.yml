@@ -195,7 +195,7 @@ jobs:
   build-android:
     name: Build Android
     if: inputs.run-build
-    timeout-minutes: ${{github.actor == 'dependabot[bot]' && 120 || 60}}
+    timeout-minutes: 120
     runs-on: ubuntu-latest
     container: ghcr.io/wnproject/build-android
     strategy:
@@ -270,7 +270,7 @@ jobs:
   build-linux:
     name: Build Linux
     if: inputs.run-build
-    timeout-minutes: ${{github.actor == 'dependabot[bot]' && 120 || 60}}
+    timeout-minutes: 120
     runs-on: ubuntu-latest
     container: ghcr.io/wnproject/build-linux:${{matrix.compiler}}
     strategy:
@@ -337,7 +337,7 @@ jobs:
   build-windows:
     name: Build Windows
     if: inputs.run-build
-    timeout-minutes: ${{github.actor == 'dependabot[bot]' && 120 || 60}}
+    timeout-minutes: 120
     runs-on: windows-latest
     strategy:
       fail-fast: false
