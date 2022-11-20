@@ -167,7 +167,10 @@ jobs:
         shell: bash
         run: |
           shopt -s extglob globstar nullglob
-          echo "$INPUTS_CHANGES" | xargs clang-format --dry-run --Werror
+          IFS=$'\n'
+          for FILE in $INPUTS_CHANGES; do
+            clang-format --dry-run --Werror "$FILE"
+          done
         env:
           INPUTS_CHANGES: ${{inputs.changes-c-cpp}}
   check-formatting-md:

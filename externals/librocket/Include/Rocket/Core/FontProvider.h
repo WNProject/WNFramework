@@ -71,6 +71,7 @@ protected:
       FontFamilyMap;
   FontFamilyMap font_families;
 };
+
 }  // namespace Core
 }  // namespace Rocket
 
