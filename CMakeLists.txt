@@ -24,7 +24,9 @@ set(
 )
 
 if (WN_USE_SCCACHE)
-    message(STATUS "Using sccache")
+    if (NOT CMAKE_C_COMPILER_LAUNCHER)
+        set(CMAKE_C_COMPILER_LAUNCHER sccache)
+    endif()
 
     if (NOT CMAKE_CXX_COMPILER_LAUNCHER)
         set(CMAKE_CXX_COMPILER_LAUNCHER sccache)

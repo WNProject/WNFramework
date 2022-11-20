@@ -128,6 +128,7 @@ jobs:
     needs:
       - analyze-changes
     uses: ./.github/workflows/ci.yml
+    secrets: inherit
     with:
       run-build: ${{needs.analyze-changes.outputs.run-build == 'true'}}
       run-check-licenses: ${{needs.analyze-changes.outputs.run-check-licenses == 'true'}}
