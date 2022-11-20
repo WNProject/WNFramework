@@ -1,6 +1,7 @@
 enable_overlay_directory()
 
-add_wn_library(librocket
+add_wn_library(
+  librocket
   INCLUDES
      ${WNFramework_SOURCE_DIR}/Externals/stb
      ${CMAKE_CURRENT_SOURCE_DIR}/Include/
