@@ -54,7 +54,7 @@ jobs:
         run: |
           shopt -s extglob globstar nullglob
           declare -A externals_array
-          IFS=$'\n'
+          IFS=$';'
           for FILE in $INPUTS_CHANGES; do
               externals_array["$(echo "$FILE" | cut -d/ -f2 | cut -d. -f2)"]=0
           done
@@ -196,7 +196,7 @@ jobs:
         shell: bash
         run: |
           shopt -s extglob globstar nullglob
-          IFS=$'\n'
+          IFS=$';'
           for FILE in $INPUTS_CHANGES; do
             clang-format --dry-run --Werror "$FILE"
           done
@@ -214,6 +214,7 @@ jobs:
         uses: davidanson/markdownlint-cli2-action@v9.0.0
         with:
           globs: ${{inputs.changes-md}}
+          separator: ;
   build-android:
     name: Build Android
     if: inputs.run-build

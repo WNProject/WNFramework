@@ -1,4 +1,4 @@
-# Code Conventions (C++)
+# Code Conventions (C/C++)
 
 In general the conventions outlined in the [Google C++ Style Guide] are what we
 are following. We have some modifications with respect to naming and a few rules
