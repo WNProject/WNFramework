@@ -127,7 +127,7 @@ jobs:
     name: CI
     needs:
       - analyze-changes
-    uses: ./.github/workflows/ci.yml
+    uses: ./.github/workflows/shared/ci.yml
     secrets: inherit
     with:
       run-build: ${{needs.analyze-changes.outputs.run-build == 'true'}}
