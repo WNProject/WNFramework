@@ -30,10 +30,6 @@ TEST(type_traits, is_same) {
   EXPECT_FALSE((wn::core::is_same<uint32_t, int32_t>::value));
 }
 
-TEST(type_traits, are_same) {
-  EXPECT_TRUE((wn::core::are_same<bool, bool, bool>::value));
-}
-
 TEST(type_traits, is_same_decayed) {
   EXPECT_TRUE((wn::core::is_same_decayed<bool, bool>::value));
   EXPECT_TRUE((wn::core::is_same_decayed<const bool, bool>::value));
@@ -49,4 +45,8 @@ TEST(type_traits, is_same_decayed) {
   EXPECT_FALSE((wn::core::is_same_decayed<uint32_t, bool>::value));
   EXPECT_FALSE((wn::core::is_same_decayed<float, int32_t>::value));
   EXPECT_FALSE((wn::core::is_same_decayed<uint32_t, int32_t>::value));
+}
+
+TEST(type_traits, are_same) {
+  EXPECT_TRUE((wn::core::are_same<bool, bool, bool>::value));
 }

@@ -141,7 +141,7 @@ required.
 This project uses a number of different languages, for language specific coding
 conventions check the guides below.
 
-* [C++](documents/coding-conventions/cpp.md)
+* [C/C++](documents/coding-conventions/c-cpp.md)
 
 <!-- external links -->
 [License]: https://img.shields.io/github/license/WNProject/WNFramework?label=License
