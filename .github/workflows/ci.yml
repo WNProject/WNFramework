@@ -218,23 +218,11 @@ jobs:
           submodules: true
       - name: Set up GCS for sccache
         if: inputs.use-sccache
-        shell: bash
-        run: |
-          KEY_PATH="$RUNNER_TEMP/gcs_key.json"
-          echo "$GCS_KEY" > "$KEY_PATH"
-          echo "SCCACHE_GCS_BUCKET=$GCS_BUCKET" >> $GITHUB_ENV
-          echo "SCCACHE_GCS_KEY_PATH=$KEY_PATH" >> $GITHUB_ENV
-          RW_MODE=$(
-            [ "$INPUTS_SCCACHE_WRITE" == 'true' ] &&
-            echo 'READ_WRITE' ||
-            echo 'READ_ONLY'
-          )
-          echo "SCCACHE_GCS_RW_MODE=$RW_MODE" >> $GITHUB_ENV
-          echo "SCCACHE_IGNORE_SERVER_IO_ERROR=1" >> $GITHUB_ENV
-        env:
-          INPUTS_SCCACHE_WRITE: ${{inputs.sccache-write}}
-          GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
-          GCS_KEY: ${{secrets.SCCACHE_GCS_KEY}}
+        uses: .github/actions/set-up-sccache-gcs
+        with:
+          bucket: ${{secrets.SCCACHE_GCS_BUCKET}}
+          key: ${{secrets.SCCACHE_GCS_KEY}}
+          write: ${{inputs.sccache-write}}
       - name: Run configuration
         working-directory: ./build
         run: >
@@ -296,23 +284,11 @@ jobs:
           submodules: true
       - name: Set up GCS for sccache
         if: inputs.use-sccache
-        shell: bash
-        run: |
-          KEY_PATH="$RUNNER_TEMP/gcs_key.json"
-          echo "$GCS_KEY" > "$KEY_PATH"
-          echo "SCCACHE_GCS_BUCKET=$GCS_BUCKET" >> $GITHUB_ENV
-          echo "SCCACHE_GCS_KEY_PATH=$KEY_PATH" >> $GITHUB_ENV
-          RW_MODE=$(
-            [ "$INPUTS_SCCACHE_WRITE" == 'true' ] &&
-            echo 'READ_WRITE' ||
-            echo 'READ_ONLY'
-          )
-          echo "SCCACHE_GCS_RW_MODE=$RW_MODE" >> $GITHUB_ENV
-          echo "SCCACHE_IGNORE_SERVER_IO_ERROR=1" >> $GITHUB_ENV
-        env:
-          INPUTS_SCCACHE_WRITE: ${{inputs.sccache-write}}
-          GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
-          GCS_KEY: ${{secrets.SCCACHE_GCS_KEY}}
+        uses: .github/actions/set-up-sccache-gcs
+        with:
+          bucket: ${{secrets.SCCACHE_GCS_BUCKET}}
+          key: ${{secrets.SCCACHE_GCS_KEY}}
+          write: ${{inputs.sccache-write}}
       - name: Run configuration
         working-directory: ./build
         run: >
@@ -365,22 +341,12 @@ jobs:
           submodules: true
       - name: Set up GCS for sccache
         if: inputs.use-sccache
-        shell: bash
-        run: |
-          KEY_PATH="$GITHUB_WORKSPACE/gcs_key.json"
-          echo "$GCS_KEY" > "$KEY_PATH"
-          echo "SCCACHE_GCS_BUCKET=$GCS_BUCKET" >> $GITHUB_ENV
-          RW_MODE=$(
-            [ "$INPUTS_SCCACHE_WRITE" == 'true' ] &&
-            echo 'READ_WRITE' ||
-            echo 'READ_ONLY'
-          )
-          echo "SCCACHE_GCS_RW_MODE=$RW_MODE" >> $GITHUB_ENV
-          echo "SCCACHE_IGNORE_SERVER_IO_ERROR=1" >> $GITHUB_ENV
-        env:
-          INPUTS_SCCACHE_WRITE: ${{inputs.sccache-write}}
-          GCS_BUCKET: ${{secrets.SCCACHE_GCS_BUCKET}}
-          GCS_KEY: ${{secrets.SCCACHE_GCS_KEY}}
+        uses: .github/actions/set-up-sccache-gcs
+        with:
+          bucket: ${{secrets.SCCACHE_GCS_BUCKET}}
+          key: ${{secrets.SCCACHE_GCS_KEY}}
+          key-location: ${{github.workspace}}
+          write: ${{inputs.sccache-write}}
       - name: Pull container
         run: docker pull $env:DOCKER_IMAGE
         env:
