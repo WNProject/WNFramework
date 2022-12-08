@@ -1595,16 +1595,22 @@ private:
 
 class function_call_expression : public post_expression {
 public:
-  function_call_expression(memory::allocator* _allocator)
-    : post_expression(_allocator, node_type::function_call_expression) {}
-  function_call_expression(memory::allocator* _allocator, arg_list* _list)
+  function_call_expression(memory::allocator* _allocator,
+      uint32_t defer_count = ~static_cast<uint32_t>(0))
     : post_expression(_allocator, node_type::function_call_expression),
-      m_args(_allocator, _list) {}
+      m_defer_count(defer_count) {}
+  function_call_expression(memory::allocator* _allocator, arg_list* _list,
+      uint32_t defer_count = ~static_cast<uint32_t>(0))
+    : post_expression(_allocator, node_type::function_call_expression),
+      m_args(_allocator, _list),
+      m_defer_count(defer_count) {}
 
-  function_call_expression(
-      memory::allocator* _allocator, memory::unique_ptr<arg_list>&& _list)
+  function_call_expression(memory::allocator* _allocator,
+      memory::unique_ptr<arg_list>&& _list,
+      uint32_t defer_count = ~static_cast<uint32_t>(0))
     : post_expression(_allocator, node_type::function_call_expression),
-      m_args(core::move(_list)) {}
+      m_args(core::move(_list)),
+      m_defer_count(defer_count) {}
 
   const containers::deque<memory::unique_ptr<function_expression>>&
   get_expressions() const {
@@ -1639,12 +1645,18 @@ public:
     auto t =
         memory::make_unique<function_call_expression>(_allocator, _allocator);
     t->copy_underlying_from(_allocator, this);
+    t->m_defer_count = m_defer_count;
     t->m_args = clone_node(_allocator, m_args.get());
     return t;
   }
 
+  uint32_t get_defer_count() const {
+    return m_defer_count;
+  }
+
 private:
   memory::unique_ptr<arg_list> m_args;
+  uint32_t m_defer_count;
 };
 
 class parameter : public node {

@@ -2,63 +2,43 @@ set(WN_ADDITIONAL_TRACY_OPTIONS)
 set(WN_ADDITIONAL_FREETYPE_OPTIONS)
 set(WN_RLOTTIE_ADDITIONAL_OPTIONS)
 set(ARCH ) #rlottie uses this define
+
 find_program(GIT NAMES git)
-execute_process(
-  COMMAND ${GIT} apply --check -p0 -
-  INPUT_FILE ./externals/.patches/antlr3.patch
-  WORKING_DIRECTORY ${WNFramework_SOURCE_DIR}
-  RESULT_VARIABLE PATCH_APPLY_CHECK_RESULT
-  OUTPUT_QUIET
-  ERROR_QUIET
-)
 
-if (PATCH_APPLY_CHECK_RESULT MATCHES 0)
+function(patch project)
   execute_process(
-    COMMAND ${GIT} apply -p0 -
-    INPUT_FILE ./externals/.patches/antlr3.patch
+    COMMAND ${GIT} apply --check -p0 -
+    INPUT_FILE ./externals/.patches/${project}.patch
     WORKING_DIRECTORY ${WNFramework_SOURCE_DIR}
-    RESULT_VARIABLE PATCH_APPLY_RESULT
+    RESULT_VARIABLE PATCH_APPLY_CHECK_RESULT
     OUTPUT_QUIET
     ERROR_QUIET
   )
 
-  if (PATCH_APPLY_RESULT MATCHES 0)
-    message(STATUS "Git patched: antlr3")
+  if (PATCH_APPLY_CHECK_RESULT MATCHES 0)
+    execute_process(
+      COMMAND ${GIT} apply -p0 -
+      INPUT_FILE ./externals/.patches/${project}.patch
+      WORKING_DIRECTORY ${WNFramework_SOURCE_DIR}
+      RESULT_VARIABLE PATCH_APPLY_RESULT
+      OUTPUT_QUIET
+      ERROR_QUIET
+    )
+
+    if (PATCH_APPLY_RESULT MATCHES 0)
+      message(STATUS "Git patched: ${project}")
+    else()
+      message(FATAL_ERROR "Git failed to patch: ${project}")
+    endif()
   else()
-    message(FATAL_ERROR "Git failed to patch: antlr3")
+      message(STATUS "Git already patched: ${project}")
   endif()
-else()
-    message(STATUS "Git already patched: antlr3")
-endif()
 
-execute_process(
-  COMMAND ${GIT} apply --check -p0 -
-  INPUT_FILE ./externals/.patches/rmlui.patch
-  WORKING_DIRECTORY ${WNFramework_SOURCE_DIR}
-  RESULT_VARIABLE PATCH_APPLY_CHECK_RESULT
-  OUTPUT_QUIET
-  ERROR_QUIET
-)
+endfunction()
 
-if (PATCH_APPLY_CHECK_RESULT MATCHES 0)
-  execute_process(
-    COMMAND ${GIT} apply -p0 -
-    INPUT_FILE ./externals/.patches/rmlui.patch
-    WORKING_DIRECTORY ${WNFramework_SOURCE_DIR}
-    RESULT_VARIABLE PATCH_APPLY_RESULT
-    OUTPUT_QUIET
-    ERROR_QUIET
-  )
-
-  if (PATCH_APPLY_RESULT MATCHES 0)
-    message(STATUS "Git patched: rmlui")
-  else()
-    message(FATAL_ERROR "Git failed to patch: rmlui")
-  endif()
-else()
-    message(STATUS "Git already patched: rmlui")
-endif()
-
+patch("antlr3")
+patch("rmlui")
+patch("rlottie")
 
 enable_overlay_directory()
 

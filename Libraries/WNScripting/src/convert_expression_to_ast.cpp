@@ -1089,6 +1089,7 @@ parse_ast_convertor::convertor_context::resolve_function_call(
   }
 
   function_call->m_function = possible_functions->get(match_index);
+
   if (is_this) {
     if (m_current_function->m_is_synchronized &&
         !function_call->m_function->m_is_synchronized &&
@@ -1104,7 +1105,8 @@ parse_ast_convertor::convertor_context::resolve_function_call(
              !function_call->m_function->m_action_function) {
     _call->log_line(m_log, logging::log_level::error);
     m_log->log_error("Cannot call '", function_name,
-        "' as it is neither an @action or @synchronized");
+        "' from an non-local method as it is neither an @action or "
+        "@synchronized");
     return nullptr;
   }
 
@@ -1208,10 +1210,17 @@ parse_ast_convertor::convertor_context::resolve_function_call(
     return id;
   }
 
-  if ((!is_this && function_call->m_function->m_action_function &&
-          !m_current_function->m_is_action_caller) ||
-      (is_this && function_call->m_function->m_action_function &&
-          !m_current_function->m_action_function)) {
+  if (!is_this && function_call->m_function->m_action_function &&
+      !m_current_function->m_is_action_caller) {
+    if (_call->get_defer_count() == ~static_cast<uint32_t>(0)) {
+      _call->log_line(m_log, logging::log_level::error);
+      m_log->log_error("In this context you must invoke an action '->' for '",
+          function_name, "'");
+      return nullptr;
+    }
+  }
+
+  if (_call->get_defer_count() != ~static_cast<uint32_t>(0)) {
     // We are invoking an action on a different actor,
     // then instead of
     // foo->bar(a, b, c);
@@ -1223,8 +1232,10 @@ parse_ast_convertor::convertor_context::resolve_function_call(
 
     auto const_zero = memory::make_unique<ast_constant>(m_allocator, nullptr);
     const_zero->m_type = m_type_manager->integral(32, &m_used_types);
-    const_zero->m_node_value.m_integer = 0;
-    const_zero->m_string_value = containers::string(m_allocator, "0");
+    const_zero->m_node_value.m_integer = _call->get_defer_count();
+    char buff[10] = {};
+    snprintf(buff, 9, "%ul", _call->get_defer_count());
+    const_zero->m_string_value = containers::string(m_allocator, buff);
 
     function_call->m_parameters.push_front(core::move(const_zero));
   }

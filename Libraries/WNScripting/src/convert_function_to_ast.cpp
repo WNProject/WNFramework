@@ -150,33 +150,35 @@ parse_ast_convertor::convertor_context::pre_resolve_function(
         decl->add_expression_initializer(core::move(ex));
         callee_def->add_struct_elem(core::move(decl), false);
       }
+      if (_function->get_parameters()) {
+        for (auto& it : _function->get_parameters()->get_parameters()) {
+          auto decl =
+              memory::make_unique<declaration>(m_allocator, m_allocator);
+          decl->copy_location_from(_function->get_signature());
+          auto parm = memory::make_unique<parameter>(m_allocator, m_allocator,
+              clone_node(m_allocator, it->get_type()),
+              (containers::string(m_allocator, "_") +
+                  it->get_name().to_string(m_allocator))
+                  .c_str());
+          parm->copy_location_from(_function->get_signature());
+          decl->set_parameter(core::move(parm));
 
-      for (auto& it : _function->get_parameters()->get_parameters()) {
-        auto decl = memory::make_unique<declaration>(m_allocator, m_allocator);
-        decl->copy_location_from(_function->get_signature());
-        auto parm = memory::make_unique<parameter>(m_allocator, m_allocator,
-            clone_node(m_allocator, it->get_type()),
-            (containers::string(m_allocator, "_") +
-                it->get_name().to_string(m_allocator))
-                .c_str());
-        parm->copy_location_from(_function->get_signature());
-        decl->set_parameter(core::move(parm));
+          auto construct_param = memory::make_unique<parameter>(m_allocator,
+              m_allocator, clone_node(m_allocator, it->get_type()),
+              (containers::string(m_allocator, "__") +
+                  it->get_name().to_string(m_allocator))
+                  .c_str());
+          construct_param->copy_location_from(_function->get_signature());
+          constructor_params->add_parameter(core::move(construct_param));
 
-        auto construct_param = memory::make_unique<parameter>(m_allocator,
-            m_allocator, clone_node(m_allocator, it->get_type()),
-            (containers::string(m_allocator, "__") +
-                it->get_name().to_string(m_allocator))
-                .c_str());
-        construct_param->copy_location_from(_function->get_signature());
-        constructor_params->add_parameter(core::move(construct_param));
-
-        auto ex = memory::make_unique<id_expression>(m_allocator, m_allocator,
-            (containers::string(m_allocator, "__") +
-                it->get_name().to_string(m_allocator))
-                .c_str());
-        ex->copy_location_from(_function->get_signature());
-        decl->add_expression_initializer(core::move(ex));
-        callee_def->add_struct_elem(core::move(decl), false);
+          auto ex = memory::make_unique<id_expression>(m_allocator, m_allocator,
+              (containers::string(m_allocator, "__") +
+                  it->get_name().to_string(m_allocator))
+                  .c_str());
+          ex->copy_location_from(_function->get_signature());
+          decl->add_expression_initializer(core::move(ex));
+          callee_def->add_struct_elem(core::move(decl), false);
+        }
       }
       callee_def->set_constructor_parameters(core::move(constructor_params));
       fn->m_action_call_type = walk_struct_definition(callee_def.get());
@@ -207,17 +209,19 @@ parse_ast_convertor::convertor_context::pre_resolve_function(
         auto al = memory::make_unique<arg_list>(m_allocator, m_allocator);
         al->copy_location_from(_function->get_signature());
         {
-          for (auto& it : _function->get_parameters()->get_parameters()) {
-            auto param_expr = memory::make_unique<id_expression>(
-                m_allocator, m_allocator, "_this");
-            param_expr->copy_location_from(_function->get_signature());
+          if (_function->get_parameters()) {
+            for (auto& it : _function->get_parameters()->get_parameters()) {
+              auto param_expr = memory::make_unique<id_expression>(
+                  m_allocator, m_allocator, "_this");
+              param_expr->copy_location_from(_function->get_signature());
 
-            auto param_macc = memory::make_unique<member_access_expression>(
-                m_allocator, m_allocator,
-                containers::string(m_allocator, "_") + it->get_name_str());
-            param_macc->copy_location_from(_function->get_signature());
-            param_macc->add_base_expression(core::move(param_expr));
-            al->add_expression(core::move(param_macc));
+              auto param_macc = memory::make_unique<member_access_expression>(
+                  m_allocator, m_allocator,
+                  containers::string(m_allocator, "_") + it->get_name_str());
+              param_macc->copy_location_from(_function->get_signature());
+              param_macc->add_base_expression(core::move(param_expr));
+              al->add_expression(core::move(param_macc));
+            }
           }
         }
 
