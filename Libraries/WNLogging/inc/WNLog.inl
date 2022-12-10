@@ -4,6 +4,7 @@
 
 #ifndef __WN_LOGGING_LOG_INL__
 #define __WN_LOGGING_LOG_INL__
+#include <chrono>
 #include "WNLogging/inc/WNLog.h"
 #include "core/inc/assert.h"
 #include "core/inc/types.h"
@@ -95,6 +96,11 @@ inline void log_impl<MAX_LOG_LEVEL>::log_header(log_level _level) {
   append_color(_level, m_log_buffer + (m_buffer_size - m_buffer_left));
   log_param(klog_messages[static_cast<size_t>(_level)]);
   append_color(log_level::none, m_log_buffer + (m_buffer_size - m_buffer_left));
+  log_param("[");
+  auto t = std::chrono::duration_cast<std::chrono::duration<double>>(
+      std::chrono::high_resolution_clock::now().time_since_epoch());
+  log_param(t.count());
+  log_param("s] ");
 }
 
 template <log_level MAX_LOG_LEVEL>

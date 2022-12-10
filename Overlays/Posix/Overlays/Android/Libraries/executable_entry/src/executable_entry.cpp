@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
+#include <vector>
 
 extern int32_t wn_main(const wn::executable::executable_data* data);
 
@@ -66,10 +67,84 @@ char* GetPackageName(struct android_app* state) {
   return tempstr;
 }
 
-void* main_proxy_thread(void* _package_name) {
+std::string getExternalFilesDir(struct android_app* state) {
+  ANativeActivity* activity = state->activity;
+  JNIEnv* env;
+  activity->vm->AttachCurrentThread(&env, NULL);
+
+  // getExternalFilesDir() - java
+  jclass cls_Env = env->FindClass("android/app/NativeActivity");
+  jmethodID mid = env->GetMethodID(
+      cls_Env, "getExternalFilesDir", "(Ljava/lang/String;)Ljava/io/File;");
+  jobject obj_File = env->CallObjectMethod(activity->clazz, mid, NULL);
+  jclass cls_File = env->FindClass("java/io/File");
+  jmethodID mid_getPath =
+      env->GetMethodID(cls_File, "getPath", "()Ljava/lang/String;");
+  jstring obj_Path = (jstring)env->CallObjectMethod(obj_File, mid_getPath);
+
+  char* tempstr;
+  const char* str;
+  jboolean isCopy;
+
+  str = env->GetStringUTFChars((jstring)obj_Path, &isCopy);
+
+  int newLen = strlen(str);
+
+  tempstr = static_cast<char*>(malloc(sizeof(char) * newLen + 1));
+
+  memcpy(tempstr, str, newLen);
+
+  tempstr[newLen] = '\0';
+
+  env->ReleaseStringUTFChars((jstring)obj_Path, str);
+  activity->vm->DetachCurrentThread();
+
+  std::string ret = tempstr;
+  free(tempstr);
+  return ret;
+}
+
+std::vector<char*> getArgs(struct android_app* state) {
+  std::vector<char*> args;
+  args.push_back(GetPackageName(state));
+
+  ANativeActivity* activity = state->activity;
+  JNIEnv* env = 0;
+
+  activity->vm->AttachCurrentThread(&env, 0);
+
+  jclass cls = env->GetObjectClass(activity->clazz);
+  jmethodID methodID =
+      env->GetMethodID(cls, "getArgs", "()[Ljava/lang/String;");
+  jobjectArray result =
+      (jobjectArray)env->CallObjectMethod(activity->clazz, methodID);
+  if (result) {
+    int stringCount = env->GetArrayLength(result);
+    for (int i = 0; i < stringCount; ++i) {
+      char* tempstr;
+      jboolean isCopy;
+      jstring js = (jstring)(env->GetObjectArrayElement(result, i));
+      const char* str = env->GetStringUTFChars(js, &isCopy);
+      int newLen = strlen(str);
+      tempstr = static_cast<char*>(malloc(sizeof(char) * newLen + 1));
+
+      memcpy(tempstr, str, newLen);
+
+      tempstr[newLen] = '\0';
+      env->ReleaseStringUTFChars(js, str);
+      activity->vm->DetachCurrentThread();
+      args.push_back(tempstr);
+    }
+  }
+
+  return args;
+}
+
+void* main_proxy_thread(void* _user_data) {
+  std::vector<char*>* args = static_cast<std::vector<char*>*>(_user_data);
   wn::utilities::initialize_crash_handler();
 
-  char* package_name = static_cast<char*>(_package_name);
+  char* package_name = static_cast<char*>((*args)[0]);
   char* executable = nullptr;
   size_t path_length = strlen(package_name);
 
@@ -88,8 +163,9 @@ void* main_proxy_thread(void* _package_name) {
   wn::executable::host_specific_data host_data{wn::utilities::gAndroidApp,
       package_name, &wn::utilities::gWindowInitialized,
       &wn::utilities::WNAndroidEventPump::GetInstance()};
+
   wn::executable::executable_data executable_data{
-      &host_data, executable, 1, &package_name};
+      &host_data, executable, static_cast<int32_t>(args->size()), args->data()};
 
   ::srand(static_cast<unsigned int>(::time(NULL)));
 
@@ -139,44 +215,45 @@ int main(int _argc, char* _argv[]) {
 }
 
 void android_main(struct android_app* state) {
-  char* packageName = GetPackageName(state);
+  auto args = getArgs(state);
 
-  wn::utilities::gAndroidLogTag = packageName;
+  wn::utilities::gAndroidLogTag = args[0];
   wn::utilities::gAndroidApp = state;
   wn::utilities::gMainLooper = ALooper_forThread();
 
   app_dummy();
 
-  __android_log_print(ANDROID_LOG_INFO, packageName, "--STARTED");
+  __android_log_print(ANDROID_LOG_INFO, args[0], "--STARTED");
 
 #if defined _WN_DEBUG
   if (access("/proc/sys/kernel/yama/ptrace_scope", F_OK) != -1) {
     prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0);
   }
-  FILE* debugFile = fopen("/sdcard/wait-for-debugger.txt", "r");
-
-  if (debugFile) {
-    __android_log_print(ANDROID_LOG_INFO, packageName, "--SLEEPING");
+  std::string fd = getExternalFilesDir(state);
+  __android_log_print(ANDROID_LOG_INFO, args[0], "--Looking for %s",
+      (fd + "/wait-for-debugger.txt").c_str());
+  if (access((fd + "/wait-for-debugger.txt").c_str(), F_OK) != -1) {
+    __android_log_print(ANDROID_LOG_INFO, args[0], "--SLEEPING");
 
     sleep(20);  // sleep so that if we want to connect a debugger we can
 
-    __android_log_print(ANDROID_LOG_INFO, packageName, "--WAKING UP");
-
-    fclose(debugFile);
+    __android_log_print(ANDROID_LOG_INFO, args[0], "--WAKING UP");
   } else {
-    __android_log_print(ANDROID_LOG_INFO, packageName, "--NOT_DEBUGGING");
+    __android_log_print(ANDROID_LOG_INFO, args[0], "--NOT_DEBUGGING");
   }
 #endif
 
   pthread_t mThread;
 
-  pthread_create(&mThread, nullptr, main_proxy_thread, packageName);
+  pthread_create(&mThread, nullptr, main_proxy_thread, &args);
 
   wn::utilities::WNAndroidEventPump::GetInstance().PumpMessages(state);
 
   pthread_join(mThread, nullptr);
 
-  free(packageName);
+  for (size_t i = 1; i < args.size(); ++i) {
+    free(args[i]);
+  }
   fclose(stdout);
 }
 

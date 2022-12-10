@@ -141,8 +141,13 @@ void ui::initialize_for_renderpass(renderer::render_context* _renderer,
   m_width = static_cast<int>(_render_pass->get_width());
   m_height = static_cast<int>(_render_pass->get_height());
 
-  auto ctxblk = Rml::SetGlobalContextForBlock(&m_global_context);
-
+  Rml::SetGlobalContextForBlock ctxblk(&m_global_context);
+  auto setter =
+      m_context->m_application_data->default_job_pool->add_fiber_swap_function(
+          functional::function<void()>(allocator, [this]() {
+            Rml::GlobalContext::SetGlobalContextForThread(&m_global_context);
+          }));
+  (void)setter;
   Rml::SetRenderInterface(m_renderer.get());
   Rml::SetSystemInterface(m_system_interface.get());
   Rml::SetFileInterface(m_file_interface.get());
@@ -153,6 +158,7 @@ void ui::initialize_for_renderpass(renderer::render_context* _renderer,
   m_document_context =
       Rml::CreateContext("main", Rml::Vector2i(m_width, m_height));
   const float dpi = static_cast<float>(m_window->get_dpi());
+
   m_document_context->SetDensityIndependentPixelRatio(dpi / 96.0f);
 
   Rml::LoadFontFace("assets/fonts/FiraCode-Regular.ttf", false,
@@ -167,7 +173,14 @@ void ui::initialize_for_renderpass(renderer::render_context* _renderer,
 }
 
 void ui::update_render_data(size_t _frame_parity, command_list* _cmd_list) {
-  auto ctxblk = Rml::SetGlobalContextForBlock(&m_global_context);
+  Rml::SetGlobalContextForBlock ctxblk(&m_global_context);
+  auto allocator = m_context->m_ui_allocator;
+  auto setter =
+      m_context->m_application_data->default_job_pool->add_fiber_swap_function(
+          functional::function<void()>(allocator, [this]() {
+            Rml::GlobalContext::SetGlobalContextForThread(&m_global_context);
+          }));
+  (void)setter;
   {
     PROFILE_REGION(UIDocumentUpdate);
     if (!m_instancer->dirty_documents().empty()) {
@@ -222,6 +235,7 @@ void ui::update_render_data(size_t _frame_parity, command_list* _cmd_list) {
             static_cast<Rml::Character>(evt.get_character()));
         break;
     }
+    break;
   }
 
   m_renderer->set_setup_command_list(_cmd_list);
@@ -249,8 +263,14 @@ void ui::update_render_data(size_t _frame_parity, command_list* _cmd_list) {
 void ui::render(renderer::render_pass* _render_pass,
     command_list* _setup_cmd_list, command_list* _cmd_list,
     const descriptor_set* _pass_set) {
-  auto ctxblk = Rml::SetGlobalContextForBlock(&m_global_context);
-
+  Rml::SetGlobalContextForBlock ctxblk(&m_global_context);
+  auto allocator = m_context->m_ui_allocator;
+  auto setter =
+      m_context->m_application_data->default_job_pool->add_fiber_swap_function(
+          functional::function<void()>(allocator, [this]() {
+            Rml::GlobalContext::SetGlobalContextForThread(&m_global_context);
+          }));
+  (void)setter;
   PROFILE_REGION(UIRender);
 
   (void)_render_pass;
@@ -266,8 +286,14 @@ void ui::render(renderer::render_pass* _render_pass,
 
 int32_t ui::add_document(
     scripting::script_actor_pointer<ui_data> _data, int32_t _x, int32_t _y) {
-  auto ctxblk = Rml::SetGlobalContextForBlock(&m_global_context);
-
+  Rml::SetGlobalContextForBlock ctxblk(&m_global_context);
+  auto allocator = m_context->m_ui_allocator;
+  auto setter =
+      m_context->m_application_data->default_job_pool->add_fiber_swap_function(
+          functional::function<void()>(allocator, [this]() {
+            Rml::GlobalContext::SetGlobalContextForThread(&m_global_context);
+          }));
+  (void)setter;
   if (m_document_context) {
     document_to_add a{_x, _y, core::move(_data), ++m_document_idx};
     add_doc(&a);
@@ -283,8 +309,14 @@ int32_t ui::add_document(
 }
 
 void ui::add_doc(document_to_add* _doc) {
-  auto ctxblk = Rml::SetGlobalContextForBlock(&m_global_context);
-
+  Rml::SetGlobalContextForBlock ctxblk(&m_global_context);
+  auto allocator = m_context->m_ui_allocator;
+  auto setter =
+      m_context->m_application_data->default_job_pool->add_fiber_swap_function(
+          functional::function<void()>(allocator, [this]() {
+            Rml::GlobalContext::SetGlobalContextForThread(&m_global_context);
+          }));
+  (void)setter;
   const char* element_name = _doc->_data.invoke(&ui_data::get_ui_name);
   m_instancer->register_currently_loading_doc(core::move(_doc->_data));
   auto document = m_document_context->LoadDocument(element_name);

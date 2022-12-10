@@ -89,7 +89,7 @@ required if you only have a single version of **Visual Studio** installed.
 cmake \
   -G[Ninja|"Unix Makefiles"] \
   -DCMAKE_TOOLCHAIN_FILE=[WNFramework Root]/Overlays/Posix/Overlays/Android/android.toolchain.cmake \
-  -DWN_ANDROID_ABIS=[arm|arm64|x86] \
+  -DWN_ANDROID_ABIS=[arm|arm64|x86|x86_64] \
   -DWN_ANDROID_SDK=[Android SDK Root] \
   -DCMAKE_BUILD_TYPE=[Debug|Release] \
   ../

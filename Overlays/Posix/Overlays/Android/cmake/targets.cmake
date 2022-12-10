@@ -1,3 +1,5 @@
+set(CMAKE_SHARED_LINKER_FLAGS
+    "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate -u wn_main")
 
 function(overload_add_library name)
   if (NOT WN_ANDROID_WRAPPER)

@@ -262,6 +262,7 @@ jobs:
           -DCMAKE_TOOLCHAIN_FILE="$OVERLAY/android.toolchain.cmake"
           -DWN_ANDROID_ABIS="$ARCHITECTURE"
           -DWN_ANDROID_SDK=/opt/android-sdk
+          -DWN_ANDROID_NDK=/opt/android-sdk/ndk/23.2.8568313
           -DWN_LOW_RESOURCE_MODE=ON
           -DWN_USE_SCCACHE="$USE_SCCACHE"
           ../source

@@ -28,9 +28,9 @@ set(WN_ANDROID_TOOLCHAIN_FILE
 endif()
 
 file(TO_CMAKE_PATH ${WN_ANDROID_NDK} ANDROID_NDK)
-set(WN_ANDROID_NATIVE_API_LEVEL 22
+set(WN_ANDROID_NATIVE_API_LEVEL 31
     CACHE STRING "Native API level to build")
-set(WN_ANDROID_ABIS "arm;x86;arm64" CACHE STRING
+set(WN_ANDROID_ABIS "arm;x86;arm64;x86_64" CACHE STRING
     "Which Android ABIs to build")
 set(WN_SANITIZED_ABIS)
 
@@ -43,6 +43,8 @@ foreach(ABI ${WN_ANDROID_ABIS})
         list(APPEND WN_SANITIZED_ABIS "arm64-v8a")
     elseif(${ABI} MATCHES "^(android-|)x86$")
         list(APPEND WN_SANITIZED_ABIS "x86")
+    elseif(${ABI} MATCHES "^(android-|)(x86_64$|x64)")
+        list(APPEND WN_SANITIZED_ABIS "x86_64")
     else()
         message(FATAL_ERROR "Unrecognized Android ABI: ${ABI}")
     endif()

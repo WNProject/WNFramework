@@ -40,7 +40,13 @@ bool mapping_posix::exists_file(const containers::string_view _path) const {
     return false;
   }
 
-  return internal::exists_file(path);
+  bool exists = internal::exists_file(path);
+  if (!exists) {
+    int x = errno;
+    (void)x;
+    printf("%x\n", x);
+  }
+  return exists;
 }
 
 bool mapping_posix::exists_directory(
@@ -95,7 +101,7 @@ file_ptr mapping_posix::open_file(
   containers::string path(m_allocator);
 
   if (!sanitize_and_validate_path(_path, path)) {
-    _result = result::fail;
+    _result = result::invalid_path;
 
     return nullptr;
   }
@@ -103,7 +109,7 @@ file_ptr mapping_posix::open_file(
   file_descriptor fdescriptor(::open(path.c_str(), O_RDWR));
 
   if (!fdescriptor.is_valid()) {
-    _result = result::fail;
+    _result = result::file_opening_fail;
 
     return nullptr;
   }
@@ -111,13 +117,13 @@ file_ptr mapping_posix::open_file(
   struct stat fstates;
 
   if (::fstat(fdescriptor.value(), &fstates) == -1) {
-    _result = result::fail;
+    _result = result::file_size_retrieval_fail;
 
     return nullptr;
   }
 
   if (!S_ISREG(fstates.st_mode)) {
-    _result = result::fail;
+    _result = result::not_regular_file;
 
     return nullptr;
   }
@@ -129,7 +135,7 @@ file_ptr mapping_posix::open_file(
         MAP_SHARED | MAP_NORESERVE, fdescriptor.value(), 0);
 
     if (mapped_memory == MAP_FAILED) {
-      _result = result::fail;
+      _result = result::file_mapping_fail;
 
       return nullptr;
     }

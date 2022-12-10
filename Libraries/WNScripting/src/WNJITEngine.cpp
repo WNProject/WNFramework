@@ -352,7 +352,7 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
   functional::defer clean(functional::function<void()>(
       m_allocator, [this]() { m_started_files.pop_back(); }));
 
-  file_system::result res;
+  file_system::result res = file_system::result::ok;
   file_system::file_ptr file;
   containers::string synthetic_contents(m_allocator);
   bool use_synthetic_contents = false;
@@ -388,7 +388,8 @@ parse_error jit_engine::parse_file(const containers::string_view _file) {
     file = m_file_mapping->open_file(_file, res);
 
     if (!file) {
-      m_compilation_log->log_error("Could not find file", _file);
+      m_compilation_log->log_error(
+          "Could not find file: ", _file, " result:", res);
       return parse_error::does_not_exist;
     }
   }

@@ -298,9 +298,13 @@ void job_pool::initialize_thread_for_work() {
   wt->m_initial_fiber.fib =
       marl::OSFiber::createFiberFromCurrentThread(m_fiber_allocator.get());
   wt->m_initial_fiber.status = fiber_status::initial;
+  wt->m_initial_fiber.on_swap_to_fiber =
+      containers::dynamic_array<functional::function<void()>>(m_allocator);
   {
     wt->m_pending_job = nullptr;
     wt->m_current_running_fiber = wt->m_ready_fibers.make_node();
+    wt->m_current_running_fiber->element()->on_swap_to_fiber =
+        containers::dynamic_array<functional::function<void()>>(m_allocator);
     wt->m_current_running_fiber->element()->id = ++m_next_job_id;
     wt->m_current_running_fiber->element()->fib =
         marl::OSFiber::createFiber(m_fiber_allocator.get(), m_stack_size,
@@ -352,6 +356,9 @@ void job_pool::post_transition_fiber() {
     default:
       WN_RELEASE_ASSERT(false, "We should not have gotten here");
   }
+  for (auto& fn : wt->m_current_running_fiber->element()->on_swap_to_fiber) {
+    fn();
+  }
 }
 
 void job_pool::swap_to(containers::list<fiber>::list_node* _node) {
@@ -388,6 +395,8 @@ containers::list<fiber>::list_node* job_pool::get_new_fiber() {
     _node = m_idle_fibers.unlink_node(m_idle_fibers.begin());
   } else {
     _node = m_idle_fibers.make_node();
+    _node->element()->on_swap_to_fiber =
+        containers::dynamic_array<functional::function<void()>>(m_allocator);
   }
   m_idle_fiber_lock.unlock();
   return _node;
@@ -602,6 +611,23 @@ bool job_pool::run_next_task(bool new_fiber_for_job) {
   }
 
   return false;
+}
+
+void job_pool::pop_swap_function(size_t idx) {
+  auto ttd = this_thread_data();
+  WN_RELEASE_ASSERT(
+      idx == ttd->m_current_running_fiber->element()->on_swap_to_fiber.size(),
+      "swap functions are expected to be pushed/popped in stack order");
+  ttd->m_current_running_fiber->element()->on_swap_to_fiber.pop_back();
+}
+
+job_pool::fiber_swap_function_handle job_pool::add_fiber_swap_function(
+    functional::function<void()> on_fiber_swap) {
+  auto ttd = this_thread_data();
+  ttd->m_current_running_fiber->element()->on_swap_to_fiber.push_back(
+      core::move(on_fiber_swap));
+  size_t sz = ttd->m_current_running_fiber->element()->on_swap_to_fiber.size();
+  return fiber_swap_function_handle(this, sz);
 }
 
 void job_pool::exit_this_thread() {

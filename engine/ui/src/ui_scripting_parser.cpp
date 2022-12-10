@@ -288,7 +288,7 @@ bool ui_scripting_parser::parse_ui(file_system::mapping* _mapping,
   containers::string out_string(m_allocator);
 
   Rml::GlobalContext ctx;
-  auto ctxblk = Rml::SetGlobalContextForBlock(&ctx);
+  Rml::SetGlobalContextForBlock ctxblk(&ctx);
   {
     dummy_renderer renderer;
     dummy_system_interface system_interface(m_log);
