@@ -10,6 +10,7 @@
 #include "core/inc/base.h"
 #include "executable_data/inc/executable_data.h"
 
+#include <shellscalingapi.h>
 #include <tchar.h>
 
 #define WN_WINDOW_CLASS_NAME _T("WNWindowClass")
@@ -101,6 +102,13 @@ void windows_window::dispatch_loop(RECT rect) {
         SetWindowLongPtr(
             m_window.handle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
         ShowWindow(m_window.handle, SW_SHOW);
+        HMONITOR monitor =
+            MonitorFromWindow(m_window.handle, MONITOR_DEFAULTTONEAREST);
+        DEVICE_SCALE_FACTOR factor;
+        GetScaleFactorForMonitor(monitor, &factor);
+        float multiplier =
+            static_cast<float>(static_cast<uint32_t>(factor)) / 100.0f;
+        m_dpi = static_cast<uint32_t>(96 * multiplier);
         if (m_creation_signal) {
           m_creation_signal.increment_by(1);
         }

@@ -7,7 +7,7 @@
 #ifndef __WN_ENGINE_UI_H__
 #define __WN_ENGINE_UI_H__
 
-#include "Rocket/Core.h"
+#include "RmlUi/Core.h"
 #include "WNMultiTasking/inc/mutex.h"
 #include "WNWindow/inc/WNInputContext.h"
 #include "renderer/inc/renderable_object.h"
@@ -56,7 +56,8 @@ public:
       runtime::graphics::command_list* _setup_list) override;
   void render(renderer::render_pass* _render_pass,
       runtime::graphics::command_list* _setup_cmd_list,
-      runtime::graphics::command_list* cmd_list) override;
+      runtime::graphics::command_list* cmd_list,
+      const runtime::graphics::descriptor_set* pass_set) override;
   void update_render_data(
       size_t _frame_parity, runtime::graphics::command_list* cmd_list) override;
 
@@ -83,17 +84,17 @@ private:
   memory::unique_ptr<rocket_system_interface> m_system_interface;
 
   containers::dynamic_array<memory::unique_ptr<document_to_add>> m_documents;
-  containers::hash_map<int32_t, Rocket::Core::ElementDocument*>
-      m_rocket_documents;
+  containers::hash_map<int32_t, Rml::ElementDocument*> m_rocket_documents;
   int32_t m_document_idx = 0;
 
   // Rocket stuff
-  memory::unique_ptr<Rocket::Core::Context> m_rocket_context;
+  memory::unique_ptr<Rml::Context> m_rocket_context;
   memory::unique_ptr<event_instancer> m_instancer;
 
   multi_tasking::mutex m_mutex;
 
-  Rocket::Core::DocumentContext* m_document_context = nullptr;
+  Rml::Context* m_document_context = nullptr;
+  Rml::GlobalContext m_global_context;
   bool m_debugger_visible = false;
   int m_width = 0;
   int m_height = 0;

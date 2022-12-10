@@ -12,19 +12,25 @@ namespace engine {
 namespace renderer {
 
 render_pass::render_pass(memory::allocator* _allocator, logging::log* _log,
-    runtime::graphics::device* _device,
+    runtime::graphics::device* _device, render_context* _context,
     containers::dynamic_array<runtime::graphics::render_pass_attachment>
         _attachments,
     containers::dynamic_array<render_target*> _render_targets,
+    uint32_t _buffering_depth,
     const runtime::graphics::render_pass_attachment& _depth_attachment)
   : m_allocator(_allocator),
     m_device(_device),
     m_framebuffers(_allocator),
+    m_buffers(_allocator),
+    m_buffer_allocations(_allocator),
+    m_buffer_sets(_allocator),
     m_render_targets(core::move(_render_targets)),
     m_renderables(_allocator),
     m_width(0),
     m_height(0),
-    m_has_depth_target(false) {
+    m_has_depth_target(false),
+    m_buffering_depth(_buffering_depth),
+    m_dirty_buffering(_buffering_depth) {
   m_has_depth_target =
       _depth_attachment.format != runtime::graphics::data_format::max;
   // TODO(awoloszyn): Instead of creating framebuffers on-demand,
@@ -45,6 +51,50 @@ render_pass::render_pass(memory::allocator* _allocator, logging::log* _log,
       _log->log_error(
           "Renderpasses can only act on rendertargets of the same size");
     }
+  }
+  const wn::runtime::graphics::descriptor_pool_create_info pool_infos[] = {
+      {_buffering_depth,
+          wn::runtime::graphics::descriptor_type::read_only_buffer}};
+
+  m_descriptor_pool = _device->create_descriptor_pool(pool_infos);
+  const runtime::graphics::descriptor_binding_info infos[] = {{0,  // binding
+      10,  // register_base
+      1,   // array_size
+      static_cast<uint32_t>(runtime::graphics::shader_stage::pixel) |
+          static_cast<uint32_t>(runtime::graphics::shader_stage::vertex) |
+          static_cast<uint32_t>(runtime::graphics::shader_stage::geometry) |
+          static_cast<uint32_t>(
+              runtime::graphics::shader_stage::tessellation_control) |
+          static_cast<uint32_t>(
+              runtime::graphics::shader_stage::tessellation_evaluation),
+      runtime::graphics::descriptor_type::read_only_buffer}};
+  m_buffer_layout = _device->create_descriptor_set_layout(infos);
+
+  for (uint32_t i = 0; i < _buffering_depth; ++i) {
+    m_buffers.push_back(_device->create_buffer(sizeof(float) * 4,
+        static_cast<runtime::graphics::resource_states>(
+            runtime::graphics::resource_state::read_only_buffer |
+            runtime::graphics::resource_state::copy_dest)));
+
+    runtime::graphics::buffer_memory_requirements reqs =
+        m_buffers.back().get_memory_requirements();
+    m_buffer_allocations.push_back(
+        _context->get_allocation_for_buffer(reqs.size, reqs.alignment));
+    m_buffers.back().bind_memory(m_buffer_allocations.back().arena(),
+        m_buffer_allocations.back().offset());
+
+    m_buffer_sets.push_back(
+        m_descriptor_pool.create_descriptor_set(&m_buffer_layout));
+    runtime::graphics::buffer_descriptor desc[] = {{
+        0,                                                     // binding
+        0,                                                     // array_offset
+        runtime::graphics::descriptor_type::read_only_buffer,  // type
+        &m_buffers.back(),                                     // resource
+        0,                  // offset_in_elements
+        sizeof(float) * 4,  // element_size
+        1                   // num_elements
+    }};
+    m_buffer_sets.back().update_descriptors(desc, {}, {});
   }
 
   runtime::graphics::attachment_reference depth_attachment;
@@ -115,6 +165,7 @@ void render_pass::render(render_context* _context, uint64_t _frame_idx,
       }
     }
     if (recreate) {
+      m_dirty_buffering = m_buffering_depth;
       m_width = m_render_targets[0]->get_width();
       m_height = m_render_targets[0]->get_height();
 
@@ -134,6 +185,30 @@ void render_pass::render(render_context* _context, uint64_t _frame_idx,
       }
       it->second.m_framebuffer = core::move(fb);
     }
+  }
+  auto buffer_idx = _frame_idx % m_buffering_depth;
+  if (m_dirty_buffering) {
+    auto buffer = _context->create_temporary_upload_buffer(sizeof(float) * 4);
+    float* f = static_cast<float*>(buffer->map());
+    f[0] = static_cast<float>(m_width);
+    f[1] = static_cast<float>(m_height);
+    f[2] = 0.0f;
+    f[3] = 0.0f;
+    buffer->unmap();
+
+    _setup->transition_resource(m_buffers[buffer_idx],
+        runtime::graphics::resource_state::initial,
+        runtime::graphics::resource_state::copy_dest);
+
+    _setup->transition_resource(m_buffers[buffer_idx],
+        runtime::graphics::resource_state::host_write,
+        runtime::graphics::resource_state::copy_source);
+
+    _setup->copy_buffer(
+        *buffer, 0, m_buffers[buffer_idx], 0, sizeof(float) * 4);
+    _setup->transition_resource(m_buffers[buffer_idx],
+        runtime::graphics::resource_state::copy_dest,
+        runtime::graphics::resource_state::read_only_buffer);
   }
 
   containers::dynamic_array<runtime::graphics::clear_value> clears(m_allocator);
@@ -164,9 +239,8 @@ void render_pass::render(render_context* _context, uint64_t _frame_idx,
   _render->begin_render_pass(m_render_pass.get(), &it->second.m_framebuffer,
       {0, 0, static_cast<uint32_t>(m_width), static_cast<uint32_t>(m_height)},
       clears);
-
   for (auto& renderable : m_renderables) {
-    renderable->render(this, _setup, _render);
+    renderable->render(this, _setup, _render, &m_buffer_sets[buffer_idx]);
   }
 
   _render->end_render_pass();

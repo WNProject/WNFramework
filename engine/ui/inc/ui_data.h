@@ -7,7 +7,7 @@
 #ifndef __WN_ENGINE_UI_DATA_H__
 #define __WN_ENGINE_UI_DATA_H__
 
-#include "Rocket/Core.h"
+#include "RmlUi/Core.h"
 #include "WNScripting/inc/WNEngine.h"
 
 namespace wn {
@@ -22,7 +22,7 @@ struct ui_data : scripting::script_actor_type {
   scripting::scripting_actor_function<ui_data, const char*> get_ui_name;
   scripting::scripting_actor_function<ui_data, const char*> get_class_name;
   scripting::scripting_virtual_actor_function<ui_data, void,
-      Rocket::Core::ElementDocument*>
+      Rml::ElementDocument*>
       update;
 
   void export_type(

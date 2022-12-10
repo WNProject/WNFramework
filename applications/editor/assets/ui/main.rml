@@ -29,11 +29,22 @@
 </head>
 <body template="window">
   <div style="padding: 1mm; display: inline;">
-    Hello World. ss This is some really long text that will hopefully correctly split on to the next line. More words, not sure how many I will need.
-    Hello World. This is some really long text that will hopefully correctly split on to the next line. More words, not sure how many I will need.
-    Hello World. This is some really long text that will hopefully correctly split on to the next line. More words, not sure how many I will need.
-    Hello World. This is some really long text that will hopefully correctly split on to the next line. More words, not sure how many I will need.
-    Hello World. This is some really long text that will hopefully correctly split on to the next line. More words, not sure how many I will need.
-  </div>
+<div>
+  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum quis nulla rhoncus,
+fringilla velit eu, porttitor sapien. Mauris finibus venenatis ornare. Nam ornare sodales turpis,
+vitae volutpat tellus imperdiet et. Pellentesque eget arcu eu mauris sollicitudin dapibus non id ex.
+Fusce et ex non justo cursus convallis. Nullam sit amet lectus diam. Proin vehicula enim eget erat
+tristique, eu mattis massa cursus. Etiam dolor felis, bibendum in laoreet rhoncus, tristique id dui.
+<br/>
+Sed egestas non arcu eget ullamcorper.
+Vestibulum tempor sed arcu nec bibendum. Cras convallis eget magna nec bibendum.
+Integer sit amet nulla augue. Ut vel quam scelerisque, varius quam eu, cursus lectus.
+Phasellus lobortis dapibus metus vel ultrices. Aenean varius pellentesque mauris vitae
+congue. Fusce varius porttitor nulla sit amet rhoncus. Etiam vel dapibus erat.
+Pellentesque tempor aliquam urna eu bibendum. Aenean blandit bibendum nunc id
+accumsan. Etiam at ante sem. Donec eleifend imperdiet tortor, quis hendrerit metus
+lobortis nec. Etiam a purus sed nisi interdum iaculis sit amet non augue.
+</div>
+</div>
 </body>
 </rml>
