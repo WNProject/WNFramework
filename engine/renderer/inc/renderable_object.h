@@ -17,7 +17,8 @@ class engine;
 namespace runtime {
 namespace graphics {
 class command_list;
-}
+class descriptor_set;
+}  // namespace graphics
 }  // namespace runtime
 namespace engine {
 namespace renderer {
@@ -31,7 +32,8 @@ public:
 
   virtual void render(render_pass* _render_pass,
       runtime::graphics::command_list* _setup_cmd_list,
-      runtime::graphics::command_list* _cmd_list) = 0;
+      runtime::graphics::command_list* _cmd_list,
+      const runtime::graphics::descriptor_set* _pass_set) = 0;
   virtual void initialize_for_renderpass(render_context* _renderer,
       render_pass* _render_pass,
       runtime::graphics::command_list* _setup_list) = 0;

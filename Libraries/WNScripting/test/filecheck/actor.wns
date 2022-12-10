@@ -9,6 +9,7 @@
 
 Actor Foo {
   @synchronized Int x = 4;
+  Int y = x;
   @synchronized Int get_x() {
     return x;
   }
