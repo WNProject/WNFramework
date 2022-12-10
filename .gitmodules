@@ -64,3 +64,21 @@
 	branch = main
 	ignore = dirty
 	shallow = true
+[submodule "externals/freetype"]
+	path = externals/freetype
+	url = https://gitlab.freedesktop.org/freetype/freetype
+	branch = master
+	ignore = dirty
+	shallow = true
+[submodule "externals/rlottie"]
+	path = externals/rlottie
+	url = https://github.com/Samsung/rlottie
+	branch = master
+	ignore = dirty
+	shallow = true
+[submodule "externals/rmlui"]
+	path = externals/rmlui
+	url = https://github.com/mikke89/RmlUI
+	branch = master
+	ignore = dirty
+	shallow = true

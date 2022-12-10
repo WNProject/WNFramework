@@ -66,6 +66,14 @@ jobs:
           manual_path_mappings=(
             'llvm:llvm-project/llvm'
           )
+          manual_file_mappings=(
+            'freetype:freetype/docs/FTL.TXT:Explicitly choosing FTL license for freetype'
+            'mit:rlottie/licenses/COPYING.MIT:rlottie uses an unadorned mit copying'
+            'mozilla:rlottie/licenses/COPYING.MPL:rlottie copies some files in that are MPL licensed'
+            'pix:rlottie/licenses/COPYING.PIX:rlottie copies some files in that are from pixman'
+            'skia:rlottie/licenses/COPYING.SKIA:rlottie copies some skia files in'
+            'rlottie:rlottie/COPYING:rlottie uses COPYING instead of LICENSE'
+          )
           manual_overrides=(
             'antlr3:9a0008a487843ac42b0ffcaf4b6de998f1869094:no single file'
           )
@@ -129,6 +137,17 @@ jobs:
               IFS=':'; read -ra chunks <<< "$manual_override"; IFS=' '
               if [ "${chunks[0]}" == "$external" ]; then
                 original_hash=${chunks[1]}
+                reason="${chunks[2]}"
+                break
+              fi
+            done
+            for manual_file_mapping in "${manual_file_mappings[@]}"; do
+              chunks=()
+              IFS=':'; read -ra chunks <<< "$manual_file_mapping"; IFS=' '
+              if [ "${chunks[0]}" == "$external" ]; then
+                original_hash=$(
+                  cat "./externals/${chunks[1]}" | sha1sum | awk '{print $1}'
+                )
                 reason="${chunks[2]}"
                 break
               fi

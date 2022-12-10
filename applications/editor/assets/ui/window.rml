@@ -5,7 +5,7 @@
 titlebar {
 	display:block;
 	overflow-x: auto;
-	background-color: #FF0000;
+	background-color: #0F0F0F;
 }
 titlebarcontents {
 	display: inline-block;
@@ -26,23 +26,23 @@ titlebarcontents {
 titlebaritem {
 	display:inline;
 	drag: clone;
+	background-color: #E0E0E0FF;
 	border-color: black;
-	border-width: 1px;
+	border-width: 1dp;
+	border-radius: 7dp 7dp 0dp 0dp;
 }
 titlebaritem:drag {
 	display:inline;
 	background-color: #00000000;
-	border-width: 0px;
-	outline-font-effect: outline;
-	outline-width: 1px;
-	outline-color: white;
+	border-width: 0dp;
+	font-effect: glow(2dp 7dp #ed5);
 }
 .window:focus {
 	background-color: #556A74;
 }
 scrollbarhorizontal
 {
-	height: 6px;
+	height: 6dp;
 }
 scrollbarvertical slidertrack,
 scrollbarhorizontal slidertrack
@@ -52,12 +52,12 @@ scrollbarhorizontal slidertrack
 }
 scrollbarvertical slidertrack
 {
-	border-left-width: 1px;
+	border-left-width: 1dp;
 }
 scrollbarhorizontal slidertrack
 {
-	height: 7px;
-	border-top-width: 1px;
+	height: 7dp;
+	border-top-width: 1dp;
 }
 scrollbarvertical sliderbar,
 scrollbarhorizontal sliderbar
@@ -67,21 +67,21 @@ scrollbarhorizontal sliderbar
 }
 scrollbarvertical sliderbar
 {
-	border-width: 1px 0px;
-	margin-left: 1px;
+	border-width: 1dp 0dp;
+	margin-left: 1dp;
 }
 scrollbarhorizontal sliderbar
 {
-	height: 5px;
-	border-width: 0px 1px;
-	margin-top: 1px;
+	height: 5dp;
+	border-width: 0dp 1dp;
+	margin-top: 1dp;
 }
 </style>
 </head>
-<body onload="this.titlebar_onload" id="body" style="min-width:100px; min-height: 100px; width: 300px; height: 300px; display:block; position: absolute; background-color: #455A64;  border-color: gray; border-width: 3px; overflow: hidden;" class="window">
-	<handle move_target="#document" style="background-color: #CFD8DC; display:inline-block; width: 100%; height: 5px;"></handle>
-	<titlebar>
-	<titlebarcontents id="titlebar">	
+<body onload="this.titlebar_onload" id="body" style="min-width:100dp; min-height: 100dp; width: 300dp; height: 300dp; position: absolute; background-color: #455A64;  border-color: gray; border-width: 3dp; overflow: hidden;" class="window">
+	<titlebar style="height: 20dp;">
+	<handle move_target="#document"><lottie src="../textures/test_anim.json" style="height: 20dp;width: 20dp;"></lottie></handle>
+	<titlebarcontents id="titlebar">
 	<titlebaritem onclick="this.on_button_click" id="1">Hello</titlebaritem>
 	<titlebaritem onclick="this.on_button_click" id="2">World</titlebaritem>
 	<titlebaritem onclick="this.on_button_click" id="3">WorldWorldHello</titlebaritem>
@@ -92,6 +92,6 @@ scrollbarhorizontal sliderbar
 		<div id="content"/>
 		</div>
 	</div>
-	<handle size_target="#document" style="background-color: #CFD8DC; position: absolute; width: 16px; height: 16px; bottom: 0px; right: 0px;"></handle>
+	<handle size_target="#document" style="background-color: #CFD8DC; position: absolute; width: 16dp; height: 16dp; bottom: 0dp; right: 0dp;"/>
 </body>
 </template>

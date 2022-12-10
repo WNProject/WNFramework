@@ -54,7 +54,7 @@ jobs:
           fi
           changes_externals=$(
             git diff --name-only origin/master HEAD -- \
-            externals/ ':!externals/CMakeLists.txt' ':!externals/*/*' |
+            externals/ ':!externals/CMakeLists.txt' ':!externals/*/*' ':!externals/RmlUI.txt' |
             cut -d. -f2 | cut -d/ -f2 | sort | uniq
           )
           if [ -z "$changes_externals" ]; then

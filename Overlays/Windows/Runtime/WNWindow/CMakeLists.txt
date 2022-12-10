@@ -6,4 +6,6 @@ overlay_library_sources(
   SOURCES
     inc/WNWindowsWindow.h
     src/WNWindowsWindow.cpp
+  LIBS
+    Shcore.lib
 )

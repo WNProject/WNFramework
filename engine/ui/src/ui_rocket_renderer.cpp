@@ -28,13 +28,11 @@ namespace engine {
 namespace ui {
 
 rocket_renderer::rocket_renderer(memory::allocator* _allocator,
-    Rocket::Core::Context* _rocket_context,
     renderer::render_context* _render_context,
     renderer::render_pass* _render_pass, file_system::mapping* _mapping,
     scripting::engine* _engine, logging::log* _log)
-  : Rocket::Core::RenderInterface(_rocket_context),
+  : Rml::RenderInterface(),
     m_allocator(_allocator),
-    m_rocket_context(_rocket_context),
     m_render_context(_render_context),
     m_window(_render_context->get_window()->underlying()),
     m_render_pass(_render_pass),
@@ -74,12 +72,13 @@ rocket_renderer::rocket_renderer(memory::allocator* _allocator,
       static_cast<uint32_t>(
           wn::runtime::graphics::shader_stage::vertex),  // valid_stages
       0,                                                 // register_base
-      2,                                                 // num_uint32_values
+      4,                                                 // num_uint32_values
       0,                                                 // offset_in_uint32s
   }};
 
-  const wn::runtime::graphics::descriptor_set_layout* layouts[] = {
-      &m_descriptor_set_layout};
+  const wn::runtime::graphics::descriptor_set_layout* layouts[2] = {
+      &m_descriptor_set_layout,
+      &_render_pass->get_layout_for_renderpass_descriptors()};
   m_pipeline_layout = device->create_pipeline_layout(layouts, ranges);
 
   layouts[0] = &m_descriptor_set_layout_no_texture;
@@ -100,7 +99,7 @@ rocket_renderer::rocket_renderer(memory::allocator* _allocator,
 
   m_pipeline = device->create_graphics_pipeline(
       wn::runtime::graphics::graphics_pipeline_description(_allocator)
-          .add_vertex_stream(0, sizeof(Rocket::Core::Vertex),
+          .add_vertex_stream(0, sizeof(Rml::Vertex),
               wn::runtime::graphics::stream_frequency::per_vertex)
           .add_vertex_attribute(0, 0, "POSITION", 0,
               wn::runtime::graphics::data_format::r32g32_sfloat)
@@ -128,7 +127,7 @@ rocket_renderer::rocket_renderer(memory::allocator* _allocator,
 
   m_pipeline_no_texture = device->create_graphics_pipeline(
       wn::runtime::graphics::graphics_pipeline_description(_allocator)
-          .add_vertex_stream(0, sizeof(Rocket::Core::Vertex),
+          .add_vertex_stream(0, sizeof(Rml::Vertex),
               wn::runtime::graphics::stream_frequency::per_vertex)
           .add_vertex_attribute(0, 0, "POSITION", 0,
               wn::runtime::graphics::data_format::r32g32_sfloat)
@@ -155,34 +154,19 @@ rocket_renderer::rocket_renderer(memory::allocator* _allocator,
       &m_pipeline_layout_no_texture, _render_pass->get_render_pass(), 0);
 
   const wn::runtime::graphics::descriptor_pool_create_info pool_infos[] = {
-      {200, wn::runtime::graphics::descriptor_type::sampler},
-      {200, wn::runtime::graphics::descriptor_type::sampled_image}};
+      {800, wn::runtime::graphics::descriptor_type::sampler},
+      {800, wn::runtime::graphics::descriptor_type::sampled_image}};
 
   m_descriptor_pool = device->create_descriptor_pool(pool_infos);
   m_sampler = device->create_sampler({});
 }
 
-void rocket_renderer::RenderGeometry(Rocket::Core::Vertex* vertices,
-    int num_vertices, int* indices, int num_indices,
-    Rocket::Core::TextureHandle texture,
-    const Rocket::Core::Vector2f& translation) {
+void rocket_renderer::RenderGeometry(Rml::Vertex* vertices, int num_vertices,
+    int* indices, int num_indices, Rml::TextureHandle texture,
+    const Rml::Vector2f& translation) {
   ui_texture* tex = reinterpret_cast<ui_texture*>(texture);
   if (tex) {
     tex->use_in_frame(m_frame_parity);
-  }
-  uint64_t width = m_render_pass->get_width();
-  uint64_t height = m_render_pass->get_height();
-
-  // TODO: Replace this with push constants and do this on the GPU
-  //  .. that is the only way this will work with resizing.
-  for (int i = 0; i < num_vertices; ++i) {
-    vertices[i].position.x =
-        m_screen_multiplier[0] *
-            (2.0f * vertices[i].position.x / static_cast<float>(width)) -
-        1.0f;
-    vertices[i].position.y =
-        m_screen_multiplier[1] *
-        ((-2.0f * vertices[i].position.y / static_cast<float>(height)) + 1.0f);
   }
 
   memory::unique_ptr<ui_geometry> dat = create_and_initialize_geometry(
@@ -201,8 +185,7 @@ void rocket_renderer::RenderGeometry(Rocket::Core::Vertex* vertices,
   }
 
   RenderCompiledGeometry(
-      reinterpret_cast<Rocket::Core::CompiledGeometryHandle>(dat.get()),
-      translation);
+      reinterpret_cast<Rml::CompiledGeometryHandle>(dat.get()), translation);
 
   m_cleanup.push_back(core::move(dat));
 }
@@ -218,10 +201,9 @@ void rocket_renderer::SetScissorRegion(int x, int y, int width, int height) {
       static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
 }
 
-bool rocket_renderer::LoadTexture(Rocket::Core::TextureHandle& texture_handle,
-    Rocket::Core::Vector2i& texture_dimensions,
-    const Rocket::Core::String& source) {
-  containers::string_view resource_name(source.CString(), source.Length());
+bool rocket_renderer::LoadTexture(Rml::TextureHandle& texture_handle,
+    Rml::Vector2i& texture_dimensions, const Rml::String& source) {
+  containers::string_view resource_name(source.c_str(), source.size());
   resource_name = resource_name.substr(resource_name.find_first_of("@"));
   if (!resource_name.starts_with("@Texture(\"")) {
     m_log->log_error("Invalid texture resource name", resource_name);
@@ -261,15 +243,13 @@ bool rocket_renderer::LoadTexture(Rocket::Core::TextureHandle& texture_handle,
   }
   ui_texture* tex = ui_tex.get();
   m_textures[tex] = core::move(ui_tex);
-  texture_handle = reinterpret_cast<Rocket::Core::TextureHandle>(tex);
+  texture_handle = reinterpret_cast<Rml::TextureHandle>(tex);
 
   return true;
 }
 
-bool rocket_renderer::GenerateTexture(
-    Rocket::Core::TextureHandle& texture_handle,
-    const Rocket::Core::byte* source,
-    const Rocket::Core::Vector2i& source_dimensions) {
+bool rocket_renderer::GenerateTexture(Rml::TextureHandle& texture_handle,
+    const Rml::byte* source, const Rml::Vector2i& source_dimensions) {
   PROFILE_REGION(UiGenerateTexture);
   memory::unique_ptr<ui_texture> texture = create_and_initialize_texture(
       m_allocator, m_render_context, m_setup_command_list, source,
@@ -280,12 +260,11 @@ bool rocket_renderer::GenerateTexture(
   texture->use_in_frame(m_frame_parity);
   ui_texture* tex = texture.get();
   m_textures[tex] = core::move(texture);
-  texture_handle = reinterpret_cast<Rocket::Core::TextureHandle>(tex);
+  texture_handle = reinterpret_cast<Rml::TextureHandle>(tex);
   return true;
 }
 
-void rocket_renderer::ReleaseTexture(
-    Rocket::Core::TextureHandle texture_handle) {
+void rocket_renderer::ReleaseTexture(Rml::TextureHandle texture_handle) {
   ui_texture* tex = reinterpret_cast<ui_texture*>(texture_handle);
   auto it = m_textures.find(tex);
   WN_DEBUG_ASSERT(it != m_textures.end(), "Texture does not exist");
@@ -293,29 +272,14 @@ void rocket_renderer::ReleaseTexture(
   m_textures.erase(it);
 }
 
-Rocket::Core::CompiledGeometryHandle rocket_renderer::CompileGeometry(
-    Rocket::Core::Vertex* vertices, int num_vertices, int* indices,
-    int num_indices, Rocket::Core::TextureHandle _texture) {
+Rml::CompiledGeometryHandle rocket_renderer::CompileGeometry(
+    Rml::Vertex* vertices, int num_vertices, int* indices, int num_indices,
+    Rml::TextureHandle _texture) {
   PROFILE_REGION(UICompileGeometry);
   ui_texture* tex = reinterpret_cast<ui_texture*>(_texture);
   if (tex) {
     tex->use_in_frame(m_frame_parity);
   }
-  uint64_t width = m_render_pass->get_width();
-  uint64_t height = m_render_pass->get_height();
-
-  // TODO: Replace this with push constants and do this on the GPU
-  //  .. that is the only way this will work with resizing.
-  for (int i = 0; i < num_vertices; ++i) {
-    vertices[i].position.x =
-        m_screen_multiplier[0] *
-            (2.0f * vertices[i].position.x / static_cast<float>(width)) -
-        1.0f;
-    vertices[i].position.y =
-        m_screen_multiplier[1] *
-        ((-2.0f * vertices[i].position.y / static_cast<float>(height)) + 1.0f);
-  }
-
   memory::unique_ptr<ui_geometry> dat = create_and_initialize_geometry(
       m_allocator, m_render_context, m_setup_command_list, vertices,
       num_vertices, indices, num_indices, tex);
@@ -333,16 +297,13 @@ Rocket::Core::CompiledGeometryHandle rocket_renderer::CompileGeometry(
   ui_geometry* geo = dat.get();
   m_geometry[dat.get()] = core::move(dat);
 
-  return reinterpret_cast<Rocket::Core::CompiledGeometryHandle>(geo);
+  return reinterpret_cast<Rml::CompiledGeometryHandle>(geo);
 }
 
 void rocket_renderer::RenderCompiledGeometry(
-    Rocket::Core::CompiledGeometryHandle _geometry,
-    const Rocket::Core::Vector2f& translation) {
+    Rml::CompiledGeometryHandle _geometry, const Rml::Vector2f& translation) {
   ui_geometry* geo = reinterpret_cast<ui_geometry*>(_geometry);
   geo->use_in_frame(m_frame_parity);
-  uint64_t width = m_render_pass->get_width();
-  uint64_t height = m_render_pass->get_height();
 
   wn::runtime::graphics::graphics_pipeline* next_pipeline =
       geo->get_texture() ? &m_pipeline : &m_pipeline_no_texture;
@@ -384,34 +345,29 @@ void rocket_renderer::RenderCompiledGeometry(
     const runtime::graphics::descriptor_set* sets[] = {&geo->set()};
     m_render_command_list->bind_graphics_descriptor_sets(sets, 0);
   }
-
+  const runtime::graphics::descriptor_set* sets[] = {
+      m_renderpass_descriptor_set};
+  m_render_command_list->bind_graphics_descriptor_sets(sets, 1);
   m_render_command_list->bind_vertex_buffer(0, &geo->vertex_buffer());
   m_render_command_list->bind_index_buffer(
       wn::runtime::graphics::index_type::u32, &geo->index_buffer());
 
-  float constants[2] = {m_screen_multiplier[0] *
-                            (2.0f * translation.x / static_cast<float>(width)),
-      m_screen_multiplier[1] *
-          (-2.0f * translation.y / static_cast<float>(height))};
+  float constants[4] = {m_screen_multiplier[0], m_screen_multiplier[1],
+      translation.x, translation.y};
 
   m_render_command_list->push_graphics_contants(
-      0, 0, reinterpret_cast<const uint32_t*>(constants), 2);
+      0, 0, reinterpret_cast<const uint32_t*>(constants), 4);
   m_render_command_list->draw_indexed(
       static_cast<uint32_t>(geo->num_inds()), 1, 0, 0, 0);
 }
 
 void rocket_renderer::ReleaseCompiledGeometry(
-    Rocket::Core::CompiledGeometryHandle _geometry) {
+    Rml::CompiledGeometryHandle _geometry) {
   ui_geometry* geo = reinterpret_cast<ui_geometry*>(_geometry);
   auto it = m_geometry.find(geo);
   WN_DEBUG_ASSERT(it != m_geometry.end(), "Geometry does not exist");
   m_cleanup.push_back(core::move(it->second));
   m_geometry.erase(it);
-}
-
-float rocket_renderer::GetPixelsPerInch() {
-  const float dpi = static_cast<float>(m_window->get_dpi());
-  return dpi;
 }
 
 void rocket_renderer::start_frame(size_t _parity) {

@@ -21,10 +21,11 @@ class render_context;
 class render_pass {
 public:
   render_pass(memory::allocator* _allocator, logging::log* _log,
-      runtime::graphics::device* _device,
+      runtime::graphics::device* _device, render_context* _context,
       containers::dynamic_array<runtime::graphics::render_pass_attachment>
           _attachments,
       containers::dynamic_array<render_target*> _render_targets,
+      uint32_t _buffering_depth,
       const runtime::graphics::render_pass_attachment& depth_attachment);
   void render(render_context* _context, uint64_t _frame_idx,
       runtime::graphics::command_list* _setup,
@@ -45,6 +46,11 @@ public:
     return m_render_pass.get();
   }
 
+  const runtime::graphics::descriptor_set_layout&
+  get_layout_for_renderpass_descriptors() const {
+    return m_buffer_layout;
+  }
+
 private:
   memory::allocator* m_allocator;
   runtime::graphics::device* m_device;
@@ -58,6 +64,11 @@ private:
       containers::dynamic_array_hasher<const runtime::graphics::image_view*>,
       containers::dynamic_array_equality<const runtime::graphics::image_view*>>
       m_framebuffers;
+  containers::dynamic_array<runtime::graphics::buffer> m_buffers;
+  containers::dynamic_array<gpu_allocation> m_buffer_allocations;
+  runtime::graphics::descriptor_set_layout m_buffer_layout;
+  containers::dynamic_array<runtime::graphics::descriptor_set> m_buffer_sets;
+  runtime::graphics::descriptor_pool m_descriptor_pool;
   memory::unique_ptr<runtime::graphics::render_pass> m_render_pass;
   containers::dynamic_array<render_target*> m_render_targets;
   containers::dynamic_array<scripting::shared_cpp_pointer<renderable_object>>
@@ -66,6 +77,8 @@ private:
   size_t m_width;
   size_t m_height;
   bool m_has_depth_target;
+  size_t m_buffering_depth;
+  size_t m_dirty_buffering;
 };
 
 }  // namespace renderer

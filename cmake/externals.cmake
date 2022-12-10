@@ -29,19 +29,25 @@ function(add_wn_externals name)
 
     if (PARSED_ARGS_COMPILE_OPTIONS)
       foreach(EXTERNAL_TARGET ${EXTERNAL_TARGETS})
-        target_compile_options(
-          ${EXTERNAL_TARGET} PRIVATE
-          ${PARSED_ARGS_COMPILE_OPTIONS}
-        )
+        get_target_property(type ${EXTERNAL_TARGET} TYPE)
+        if (NOT ${type} STREQUAL "INTERFACE_LIBRARY")
+          target_compile_options(
+            ${EXTERNAL_TARGET} PRIVATE
+            ${PARSED_ARGS_COMPILE_OPTIONS}
+          )
+        endif()
       endforeach()
     endif()
 
     if (PARSED_ARGS_PUBLIC_COMPILE_DEFINES)
       foreach(EXTERNAL_TARGET ${EXTERNAL_TARGETS})
-        target_compile_definitions(
-          ${EXTERNAL_TARGET} PUBLIC
-          ${PARSED_ARGS_PUBLIC_COMPILE_DEFINES}
-        )
+        get_target_property(type ${EXTERNAL_TARGET} TYPE)
+        if (NOT ${type} STREQUAL "INTERFACE_LIBRARY")
+          target_compile_definitions(
+            ${EXTERNAL_TARGET} PUBLIC
+            ${PARSED_ARGS_PUBLIC_COMPILE_DEFINES}
+          )
+        endif()
       endforeach()
     endif()
     overlay_named_file(cmake/externals.cmake)
