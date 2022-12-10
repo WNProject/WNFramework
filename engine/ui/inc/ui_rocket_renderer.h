@@ -7,7 +7,7 @@
 #ifndef __WN_ENGINE_UI_ROCKET_RENDERER_H__
 #define __WN_ENGINE_UI_ROCKET_RENDERER_H__
 
-#include "Rocket/Core.h"
+#include "RmlUi/Core.h"
 #include "WNContainers/inc/WNHashMap.h"
 #include "WNContainers/inc/WNList.h"
 #include "WNGraphics/inc/WNDescriptors.h"
@@ -41,40 +41,40 @@ class render_context;
 class render_pass;
 }  // namespace renderer
 namespace ui {
-class rocket_renderer : public Rocket::Core::RenderInterface {
+class rocket_renderer : public Rml::RenderInterface {
 public:
   rocket_renderer(memory::allocator* _allocator,
-      Rocket::Core::Context* _rocket_context,
       renderer::render_context* _render_context,
       renderer::render_pass* _render_pass, file_system::mapping* _mapping,
       scripting::engine* _engine, logging::log* _log);
 
-  void RenderGeometry(Rocket::Core::Vertex* vertices, int num_vertices,
-      int* indices, int num_indices, Rocket::Core::TextureHandle texture,
-      const Rocket::Core::Vector2f& translation) override;
+  void RenderGeometry(Rml::Vertex* vertices, int num_vertices, int* indices,
+      int num_indices, Rml::TextureHandle texture,
+      const Rml::Vector2f& translation) override;
   void EnableScissorRegion(bool enable) override;
   void SetScissorRegion(int x, int y, int width, int height) override;
-  bool LoadTexture(Rocket::Core::TextureHandle& texture_handle,
-      Rocket::Core::Vector2i& texture_dimensions,
-      const Rocket::Core::String& source) override;
-  bool GenerateTexture(Rocket::Core::TextureHandle& texture_handle,
-      const Rocket::Core::byte* source,
-      const Rocket::Core::Vector2i& source_dimensions) override;
-  void ReleaseTexture(Rocket::Core::TextureHandle texture_handle) override;
-  Rocket::Core::CompiledGeometryHandle CompileGeometry(
-      Rocket::Core::Vertex* vertices, int num_vertices, int* indices,
-      int num_indices, Rocket::Core::TextureHandle _texture) override;
-  void RenderCompiledGeometry(Rocket::Core::CompiledGeometryHandle _geometry,
-      const Rocket::Core::Vector2f& translation) override;
-  void ReleaseCompiledGeometry(
-      Rocket::Core::CompiledGeometryHandle geometry) override;
-  float GetPixelsPerInch() override;
+  bool LoadTexture(Rml::TextureHandle& texture_handle,
+      Rml::Vector2i& texture_dimensions, const Rml::String& source) override;
+  bool GenerateTexture(Rml::TextureHandle& texture_handle,
+      const Rml::byte* source, const Rml::Vector2i& source_dimensions) override;
+  void ReleaseTexture(Rml::TextureHandle texture_handle) override;
+  Rml::CompiledGeometryHandle CompileGeometry(Rml::Vertex* vertices,
+      int num_vertices, int* indices, int num_indices,
+      Rml::TextureHandle _texture) override;
+  void RenderCompiledGeometry(Rml::CompiledGeometryHandle _geometry,
+      const Rml::Vector2f& translation) override;
+  void ReleaseCompiledGeometry(Rml::CompiledGeometryHandle geometry) override;
 
   void set_setup_command_list(runtime::graphics::command_list* _ptr) {
     m_setup_command_list = _ptr;
   }
   void set_render_command_list(runtime::graphics::command_list* _ptr) {
     m_render_command_list = _ptr;
+  }
+
+  void set_renderpass_descriptor_set(
+      const runtime::graphics::descriptor_set* _set) {
+    m_renderpass_descriptor_set = _set;
   }
 
   void start_frame(size_t _parity);
@@ -84,7 +84,6 @@ public:
 
 private:
   memory::allocator* m_allocator;
-  Rocket::Core::Context* m_rocket_context;
   renderer::render_context* m_render_context;
   runtime::window::window* m_window;
   renderer::render_pass* m_render_pass;
@@ -129,6 +128,8 @@ private:
   // Temporary per-frame data
   runtime::graphics::command_list* m_setup_command_list = nullptr;
   runtime::graphics::command_list* m_render_command_list = nullptr;
+  const runtime::graphics::descriptor_set* m_renderpass_descriptor_set =
+      nullptr;
   size_t m_frame_parity = 0;
 
   // Device related data

@@ -8,7 +8,7 @@
 namespace wn {
 namespace {
 void ui_set_property(
-    Rocket::Core::Element* _element, const char* property, const char* value) {
+    Rml::Element* _element, const char* property, const char* value) {
   _element->SetProperty(property, value);
 };
 
@@ -19,25 +19,24 @@ scripting::shared_cpp_pointer<support::string> make_string(const char* _str) {
 }
 
 scripting::shared_cpp_pointer<support::string> ui_get_property(
-    Rocket::Core::Element* _element, const char* _str) {
+    Rml::Element* _element, const char* _str) {
   auto elem = _element->GetProperty(_str);
   if (!elem) {
     return scripting::shared_cpp_pointer<support::string>();
   }
-  return make_string(elem->Get<Rocket::Core::String>().CString());
+  return make_string(elem->Get<Rml::String>().c_str());
 }
 
 scripting::shared_cpp_pointer<support::string> ui_get_attribute(
-    Rocket::Core::Element* _element, const char* _str) {
+    Rml::Element* _element, const char* _str) {
   auto elem = _element->GetAttribute(_str);
   if (!elem) {
     return scripting::shared_cpp_pointer<support::string>();
   }
-  return make_string(elem->Get<Rocket::Core::String>().CString());
+  return make_string(elem->Get<Rml::String>().c_str());
 }
 
-int32_t ui_get_int_attribute(
-    Rocket::Core::Element* _element, const char* _str) {
+int32_t ui_get_int_attribute(Rml::Element* _element, const char* _str) {
   auto elem = _element->GetAttribute(_str);
   if (!elem) {
     return -1;
@@ -46,57 +45,54 @@ int32_t ui_get_int_attribute(
 }
 
 void ui_set_int_attribute(
-    Rocket::Core::Element* _element, const char* _str, int32_t val) {
+    Rml::Element* _element, const char* _str, int32_t val) {
   _element->SetAttribute(_str, static_cast<int>(val));
 }
 
 void ui_set_attribute(
-    Rocket::Core::Element* _element, const char* property, const char* value) {
+    Rml::Element* _element, const char* property, const char* value) {
   _element->SetAttribute(property, value);
 };
 
 scripting::shared_cpp_pointer<support::string> ui_get_rml(
-    Rocket::Core::Element* _element) {
+    Rml::Element* _element) {
   auto str = _element->GetInnerRML();
-  return make_string(str.CString());
+  return make_string(str.c_str());
 }
 
-void ui_set_rml(Rocket::Core::Element* _element, const char* _str) {
+void ui_set_rml(Rml::Element* _element, const char* _str) {
   _element->SetInnerRML(_str);
 }
 
-Rocket::Core::Element* ui_parent(Rocket::Core::Element* _element) {
+Rml::Element* ui_parent(Rml::Element* _element) {
   return _element->GetParentNode();
 }
 
-Rocket::Core::Element* ui_next_sibling(Rocket::Core::Element* _element) {
+Rml::Element* ui_next_sibling(Rml::Element* _element) {
   return _element->GetNextSibling();
 }
 
-int32_t ui_num_children(Rocket::Core::Element* _element) {
+int32_t ui_num_children(Rml::Element* _element) {
   return _element->GetNumChildren();
 }
 
-Rocket::Core::Element* ui_get_child(
-    Rocket::Core::Element* _element, int32_t i) {
+Rml::Element* ui_get_child(Rml::Element* _element, int32_t i) {
   return _element->GetChild(i);
 }
 
-Rocket::Core::Element* ui_get_first_child(Rocket::Core::Element* _element) {
+Rml::Element* ui_get_first_child(Rml::Element* _element) {
   return _element->GetFirstChild();
 }
 
-Rocket::Core::Element* ui_get_owner(Rocket::Core::Element* _element) {
-  return reinterpret_cast<Rocket::Core::Element*>(_element->GetOwnerDocument());
+Rml::Element* ui_get_owner(Rml::Element* _element) {
+  return reinterpret_cast<Rml::Element*>(_element->GetOwnerDocument());
 }
 
-void ui_set_class(
-    Rocket::Core::Element* _element, const char* _class, bool _activate) {
+void ui_set_class(Rml::Element* _element, const char* _class, bool _activate) {
   return _element->SetClass(_class, _activate);
 }
 
-Rocket::Core::Element* ui_get_child_by_id(
-    Rocket::Core::Element* _element, const char* id) {
+Rml::Element* ui_get_child_by_id(Rml::Element* _element, const char* id) {
   return _element->GetElementById(id);
 }
 
@@ -104,13 +100,12 @@ Rocket::Core::Element* ui_get_child_by_id(
 
 namespace scripting {
 template <>
-struct exported_script_type<Rocket::Core::Element> {
+struct exported_script_type<Rml::Element> {
   static containers::string_view exported_name() {
     return "UiElement";
   }
 
-  static void export_type(
-      wn::scripting::exporter<Rocket::Core::Element>* _exporter) {
+  static void export_type(wn::scripting::exporter<Rml::Element>* _exporter) {
     _exporter->register_pseudo_function<decltype(&ui_set_property),
         &ui_set_property>("set_property");
     _exporter->register_pseudo_function<decltype(&ui_get_property),
@@ -147,13 +142,12 @@ struct exported_script_type<Rocket::Core::Element> {
 };
 
 template <>
-struct exported_script_type<Rocket::Core::ElementDocument> {
-  using parent_type = Rocket::Core::Element;
+struct exported_script_type<Rml::ElementDocument> {
+  using parent_type = Rml::Element;
   static containers::string_view exported_name() {
     return "UiDocument";
   }
-  static void export_type(
-      wn::scripting::exporter<Rocket::Core::ElementDocument>*) {}
+  static void export_type(wn::scripting::exporter<Rml::ElementDocument>*) {}
 };
 }  // namespace scripting
 
@@ -162,8 +156,8 @@ namespace ui {
 
 void event_instancer::register_scripting(
     memory::allocator*, scripting::engine* _engine) {
-  _engine->register_cpp_type<Rocket::Core::Element>();
-  _engine->register_child_cpp_type<Rocket::Core::ElementDocument>();
+  _engine->register_cpp_type<Rml::Element>();
+  _engine->register_child_cpp_type<Rml::ElementDocument>();
 }
 
 event_instancer::event_instancer(scripting::engine* _engine,
@@ -173,56 +167,53 @@ event_instancer::event_instancer(scripting::engine* _engine,
     m_contexts(_allocator),
     m_dirty_documents(_allocator) {}
 
-Rocket::Core::EventListener* event_instancer::InstanceEventListener(
-    const Rocket::Core::String& value, Rocket::Core::Element* element) {
+Rml::EventListener* event_instancer::InstanceEventListener(
+    const Rml::String& value, Rml::Element* element) {
   if (m_contexts.find(element->GetOwnerDocument()) == m_contexts.end()) {
-    return new event_listener(
-        m_engine, m_log, m_currently_loading_doc, this, value, element);
+    if (m_currently_loading_doc) {
+      return new event_listener(
+          m_engine, m_log, m_currently_loading_doc, this, value, element);
+    } else {
+      return nullptr;
+    }
   }
   auto& r = m_contexts[element->GetOwnerDocument()];
   return new event_listener(m_engine, m_log, r, this, value, element);
 }
 
-void event_instancer::Release() {
-  delete this;
-}
-
 event_listener::event_listener(scripting::engine* _engine, logging::log* _log,
     scripting::script_actor_pointer<ui_data> ui_dat,
-    event_instancer* _instancer, const Rocket::Core::String& code,
-    Rocket::Core::Element* element)
+    event_instancer* _instancer, const Rml::String& code, Rml::Element* element)
   : m_engine(_engine), m_log(_log), m_ui_data(ui_dat), m_instancer(_instancer) {
   (void)element;
-  if (code.Find("this.") == 0) {
+  if (code.find("this.") == 0) {
     const char* nm = m_ui_data.invoke(&ui_data::get_class_name);
-    _engine->get_named_actor_function(code.CString() + 5, nm, &m_member_callee);
+    _engine->get_named_actor_function(code.c_str() + 5, nm, &m_member_callee);
     if (!m_member_callee) {
-      _log->log_error(
-          "Could not find member callback function ", code.CString());
+      _log->log_error("Could not find member callback function ", code.c_str());
     }
   } else {
-    _engine->get_function(code.CString(), &m_callee);
+    _engine->get_function(code.c_str(), &m_callee);
     if (!m_callee) {
-      _log->log_error("Could not find callback function ", code.CString());
+      _log->log_error("Could not find callback function ", code.c_str());
     }
   }
 }
 
 event_listener::~event_listener() {}
 
-void event_listener::ProcessEvent(Rocket::Core::Event& event) {
+void event_listener::ProcessEvent(Rml::Event& event) {
   if (m_callee) {
-    m_engine->invoke(m_callee, event.GetTargetElement()->GetId().CString());
+    m_engine->invoke(m_callee, event.GetTargetElement()->GetId().c_str());
     return;
   } else if (m_member_callee) {
     m_engine->invoke(m_member_callee, 0, m_ui_data.unsafe_ptr(),
-        event.GetTargetElement()->GetId().CString());
+        event.GetTargetElement()->GetId().c_str());
     m_instancer->dirty_documents().insert(
         event.GetTargetElement()->GetOwnerDocument());
     return;
   }
-  m_log->log_warning(
-      "Ignoring callback for event: ", event.GetType().CString());
+  m_log->log_warning("Ignoring callback for event: ", event.GetType().c_str());
 }
 
 }  // namespace ui

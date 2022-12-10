@@ -22,6 +22,6 @@ add_wn_library(
     renderer
     WNGraphics
     WNScripting
-    librocket
+    RmlUi
     profiling
 )
