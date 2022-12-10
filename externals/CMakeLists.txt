@@ -1,5 +1,7 @@
 set(WN_ADDITIONAL_TRACY_OPTIONS)
-
+set(WN_ADDITIONAL_FREETYPE_OPTIONS)
+set(WN_RLOTTIE_ADDITIONAL_OPTIONS)
+set(ARCH ) #rlottie uses this define
 find_program(GIT NAMES git)
 execute_process(
   COMMAND ${GIT} apply --check -p0 -
@@ -28,6 +30,35 @@ if (PATCH_APPLY_CHECK_RESULT MATCHES 0)
 else()
     message(STATUS "Git already patched: antlr3")
 endif()
+
+execute_process(
+  COMMAND ${GIT} apply --check -p0 -
+  INPUT_FILE ./externals/.patches/rmlui.patch
+  WORKING_DIRECTORY ${WNFramework_SOURCE_DIR}
+  RESULT_VARIABLE PATCH_APPLY_CHECK_RESULT
+  OUTPUT_QUIET
+  ERROR_QUIET
+)
+
+if (PATCH_APPLY_CHECK_RESULT MATCHES 0)
+  execute_process(
+    COMMAND ${GIT} apply -p0 -
+    INPUT_FILE ./externals/.patches/rmlui.patch
+    WORKING_DIRECTORY ${WNFramework_SOURCE_DIR}
+    RESULT_VARIABLE PATCH_APPLY_RESULT
+    OUTPUT_QUIET
+    ERROR_QUIET
+  )
+
+  if (PATCH_APPLY_RESULT MATCHES 0)
+    message(STATUS "Git patched: rmlui")
+  else()
+    message(FATAL_ERROR "Git failed to patch: rmlui")
+  endif()
+else()
+    message(STATUS "Git already patched: rmlui")
+endif()
+
 
 enable_overlay_directory()
 
@@ -101,8 +132,6 @@ add_wn_library(
     re2
 )
 
-add_subdirectory(librocket)
-
 set(RAPIDJSON_SOURCES
   rapidjson/include/rapidjson/allocators.h
   rapidjson/include/rapidjson/cursorstreamwrapper.h
@@ -174,5 +203,23 @@ add_wn_externals(
   DIRECTORY
     marl
 )
+
+add_wn_externals(
+  rlottie
+    DIRECTORY
+    rlottie
+  COMPILE_OPTIONS
+    ${WN_RLOTTIE_ADDITIONAL_OPTIONS}
+)
+
+add_wn_externals(
+  freetype
+    DIRECTORY
+    freetype
+  COMPILE_OPTIONS
+    ${WN_ADDITIONAL_FREETYPE_OPTIONS}
+)
+
+include(RmlUI.txt)
 
 post_enable_overlay_directory()

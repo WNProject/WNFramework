@@ -7,7 +7,7 @@
 #ifndef __WN_ENGINE_UI_RESOURCES_H__
 #define __WN_ENGINE_UI_RESOURCES_H__
 
-#include "Rocket/Core.h"
+#include "RmlUi/Core.h"
 #include "WNGraphics/inc/WNBuffer.h"
 #include "WNGraphics/inc/WNCommandList.h"
 #include "WNMemory/inc/unique_ptr.h"
@@ -208,10 +208,9 @@ inline memory::unique_ptr<ui_texture> create_and_initialize_texture(
 
 inline memory::unique_ptr<ui_geometry> create_and_initialize_geometry(
     memory::allocator* _allocator, renderer::render_context* _context,
-    runtime::graphics::command_list* _upload_list,
-    Rocket::Core::Vertex* _vertices, int _num_vertices, int* _indices,
-    int _num_indices, ui_texture* _texture) {
-  size_t vertex_size = _num_vertices * sizeof(Rocket::Core::Vertex);
+    runtime::graphics::command_list* _upload_list, Rml::Vertex* _vertices,
+    int _num_vertices, int* _indices, int _num_indices, ui_texture* _texture) {
+  size_t vertex_size = _num_vertices * sizeof(Rml::Vertex);
   size_t index_size = _num_indices * sizeof(int);
 
   memory::unique_ptr<ui_buffer> vertex_buffer =

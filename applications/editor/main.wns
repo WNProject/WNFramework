@@ -40,9 +40,12 @@ class MainDesc: RenderDescription(shared RenderContext rnd) {
   .output_target = 0;
 }
 
+
 Int main(Context ctx) {
+  IntParam adapter = @IntParam("{\"name\":\"adapter\",\"short\":\"a\", \"description\": \"Which graphics adapter to use\"}");
+
   shared Window window = get_window(ctx, 1920, 1080);
-  shared RenderContext context = get_render_context(ctx, window);
+  shared RenderContext context = get_render_context(ctx, window, adapter.get_param());
 
   MainDesc desc = MainDesc(context);
   context.register_description(desc);
