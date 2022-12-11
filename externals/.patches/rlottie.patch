@@ -1,0 +1,108 @@
+diff --git externals/rlottie/CMakeLists.txt externals/rlottie/CMakeLists.txt
+--- externals/rlottie/CMakeLists.txt
++++ externals/rlottie/CMakeLists.txt
+@@ -89,12 +89,16 @@ target_link_libraries(rlottie
+                      )
+ 
+ if (NOT APPLE AND NOT WIN32)
+-    target_link_libraries(rlottie
+-                        PRIVATE
+-                            "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/rlottie.expmap"
+-                          )
++    #target_link_libraries(rlottie
++    #                    PRIVATE
++    #                        "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/rlottie.expmap"
++    #                      )
+ endif()
+ 
++target_link_libraries(rlottie
++    PRIVATE
++    stb)
++
+ if (LOTTIE_MODULE)
+     # for dlopen, dlsym and dlclose dependancy
+     target_link_libraries(rlottie PRIVATE ${CMAKE_DL_LIBS})
+@@ -169,35 +173,35 @@ install( TARGETS rlottie EXPORT rlottie-targets
+ 
+ #install config file.
+ 
+-install( EXPORT rlottie-targets
+-         FILE          rlottieTargets.cmake
+-         NAMESPACE     rlottie::
+-         DESTINATION   ${LIB_INSTALL_DIR}/cmake/rlottie
+-       )
++# install( EXPORT rlottie-targets
++#          FILE          rlottieTargets.cmake
++#          NAMESPACE     rlottie::
++#          DESTINATION   ${LIB_INSTALL_DIR}/cmake/rlottie
++#        )
+ 
+ 
+ #Create a ConfigVersion.cmake file
+-include(CMakePackageConfigHelpers)
+-write_basic_package_version_file(
+-    ${CMAKE_CURRENT_BINARY_DIR}/rlottieConfigVersion.cmake
+-    VERSION ${PROJECT_VERSION}
+-    COMPATIBILITY AnyNewerVersion
+-)
+-
+-configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/cmake/rlottieConfig.cmake.in
+-    ${CMAKE_CURRENT_BINARY_DIR}/rlottieConfig.cmake
+-    INSTALL_DESTINATION ${LIB_INSTALL_DIR}/cmake/rlottie
+-)
+-
+-#Install the config, configversion and custom find modules
+-install(FILES
+-    ${CMAKE_CURRENT_BINARY_DIR}/rlottieConfig.cmake
+-    ${CMAKE_CURRENT_BINARY_DIR}/rlottieConfigVersion.cmake
+-    DESTINATION ${LIB_INSTALL_DIR}/cmake/rlottie
+-)
+-
+-
+-export(EXPORT rlottie-targets FILE ${CMAKE_CURRENT_BINARY_DIR}/rlottieTargets.cmake NAMESPACE rlottie::)
++# include(CMakePackageConfigHelpers)
++# write_basic_package_version_file(
++#     ${CMAKE_CURRENT_BINARY_DIR}/rlottieConfigVersion.cmake
++#     VERSION ${PROJECT_VERSION}
++#     COMPATIBILITY AnyNewerVersion
++# )
++# 
++# configure_package_config_file(${CMAKE_CURRENT_LIST_DIR}/cmake/rlottieConfig.cmake.in
++#     ${CMAKE_CURRENT_BINARY_DIR}/rlottieConfig.cmake
++#     INSTALL_DESTINATION ${LIB_INSTALL_DIR}/cmake/rlottie
++# )
++# 
++# #Install the config, configversion and custom find modules
++# install(FILES
++#     ${CMAKE_CURRENT_BINARY_DIR}/rlottieConfig.cmake
++#     ${CMAKE_CURRENT_BINARY_DIR}/rlottieConfigVersion.cmake
++#     DESTINATION ${LIB_INSTALL_DIR}/cmake/rlottie
++# )
++
++
++# export(EXPORT rlottie-targets FILE ${CMAKE_CURRENT_BINARY_DIR}/rlottieTargets.cmake NAMESPACE rlottie::)
+ 
+ #Register package in user's package registry
+-export(PACKAGE rlottie)
++# export(PACKAGE rlottie)
+diff --git externals/rlottie/src/vector/stb/stb_image.cpp externals/rlottie/src/vector/stb/stb_image.cpp
+--- externals/rlottie/src/vector/stb/stb_image.cpp
++++ externals/rlottie/src/vector/stb/stb_image.cpp
+@@ -4,7 +4,7 @@
+  */
+ #define STB_IMAGE_IMPLEMENTATION
+ 
+-#define STBI_ONLY_JPEG
++//#define STBI_ONLY_JPEG
+ #define STBI_ONLY_PNG
+ #define STBI_NO_HDR
+ #define STBI_NO_LINEAR
+diff --git externals/rlottie/src/vector/vdrawhelper_neon.cpp externals/rlottie/src/vector/vdrawhelper_neon.cpp
+--- externals/rlottie/src/vector/vdrawhelper_neon.cpp
++++ externals/rlottie/src/vector/vdrawhelper_neon.cpp
+@@ -1,5 +1,4 @@
+ #if defined(__ARM_NEON__)
+-
+ #include "vdrawhelper.h"
+ 
+ extern "C" void pixman_composite_src_n_8888_asm_neon(int32_t w, int32_t h,
