@@ -30,16 +30,20 @@ tokens
     CLASS;
     INCLUDE;
     ID;
-    INT;
-    FLOAT;
+    INT_TYPE;
+    FLOAT_TYPE;
+    CPTR_TYPE;
+    BOOL_TYPE;
     COMMENT;
     WS;
-    STRING;
-    CHAR;
+    STRING_TYPE;
+    CHAR_TYPE;
     NULLTOK;
     VIRTUAL;
     OVERRIDE;
     DEFAULT;
+    SYNCHRONIZED;
+    ACTOR;
 }
 
 
@@ -52,6 +56,7 @@ tokens
 #endif
 #ifdef _WN_CLANG
     #pragma clang diagnostic ignored "-Wunused-function"
+    #pragma clang diagnostic ignored "-Wduplicate-decl-specifier"
 #if __clang_major__ >= 13
     #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
@@ -114,6 +119,7 @@ tokens
     #pragma warning(disable: 4100)
     #pragma warning(disable: 4459)
     #pragma warning(disable: 4703)
+    #pragma warning(disable: 4114)
 #endif
 #ifdef _WN_CLANG
     #pragma clang diagnostic ignored "-Wparentheses-equality"
@@ -200,6 +206,10 @@ WEAK_REF:     'weak';
 SHARED_REF:   'shared';
 DEFAULT: 'default';
 NULLTOK: 'null';
+AT: '->';
+DEFER: '->next';
+LOW_PRIORITY: '->defer';
+BACKGROUND: '->background';
 
 SYNCHRONIZED: '@synchronized';
 ACTION: '@action';
@@ -544,13 +554,25 @@ unary_ex returns[scripting::expression* node]
         ;
 
 
+defer returns[uint32_t val]
+@init {
+    val = ~static_cast<uint32_t>(-1);
+}
+    : AT { val = 0; }
+    | DEFER { val = 1; }
+    | LOW_PRIORITY { val = 2; }
+    | BACKGROUND { val = 3; }
+    ;
+
 post_ex_proper returns[scripting::post_expression* node]
 @init {
     node = nullptr;
 }
     :    d=LSQBRACKET a=expr e=RSQBRACKET { node = m_allocator->construct<scripting::array_access_expression>(m_allocator, $a.node); SET_LOCATION(node, $d); SET_END_LOCATION(node, $e); }
     |    f=LBRACKET g=RBRACKET              { node = m_allocator->construct<scripting::function_call_expression>(m_allocator); SET_LOCATION(node, $f); SET_END_LOCATION(node, $g); }
+    |    def=defer ff=LBRACKET gg=RBRACKET              { node = m_allocator->construct<scripting::function_call_expression>(m_allocator, $def.val); SET_LOCATION(node, $ff); SET_END_LOCATION(node, $gg); }
     |    h=LBRACKET b = arglist i=RBRACKET  { node = m_allocator->construct<scripting::function_call_expression>(m_allocator, $b.node); SET_LOCATION(node, $h); SET_END_LOCATION(node, $i); }
+    |    defa=defer hh=LBRACKET xx=arglist ii=RBRACKET  { node = m_allocator->construct<scripting::function_call_expression>(m_allocator, $xx.node, $defa.val); SET_LOCATION(node, $hh); SET_END_LOCATION(node, $ii); }
     |   '.' c=ID              { node = m_allocator->construct<scripting::member_access_expression>(m_allocator, $c.text.c_str()); SET_LOCATION(node, $c); }
     |     DOUBINC                  { node = m_allocator->construct<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_increment); SET_LOCATION(node, $DOUBINC);}
     |   DOUBDEC                  { node = m_allocator->construct<scripting::post_unary_expression>(m_allocator, scripting::post_unary_type::post_decrement); SET_LOCATION(node, $DOUBDEC);}
