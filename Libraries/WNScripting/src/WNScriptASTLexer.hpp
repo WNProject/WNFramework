@@ -75,6 +75,7 @@
     #pragma warning(disable: 4100)
     #pragma warning(disable: 4459)
     #pragma warning(disable: 4703)
+    #pragma warning(disable: 4114)
 #endif
 #ifdef _WN_CLANG
     #pragma clang diagnostic ignored "-Wparentheses-equality"
@@ -117,10 +118,6 @@ public:
 	enum Tokens
 	{
 		EOF_TOKEN = WNScriptASTLexerImplTraits::CommonTokenType::TOKEN_EOF
-		, T__64 = 64
-		, T__65 = 65
-		, T__66 = 66
-		, T__67 = 67
 		, T__68 = 68
 		, T__69 = 69
 		, T__70 = 70
@@ -139,66 +136,74 @@ public:
 		, T__83 = 83
 		, T__84 = 84
 		, T__85 = 85
+		, T__86 = 86
+		, T__87 = 87
+		, T__88 = 88
+		, T__89 = 89
 		, ACTION = 4
 		, ACTOR = 5
-		, BOOL = 6
-		, BOOL_TYPE = 7
-		, BREAK = 8
-		, CHAR = 9
-		, CHAR_TYPE = 10
-		, CLASS = 11
-		, COLON = 12
-		, COMMA = 13
-		, COMMENT = 14
-		, CONTINUE = 15
-		, CPTR_TYPE = 16
-		, DEFAULT = 17
-		, DLSQBRACKET = 18
-		, DO = 19
-		, DOUBDEC = 20
-		, DOUBINC = 21
-		, DRSQBRACKET = 22
-		, ELSE = 23
-		, ESC_SEQ = 24
-		, EXPONENT = 25
-		, FLOAT = 26
-		, FLOAT_TYPE = 27
-		, FOR = 28
-		, HEX_DIGIT = 29
-		, ID = 30
-		, IF = 31
-		, INCLUDE = 32
-		, INT = 33
-		, INT_TYPE = 34
-		, LBRACE = 35
-		, LBRACKET = 36
-		, LENGTH = 37
-		, LSQBRACKET = 38
-		, NULLTOK = 39
-		, OCTAL_ESC = 40
-		, OVERRIDE = 41
-		, QUESTION = 42
-		, RBRACE = 43
-		, RBRACKET = 44
-		, RESOURCE = 45
-		, RETURN = 46
-		, RSQBRACKET = 47
-		, SEMICOLON = 48
-		, SHARED_REF = 49
-		, SLICETOK = 50
-		, SSOR = 51
-		, STRING = 52
-		, STRING_TYPE = 53
-		, STRUCT = 54
-		, SYNCHRONIZED = 55
-		, TYPE = 56
-		, T_TYPE = 57
-		, UNICODE_ESC = 58
-		, VIRTUAL = 59
-		, VOID_TYPE = 60
-		, WEAK_REF = 61
-		, WHILE = 62
-		, WS = 63
+		, AT = 6
+		, BACKGROUND = 7
+		, BOOL = 8
+		, BOOL_TYPE = 9
+		, BREAK = 10
+		, CHAR = 11
+		, CHAR_TYPE = 12
+		, CLASS = 13
+		, COLON = 14
+		, COMMA = 15
+		, COMMENT = 16
+		, CONTINUE = 17
+		, CPTR_TYPE = 18
+		, DEFAULT = 19
+		, DEFER = 20
+		, DLSQBRACKET = 21
+		, DO = 22
+		, DOUBDEC = 23
+		, DOUBINC = 24
+		, DRSQBRACKET = 25
+		, ELSE = 26
+		, ESC_SEQ = 27
+		, EXPONENT = 28
+		, FLOAT = 29
+		, FLOAT_TYPE = 30
+		, FOR = 31
+		, HEX_DIGIT = 32
+		, ID = 33
+		, IF = 34
+		, INCLUDE = 35
+		, INT = 36
+		, INT_TYPE = 37
+		, LBRACE = 38
+		, LBRACKET = 39
+		, LENGTH = 40
+		, LOW_PRIORITY = 41
+		, LSQBRACKET = 42
+		, NULLTOK = 43
+		, OCTAL_ESC = 44
+		, OVERRIDE = 45
+		, QUESTION = 46
+		, RBRACE = 47
+		, RBRACKET = 48
+		, RESOURCE = 49
+		, RETURN = 50
+		, RSQBRACKET = 51
+		, SEMICOLON = 52
+		, SHARED_REF = 53
+		, SLICETOK = 54
+		, SSOR = 55
+		, STRING = 56
+		, STRING_TYPE = 57
+		, STRUCT = 58
+		, SYNCHRONIZED = 59
+		, TYPE = 60
+		, T_TYPE = 61
+		, UNICODE_ESC = 62
+		, VIRTUAL = 63
+		, VOID_TYPE = 64
+		, WEAK_REF = 65
+		, WHILE = 66
+		, WS = 67
 	};
 
 };
@@ -226,10 +231,6 @@ public:
 
 
 
-    void  mT__64( );
-    void  mT__65( );
-    void  mT__66( );
-    void  mT__67( );
     void  mT__68( );
     void  mT__69( );
     void  mT__70( );
@@ -248,6 +249,10 @@ public:
     void  mT__83( );
     void  mT__84( );
     void  mT__85( );
+    void  mT__86( );
+    void  mT__87( );
+    void  mT__88( );
+    void  mT__89( );
     void  mLSQBRACKET( );
     void  mRSQBRACKET( );
     void  mDLSQBRACKET( );
@@ -289,6 +294,10 @@ public:
     void  mSHARED_REF( );
     void  mDEFAULT( );
     void  mNULLTOK( );
+    void  mAT( );
+    void  mDEFER( );
+    void  mLOW_PRIORITY( );
+    void  mBACKGROUND( );
     void  mSYNCHRONIZED( );
     void  mACTION( );
     void  mACTOR( );

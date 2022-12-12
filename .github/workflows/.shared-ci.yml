@@ -69,6 +69,14 @@ jobs:
           manual_path_mappings=(
             'llvm:llvm-project/llvm'
           )
+          manual_file_mappings=(
+            'freetype:freetype/docs/FTL.TXT:Explicitly choosing FTL license for freetype'
+            'mit:rlottie/licenses/COPYING.MIT:rlottie uses an unadorned mit copying'
+            'mozilla:rlottie/licenses/COPYING.MPL:rlottie copies some files in that are MPL licensed'
+            'pix:rlottie/licenses/COPYING.PIX:rlottie copies some files in that are from pixman'
+            'skia:rlottie/licenses/COPYING.SKIA:rlottie copies some skia files in'
+            'rlottie:rlottie/COPYING:rlottie uses COPYING instead of LICENSE'
+          )
           manual_overrides=(
             'antlr3:9a0008a487843ac42b0ffcaf4b6de998f1869094:no single file'
           )
@@ -136,6 +144,17 @@ jobs:
                 break
               fi
             done
+            for manual_file_mapping in "${manual_file_mappings[@]}"; do
+              chunks=()
+              IFS=':'; read -ra chunks <<< "$manual_file_mapping"; IFS=' '
+              if [ "${chunks[0]}" == "$external" ]; then
+                original_hash=$(
+                  cat "./externals/${chunks[1]}" | sha1sum | awk '{print $1}'
+                )
+                reason="${chunks[2]}"
+                break
+              fi
+            done
             if [ -z "$original_hash" ]; then
               original_license=$(
                 find ./externals/$path -maxdepth 1 -mindepth 1 \
@@ -192,7 +211,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.1.0
       - name: Check formatting
-        uses: davidanson/markdownlint-cli2-action@v7.0.0
+        uses: davidanson/markdownlint-cli2-action@v8.0.0
         with:
           globs: ${{inputs.changes-md}}
   build-android:

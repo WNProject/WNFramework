@@ -54,7 +54,7 @@ jobs:
           fi
           changes_externals=$(
             git diff --name-only origin/master HEAD -- \
-            externals/ ':!externals/CMakeLists.txt' ':!externals/*/*'
+            externals/ ':!externals/CMakeLists.txt' ':!externals/*/*' ':!externals/RmlUI.txt'
           )
           if [ -z "$changes_externals" ]; then
             check_licenses=false
