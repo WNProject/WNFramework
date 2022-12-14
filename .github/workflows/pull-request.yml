@@ -54,8 +54,7 @@ jobs:
           fi
           changes_externals=$(
             git diff --name-only origin/master HEAD -- \
-            externals/ ':!externals/CMakeLists.txt' ':!externals/*/*' ':!externals/RmlUI.txt' |
-            cut -d. -f2 | cut -d/ -f2 | sort | uniq
+            externals/ ':!externals/CMakeLists.txt' ':!externals/*/*' ':!externals/RmlUI.txt'
           )
           if [ -z "$changes_externals" ]; then
             check_licenses=false
@@ -110,13 +109,14 @@ jobs:
           else
             echo -e "Changes (Markdown):\n$changes_md"
           fi
-          changes_externals=${changes_externals//$'\n'/'\0'}
           delimiter=$(head -c 16 /dev/urandom | base64)
           echo "run-build=$build" >> $GITHUB_OUTPUT
           echo "run-check-licenses=$check_licenses" >> $GITHUB_OUTPUT
           echo "run-format-check-c-cpp=$format_check_c_cpp" >> $GITHUB_OUTPUT
           echo "run-format-check-md=$format_check_md" >> $GITHUB_OUTPUT
-          echo "changes-externals=$changes_externals" >> $GITHUB_OUTPUT
+          echo "changes-externals<<$delimiter" >> $GITHUB_OUTPUT
+          echo "$changes_externals" >> $GITHUB_OUTPUT
+          echo "$delimiter" >> $GITHUB_OUTPUT
           echo "changes-c-cpp<<$delimiter" >> $GITHUB_OUTPUT
           echo "$changes_c_cpp" >> $GITHUB_OUTPUT
           echo "$delimiter" >> $GITHUB_OUTPUT
