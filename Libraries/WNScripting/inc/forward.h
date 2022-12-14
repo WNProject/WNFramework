@@ -57,6 +57,13 @@ public:
     return (type->*v).do_(type->m_engine, *this, args...);
   }
 
+  template <typename X, typename... Args>
+  typename core::enable_if<core::is_same<void, typename X::ret_type>::value,
+      typename X::ret_type>::type
+  act(X T::*v, int32_t count, Args... args) {
+    return (type->*v).do_(type->m_engine, count, *this, args...);
+  }
+
   ~script_pointer() {}
 
   script_pointer(const script_pointer& _other)

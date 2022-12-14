@@ -1,0 +1,8 @@
+include "adb_checker.wns"
+
+Application main(Context ctx) {
+    StringParam prog = @StringParam("{\"name\":\"program\",\"short\":\"p\", \"description\": \"The program to run\", \"required\": true}");
+    StringParam a = @StringParam("{\"name\":\"arg\",\"short\":\"a\", \"description\": \"The arguments to provide to the program\"}");
+    Application app = AdbListener(ctx, prog.get_param());
+    return app;
+}

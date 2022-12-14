@@ -39,6 +39,8 @@ struct external_function final {
   bool is_virtual;
   bool is_override;
   uint32_t virtual_index;
+  containers::string_view m_mangled_action_function_name;
+  containers::string_view m_mangled_action_call_function;
 };
 
 void do_engine_free(const engine* _engine, void* v);
@@ -71,6 +73,20 @@ public:
     for (size_t i = 0; i < N_Vals; ++i) {
       size_values[i] = 0;
     }
+  }
+  slice(const slice& _other) {
+    _value = _other._value;
+    memory::memory_copy(&size_values[0], &_other.size_values[0], N_Vals);
+  }
+  slice& operator=(slice&& _other) {
+    _value = _other._value;
+    memory::memory_copy(&size_values[0], &_other.size_values[0], N_Vals);
+    return *this;
+  }
+  slice& operator=(const slice& _other) {
+    _value = _other._value;
+    memory::memory_copy(&size_values[0], &_other.size_values[0], N_Vals);
+    return *this;
   }
 
   inline slice(T* _val, containers::array<size_t, N_Vals> _sizes_strides)
@@ -231,8 +247,8 @@ struct get_thunk_passed_type<U,
     return &u;
   }
 
-  static inline U* wrap_return(U& u) {
-    return &u;
+  static inline U wrap_return(U u) {
+    return u;
   }
   static inline U unwrap(U* u) {
     return *u;

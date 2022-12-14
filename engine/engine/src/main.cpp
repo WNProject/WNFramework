@@ -2,9 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <thread>
 #include "WNApplicationData/inc/WNApplicationData.h"
 #include "WNApplicationEntry/inc/WNApplicationEntry.h"
 #include "WNFileSystem/inc/WNFactory.h"
+#include "WNLogging/inc/WNConsoleLogger.h"
+#include "WNLogging/inc/WNLog.h"
 #include "WNScripting/inc/WNFactory.h"
 #include "engine/inc/engine_scripts.h"
 #include "engine/inc/script_export.h"
@@ -21,12 +24,19 @@
 #include "ui/inc/ui.h"
 #include "window/inc/window.h"
 
+#include <thread>
+
 using namespace wn;
 
 int32_t wn_application_main(
     const runtime::application::application_data* _application_data) {
-  _application_data->default_log->set_log_level(logging::log_level::debug);
+  _application_data->default_log->set_log_level(logging::log_level::issue);
   _application_data->default_log->log_info("Engine startup.");
+
+  wn::logging::console_logger<wn::logging::console_location::std_out> logger;
+  wn::logging::static_log<> slog(&logger);
+  auto log = slog.log();
+  log->set_log_level(logging::log_level::debug);
   containers::string_view script_dir;
   containers::string_view script_file = "main.wns";
   if (_application_data->executable_data->argc > 1 &&
@@ -41,8 +51,7 @@ int32_t wn_application_main(
     }
     script_file = v.substr(p + 1);
   }
-
-  int32_t ret = 0;
+  int retval = 0;
   {
     engine_base::context ctx(
         _application_data->system_allocator, _application_data);
@@ -111,6 +120,7 @@ int32_t wn_application_main(
           &support_allocator, scripting_engine.get());
       support::sync::register_scripting(
           &support_allocator, scripting_engine.get());
+      support::application::register_scripting(scripting_engine.get());
       command_line_mgr.register_scripting(
           &support_allocator, scripting_engine.get());
     }
@@ -161,6 +171,11 @@ int32_t wn_application_main(
             "Could not resolve needed script types for json");
         return -1;
       }
+      if (!support::application::resolve_scripting(scripting_engine.get())) {
+        _application_data->default_log->log_critical(
+            "Could not resolve needed script types for application");
+        return -1;
+      }
       if (!command_line_mgr.resolve_scripting(scripting_engine.get())) {
         _application_data->default_log->log_critical(
             "Could not resolve needed script types for command_line");
@@ -173,7 +188,7 @@ int32_t wn_application_main(
     ctx.m_allocator = _application_data->system_allocator;
     ctx.m_application_data = _application_data;
     ctx.m_engine = scripting_engine.get();
-    ctx.m_log = _application_data->default_log;
+    ctx.m_log = log;
     ctx.m_file_mapping = script_mapping.get();
     bool cmd_err = false;
     for (int32_t i = script_dir.empty() ? 1 : 2;
@@ -184,12 +199,26 @@ int32_t wn_application_main(
         break;
       }
     }
+    scripting::script_actor_pointer<support::application> ret = 0;
     if (!cmd_err) {
       ret = command_line_mgr.run_application(scripting_engine.get(), &ctx);
     }
+    if (!ret) {
+      return -1;
+    }
+
+    ret.get().act(&support::application::setup_application, 0);
+    while (!ret.get().invoke(&support::application::shutdown)) {
+      auto r = ctx.update_actors();
+      if (r != std::chrono::time_point<std::chrono::high_resolution_clock>()) {
+        std::this_thread::sleep_until(r);
+      }
+    }
+    ret = nullptr;
+    ctx.update_actors();
   }
   _application_data->default_log->log_info("Engine shutdown.");
 
   _application_data->default_log->flush();
-  return ret;
+  return retval;
 }

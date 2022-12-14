@@ -235,7 +235,6 @@ void ui::update_render_data(size_t _frame_parity, command_list* _cmd_list) {
             static_cast<Rml::Character>(evt.get_character()));
         break;
     }
-    break;
   }
 
   m_renderer->set_setup_command_list(_cmd_list);

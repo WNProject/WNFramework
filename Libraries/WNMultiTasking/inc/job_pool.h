@@ -58,6 +58,7 @@ public:
   uint64_t get_value() const {
     return m_current_value;
   }
+  bool might_wait(uint64_t value) const;
   void wait_until(uint64_t value);
   void increment_by(uint64_t i);
 
@@ -98,6 +99,10 @@ public:
 
   operator bool() const {
     return m_signal != nullptr;
+  }
+
+  bool might_wait(uint64_t value) {
+    return m_signal->element()->might_wait(value);
   }
 
   uint64_t get_value() const {

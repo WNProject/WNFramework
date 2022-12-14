@@ -132,7 +132,9 @@ void job_pool::run_blocking_thread() {
       job.function();
       m_log->log_info("Ending blocking job: ", job.name);
       m_log->flush();
-      job.signal.increment_by(1);
+      if (job.signal) {
+        job.signal.increment_by(1);
+      }
       m_active_blocking_job_threads--;
     }
     m_blocking_job_lock.lock();
@@ -143,23 +145,21 @@ void job_pool::run_blocking_thread() {
 
 void job_pool::call_blocking_function(const char* job_name,
     functional::function<void()> _function, signal_ptr signal) {
-  auto sig = get_signal();
+  bool needs_wait = !signal;
+  signal_ptr sig = core::move(needs_wait ? get_signal() : signal);
   m_blocking_job_lock.lock();
   if (!m_exit && m_active_blocking_job_threads >= m_blocking_threads.size()) {
     // TODO: set thread affinity here as 0
-    m_blocking_threads.push_back(
-        multi_tasking::thread(m_allocator, [this, sig = core::move(signal)]() {
-          run_blocking_thread();
-          if (sig) {
-            sig.increment_by(1);
-          }
-        }));
+    m_blocking_threads.push_back(multi_tasking::thread(m_allocator,
+        [this, sig = core::move(signal)]() { run_blocking_thread(); }));
   }
 
   m_blocking_jobs.push_back({_function, sig, job_name});
   m_blocking_job_lock.unlock();
   m_blocking_job_sem.notify();
-  sig.wait_until(1);
+  if (needs_wait) {
+    sig.wait_until(1);
+  }
 }
 
 void job_pool::add_job(const char* name, functional::function<void()> _function,
@@ -663,6 +663,10 @@ void job_pool::cycle_for_work() {
       wt->m_initial_fiber.fib.get());
 }
 
+bool signal::might_wait(uint64_t value) const {
+  return !(m_current_value >= value);
+}
+
 void signal::wait_until(uint64_t value) {
   if (m_current_value >= value) {
     return;
@@ -676,6 +680,9 @@ void signal::wait_until(uint64_t value) {
     m_next_job_value = value;
   }
   auto wt = m_pool->this_thread_data();
+  if (!wt) {
+    wt = &m_pool->m_threads[0];
+  }
   for (auto it = m_waiting_fibers.begin();; ++it) {
     if (it == m_waiting_fibers.end())
       if (it == m_waiting_fibers.end() || it->second > value) {
@@ -722,7 +729,6 @@ void signal::increment_by(uint64_t i) {
     m_lock.unlock();
     return;
   }
-
   size_t jobs_per_thread = (n_jobs / m_pool->m_threads.size()) + 1;
 
   auto wt = m_pool->this_thread_data();
@@ -750,6 +756,8 @@ void signal::increment_by(uint64_t i) {
           wwt->m_job_lock.unlock();
           wt->m_job_lock.lock();
         }
+        lock_guard<spin_lock> lg(m_pool->m_waiting_work_lock);
+        m_pool->m_waiting_work++;
         continue;
       }
       if (fib->element()->priority == job_priority::high) {
@@ -759,6 +767,8 @@ void signal::increment_by(uint64_t i) {
         m_pool->m_priority_lock.unlock();
         m_waiting_fibers.pop_front();
         m_pool->m_num_priority_tasks++;
+        lock_guard<spin_lock> lg(m_pool->m_waiting_work_lock);
+        m_pool->m_waiting_work++;
         continue;
       }
       if (fib->element()->priority == job_priority::low) {
@@ -768,21 +778,23 @@ void signal::increment_by(uint64_t i) {
             m_waiting_fibers.begin()->first);
         m_pool->m_low_priority_lock.unlock();
         m_waiting_fibers.pop_front();
+        lock_guard<spin_lock> lg(m_pool->m_waiting_work_lock);
+        m_pool->m_waiting_work++;
         continue;
       }
       wt->m_ready_fibers.link_node(
           wt->m_ready_fibers.end(), m_waiting_fibers.begin()->first);
       wt->m_num_tasks++;
       m_waiting_fibers.pop_front();
+      {
+        lock_guard<spin_lock> lg(m_pool->m_waiting_work_lock);
+        m_pool->m_waiting_work++;
+      }
     }
     wt->m_job_lock.unlock();
     thread_id = (thread_id + 1) % m_pool->m_threads.size();
   }
   m_lock.unlock();
-  {
-    lock_guard<spin_lock> lg(m_pool->m_waiting_work_lock);
-    m_pool->m_waiting_work += n_jobs;
-  }
   m_pool->m_waiting_work_cv.notify_all();
 }
 

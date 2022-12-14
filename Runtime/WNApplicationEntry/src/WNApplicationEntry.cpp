@@ -73,7 +73,7 @@ int32_t wn_main(const wn::executable::executable_data* _data) {
     // TODO(awoloszyn): Replace the hard-coded 2 with the number
     // of cores in the system.
 
-    job_pool.add_job(JOB_NAME,
+    job_pool.call_blocking_function(JOB_NAME,
         wn::functional::function<void()>(&root_allocator,
             [&app, &params]() { app.main_application_job(&params); }),
         main_done_signal);

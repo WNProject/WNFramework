@@ -19,6 +19,22 @@
 namespace wn {
 namespace support {
 
+struct application : scripting::script_actor_type {
+  using parent_type = void;
+
+  void export_type(
+      scripting::engine::script_type_importer<application>* _importer);
+
+  static wn::containers::string_view exported_name();
+  static wn::containers::string_view required_script();
+
+  scripting::scripting_actor_action<application> setup_application;
+  scripting::scripting_object_function<application, bool> shutdown;
+
+  static void register_scripting(scripting::engine* _engine);
+  static bool resolve_scripting(scripting::engine* _engine);
+};
+
 struct command_line_param_base {
   bool operator==(const command_line_param_base& _other) {
     return name == _other.name && short_name == _other.short_name &&
@@ -29,9 +45,11 @@ struct command_line_param_base {
 
   virtual bool parse(const char* v) = 0;
   virtual const char* get_name_text() = 0;
+  virtual int32_t get_num_params() = 0;
   containers::string name;
   containers::string short_name;
   containers::string description;
+  bool m_required;
   const char* type;
 };
 
@@ -43,17 +61,22 @@ public:
   T get_param_i(int32_t i) {
     return param[i];
   }
-  int32_t get_num_params() {
+  int32_t get_num_params() override {
     return static_cast<int32_t>(param.size());
   }
+
+  scripting::slice<T> get_all_params() {
+    return scripting::slice<T>(&param[0], {param.size()});
+  }
+
   bool parse(const char* v) override;
   const char* get_name_text() override;
   T get_param() {
-    return param.size() > 0 ? param[0] : m_default;
+    return param.size() > 0 ? param[param.size() - 1] : m_default;
   }
 
   T m_default = {};
-  containers::deque<T> param;
+  containers::dynamic_array<T> param;
 };
 class command_line_manager;
 
@@ -81,8 +104,11 @@ struct verb {
   containers::string m_function_name;
   containers::string m_verb_name;
   containers::string m_description;
+  bool m_is_required = false;
   verb* m_current_child_verb = nullptr;
-  wn::scripting::script_function<int32_t, engine_base::context*> m_function;
+  wn::scripting::script_function<scripting::script_actor_pointer<application>,
+      engine_base::context*>
+      m_function;
   bool resolve(scripting::engine* _engine, logging::log* _log);
   bool handle_command_line_param(
       memory::allocator* _allocator, const char* param, logging::log* _log);
@@ -91,7 +117,7 @@ struct verb {
   command_line_param_base* add_command_line(memory::allocator* _allocator,
       logging::log* _log, containers::contiguous_range<const char*> verb,
       memory::unique_ptr<command_line_param_base> param);
-  int32_t run_application(
+  scripting::script_actor_pointer<application> run_application(
       scripting::engine* _engine, engine_base::context* _context);
   bool add_verb(logging::log* _log, memory::unique_ptr<verb> _verb,
       containers::contiguous_range<const char*> _parent);
@@ -110,7 +136,7 @@ public:
       containers::contiguous_range<const char*> verb,
       memory::unique_ptr<command_line_param_base> param);
 
-  int32_t run_application(
+  scripting::script_actor_pointer<application> run_application(
       scripting::engine* _engine, engine_base::context* _context);
 
   bool insert_global_param(const char* param);
@@ -123,7 +149,9 @@ private:
   containers::hash_map<containers::string,
       memory::unique_ptr<command_line_param_base>>
       m_parameters;
-  wn::scripting::script_function<int32_t, engine_base::context*> m_main;
+  wn::scripting::script_function<scripting::script_actor_pointer<application>,
+      engine_base::context*>
+      m_main;
   logging::log* m_log;
   const char* m_program_name = "";
   verb* m_current_verb = nullptr;

@@ -118,9 +118,6 @@ public:
 	enum Tokens
 	{
 		EOF_TOKEN = WNScriptASTLexerImplTraits::CommonTokenType::TOKEN_EOF
-		, T__68 = 68
-		, T__69 = 69
-		, T__70 = 70
 		, T__71 = 71
 		, T__72 = 72
 		, T__73 = 73
@@ -140,6 +137,9 @@ public:
 		, T__87 = 87
 		, T__88 = 88
 		, T__89 = 89
+		, T__90 = 90
+		, T__91 = 91
+		, T__92 = 92
 		, ACTION = 4
 		, ACTOR = 5
 		, AT = 6
@@ -190,20 +190,23 @@ public:
 		, RSQBRACKET = 51
 		, SEMICOLON = 52
 		, SHARED_REF = 53
-		, SLICETOK = 54
-		, SSOR = 55
-		, STRING = 56
-		, STRING_TYPE = 57
-		, STRUCT = 58
-		, SYNCHRONIZED = 59
-		, TYPE = 60
-		, T_TYPE = 61
-		, UNICODE_ESC = 62
-		, VIRTUAL = 63
-		, VOID_TYPE = 64
-		, WEAK_REF = 65
-		, WHILE = 66
-		, WS = 67
+		, SIZE = 54
+		, SIZE_TYPE = 55
+		, SLICETOK = 56
+		, SSOR = 57
+		, STRING = 58
+		, STRING_TYPE = 59
+		, STRUCT = 60
+		, SYNCHRONIZED = 61
+		, THIS_TOK = 62
+		, TYPE = 63
+		, T_TYPE = 64
+		, UNICODE_ESC = 65
+		, VIRTUAL = 66
+		, VOID_TYPE = 67
+		, WEAK_REF = 68
+		, WHILE = 69
+		, WS = 70
 	};
 
 };
@@ -231,9 +234,6 @@ public:
 
 
 
-    void  mT__68( );
-    void  mT__69( );
-    void  mT__70( );
     void  mT__71( );
     void  mT__72( );
     void  mT__73( );
@@ -253,6 +253,9 @@ public:
     void  mT__87( );
     void  mT__88( );
     void  mT__89( );
+    void  mT__90( );
+    void  mT__91( );
+    void  mT__92( );
     void  mLSQBRACKET( );
     void  mRSQBRACKET( );
     void  mDLSQBRACKET( );
@@ -289,6 +292,7 @@ public:
     void  mBOOL_TYPE( );
     void  mSTRING_TYPE( );
     void  mCHAR_TYPE( );
+    void  mSIZE_TYPE( );
     void  mQUESTION( );
     void  mWEAK_REF( );
     void  mSHARED_REF( );
@@ -298,6 +302,7 @@ public:
     void  mDEFER( );
     void  mLOW_PRIORITY( );
     void  mBACKGROUND( );
+    void  mTHIS_TOK( );
     void  mSYNCHRONIZED( );
     void  mACTION( );
     void  mACTOR( );
@@ -306,6 +311,7 @@ public:
     void  mRESOURCE( );
     void  mTYPE( );
     void  mINT( );
+    void  mSIZE( );
     void  mFLOAT( );
     void  mCOMMENT( );
     void  mWS( );

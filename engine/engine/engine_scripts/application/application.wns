@@ -1,0 +1,9 @@
+Actor Application {
+    @synchronized Bool should_shut_down = false;
+    Int ret = 0;
+    @action virtual Void setup_application() { }
+
+    @synchronized Bool shutdown() {
+        return should_shut_down;
+    }
+};

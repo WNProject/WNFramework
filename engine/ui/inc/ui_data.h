@@ -21,7 +21,7 @@ struct ui_data : scripting::script_actor_type {
   using parent_type = void;
   scripting::scripting_actor_function<ui_data, const char*> get_ui_name;
   scripting::scripting_actor_function<ui_data, const char*> get_class_name;
-  scripting::scripting_virtual_actor_function<ui_data, void,
+  scripting::scripting_virtual_object_function<ui_data, void,
       Rml::ElementDocument*>
       update;
 

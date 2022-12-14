@@ -114,6 +114,12 @@ subprocess_return call_subprocess(memory::allocator* _allocator,
   std::ignore = ::MultiByteToWideChar(CP_UTF8, 0, _application.data(), -1,
       application.data(), static_cast<int>(application.size()));
 
+  for (auto& a : application) {
+    if (a == L'/') {
+      a = L'\\';
+    }
+  }
+
   int args_data_size = application_data_size;
   for (auto a : _args) {
     args_data_size += ::MultiByteToWideChar(CP_UTF8, 0, a.data(), -1, NULL, 0);

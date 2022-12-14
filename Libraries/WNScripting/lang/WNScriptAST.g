@@ -44,6 +44,7 @@ tokens
     DEFAULT;
     SYNCHRONIZED;
     ACTOR;
+    THIS_TOK;
 }
 
 
@@ -201,6 +202,7 @@ FLOAT_TYPE: 'Float';
 BOOL_TYPE: 'Bool';
 STRING_TYPE: 'CString';
 CHAR_TYPE: 'Char';
+SIZE_TYPE: 'Size';
 QUESTION: '?';
 WEAK_REF:     'weak';
 SHARED_REF:   'shared';
@@ -210,11 +212,10 @@ AT: '->';
 DEFER: '->next';
 LOW_PRIORITY: '->defer';
 BACKGROUND: '->background';
-
+THIS_TOK: 'this';
 SYNCHRONIZED: '@synchronized';
 ACTION: '@action';
 ACTOR: 'Actor';
-
 
 BOOL :  'true' | 'false';
 
@@ -228,6 +229,9 @@ TYPE  :    ('A'..'Z') ('a'..'z'|'A'..'Z'|'0'..'9'|'_')*
     ;
 
 INT :    ('-')?('0'..'9')+
+    ;
+
+SIZE :    ('0'..'9')+'u'
     ;
 
 FLOAT
@@ -296,6 +300,7 @@ scalarType returns[scripting::type* node]
 }
     :   VOID_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::void_type); SET_LOCATION(node, $VOID_TYPE); }
     |   INT_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::int_type); SET_LOCATION(node, $INT_TYPE); }
+    |   SIZE_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::size_type); SET_LOCATION(node, $SIZE_TYPE); }
     |   FLOAT_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::float_type); SET_LOCATION(node, $FLOAT_TYPE); }
     |   CHAR_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::char_type); SET_LOCATION(node, $CHAR_TYPE); }
     |   BOOL_TYPE { node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::bool_type); SET_LOCATION(node, $BOOL_TYPE); }
@@ -559,6 +564,7 @@ defer returns[uint32_t val]
     val = ~static_cast<uint32_t>(-1);
 }
     : AT { val = 0; }
+        (INT {val = (1 << 31 | strtol($INT.text.c_str(), nullptr, 10));})?
     | DEFER { val = 1; }
     | LOW_PRIORITY { val = 2; }
     | BACKGROUND { val = 3; }
@@ -621,11 +627,13 @@ constant returns[scripting::constant_expression* node]
     node = nullptr;
 }
     :    a=INT    { scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::int_type); SET_LOCATION(type_node, $a); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, $a.text.c_str()); SET_LOCATION(node, $a); }
+    |    h=SIZE    { scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::size_type); SET_LOCATION(type_node, $h); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, $h.text.c_str()); SET_LOCATION(node, $h); }
     |    b=FLOAT  { scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::float_type); SET_LOCATION(type_node, $b); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, $b.text.c_str()); SET_LOCATION(node, $b); }
     |    c=CHAR   { scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::char_type); SET_LOCATION(type_node, $c); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, $c.text.c_str()); SET_LOCATION(node, $c);}
     |    d=STRING { scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::string_type); SET_LOCATION(type_node, $d); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, $d.text.c_str()); SET_LOCATION(node, $d); }
     |    e=BOOL   { scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::bool_type); SET_LOCATION(type_node, $e); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, $e.text.c_str()); SET_LOCATION(node, $e); }
     |    g=NULLTOK { scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::nullptr_type); SET_LOCATION(type_node, $g); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, "null"); SET_LOCATION(node, $g); }
+    |    i=THIS_TOK    { scripting::type* type_node = m_allocator->construct<scripting::type>(m_allocator, scripting::type_classification::this_type); SET_LOCATION(type_node, $i); node = m_allocator->construct<scripting::constant_expression>(m_allocator, type_node, "_this"); SET_LOCATION(node, $i); }
     |    f=scalarType g=LBRACE h=STRING i=RBRACE { node = m_allocator->construct<scripting::constant_expression>(m_allocator, $f.node, $h.text.c_str()); SET_LOCATION_FROM_NODE(node, $f.node); SET_END_LOCATION(node, $i);}
     ;
 

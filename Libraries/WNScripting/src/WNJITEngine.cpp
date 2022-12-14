@@ -123,10 +123,6 @@ void call_actor_function(int32_t delay, void* a) {
       delay, reinterpret_cast<actor_function*>(a));
 }
 
-void update_actors() {
-  get_scripting_tls()->_runtime->update_actors();
-}
-
 // Temp this is going to have to change.
 void* do_allocate_array(wn_size_t i, wn_size_t _count) {
   // For now just return any-old malloc. We REALLY need to
@@ -278,7 +274,6 @@ jit_engine::jit_engine(memory::allocator* _allocator,
       "_free_actor_call");
   register_function<decltype(&call_actor_function), &call_actor_function>(
       "_call_actor_function");
-  register_function<decltype(&update_actors), &update_actors>("update_actors");
   m_type_manager.finalize_builtins();
 }
 

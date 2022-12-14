@@ -24,6 +24,7 @@ wn_filesystem_files(engine_scripts
   REMOVE_PREFIX
     1
   SOURCES
+    engine_scripts/application/application.wns
     engine_scripts/renderer/pass_data.wns
     engine_scripts/renderer/render_data.wns
     engine_scripts/renderer/render_description.wns

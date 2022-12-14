@@ -7,7 +7,7 @@
 // RUN: foo 9 -> 22
 Int foo(Int y) {
   Int[] x = Int[22](4);
-// CHECK: _return = x->_size;
+// CHECK: _return = ((int32_t)(x->_size));
   return length(x);
 }
 
@@ -16,7 +16,7 @@ Int foo(Int y) {
 // RUN: foo2 9 -> 22
 Int foo2(Int y) {
   Int[22] x = Int[22](4);
-// CHECK: _return = x._size;
+// CHECK: _return = ((int32_t)(x._size));
   return length(x);
 }
 
@@ -25,6 +25,6 @@ Int foo2(Int y) {
 // RUN: bar 22 -> 11
 Int bar(Int y) {
   CString str = "Hello World";
-// CHECK: _return = _ZN3wns11_wns_strlenEiPh(str);
+// CHECK: _return = ((int32_t)(_ZN3wns11_wns_strlenEN3wns4sizeEPh(str)));
   return length(str);
 }
