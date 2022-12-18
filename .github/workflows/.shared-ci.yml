@@ -3,19 +3,24 @@ on:
   workflow_call:
     inputs:
       run-build:
-        required: true
+        required: false
+        default: true
         type: boolean
       run-check-licenses:
-        required: true
+        required: false
+        default: true
         type: boolean
       run-format-check-c-cpp:
-        required: true
+        required: false
+        default: true
         type: boolean
       run-format-check-md:
-        required: true
+        required: false
+        default: true
         type: boolean
       changes-externals:
         required: false
+        default: externals/!(CMakeLists.txt)
         type: string
       changes-c-cpp:
         required: false
@@ -47,16 +52,14 @@ jobs:
           submodules: true
       - name: Check external licenses
         run: |
-          if [ -z "$INPUTS_CHANGES" ]; then
-            externals=$(
-              find externals/ -mindepth 1 -maxdepth 1 \
-              -type f -iname LICENSE.* -or -type d -and -not -iname .patches |
-              cut -d. -f2 | cut -d/ -f2 | sort | uniq
-            )
-          else
-            externals="$INPUTS_CHANGES"
-            externals=${externals//'\0'/$'\n'}
-          fi
+          shopt -s extglob globstar nullglob
+          declare -A externals_array
+          IFS=$'\n'
+          for FILE in $INPUTS_CHANGES; do
+              externals_array["$(echo "$FILE" | cut -d/ -f2 | cut -d. -f2)"]=0
+          done
+          externals=( $(sort <<< "${!externals_array[*]}") )
+          unset IFS
           ignore_list=(
             librocket
           )
@@ -208,7 +211,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.1.0
       - name: Check formatting
-        uses: davidanson/markdownlint-cli2-action@v7.0.0
+        uses: davidanson/markdownlint-cli2-action@v8.0.0
         with:
           globs: ${{inputs.changes-md}}
   build-android:
