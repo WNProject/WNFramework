@@ -74,7 +74,41 @@ using vulkan_queue_profiler_constructable = queue_profiler;
 vulkan_device::~vulkan_device() {
   vkDestroyDevice(m_device, nullptr);
 }
+#ifdef DUMP_GFX_CALLS
 
+template <typename R, typename... Args>
+functional::function<R(Args...)> g_func(logging::log* _log,
+    memory::allocator* _allocator, const char* nm, R(VKAPI_PTR* fn)(Args...)) {
+  return functional::function<R(Args...)>(
+      _allocator, [_log, fn, nm](Args... args) {
+        _log->log_debug("Calling ", nm, "(", args..., ")");
+        _log->flush();
+        return fn(args...);
+      });
+}
+
+#define LOAD_VK_DEVICE_SYMBOL(device, symbol)                                  \
+  {                                                                            \
+    auto t_symbol =                                                            \
+        reinterpret_cast<PFN_##symbol>(vkGetDeviceProcAddr(device, #symbol));  \
+    if (!t_symbol) {                                                           \
+      m_log->log_error("Could not find " #symbol ".");                         \
+      m_log->log_error("Error configuring device");                            \
+      return false;                                                            \
+    }                                                                          \
+    m_log->log_debug(#symbol " is at ", t_symbol);                             \
+    symbol = g_func(m_log, m_allocator, #symbol, t_symbol);                    \
+  }
+#define TRY_LOAD_VK_DEVICE_SYMBOL(device, symbol)                              \
+  {                                                                            \
+    auto t_symbol =                                                            \
+        reinterpret_cast<PFN_##symbol>(vkGetDeviceProcAddr(device, #symbol));  \
+    if (t_symbol) {                                                            \
+      symbol = g_func(m_log, m_allocator, #symbol, t_symbol);                  \
+    }                                                                          \
+    m_log->log_debug(#symbol " is at ", t_symbol);                             \
+  }
+#else
 #define LOAD_VK_DEVICE_SYMBOL(device, symbol)                                  \
   symbol =                                                                     \
       reinterpret_cast<PFN_##symbol>(vkGetDeviceProcAddr(device, #symbol));    \
@@ -89,6 +123,7 @@ vulkan_device::~vulkan_device() {
   symbol =                                                                     \
       reinterpret_cast<PFN_##symbol>(vkGetDeviceProcAddr(device, #symbol));    \
   m_log->log_debug(#symbol " is at ", symbol);
+#endif
 
 #define LOAD_VK_SUB_DEVICE_SYMBOL(device, sub_struct, symbol)                  \
   sub_struct.symbol =                                                          \
@@ -112,6 +147,8 @@ bool vulkan_device::initialize(memory::allocator* _allocator,
     const VkPhysicalDeviceLimits* _device_limits,
     const adapter_formats* _formats, vulkan_context* _context,
     uint32_t _graphics_and_device_queue, float _timestamp_period) {
+  m_context = _context;
+  m_physical_device = _phys_dev;
   m_allocator = _allocator;
   m_log = _log;
   vkDestroyDevice = _destroy_device;
@@ -693,6 +730,25 @@ swapchain_ptr vulkan_device::create_swapchain(
     return nullptr;
   }
 
+  VkSurfaceCapabilitiesKHR caps;
+  m_context->vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
+      m_physical_device, surface, &caps);
+
+  VkCompositeAlphaFlagBitsKHR alphas[] = {
+      VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+      VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
+      VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR,
+      VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR,
+  };
+
+  VkCompositeAlphaFlagBitsKHR flags = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+  for (auto& x : alphas) {
+    if ((caps.supportedCompositeAlpha & x) != 0) {
+      flags = x;
+      break;
+    }
+  }
+
   VkSwapchainCreateInfoKHR create_info = {
       VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,  // sType
       nullptr,                                      // pNext
@@ -713,7 +769,7 @@ swapchain_ptr vulkan_device::create_swapchain(
       0,                                      // queueFamilyIndexCount
       nullptr,                                // pQueueFamilyIndices
       VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,  // preTransform
-      VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,      // compositeAlpha
+      flags,                                  // compositeAlpha
       mode,                                   // presentMode
       VK_FALSE,                               // clipped
       VK_NULL_HANDLE                          // oldSwapchain

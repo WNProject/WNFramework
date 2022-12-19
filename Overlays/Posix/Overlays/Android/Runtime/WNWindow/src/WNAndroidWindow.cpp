@@ -165,6 +165,18 @@ void android_window::handle_touch_event(AInputEvent* _event) {
   uint8_t action_type = action & 0xFF;
   uint32_t pointer_index = (action >> 8) & 0xFFFFFF;
   uint32_t pointer_id = AMotionEvent_getPointerId(_event, pointer_index);
+  if (action_type != AMOTION_EVENT_ACTION_DOWN &&
+      action_type != AMOTION_EVENT_ACTION_POINTER_DOWN &&
+      action_type != AMOTION_EVENT_ACTION_UP &&
+      action_type != AMOTION_EVENT_ACTION_CANCEL &&
+      action_type != AMOTION_EVENT_ACTION_POINTER_UP &&
+      action_type != AMOTION_EVENT_ACTION_MOVE) {
+    return;
+  }
+
+  m_cursor_x = AMotionEvent_getX(_event, pointer_index);
+  m_cursor_y = AMotionEvent_getY(_event, pointer_index);
+  dispatch_input(input_event::mouse_move(m_cursor_x, m_cursor_y));
 
   if (action_type == AMOTION_EVENT_ACTION_DOWN ||
       action_type == AMOTION_EVENT_ACTION_POINTER_DOWN) {
@@ -179,9 +191,7 @@ void android_window::handle_touch_event(AInputEvent* _event) {
   if (m_activated_pointer_id != pointer_id) {
     return;
   }
-  m_cursor_x = AMotionEvent_getX(_event, pointer_id);
-  m_cursor_y = AMotionEvent_getY(_event, pointer_id);
-  dispatch_input(input_event::mouse_move(m_cursor_x, m_cursor_y));
+
   if (action_type == AMOTION_EVENT_ACTION_UP ||
       action_type == AMOTION_EVENT_ACTION_CANCEL ||
       action_type == AMOTION_EVENT_ACTION_POINTER_UP) {
@@ -243,43 +253,54 @@ void android_window::handle_key_event(AInputEvent* _event) {
 }
 
 void android_window::show_keyboard() {
-  ANativeActivity* activity =
-      m_app_data->executable_data->host_data->android_app->activity;
-  JNIEnv* env = 0;
+  m_job_pool->add_job_on_main(
+      JOB_NAME, functional::function<void()>(m_allocator, [this]() {
+        ANativeActivity* activity =
+            m_app_data->executable_data->host_data->android_app->activity;
+        JNIEnv* env = 0;
 
-  activity->vm->AttachCurrentThread(&env, 0);
-  jclass cls = env->GetObjectClass(activity->clazz);
-  jmethodID methodID = env->GetMethodID(cls, "ShowKeyboard", "()V");
-  env->CallVoidMethod(activity->clazz, methodID);
+        activity->vm->AttachCurrentThread(&env, 0);
+        jclass cls = env->GetObjectClass(activity->clazz);
+        jmethodID methodID = env->GetMethodID(cls, "ShowKeyboard", "()V");
+        env->CallVoidMethod(activity->clazz, methodID);
 
-  activity->vm->DetachCurrentThread();
+        activity->vm->DetachCurrentThread();
+      }));
 }
 
 void android_window::hide_keyboard() {
-  ANativeActivity* activity =
-      m_app_data->executable_data->host_data->android_app->activity;
-  JNIEnv* env = 0;
+  m_job_pool->add_job_on_main(
+      JOB_NAME, functional::function<void()>(m_allocator, [this]() {
+        ANativeActivity* activity =
+            m_app_data->executable_data->host_data->android_app->activity;
+        JNIEnv* env = 0;
 
-  activity->vm->AttachCurrentThread(&env, 0);
-  jclass cls = env->GetObjectClass(activity->clazz);
-  jmethodID methodID = env->GetMethodID(cls, "HideKeyboard", "()V");
-  env->CallVoidMethod(activity->clazz, methodID);
+        activity->vm->AttachCurrentThread(&env, 0);
+        jclass cls = env->GetObjectClass(activity->clazz);
+        jmethodID methodID = env->GetMethodID(cls, "HideKeyboard", "()V");
+        env->CallVoidMethod(activity->clazz, methodID);
 
-  activity->vm->DetachCurrentThread();
+        activity->vm->DetachCurrentThread();
+      }));
 }
 
 uint32_t android_window::get_dpi() const {
-  ANativeActivity* activity =
-      m_app_data->executable_data->host_data->android_app->activity;
-  JNIEnv* env = 0;
+  uint32_t ret = 0;
+  m_job_pool->call_blocking_job_on_main(
+      JOB_NAME, functional::function<void()>(m_allocator, [this, &ret]() {
+        ANativeActivity* activity =
+            m_app_data->executable_data->host_data->android_app->activity;
+        JNIEnv* env = 0;
 
-  activity->vm->AttachCurrentThread(&env, 0);
-  jclass cls = env->GetObjectClass(activity->clazz);
-  jmethodID methodID = env->GetMethodID(cls, "GetDPI", "()I");
-  jint i = env->CallIntMethod(activity->clazz, methodID);
+        activity->vm->AttachCurrentThread(&env, 0);
+        jclass cls = env->GetObjectClass(activity->clazz);
+        jmethodID methodID = env->GetMethodID(cls, "GetDPI", "()I");
+        jint i = env->CallIntMethod(activity->clazz, methodID);
 
-  activity->vm->DetachCurrentThread();
-  return i;
+        activity->vm->DetachCurrentThread();
+        ret = i;
+      }));
+  return ret;
 }
 
 }  // namespace window

@@ -2,9 +2,15 @@ package @WN_PACKAGE_STRING@;
 
 import android.app.NativeActivity;
 import android.view.inputmethod.InputMethodManager;
+import android.content.Intent;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.util.Log;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.List;
 
 public class @WN_ACTIVITY_NAME@ extends android.app.NativeActivity {
 @Override
@@ -30,6 +36,18 @@ public class @WN_ACTIVITY_NAME@ extends android.app.NativeActivity {
     }
   }
 
+  String[] getArgs() {
+    Intent intent = getIntent();
+    String command_line = intent.getStringExtra("args");
+    List<String> args = new ArrayList<String>();
+    if (command_line != null) {
+      Matcher m = Pattern.compile("([^\"]\\S*|\".+?\")\\s*").matcher(command_line);
+      while (m.find()) {
+        args.add(m.group(1).replace("\"", ""));
+      }
+    }
+    return args.toArray(new String[0]);
+  }
 
   public String GetEventString(long down, long event,
             int action, int key, int repeat, int meta,

@@ -8,7 +8,6 @@ if (WN_ANDROID_WRAPPER)
         )
 
         message(STATUS "Configuring: ${BUILD_ABI}")
-
         execute_process(
             COMMAND ${CMAKE_COMMAND}
                 -DCMAKE_TOOLCHAIN_FILE=${WN_ANDROID_TOOLCHAIN_FILE}
