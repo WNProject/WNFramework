@@ -112,6 +112,10 @@ public:
     return m_cursor_y;
   }
 
+  uint32_t get_dpi() const override {
+    return m_dpi;
+  }
+
 private:
   void dispatch_loop();
 
@@ -133,6 +137,8 @@ private:
 
   std::atomic<uint32_t> m_cursor_x;
   std::atomic<uint32_t> m_cursor_y;
+
+  uint32_t m_dpi = 96;
 
   xcb_key_symbols_t* m_key_symbols;
   bool m_has_mouse_focus = false;

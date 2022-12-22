@@ -81,187 +81,211 @@ inline key_code x_code_to_keycode(xcb_keysym_t keycode) {
 }
 
 void xcb_window::dispatch_loop() {
-  m_job_pool->call_blocking_function(JOB_NAME, functional::function<
-                                                   void()>(m_allocator, [&]() {
-    m_data.display = XOpenDisplay(NULL);
-    if (m_data.display == nullptr) {
-      return;
-    }
-
-    m_data.connection = XGetXCBConnection(m_data.display);
-    if (m_data.connection == nullptr) {
-      return;
-    }
-
-    m_key_symbols = xcb_key_symbols_alloc(m_data.connection);
-
-    const xcb_setup_t* setup = xcb_get_setup(m_data.connection);
-    m_screen = xcb_setup_roots_iterator(setup).data;
-
-    if (m_screen == nullptr) {
-      xcb_disconnect(m_data.connection);
-      m_data.connection = nullptr;
-      if (m_creation_signal) {
-        m_creation_signal.increment_by(1);
-      }
-
-      m_create_signal.increment_by(1);
-      return;
-    }
-
-    m_data.window = xcb_generate_id(m_data.connection);
-
-    uint32_t values[1] = {
-        XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_BUTTON_PRESS |
-        XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION |
-        XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW |
-        XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE};
-
-    xcb_create_window(m_data.connection, XCB_COPY_FROM_PARENT, m_data.window,
-        m_screen->root, m_x, m_y, m_width, m_height, 10,
-        XCB_WINDOW_CLASS_INPUT_OUTPUT, m_screen->root_visual, XCB_CW_EVENT_MASK,
-        values);
-
-    const char* protocol = "WM_PROTOCOLS";
-    xcb_intern_atom_cookie_t cookie =
-        xcb_intern_atom(m_data.connection, true, strlen(protocol), protocol);
-    xcb_intern_atom_reply_t* reply =
-        xcb_intern_atom_reply(m_data.connection, cookie, NULL);
-
-    const char* delete_window = "WM_DELETE_WINDOW";
-    cookie = xcb_intern_atom(
-        m_data.connection, true, strlen(delete_window), delete_window);
-    m_delete_window = xcb_intern_atom_reply(m_data.connection, cookie, NULL);
-
-    xcb_change_property(m_data.connection, XCB_PROP_MODE_REPLACE, m_data.window,
-        reply->atom, 4, 32, 1, &m_delete_window->atom);
-
-    free(reply);
-
-    xcb_map_window(m_data.connection, m_data.window);
-
-    xcb_flush(m_data.connection);
-
-    if (m_creation_signal) {
-      m_creation_signal.increment_by(1);
-    }
-
-    m_create_signal.increment_by(1);
-    std::array<char, 16> buf{};
-
-    xcb_generic_event_t* event;
-    while ((event = xcb_wait_for_event(m_data.connection))) {
-      switch (event->response_type & 0x7F) {
-        case XCB_CLIENT_MESSAGE:
-          if ((*(xcb_client_message_event_t*)event).data.data32[0] ==
-              m_delete_window->atom) {
-            free(event);
-            return;
-          }
-        case XCB_DESTROY_NOTIFY:
-          free(event);
+  m_job_pool->call_blocking_function(
+      JOB_NAME, functional::function<void()>(m_allocator, [this]() {
+        m_data.display = XOpenDisplay(NULL);
+        if (m_data.display == nullptr) {
           return;
-        case XCB_BUTTON_PRESS: {
-          xcb_button_press_event_t* bp = (xcb_button_press_event_t*)event;
-          switch (bp->detail) {
-            case XCB_BUTTON_INDEX_1:
-              m_mouse_states[static_cast<size_t>(mouse_button::mouse_l)] = true;
-              dispatch_input(input_event::mouse_down(mouse_button::mouse_l));
-              break;
-            case XCB_BUTTON_INDEX_2:
-              m_mouse_states[static_cast<size_t>(mouse_button::mouse_r)] = true;
-              dispatch_input(input_event::mouse_down(mouse_button::mouse_r));
-              break;
-            case XCB_BUTTON_INDEX_3:
-              m_mouse_states[static_cast<size_t>(mouse_button::mouse_m)] = true;
-              dispatch_input(input_event::mouse_down(mouse_button::mouse_m));
-              break;
-          }
-          break;
         }
-        case XCB_BUTTON_RELEASE: {
-          xcb_button_press_event_t* bp = (xcb_button_press_event_t*)event;
-          switch (bp->detail) {
-            case XCB_BUTTON_INDEX_1:
-              m_mouse_states[static_cast<size_t>(mouse_button::mouse_l)] =
-                  false;
-              dispatch_input(input_event::mouse_up(mouse_button::mouse_l));
-              break;
-            case XCB_BUTTON_INDEX_2:
-              m_mouse_states[static_cast<size_t>(mouse_button::mouse_r)] =
-                  false;
-              dispatch_input(input_event::mouse_up(mouse_button::mouse_r));
-              break;
-            case XCB_BUTTON_INDEX_3:
-              m_mouse_states[static_cast<size_t>(mouse_button::mouse_m)] =
-                  false;
-              dispatch_input(input_event::mouse_up(mouse_button::mouse_m));
-              break;
-            case XCB_BUTTON_INDEX_4:
-              dispatch_input(input_event::mouse_wheel(120));
-              break;
-            case XCB_BUTTON_INDEX_5:
-              dispatch_input(input_event::mouse_wheel(-120));
-              break;
-          }
-          break;
-        }
-        case XCB_ENTER_NOTIFY:
-          m_has_mouse_focus = true;
-          break;
-        case XCB_LEAVE_NOTIFY:
-          for (size_t i = 0; i < static_cast<size_t>(key_code::key_max); ++i) {
-            m_key_states[i] = false;
-          }
-          for (size_t i = 0; i < static_cast<size_t>(mouse_button::mouse_max);
-               ++i) {
-            m_mouse_states[i] = false;
-          }
-          m_has_mouse_focus = false;
-          break;
-        case XCB_MOTION_NOTIFY: {
-          xcb_motion_notify_event_t* motion = (xcb_motion_notify_event_t*)event;
-          m_cursor_x = motion->event_x;
-          m_cursor_y = motion->event_y;
-          dispatch_input(input_event::mouse_move(m_cursor_x, m_cursor_y));
 
-          break;
+        m_data.connection = XGetXCBConnection(m_data.display);
+        if (m_data.connection == nullptr) {
+          return;
         }
-        case XCB_KEY_PRESS: {
-          if (!m_has_mouse_focus) {
-            break;
-          }
-          xcb_key_press_event_t* kp = (xcb_key_press_event_t*)event;
-          key_code key = x_code_to_keycode(
-              xcb_key_press_lookup_keysym(m_key_symbols, kp, 0));
-          m_key_states[static_cast<size_t>(key)] = true;
-          dispatch_input(input_event::key_event(event_type::key_down, key));
-          XKeyEvent evt;
-          evt.display = m_data.display;
-          evt.keycode = kp->detail;
-          evt.state = kp->state;
 
-          if (XLookupString(&evt, buf.data(), buf.size(), nullptr, nullptr)) {
-            if (buf[0] != '\b') {
-              dispatch_input(input_event::text_input(buf[0]));
+        m_key_symbols = xcb_key_symbols_alloc(m_data.connection);
+
+        const xcb_setup_t* setup = xcb_get_setup(m_data.connection);
+        m_screen = xcb_setup_roots_iterator(setup).data;
+
+        if (m_screen == nullptr) {
+          xcb_disconnect(m_data.connection);
+          m_data.connection = nullptr;
+          if (m_creation_signal) {
+            m_creation_signal.increment_by(1);
+          }
+
+          m_create_signal.increment_by(1);
+          return;
+        }
+
+        uint32_t dpi_h = m_screen->height_in_pixels /
+                         (m_screen->height_in_millimeters * (1.0 / 25.4));
+
+        uint32_t dpi_w = m_screen->width_in_pixels /
+                         (m_screen->width_in_millimeters * (1.0 / 25.4));
+
+        m_dpi = dpi_h > dpi_w ? dpi_h : dpi_w;
+        m_data.window = xcb_generate_id(m_data.connection);
+
+        uint32_t values[1] = {
+            XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_BUTTON_PRESS |
+            XCB_EVENT_MASK_BUTTON_RELEASE | XCB_EVENT_MASK_POINTER_MOTION |
+            XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_LEAVE_WINDOW |
+            XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE};
+
+        xcb_create_window(m_data.connection, XCB_COPY_FROM_PARENT,
+            m_data.window, m_screen->root, m_x, m_y, m_width, m_height, 10,
+            XCB_WINDOW_CLASS_INPUT_OUTPUT, m_screen->root_visual,
+            XCB_CW_EVENT_MASK, values);
+
+        const char* protocol = "WM_PROTOCOLS";
+        xcb_intern_atom_cookie_t cookie = xcb_intern_atom(
+            m_data.connection, true, strlen(protocol), protocol);
+        xcb_intern_atom_reply_t* reply =
+            xcb_intern_atom_reply(m_data.connection, cookie, NULL);
+
+        const char* delete_window = "WM_DELETE_WINDOW";
+        cookie = xcb_intern_atom(
+            m_data.connection, true, strlen(delete_window), delete_window);
+        m_delete_window =
+            xcb_intern_atom_reply(m_data.connection, cookie, NULL);
+
+        xcb_change_property(m_data.connection, XCB_PROP_MODE_REPLACE,
+            m_data.window, reply->atom, 4, 32, 1, &m_delete_window->atom);
+
+        free(reply);
+
+        xcb_map_window(m_data.connection, m_data.window);
+
+        xcb_flush(m_data.connection);
+
+        if (m_creation_signal) {
+          m_creation_signal.increment_by(1);
+        }
+
+        m_create_signal.increment_by(1);
+        std::array<char, 16> buf{};
+
+        xcb_generic_event_t* event;
+        while ((event = xcb_wait_for_event(m_data.connection))) {
+          switch (event->response_type & 0x7F) {
+            case XCB_CONFIGURE_NOTIFY: {
+              xcb_configure_notify_event_t* ce =
+                  (xcb_configure_notify_event_t*)event;
+              m_width = ce->width;
+              m_height = ce->height;
+              break;
             }
+            case XCB_CLIENT_MESSAGE:
+              if ((*(xcb_client_message_event_t*)event).data.data32[0] ==
+                  m_delete_window->atom) {
+                free(event);
+                return;
+              }
+            case XCB_DESTROY_NOTIFY:
+              free(event);
+              return;
+            case XCB_BUTTON_PRESS: {
+              xcb_button_press_event_t* bp = (xcb_button_press_event_t*)event;
+              switch (bp->detail) {
+                case XCB_BUTTON_INDEX_1:
+                  m_mouse_states[static_cast<size_t>(mouse_button::mouse_l)] =
+                      true;
+                  dispatch_input(
+                      input_event::mouse_down(mouse_button::mouse_l));
+                  break;
+                case XCB_BUTTON_INDEX_2:
+                  m_mouse_states[static_cast<size_t>(mouse_button::mouse_r)] =
+                      true;
+                  dispatch_input(
+                      input_event::mouse_down(mouse_button::mouse_r));
+                  break;
+                case XCB_BUTTON_INDEX_3:
+                  m_mouse_states[static_cast<size_t>(mouse_button::mouse_m)] =
+                      true;
+                  dispatch_input(
+                      input_event::mouse_down(mouse_button::mouse_m));
+                  break;
+              }
+              break;
+            }
+            case XCB_BUTTON_RELEASE: {
+              xcb_button_press_event_t* bp = (xcb_button_press_event_t*)event;
+              switch (bp->detail) {
+                case XCB_BUTTON_INDEX_1:
+                  m_mouse_states[static_cast<size_t>(mouse_button::mouse_l)] =
+                      false;
+                  dispatch_input(input_event::mouse_up(mouse_button::mouse_l));
+                  break;
+                case XCB_BUTTON_INDEX_2:
+                  m_mouse_states[static_cast<size_t>(mouse_button::mouse_r)] =
+                      false;
+                  dispatch_input(input_event::mouse_up(mouse_button::mouse_r));
+                  break;
+                case XCB_BUTTON_INDEX_3:
+                  m_mouse_states[static_cast<size_t>(mouse_button::mouse_m)] =
+                      false;
+                  dispatch_input(input_event::mouse_up(mouse_button::mouse_m));
+                  break;
+                case XCB_BUTTON_INDEX_4:
+                  dispatch_input(input_event::mouse_wheel(120));
+                  break;
+                case XCB_BUTTON_INDEX_5:
+                  dispatch_input(input_event::mouse_wheel(-120));
+                  break;
+              }
+              break;
+            }
+            case XCB_ENTER_NOTIFY:
+              m_has_mouse_focus = true;
+              break;
+            case XCB_LEAVE_NOTIFY:
+              for (size_t i = 0; i < static_cast<size_t>(key_code::key_max);
+                   ++i) {
+                m_key_states[i] = false;
+              }
+              for (size_t i = 0;
+                   i < static_cast<size_t>(mouse_button::mouse_max); ++i) {
+                m_mouse_states[i] = false;
+              }
+              m_has_mouse_focus = false;
+              break;
+            case XCB_MOTION_NOTIFY: {
+              xcb_motion_notify_event_t* motion =
+                  (xcb_motion_notify_event_t*)event;
+              m_cursor_x = motion->event_x;
+              m_cursor_y = motion->event_y;
+              dispatch_input(input_event::mouse_move(m_cursor_x, m_cursor_y));
+
+              break;
+            }
+            case XCB_KEY_PRESS: {
+              if (!m_has_mouse_focus) {
+                break;
+              }
+              xcb_key_press_event_t* kp = (xcb_key_press_event_t*)event;
+              key_code key = x_code_to_keycode(
+                  xcb_key_press_lookup_keysym(m_key_symbols, kp, 0));
+              m_key_states[static_cast<size_t>(key)] = true;
+              dispatch_input(input_event::key_event(event_type::key_down, key));
+              XKeyEvent evt;
+              evt.display = m_data.display;
+              evt.keycode = kp->detail;
+              evt.state = kp->state;
+
+              if (XLookupString(
+                      &evt, buf.data(), buf.size(), nullptr, nullptr)) {
+                if (buf[0] != '\b') {
+                  dispatch_input(input_event::text_input(buf[0]));
+                }
+              }
+              break;
+            }
+            case XCB_KEY_RELEASE: {
+              xcb_key_release_event_t* kr = (xcb_key_release_event_t*)event;
+              key_code key = x_code_to_keycode(
+                  xcb_key_release_lookup_keysym(m_key_symbols, kr, 0));
+              m_key_states[static_cast<size_t>(key)] = false;
+              dispatch_input(input_event::key_event(event_type::key_up, key));
+              break;
+            }
+            default:
+              break;
           }
-          break;
+          free(event);
         }
-        case XCB_KEY_RELEASE: {
-          xcb_key_release_event_t* kr = (xcb_key_release_event_t*)event;
-          key_code key = x_code_to_keycode(
-              xcb_key_release_lookup_keysym(m_key_symbols, kr, 0));
-          m_key_states[static_cast<size_t>(key)] = false;
-          dispatch_input(input_event::key_event(event_type::key_up, key));
-          break;
-        }
-        default:
-          break;
-      }
-      free(event);
-    }
-  }));
+      }));
 }
 
 }  // namespace window
