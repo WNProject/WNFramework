@@ -593,6 +593,22 @@ void render_context::add_renderable_to_passes(
 }
 
 bool render_context::render() {
+  if (m_time == std::chrono::time_point<std::chrono::high_resolution_clock>()) {
+    m_time = std::chrono::high_resolution_clock::now();
+  } else {
+    auto now = std::chrono::high_resolution_clock::now();
+    if (now - m_time > std::chrono::seconds(1)) {
+      m_log->log_info("Average Frame Time = ",
+          1000.0f *
+              std::chrono::duration_cast<std::chrono::duration<float>>(
+                  now - m_time)
+                  .count() /
+              (m_frame_num - m_last_second_frame),
+          "ms");
+      m_last_second_frame = m_frame_num;
+      m_time = now;
+    }
+  }
   ProfileGPUNewFrame(m_queue_profiler);
   size_t backing_idx = m_frame_num % kNumDefaultBackings;
   uint32_t swap_idx = 0;
