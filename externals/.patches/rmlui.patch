@@ -1,4 +1,5 @@
 diff --git externals/rmlui/Include/RmlUi/Core/Context.h externals/rmlui/Include/RmlUi/Core/Context.h
+index 4961eb83..43f0ed44 100644
 --- externals/rmlui/Include/RmlUi/Core/Context.h
 +++ externals/rmlui/Include/RmlUi/Core/Context.h
 @@ -15,7 +15,7 @@
@@ -150,18 +151,18 @@ diff --git externals/rmlui/Include/RmlUi/Core/Context.h externals/rmlui/Include/
 +	}
 +
 +	template <typename T, typename... Args>
-+	inline T& GetOrCreate(T*& _key, Args... args)
++	inline typename std::remove_volatile<T>::type& GetOrCreate(T** _key, Args... args)
 +	{
-+		auto it = m_elements.find(static_cast<void*>(&_key));
++		auto it = m_elements.find(static_cast<void*>(_key));
 +		if (it == m_elements.end())
 +		{
-+			void* v = static_cast<void*>(new T(args...));
++			void* v = static_cast<void*>(new typename std::remove_volatile<T>::type(args...));
 +			it = m_elements
-+					 .insert(
-+						 std::make_pair(static_cast<void*>(&_key), deleter{[](void* v) { delete reinterpret_cast<T*>(v); }, static_cast<void*>(v)}))
++					 .insert(std::make_pair(static_cast<void*>(_key),
++						 deleter{[](void* v) { delete reinterpret_cast<typename std::remove_volatile<T>::type*>(v); }, static_cast<void*>(v)}))
 +					 .first;
 +		}
-+		return (*this)(_key);
++		return *reinterpret_cast<typename std::remove_volatile<T>::type*>(it->second.value);
 +	}
 +
 +private:
@@ -185,15 +186,16 @@ diff --git externals/rmlui/Include/RmlUi/Core/Context.h externals/rmlui/Include/
 +	GlobalContext* previous_context_for_thread;
 +};
 +
-+#define REGISTER_GLOBAL(type, name) type* g_##name
-+#define REGISTER_INIT_GLOBAL(type, name) type* G_##name
-+#define REGISTER_EXTERN_GLOBAL(type, name) extern type* g_##name
-+#define GET_OR_MAKE_INIT_GLOBAL(name, ...) GlobalContext::GetGlobalContextForThread()->GetOrCreate(G_##name, name##_params)
-+#define GET_OR_MAKE_GLOBAL(name, ...) GlobalContext::GetGlobalContextForThread()->GetOrCreate(g_##name)
++#define REGISTER_GLOBAL(type, name) type volatile* g_##name
++#define REGISTER_INIT_GLOBAL(type, name) type volatile* G_##name
++#define REGISTER_EXTERN_GLOBAL(type, name) extern type volatile* g_##name
++#define GET_OR_MAKE_INIT_GLOBAL(name, ...) GlobalContext::GetGlobalContextForThread()->GetOrCreate(&G_##name, name##_params)
++#define GET_OR_MAKE_GLOBAL(name, ...) GlobalContext::GetGlobalContextForThread()->GetOrCreate(&g_##name)
 +
  } // namespace Rml
  #endif
 diff --git externals/rmlui/Source/Core/Context.cpp externals/rmlui/Source/Core/Context.cpp
+index e12b907d..6f170a84 100644
 --- externals/rmlui/Source/Core/Context.cpp
 +++ externals/rmlui/Source/Core/Context.cpp
 @@ -15,7 +15,7 @@
@@ -597,24 +599,8 @@ diff --git externals/rmlui/Source/Core/Context.cpp externals/rmlui/Source/Core/C
  		elements->push_back(element->GetObserverPtr());
  		return *this;
  	}
-@@ -1399,4 +1387,16 @@ const String& Context::GetDocumentsBaseTag()
- 	return documents_base_tag;
- }
- 
-+thread_local GlobalContext* sCtx;
-+
-+Rml::GlobalContext* GlobalContext::GetGlobalContextForThread()
-+{
-+	return sCtx;
-+}
-+
-+void GlobalContext::SetGlobalContextForThread(Rml::GlobalContext* context)
-+{
-+	sCtx = context;
-+}
-+
- } // namespace Rml
 diff --git externals/rmlui/Source/Core/Core.cpp externals/rmlui/Source/Core/Core.cpp
+index eb3c3c20..82cd5771 100644
 --- externals/rmlui/Source/Core/Core.cpp
 +++ externals/rmlui/Source/Core/Core.cpp
 @@ -15,7 +15,7 @@
@@ -994,6 +980,7 @@ diff --git externals/rmlui/Source/Core/Core.cpp externals/rmlui/Source/Core/Core
  	}
  }
 diff --git externals/rmlui/Source/Core/DataVariable.cpp externals/rmlui/Source/Core/DataVariable.cpp
+index 34102a02..5b64996a 100644
 --- externals/rmlui/Source/Core/DataVariable.cpp
 +++ externals/rmlui/Source/Core/DataVariable.cpp
 @@ -27,6 +27,7 @@
@@ -1019,6 +1006,7 @@ diff --git externals/rmlui/Source/Core/DataVariable.cpp externals/rmlui/Source/C
  
  StructDefinition::StructDefinition() : VariableDefinition(DataVariableType::Struct)
 diff --git externals/rmlui/Source/Core/Element.cpp externals/rmlui/Source/Core/Element.cpp
+index 016ab833..cf4ce2cc 100644
 --- externals/rmlui/Source/Core/Element.cpp
 +++ externals/rmlui/Source/Core/Element.cpp
 @@ -15,7 +15,7 @@
@@ -2042,6 +2030,7 @@ diff --git externals/rmlui/Source/Core/Element.cpp externals/rmlui/Source/Core/E
  
  			if (auto parent_perspective = parent_state.GetLocalPerspective())
 diff --git externals/rmlui/Source/Core/ElementInstancer.cpp externals/rmlui/Source/Core/ElementInstancer.cpp
+index 0a2b87d6..d71e5ec8 100644
 --- externals/rmlui/Source/Core/ElementInstancer.cpp
 +++ externals/rmlui/Source/Core/ElementInstancer.cpp
 @@ -15,7 +15,7 @@
@@ -2121,6 +2110,7 @@ diff --git externals/rmlui/Source/Core/ElementInstancer.cpp externals/rmlui/Sour
  
  } // namespace Rml
 diff --git externals/rmlui/Source/Core/Elements/DataFormatter.cpp externals/rmlui/Source/Core/Elements/DataFormatter.cpp
+index aa192c03..037c6123 100644
 --- externals/rmlui/Source/Core/Elements/DataFormatter.cpp
 +++ externals/rmlui/Source/Core/Elements/DataFormatter.cpp
 @@ -15,7 +15,7 @@
@@ -2176,6 +2166,7 @@ diff --git externals/rmlui/Source/Core/Elements/DataFormatter.cpp externals/rmlu
  		return nullptr;
  	}
 diff --git externals/rmlui/Source/Core/Elements/DataSource.cpp externals/rmlui/Source/Core/Elements/DataSource.cpp
+index fcd41b1d..46d6ea29 100644
 --- externals/rmlui/Source/Core/Elements/DataSource.cpp
 +++ externals/rmlui/Source/Core/Elements/DataSource.cpp
 @@ -15,7 +15,7 @@
@@ -2246,6 +2237,7 @@ diff --git externals/rmlui/Source/Core/Elements/DataSource.cpp externals/rmlui/S
  		return nullptr;
  	}
 diff --git externals/rmlui/Source/Core/EventSpecification.cpp externals/rmlui/Source/Core/EventSpecification.cpp
+index 57525d8a..8a6da3cf 100644
 --- externals/rmlui/Source/Core/EventSpecification.cpp
 +++ externals/rmlui/Source/Core/EventSpecification.cpp
 @@ -28,23 +28,24 @@
@@ -2373,6 +2365,7 @@ diff --git externals/rmlui/Source/Core/EventSpecification.cpp externals/rmlui/So
  	// If we found an existing entry of same type, replace it, but only if it is a custom event id.
  	if (got_existing_entry && (int)specification.id >= (int)EventId::FirstCustomId)
 diff --git externals/rmlui/Source/Core/Factory.cpp externals/rmlui/Source/Core/Factory.cpp
+index 0779e758..8d69e335 100644
 --- externals/rmlui/Source/Core/Factory.cpp
 +++ externals/rmlui/Source/Core/Factory.cpp
 @@ -90,41 +90,41 @@
@@ -2797,6 +2790,7 @@ diff --git externals/rmlui/Source/Core/Factory.cpp externals/rmlui/Source/Core/F
  
  } // namespace Rml
 diff --git externals/rmlui/Source/Core/FontEngineDefault/FontProvider.cpp externals/rmlui/Source/Core/FontEngineDefault/FontProvider.cpp
+index 346addf8..a6509591 100644
 --- externals/rmlui/Source/Core/FontEngineDefault/FontProvider.cpp
 +++ externals/rmlui/Source/Core/FontEngineDefault/FontProvider.cpp
 @@ -27,52 +27,52 @@
@@ -2915,6 +2909,7 @@ diff --git externals/rmlui/Source/Core/FontEngineDefault/FontProvider.cpp extern
 -
  } // namespace Rml
 diff --git externals/rmlui/Source/Core/FontEngineDefault/FreeTypeInterface.cpp externals/rmlui/Source/Core/FontEngineDefault/FreeTypeInterface.cpp
+index 4b0632f1..d7e6b195 100644
 --- externals/rmlui/Source/Core/FontEngineDefault/FreeTypeInterface.cpp
 +++ externals/rmlui/Source/Core/FontEngineDefault/FreeTypeInterface.cpp
 @@ -28,20 +28,18 @@
@@ -3091,6 +3086,7 @@ diff --git externals/rmlui/Source/Core/FontEngineDefault/FreeTypeInterface.cpp e
  	}
  
 diff --git externals/rmlui/Source/Core/GeometryDatabase.cpp externals/rmlui/Source/Core/GeometryDatabase.cpp
+index b4a9160e..cd3dfe61 100644
 --- externals/rmlui/Source/Core/GeometryDatabase.cpp
 +++ externals/rmlui/Source/Core/GeometryDatabase.cpp
 @@ -27,6 +27,7 @@
@@ -3150,7 +3146,32 @@ diff --git externals/rmlui/Source/Core/GeometryDatabase.cpp externals/rmlui/Sour
  
  	const bool result = std::is_permutation(geometry_list_ptrs.begin(), geometry_list_ptrs.end(), database_ptrs.begin(), database_ptrs.end());
  	return result;
+diff --git externals/rmlui/Source/Core/GlobalContext.cpp externals/rmlui/Source/Core/GlobalContext.cpp
+new file mode 100644
+index 00000000..39575cc1
+--- /dev/null
++++ externals/rmlui/Source/Core/GlobalContext.cpp
+@@ -0,0 +1,17 @@
++#include "../../Include/RmlUi/Core/Context.h"
++
++namespace Rml {
++
++thread_local GlobalContext* sCtx;
++
++Rml::GlobalContext* GlobalContext::GetGlobalContextForThread()
++{
++	return sCtx;
++}
++
++void GlobalContext::SetGlobalContextForThread(Rml::GlobalContext* context)
++{
++	sCtx = context;
++}
++
++} // namespace Rml
+\ No newline at end of file
 diff --git externals/rmlui/Source/Core/LayoutEngine.cpp externals/rmlui/Source/Core/LayoutEngine.cpp
+index 07d3f52a..18d4a984 100644
 --- externals/rmlui/Source/Core/LayoutEngine.cpp
 +++ externals/rmlui/Source/Core/LayoutEngine.cpp
 @@ -28,6 +28,7 @@
@@ -3208,6 +3229,7 @@ diff --git externals/rmlui/Source/Core/LayoutEngine.cpp externals/rmlui/Source/C
  	{
  		RMLUI_ERROR;
 diff --git externals/rmlui/Source/Core/Memory.cpp externals/rmlui/Source/Core/Memory.cpp
+index 407c1c1f..51951cdf 100644
 --- externals/rmlui/Source/Core/Memory.cpp
 +++ externals/rmlui/Source/Core/Memory.cpp
 @@ -30,6 +30,7 @@
@@ -3234,6 +3256,7 @@ diff --git externals/rmlui/Source/Core/Memory.cpp externals/rmlui/Source/Core/Me
  
  }
 diff --git externals/rmlui/Source/Core/ObserverPtr.cpp externals/rmlui/Source/Core/ObserverPtr.cpp
+index 6c67d022..463d1e1e 100644
 --- externals/rmlui/Source/Core/ObserverPtr.cpp
 +++ externals/rmlui/Source/Core/ObserverPtr.cpp
 @@ -15,7 +15,7 @@
@@ -3283,6 +3306,7 @@ diff --git externals/rmlui/Source/Core/ObserverPtr.cpp externals/rmlui/Source/Co
 -
  } // namespace Rml
 diff --git externals/rmlui/Source/Core/PluginRegistry.cpp externals/rmlui/Source/Core/PluginRegistry.cpp
+index 4487edd5..5220f2de 100644
 --- externals/rmlui/Source/Core/PluginRegistry.cpp
 +++ externals/rmlui/Source/Core/PluginRegistry.cpp
 @@ -27,15 +27,16 @@
@@ -3425,6 +3449,7 @@ diff --git externals/rmlui/Source/Core/PluginRegistry.cpp externals/rmlui/Source
  
  } // namespace Rml
 diff --git externals/rmlui/Source/Core/StringUtilities.cpp externals/rmlui/Source/Core/StringUtilities.cpp
+index 017a5971..c2b3213f 100644
 --- externals/rmlui/Source/Core/StringUtilities.cpp
 +++ externals/rmlui/Source/Core/StringUtilities.cpp
 @@ -38,7 +38,7 @@ namespace Rml {
@@ -3437,6 +3462,7 @@ diff --git externals/rmlui/Source/Core/StringUtilities.cpp externals/rmlui/Sourc
  
  	if (max_size + 1 > INTERNAL_BUFFER_SIZE)
 diff --git externals/rmlui/Source/Core/StyleSheet.cpp externals/rmlui/Source/Core/StyleSheet.cpp
+index 9bfa117a..cc9a5c99 100644
 --- externals/rmlui/Source/Core/StyleSheet.cpp
 +++ externals/rmlui/Source/Core/StyleSheet.cpp
 @@ -27,6 +27,7 @@
@@ -3508,6 +3534,7 @@ diff --git externals/rmlui/Source/Core/StyleSheet.cpp externals/rmlui/Source/Cor
  
  	return definition;
 diff --git externals/rmlui/Source/Core/StyleSheetFactory.cpp externals/rmlui/Source/Core/StyleSheetFactory.cpp
+index 3c78cc35..de723d46 100644
 --- externals/rmlui/Source/Core/StyleSheetFactory.cpp
 +++ externals/rmlui/Source/Core/StyleSheetFactory.cpp
 @@ -27,6 +27,7 @@
@@ -3596,6 +3623,7 @@ diff --git externals/rmlui/Source/Core/StyleSheetFactory.cpp externals/rmlui/Sou
  
  	const StructuralSelectorType selector_type = it->second;
 diff --git externals/rmlui/Source/Core/StyleSheetParser.cpp externals/rmlui/Source/Core/StyleSheetParser.cpp
+index 3fe6695a..3eaac1d8 100644
 --- externals/rmlui/Source/Core/StyleSheetParser.cpp
 +++ externals/rmlui/Source/Core/StyleSheetParser.cpp
 @@ -30,6 +30,7 @@
@@ -3688,6 +3716,7 @@ diff --git externals/rmlui/Source/Core/StyleSheetParser.cpp externals/rmlui/Sour
  						state = State::Global;
  					}
 diff --git externals/rmlui/Source/Core/StyleSheetSpecification.cpp externals/rmlui/Source/Core/StyleSheetSpecification.cpp
+index 17f74d0a..9f305d07 100644
 --- externals/rmlui/Source/Core/StyleSheetSpecification.cpp
 +++ externals/rmlui/Source/Core/StyleSheetSpecification.cpp
 @@ -27,6 +27,7 @@
@@ -3913,6 +3942,7 @@ diff --git externals/rmlui/Source/Core/StyleSheetSpecification.cpp externals/rml
  
  } // namespace Rml
 diff --git externals/rmlui/Source/Core/SystemInterface.cpp externals/rmlui/Source/Core/SystemInterface.cpp
+index 74efc9e5..8ec8e9aa 100644
 --- externals/rmlui/Source/Core/SystemInterface.cpp
 +++ externals/rmlui/Source/Core/SystemInterface.cpp
 @@ -15,7 +15,7 @@
@@ -4023,6 +4053,7 @@ diff --git externals/rmlui/Source/Core/SystemInterface.cpp externals/rmlui/Sourc
  		translated_path = path;
  		return;
 diff --git externals/rmlui/Source/Core/TemplateCache.cpp externals/rmlui/Source/Core/TemplateCache.cpp
+index b93ba75c..a02c3eca 100644
 --- externals/rmlui/Source/Core/TemplateCache.cpp
 +++ externals/rmlui/Source/Core/TemplateCache.cpp
 @@ -30,25 +30,26 @@
@@ -4113,6 +4144,7 @@ diff --git externals/rmlui/Source/Core/TemplateCache.cpp externals/rmlui/Source/
  
  } // namespace Rml
 diff --git externals/rmlui/Source/Core/TextureDatabase.cpp externals/rmlui/Source/Core/TextureDatabase.cpp
+index 9111ccc1..f4d059c4 100644
 --- externals/rmlui/Source/Core/TextureDatabase.cpp
 +++ externals/rmlui/Source/Core/TextureDatabase.cpp
 @@ -28,23 +28,24 @@
@@ -4244,6 +4276,7 @@ diff --git externals/rmlui/Source/Core/TextureDatabase.cpp externals/rmlui/Sourc
  				return true;
  	}
 diff --git externals/rmlui/Source/Core/XMLParser.cpp externals/rmlui/Source/Core/XMLParser.cpp
+index 7592005a..73f1cd8d 100644
 --- externals/rmlui/Source/Core/XMLParser.cpp
 +++ externals/rmlui/Source/Core/XMLParser.cpp
 @@ -15,7 +15,7 @@
@@ -4387,6 +4420,7 @@ diff --git externals/rmlui/Source/Core/XMLParser.cpp externals/rmlui/Source/Core
  
  /// Called when the parser encounters data.
 diff --git externals/rmlui/Source/Debugger/Geometry.cpp externals/rmlui/Source/Debugger/Geometry.cpp
+index 17a17be7..2dab2959 100644
 --- externals/rmlui/Source/Debugger/Geometry.cpp
 +++ externals/rmlui/Source/Debugger/Geometry.cpp
 @@ -34,7 +34,7 @@

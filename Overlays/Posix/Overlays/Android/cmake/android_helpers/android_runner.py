@@ -104,6 +104,11 @@ def error(message, *additional_args):
     exit(-1)
 
 class Runner:
+    def run_adb(self, args):
+        a = [self.adb]
+        a.extend(args)
+        return run_p(a)
+
     def run_adb_silent(self, args):
         a = [self.adb]
         a.extend(args)
@@ -113,6 +118,11 @@ class Runner:
         a = [self.adb, 'shell']
         a.extend(args)
         return run_p_silent(a)
+
+    def run_shell(self, args):
+        a = [self.adb, 'shell']
+        a.extend(args)
+        return run_p(a)
 
     def run_as_shell_silent(self, args):
         a = [self.adb, 'shell', 'run-as', self.args.package_name]
@@ -125,6 +135,67 @@ class Runner:
             ["chmod", "777", '/data/local/tmp/tmpfile'])
         self.run_as_shell_silent(
             ['cp', '/data/local/tmp/tmpfile', dest])
+
+    def sync(self):
+        parser = argparse.ArgumentParser(
+            prog="android_runner.py sync",
+            description="Run android program")
+        parser.add_argument("package_name", type=str,
+                            help="Package name to start")
+        parser.add_argument("--src", type=str,
+                            help="Android ndk directory (for debugging)",
+                            required=True)
+        parser.add_argument("--dst", type=str,
+                            help="Directory that the debug apk was built out of",
+                            required=True)
+        parser.add_argument("--sdk",
+                            help="Location of the sdk", required=False)
+
+        args = parser.parse_args(sys.argv[2:])
+        adb = "adb"
+        self.args = args
+        if args.sdk:
+            args.sdk = os.path.expanduser(args.sdk)
+            adb = os.path.join(args.sdk, "platform-tools", "adb")
+        self.adb = adb
+        splitpath = os.path.split(args.src)
+        rootpath = os.path.normpath(os.path.abspath(splitpath[0]))
+        
+        if args.dst.startswith("app://"):
+            for root, dir, f in os.walk(args.src.rstrip("/").rstrip("\\")):
+                dirpath = os.path.normpath(os.path.abspath(root))
+                rel = os.path.normpath(os.path.relpath(dirpath, rootpath)).replace("\\", "/")
+                if rel != ".":
+                    wr = ["mkdir", "-p", f"files/{args.dst[6:]}/{rel}"]
+                    self.run_as_shell_silent(wr)
+                for file in f:
+                    self.push_file_to(os.path.join(root, file),  f"files/{args.dst[6:]}/{rel}/{file}")
+        elif args.dst.startswith("external://"):
+            for root, dir, f in os.walk(args.src.rstrip("/").rstrip("\\")):
+                dirpath = os.path.normpath(os.path.abspath(root))
+                rel = os.path.normpath(os.path.relpath(dirpath, rootpath)).replace("\\", "/")
+                if rel != ".":
+                    wr = ["mkdir", "-p", f"/sdcard/{args.dst[11:]}/{rel}"]
+                    self.run_shell(wr)
+                for file in f:
+                    wrr = ["push", "--sync", os.path.join(root, file), f"/sdcard/{args.dst[11:]}/{rel}/"]
+                    self.run_adb(wrr)
+                self.run_shell(["chmod",  "-R", "777", f"/sdcard/{args.dst[11:]}"])
+                wrr = ["push", "--sync", os.path.join(root, file), f"/sdcard/{args.dst[11:]}/{rel}/"]
+        
+        elif args.dst.startswith("external_app://"):
+            for root, dir, f in os.walk(args.src.rstrip("/").rstrip("\\")):
+                dirpath = os.path.normpath(os.path.abspath(root))
+                rel = os.path.normpath(os.path.relpath(dirpath, rootpath)).replace("\\", "/")
+                if rel != ".":
+                    wr = ["mkdir", "-p", f"/sdcard/Android/data/{args.package_name}/files/{args.dst[15:]}/{rel}"]
+                    self.run_shell(wr)
+                for file in f:
+                    wrr = ["push", "--sync", os.path.join(root, file), f"/sdcard/Android/data/{args.package_name}/files/{args.dst[15:]}/{rel}/"]
+                    self.run_adb(wrr)
+                self.run_shell(["chmod",  "-R", "777", f"/sdcard/Android/data/{args.package_name}/files/{args.dst[15:]}"])
+                wrr = ["push", "--sync", os.path.join(root, file), f"/sdcard/Android/data/{args.package_name}/files/{args.dst[15:]}/{rel}/"]
+        
 
     def run(self):
         parser = argparse.ArgumentParser(
@@ -149,6 +220,7 @@ class Runner:
                             help="Location of the sdk", required=False)
         parser.add_argument("--attach", type=int,
                             help="Attach to pid instead of start", default=0)
+        parser.add_argument("--args", type=str, default=None, help="Arguments to pass")
         args = parser.parse_args(sys.argv[2:])
 
         adb = "adb"
@@ -163,15 +235,17 @@ class Runner:
         self.args = args
         self.adb = adb
 
+        _, data_dir = run_p_output([adb, 'shell', 'run-as',
+                                    args.package_name, '/system/bin/sh', '-c', 'pwd'], strip=True)
+
         if args.debug:
             try:
                 self.run_shell_silent(
-                    ["touch", "/sdcard/wait-for-debugger.txt"])
+                    ["touch", f"/sdcard/Android/data/{args.package_name}/files/wait-for-debugger.txt"])
+                self.run_shell(["chmod",  "-R", "777", f"/sdcard/Android/data/{args.package_name}/files/wait-for-debugger.txt"])
+                
             except:
                 pass
-
-            _, data_dir = run_p_output([adb, 'shell', 'run-as',
-                                        args.package_name, '/system/bin/sh', '-c', 'pwd'], strip=True)
 
             info("Package install directory is %s" % data_dir)
 
@@ -207,7 +281,8 @@ class Runner:
                 'armeabi-v7a': 'armeabi',
                 'armeabi': 'armeabi',
                 'arm64-v8a': 'arm64-v8a',
-                'x86': 'x86'
+                'x86': 'x86',
+                'x86_64': 'x86_64'
             }
 
             try:
@@ -247,8 +322,22 @@ class Runner:
                 bufsize=1)
 
             if args.attach == 0:
-                self.run_shell_silent(["am", "start", "-S", "%s/%s" % (args.package_name,
-                                                                       args.activity_name)])
+                run_args = ["am", "start", "-S", "-n", "%s/%s" % (args.package_name,
+                                                                       args.activity_name),
+                        "-a", "android.intent.action.MAIN"]
+                if args.args:
+                    run_args.extend(['-e', "args", args.args.replace(
+                        "app://",
+                       f"{data_dir}/files/"
+                    ).replace(
+                        "external://",
+                        "/sdcard/"
+                    ).replace(
+                        "external_app://",
+                         f"/sdcard/Android/data/{args.package_name}/files/"
+                    )])
+                self.run_shell_silent(run_args)
+                
             info("Starting %s/.%s" % (args.package_name, args.activity_name))
 
             startre = re.compile("^--STARTED.?.?$")
@@ -283,7 +372,8 @@ class Runner:
                 'armeabi-v7a': 'armeabi-v7a',
                 'armeabi': 'armeabi-v7a',
                 'arm64-v8a': 'arm64-v8a',
-                'x86': 'x86'
+                'x86': 'x86',
+                'x86_64': 'x86_64',
             }
             with open('lldb_args.txt', 'w') as f:
                 f.writelines([
@@ -312,7 +402,6 @@ class Runner:
             args.extend([lldb, '-s', 'lldb_args.txt'])
             if platform.system() == 'Windows':
                 args.extend(['-X'])
-            print(args)
             run_p(args)
             
             server.kill()
@@ -322,12 +411,25 @@ class Runner:
                 pass
         else:
             try:
-                run_p([adb, "shell", "rm", "/sdcard/wait-for-debugger.txt"])
+                run_p([adb, "shell", "rm", f"/sdcard/Android/data/{args.package_name}/files/wait-for-debugger.txt"])
             except:
                 pass
             info("Starting %s/.%s" % (args.package_name, args.activity_name))
-            run_p([adb, "shell", "am", "start", args.package_name + "/" +
-                   args.activity_name])
+            run_args = [adb, "shell", "am", "start", "-S", "-n", "%s/%s" % (args.package_name,
+                                                                       args.activity_name),
+                        "-a", "android.intent.action.MAIN"]
+            if args.args:
+                run_args.extend(['-e', "args", args.args.replace(
+                        "app://",
+                       f"{data_dir}/files/"
+                    ).replace(
+                        "external://",
+                        "/sdcard/"
+                    ).replace( 
+                        "external_app://",
+                         f"/sdcard/Android/data/{args.package_name}/files/"
+                    )])
+            run_p(run_args)
 
             p = subprocess.Popen([
                 adb, "logcat", "-s", args.package_name + ":V",
@@ -335,7 +437,7 @@ class Runner:
                 stdout=subprocess.PIPE,
                 bufsize=1)
 
-            returnre = re.compile(r"^RETURN ([0-9]*)\s*$", re.MULTILINE)
+            returnre = re.compile(r"^RETURN (-?[0-9]*)\s*$", re.MULTILINE)
             startre = re.compile(r"^--STARTED\s*$")
             finishre = re.compile(r"^--FINISHED\s*$")
             crashedre = re.compile(r"^--CRASHED--\s*$")
@@ -419,11 +521,15 @@ class Runner:
                             help="Package name to start")
         parser.add_argument(
             "--sdk", help="Location of the sdk", required=False)
+        parser.add_argument("--keep", action="store_true", help="Keep data and cache around")
         args = parser.parse_args(sys.argv[2:])
         if args.sdk:
             adb = os.path.join(args.sdk, "platform-tools", "adb")
-        sys.exit(run_p_silent([adb, "shell", "pm", "uninstall",
-                               args.package_name]))
+        cmd = [adb, "shell", "pm", "uninstall"]
+        if args.keep:
+            cmd.append("-k")
+        cmd.append(args.package_name)
+        sys.exit(run_p_silent(cmd))
 
     def install(self):
         parser = argparse.ArgumentParser(
@@ -439,8 +545,7 @@ class Runner:
         if args.sdk:
             adb = os.path.join(args.sdk, "platform-tools", "adb")
         try:
-            run_p_silent([adb, "shell", "cmd", "package",
-                          "uninstall", "-k", args.package_name])
+            run_p_silent([adb, "shell", "pm", "uninstall", "-k", args.package_name])
         except:
             pass
         sys.exit(run_p([adb, "install", "-g", "-r", args.apk]))
@@ -460,7 +565,7 @@ class Runner:
       uninstall:  Remove the installed program.
   """)
         parser.add_argument('command', help='Command to run',
-                            choices=['install', 'run', 'uninstall'])
+                            choices=['install', 'run', 'uninstall', 'sync'])
         args = parser.parse_args(sys.argv[1:2])
         getattr(self, args.command)()
 

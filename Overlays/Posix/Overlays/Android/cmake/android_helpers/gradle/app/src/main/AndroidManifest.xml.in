@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="@WN_PACKAGE_STRING@"
       android:versionCode="1"
       android:versionName="1.0">
       <uses-sdk android:minSdkVersion="@WN_ANDROID_NATIVE_API_LEVEL@" />
 @WN_PERMISSIONS@
     <application android:label="@string/app_name">
+      <meta-data android:name="com.android.graphics.injectLayers.enable"
+        android:value="true"/>
       <activity android:name="@WN_ACTIVITY_NAME@"
-                  android:label="@string/app_name">
+                  android:label="@string/app_name"
+                  android:exported="true">
             <meta-data android:name="android.app.lib_name"
                   android:value="@APPLICATION_NAME@" />
             <intent-filter>

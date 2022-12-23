@@ -184,6 +184,9 @@ add_wn_externals(
     marl
 )
 
+set(LOTTIE_MODULE OFF)
+set(LOTTIE_CACHE OFF)
+
 add_wn_externals(
   rlottie
     DIRECTORY

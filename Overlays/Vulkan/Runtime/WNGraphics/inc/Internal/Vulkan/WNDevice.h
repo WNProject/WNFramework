@@ -9,6 +9,7 @@
 
 #include "WNContainers/inc/WNDynamicArray.h"
 #include "WNContainers/inc/WNStringView.h"
+#include "WNFunctional/inc/WNFunction.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanCommandListContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanContext.h"
 #include "WNGraphics/inc/Internal/Vulkan/WNVulkanInclude.h"
@@ -82,6 +83,16 @@ using queue_profiler_ptr = memory::unique_ptr<queue_profiler>;
 
 namespace internal {
 namespace vulkan {
+
+#ifdef DUMP_GFX_CALLS
+template <typename R, typename... Args>
+functional::function<R(Args...)> _get_function(R(VKAPI_PTR*)(Args...)) {
+  return functional::function<R(Args...)>();
+}
+#define VK_FUNCTION(fn) decltype(_get_function(reinterpret_cast<fn>(0)))
+#else
+#define VK_FUNCTION(fn) fn
+#endif
 
 class vulkan_command_list;
 class vulkan_adapter;
@@ -282,82 +293,83 @@ protected:
   uint32_t get_memory_type_index(uint32_t _types, VkFlags _properties) const;
 
   PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr;
-  PFN_vkGetDeviceQueue vkGetDeviceQueue;
+  VK_FUNCTION(PFN_vkGetDeviceQueue) vkGetDeviceQueue;
   PFN_vkDestroyDevice vkDestroyDevice;
 
-  PFN_vkAllocateMemory vkAllocateMemory;
-  PFN_vkFreeMemory vkFreeMemory;
+  VK_FUNCTION(PFN_vkAllocateMemory) vkAllocateMemory;
+  VK_FUNCTION(PFN_vkFreeMemory) vkFreeMemory;
 
   // Images
-  PFN_vkCreateImage vkCreateImage;
-  PFN_vkDestroyImage vkDestroyImage;
-  PFN_vkGetImageMemoryRequirements vkGetImageMemoryRequirements;
-  PFN_vkBindImageMemory vkBindImageMemory;
+  VK_FUNCTION(PFN_vkCreateImage) vkCreateImage;
+  VK_FUNCTION(PFN_vkDestroyImage) vkDestroyImage;
+  VK_FUNCTION(PFN_vkGetImageMemoryRequirements) vkGetImageMemoryRequirements;
+  VK_FUNCTION(PFN_vkBindImageMemory) vkBindImageMemory;
 
   // Samplers
-  PFN_vkCreateSampler vkCreateSampler;
-  PFN_vkDestroySampler vkDestroySampler;
+  VK_FUNCTION(PFN_vkCreateSampler) vkCreateSampler;
+  VK_FUNCTION(PFN_vkDestroySampler) vkDestroySampler;
 
   // Buffers
-  PFN_vkCreateBuffer vkCreateBuffer;
-  PFN_vkDestroyBuffer vkDestroyBuffer;
-  PFN_vkBindBufferMemory vkBindBufferMemory;
-  PFN_vkMapMemory vkMapMemory;
-  PFN_vkUnmapMemory vkUnmapMemory;
+  VK_FUNCTION(PFN_vkCreateBuffer) vkCreateBuffer;
+  VK_FUNCTION(PFN_vkDestroyBuffer) vkDestroyBuffer;
+  VK_FUNCTION(PFN_vkBindBufferMemory) vkBindBufferMemory;
+  VK_FUNCTION(PFN_vkMapMemory) vkMapMemory;
+  VK_FUNCTION(PFN_vkUnmapMemory) vkUnmapMemory;
 
   // Fences
-  PFN_vkCreateFence vkCreateFence;
-  PFN_vkDestroyFence vkDestroyFence;
-  PFN_vkWaitForFences vkWaitForFences;
-  PFN_vkResetFences vkResetFences;
+  VK_FUNCTION(PFN_vkCreateFence) vkCreateFence;
+  VK_FUNCTION(PFN_vkDestroyFence) vkDestroyFence;
+  VK_FUNCTION(PFN_vkWaitForFences) vkWaitForFences;
+  VK_FUNCTION(PFN_vkResetFences) vkResetFences;
 
   // Semaphores
-  PFN_vkCreateSemaphore vkCreateSemaphore;
-  PFN_vkDestroySemaphore vkDestroySemaphore;
+  VK_FUNCTION(PFN_vkCreateSemaphore) vkCreateSemaphore;
+  VK_FUNCTION(PFN_vkDestroySemaphore) vkDestroySemaphore;
 
-  PFN_vkCreateCommandPool vkCreateCommandPool;
-  PFN_vkDestroyCommandPool vkDestroyCommandPool;
-  PFN_vkResetCommandPool vkResetCommandPool;
+  VK_FUNCTION(PFN_vkCreateCommandPool) vkCreateCommandPool;
+  VK_FUNCTION(PFN_vkDestroyCommandPool) vkDestroyCommandPool;
+  VK_FUNCTION(PFN_vkResetCommandPool) vkResetCommandPool;
 
-  PFN_vkFlushMappedMemoryRanges vkFlushMappedMemoryRanges;
-  PFN_vkInvalidateMappedMemoryRanges vkInvalidateMappedMemoryRanges;
+  VK_FUNCTION(PFN_vkFlushMappedMemoryRanges) vkFlushMappedMemoryRanges;
+  VK_FUNCTION(PFN_vkInvalidateMappedMemoryRanges)
+  vkInvalidateMappedMemoryRanges;
 
-  PFN_vkAllocateCommandBuffers vkAllocateCommandBuffers;
-  PFN_vkFreeCommandBuffers vkFreeCommandBuffers;
+  VK_FUNCTION(PFN_vkAllocateCommandBuffers) vkAllocateCommandBuffers;
+  VK_FUNCTION(PFN_vkFreeCommandBuffers) vkFreeCommandBuffers;
 
-  PFN_vkGetBufferMemoryRequirements vkGetBufferMemoryRequirements;
-  PFN_vkBeginCommandBuffer vkBeginCommandBuffer;
+  VK_FUNCTION(PFN_vkGetBufferMemoryRequirements) vkGetBufferMemoryRequirements;
+  VK_FUNCTION(PFN_vkBeginCommandBuffer) vkBeginCommandBuffer;
 
   // Swapchain
-  PFN_vkCreateSwapchainKHR vkCreateSwapchainKHR;
-  PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR;
-  PFN_vkAcquireNextImageKHR vkAcquireNextImageKHR;
-  PFN_vkDestroySwapchainKHR vkDestroySwapchainKHR;
+  VK_FUNCTION(PFN_vkCreateSwapchainKHR) vkCreateSwapchainKHR;
+  VK_FUNCTION(PFN_vkGetSwapchainImagesKHR) vkGetSwapchainImagesKHR;
+  VK_FUNCTION(PFN_vkAcquireNextImageKHR) vkAcquireNextImageKHR;
+  VK_FUNCTION(PFN_vkDestroySwapchainKHR) vkDestroySwapchainKHR;
 
   // Shaders
-  PFN_vkCreateShaderModule vkCreateShaderModule;
-  PFN_vkDestroyShaderModule vkDestroyShaderModule;
+  VK_FUNCTION(PFN_vkCreateShaderModule) vkCreateShaderModule;
+  VK_FUNCTION(PFN_vkDestroyShaderModule) vkDestroyShaderModule;
 
   // Descriptor Pool
-  PFN_vkCreateDescriptorPool vkCreateDescriptorPool;
-  PFN_vkDestroyDescriptorPool vkDestroyDescriptorPool;
+  VK_FUNCTION(PFN_vkCreateDescriptorPool) vkCreateDescriptorPool;
+  VK_FUNCTION(PFN_vkDestroyDescriptorPool) vkDestroyDescriptorPool;
 
   // Descriptor Set
-  PFN_vkAllocateDescriptorSets vkAllocateDescriptorSets;
-  PFN_vkFreeDescriptorSets vkFreeDescriptorSets;
-  PFN_vkUpdateDescriptorSets vkUpdateDescriptorSets;
+  VK_FUNCTION(PFN_vkAllocateDescriptorSets) vkAllocateDescriptorSets;
+  VK_FUNCTION(PFN_vkFreeDescriptorSets) vkFreeDescriptorSets;
+  VK_FUNCTION(PFN_vkUpdateDescriptorSets) vkUpdateDescriptorSets;
 
   // Descriptor Set Layout
-  PFN_vkCreateDescriptorSetLayout vkCreateDescriptorSetLayout;
-  PFN_vkDestroyDescriptorSetLayout vkDestroyDescriptorSetLayout;
+  VK_FUNCTION(PFN_vkCreateDescriptorSetLayout) vkCreateDescriptorSetLayout;
+  VK_FUNCTION(PFN_vkDestroyDescriptorSetLayout) vkDestroyDescriptorSetLayout;
 
   // Pipeline Layout
-  PFN_vkCreatePipelineLayout vkCreatePipelineLayout;
-  PFN_vkDestroyPipelineLayout vkDestroyPipelineLayout;
+  VK_FUNCTION(PFN_vkCreatePipelineLayout) vkCreatePipelineLayout;
+  VK_FUNCTION(PFN_vkDestroyPipelineLayout) vkDestroyPipelineLayout;
 
   // Render Pass
-  PFN_vkCreateRenderPass vkCreateRenderPass;
-  PFN_vkDestroyRenderPass vkDestroyRenderPass;
+  VK_FUNCTION(PFN_vkCreateRenderPass) vkCreateRenderPass;
+  VK_FUNCTION(PFN_vkDestroyRenderPass) vkDestroyRenderPass;
 
 private:
   bool setup_arena_properties();
@@ -366,17 +378,19 @@ private:
   containers::dynamic_array<uint32_t> m_arena_to_vulkan_index;
 
   // Image Views
-  PFN_vkCreateImageView vkCreateImageView;
-  PFN_vkDestroyImageView vkDestroyImageView;
+  VK_FUNCTION(PFN_vkCreateImageView) vkCreateImageView;
+  VK_FUNCTION(PFN_vkDestroyImageView) vkDestroyImageView;
 
   // Framebuffers
-  PFN_vkCreateFramebuffer vkCreateFramebuffer;
-  PFN_vkDestroyFramebuffer vkDestroyFramebuffer;
+  VK_FUNCTION(PFN_vkCreateFramebuffer) vkCreateFramebuffer;
+  VK_FUNCTION(PFN_vkDestroyFramebuffer) vkDestroyFramebuffer;
 
   // Graphics Pipeline
-  PFN_vkCreateGraphicsPipelines vkCreateGraphicsPipelines;
-  PFN_vkDestroyPipeline vkDestroyPipeline;
+  VK_FUNCTION(PFN_vkCreateGraphicsPipelines) vkCreateGraphicsPipelines;
+  VK_FUNCTION(PFN_vkDestroyPipeline) vkDestroyPipeline;
 
+  vulkan_context* m_context;
+  VkPhysicalDevice m_physical_device;
   queue_context m_queue_context;
   command_list_context m_command_list_context;
   VkDevice m_device;

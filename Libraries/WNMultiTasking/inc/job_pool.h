@@ -48,6 +48,7 @@ struct fiber {
   job_priority priority;
   signal* blocking_signal = nullptr;
   size_t lock_to_thread = ~static_cast<size_t>(0);
+  containers::dynamic_array<functional::function<void()>> on_swap_to_fiber;
 };
 
 class signal {
@@ -167,6 +168,21 @@ public:
     return call_blocking_function(
         job_name, functional::function<void()>(m_allocator, t), signal);
   }
+
+  struct fiber_swap_function_handle {
+    fiber_swap_function_handle(job_pool* _pool, size_t idx)
+      : m_idx(idx), m_pool(_pool) {}
+    fiber_swap_function_handle(fiber_swap_function_handle&& _other) = default;
+    ~fiber_swap_function_handle() {
+      m_pool->pop_swap_function(m_idx);
+    }
+    size_t m_idx;
+    job_pool* m_pool;
+  };
+
+  void pop_swap_function(size_t idx);
+  fiber_swap_function_handle add_fiber_swap_function(
+      functional::function<void()> on_fiber_swap);
 
   static job_pool* this_job_pool();
   static void set_this_job_pool(job_pool* pool);

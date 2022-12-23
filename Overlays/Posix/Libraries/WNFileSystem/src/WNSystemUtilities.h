@@ -25,7 +25,6 @@ inline bool exists_file(const containers::string& _path) {
       return true;
     }
   }
-
   return false;
 }
 

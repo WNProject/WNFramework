@@ -21,7 +21,8 @@ enum class result {
   file_opening_fail,
   file_mapping_fail,
   file_size_retrieval_fail,
-  file_sizing_fail
+  file_sizing_fail,
+  not_regular_file,
 };
 
 }  // namespace file_system

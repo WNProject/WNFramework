@@ -116,9 +116,10 @@ int32_t wn_application_main(
     }
     engine::ui::ui::register_scripting(&ui_allocator, scripting_engine.get());
 
-    scripting::parse_error err = scripting_engine->parse_file("main.wns");
+    scripting::parse_error err = scripting_engine->parse_file(script_file);
     if (err != scripting::parse_error::ok) {
-      _application_data->default_log->log_critical("Could not parse main.wns");
+      _application_data->default_log->log_critical(
+          "Could not parse ", script_file);
       return -1;
     }
 
