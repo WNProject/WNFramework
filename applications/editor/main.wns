@@ -4,6 +4,7 @@
 
 include "renderer/render_data.wns"
 include "renderer/render_description.wns"
+include "application/application.wns"
 
 class MyPass : PassData {
   .render_targets = shared RenderTargetUsage[](
@@ -40,30 +41,35 @@ class MainDesc: RenderDescription(shared RenderContext rnd) {
   .output_target = 0;
 }
 
+Actor Editor : Application(Context ctx_) {
+  Context ctx = ctx_;
+  shared UI ui = null;
+  shared Window window = null;
+  shared RenderContext context = null;
 
-Int main(Context ctx) {
-  IntParam adapter = @IntParam("{\"name\":\"adapter\",\"short\":\"a\", \"description\": \"Which graphics adapter to use\"}");
+  @action override Void setup_application() {
+    IntParam adapter = @IntParam("{\"name\":\"adapter\",\"short\":\"a\", \"description\": \"Which graphics adapter to use\"}");
+    window = get_window(ctx, 1920, 1080);
+    context = get_render_context(ctx, window, adapter.get_param());
 
-  shared Window window = get_window(ctx, 1920, 1080);
-  shared RenderContext context = get_render_context(ctx, window, adapter.get_param());
+    MainDesc desc = MainDesc(context);
+    context.register_description(desc);
 
-  MainDesc desc = MainDesc(context);
-  context.register_description(desc);
-  
-  shared UI ui = get_ui_renderer(ctx);
-  context.add_renderable_to_passes(ui, CString[]("Initial Pass"){0:1});
-  Int doc1 = ui.add_document(@UIResource("assets/ui/main.rml"), 100, 100);
-  Int doc2 = ui.add_document(@UIResource("assets/ui/main.rml"), 200, 200);
-  Int doc3 = ui.add_document(@UIResource("assets/ui/main.rml"), 300, 300);
-
-  while(true) {
-
-    update_actors(); // This unblocks the next frames actions
-    context.render(); // This will spawn a bunch of work to actually render everything
-                           // at the moment this is synchronous.
-    // yield(); We don't need this any more, update_actors handles this for us.
-    //            It waits until there are no pending (at which point we can schedule a render).
+    ui = get_ui_renderer(ctx);
+    context.add_renderable_to_passes(ui, CString[]("Initial Pass"){0:1});
+    
+    ui.add_document(@UIResource("assets/ui/main.rml"), 100, 100);
+    ui.add_document(@UIResource("assets/ui/main.rml"), 200, 200);
+    ui.add_document(@UIResource("assets/ui/main.rml"), 300, 300);
+    render->next();
   }
+  @action Void render() {
+    context.render();
+    render->next();
+  }
+}
 
-  return 32;
+Application main(Context ctx) {
+  Application e = Editor(ctx);
+  return e;
 }

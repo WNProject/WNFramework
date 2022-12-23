@@ -1,5 +1,7 @@
+include "application/application.wns"
 
-Int main(Context ctx) {
+Actor Basic : Application {
+  @action override void setup_application() {
     Regex re = @Regex(".*");
     StringParam prog = @StringParam("{\"name\":\"program\",\"short\":\"p\", \"description\": \"The program to run\"}");
     StringParam a = @StringParam("{\"name\":\"arg\",\"short\":\"a\", \"description\": \"The arguments to provide to the program\"}");
@@ -13,5 +15,11 @@ Int main(Context ctx) {
     log_error().o("Process Return: ").o(proc.join()).end();
     log_info().o("stdout:\n").o(proc.get_stdout()).end();
     log_error().o("stderr:\n").o(proc.get_stdout()).end();
-    return proc.join();
+    ret = proc.join();
+    should_shut_down = true;
+  }
+}
+
+Application main(Context ctx) {
+  return Basic();
 }

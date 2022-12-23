@@ -69,6 +69,9 @@ struct exported_script_type<wn::support::command_line_param<T>> {
     _exporter->template register_nonvirtual_function<
         decltype(&support::command_line_param<T>::get_num_params),
         &support::command_line_param<T>::get_num_params>("get_num_params");
+    _exporter->template register_nonvirtual_function<
+        decltype(&support::command_line_param<T>::get_all_params),
+        &support::command_line_param<T>::get_all_params>("get_all_params");
   }
 };
 
@@ -87,7 +90,7 @@ inline bool command_line_param<int32_t>::parse(const char* v) {
   if (endptr == v) {
     return false;
   }
-  param.push_front(val);
+  param.push_back(val);
   return true;
 }
 
@@ -97,13 +100,13 @@ inline bool command_line_param<const char*>::parse(const char* v) {
   if (it == containers::string_view::npos) {
     return false;
   }
-  param.push_front(v + it + 1);
+  param.push_back(v + it + 1);
   return true;
 }
 
 template <>
 inline bool command_line_param<bool>::parse(const char* v) {
-  param.push_front(!containers::string_view(v).starts_with("--no-"));
+  param.push_back(!containers::string_view(v).starts_with("--no-"));
   return true;
 }
 
@@ -131,7 +134,7 @@ bool command_line_resource_manager<T>::convert_to_function(
   containers::string param_name(m_allocator);
   containers::string param_short(m_allocator);
   containers::string param_description(m_allocator);
-
+  bool is_required = false;
   containers::dynamic_array<containers::dynamic_array<const char*>> verb(
       m_allocator);
 
@@ -180,6 +183,12 @@ bool command_line_resource_manager<T>::convert_to_function(
         return false;
       }
       param_description = it->value.GetString();
+    } else if (containers::string_view(it->name.GetString()) == "required") {
+      if (!it->value.IsBool()) {
+        _log->log_error("'required' must be a boolean value");
+        return false;
+      }
+      is_required = it->value.GetBool();
     } else if (containers::string_view(it->name.GetString()) == "verb") {
       if (!it->value.IsArray()) {
         _log->log_error("'verb' must be an array value");
@@ -223,7 +232,7 @@ bool command_line_resource_manager<T>::convert_to_function(
     m->description =
         containers::string(m_allocator, core::move(param_description));
     m->type = type_name<T>::name();
-
+    m->m_required = is_required;
     _user_data->emplace(reinterpret_cast<uintptr_t>(m_manager->add_command_line(
         _log, containers::contiguous_range<const char*>(verb[i]),
         core::move(m))));
@@ -234,6 +243,7 @@ bool command_line_resource_manager<T>::convert_to_function(
   m->short_name = core::move(param_short);
   m->description = core::move(param_description);
   m->type = type_name<T>::name();
+  m->m_required = is_required;
   containers::contiguous_range<const char*> v;
   if (verb.size()) {
     v = verb[0];

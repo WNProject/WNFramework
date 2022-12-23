@@ -12,6 +12,28 @@ command_line_param<T>* get_param(void* st) {
   return reinterpret_cast<command_line_param<T>*>(st);
 }
 
+void application::register_scripting(scripting::engine* _engine) {
+  _engine->export_script_actor_type<application>();
+}
+
+bool application::resolve_scripting(scripting::engine* _engine) {
+  return _engine->resolve_script_actor_type<application>();
+}
+
+wn::containers::string_view application::exported_name() {
+  return "Application";
+}
+
+wn::containers::string_view application::required_script() {
+  return "application/application.wns";
+}
+
+void application::export_type(
+    scripting::engine::script_type_importer<application>* _importer) {
+  _importer->register_function("setup_application", &setup_application);
+  _importer->register_function("shutdown", &shutdown);
+}
+
 void command_line_manager::register_scripting(
     memory::allocator* _allocator, scripting::engine* _engine) {
   _engine->register_cpp_type<command_line_param<int32_t>>();
@@ -283,7 +305,7 @@ bool command_line_manager::resolve_scripting(scripting::engine* _engine) {
   return true;
 }
 
-int32_t verb::run_application(
+scripting::script_actor_pointer<application> verb::run_application(
     scripting::engine* _engine, engine_base::context* _context) {
   if (m_current_child_verb) {
     return m_current_child_verb->run_application(_engine, _context);
@@ -291,14 +313,22 @@ int32_t verb::run_application(
   return _engine->invoke(m_function, _context);
 }
 
-int32_t command_line_manager::run_application(
+scripting::script_actor_pointer<application>
+command_line_manager::run_application(
     scripting::engine* _engine, engine_base::context* _context) {
   if (m_current_verb) {
     return m_current_verb->run_application(_engine, _context);
   }
   if (!m_main) {
     m_log->log_error("Cannot find main function");
-    return -1;
+    return nullptr;
+  }
+  for (auto& it : m_parameters) {
+    if (it.second->m_required && it.second->get_num_params() == 0) {
+      m_log->log_error(
+          "Cannot find required parameter `", it.second->name, "`.");
+      return nullptr;
+    }
   }
   return _engine->invoke(m_main, _context);
 }

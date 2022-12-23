@@ -245,6 +245,23 @@ public:
     return false;
   }
 
+  bool can_transparently_cast_to(const ast_type* _other) const {
+    if (_other == this) {
+      return true;
+    }
+
+    if (m_builtin == builtin_type::size_type &&
+        _other->m_builtin == builtin_type::integral_type) {
+      return true;
+    }
+    if (m_builtin == builtin_type::integral_type &&
+        _other->m_builtin == builtin_type::size_type) {
+      return true;
+    }
+
+    return false;
+  }
+
   void calculate_mangled_name(memory::allocator* _allocator) {
     if (!m_mangled_name.empty()) {
       return;
@@ -810,8 +827,9 @@ struct ast_function : public ast_node {
     d->m_scope = clone_ast_node(_allocator, m_scope.get());
     d->m_return_type = m_return_type;
     d->m_is_synchronized = m_is_synchronized;
-    d->m_action_function = m_action_function;
     d->m_is_action_caller = m_is_action_caller;
+    d->m_action_function = m_action_function;
+    d->m_action_call_function = m_action_call_function;
     auto& params = d->initialized_parameters(_allocator);
     for (auto& param : m_parameters) {
       params.emplace_back(containers::string(_allocator, param.m_name),

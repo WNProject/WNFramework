@@ -607,6 +607,17 @@ ast_function* type_manager::add_external(
   function->m_name = _function.name.to_string(m_allocator);
   function->m_is_non_scripting = _is_system;
   function->m_is_member_function = _is_member;
+  if (!_function.m_mangled_action_call_function.empty()) {
+    function->m_action_call_function =
+        m_externals_by_name[_function.m_mangled_action_call_function];
+  }
+  if (!_function.m_mangled_action_function_name.empty()) {
+    function->m_action_function =
+        m_externals_by_name[_function.m_mangled_action_function_name];
+  }
+  function->m_function_pointer_type = resolve_function_ptr_type(
+      containers::dynamic_array<const ast_type*>(m_allocator, _function.params),
+      nullptr);
 
   char count[11] = {
       0,
@@ -710,6 +721,18 @@ void type_manager::finalize_functions(
       e.name = fn->m_name;
       t.second->m_destructor = add_external(e, false, false);
     }
+    if (t.second->m_actor_update && !t.second->m_actor_update->m_is_external) {
+      auto& fn = t.second->m_actor_update;
+      external_function e;
+      e.params = containers::dynamic_array<const ast_type*>(m_allocator);
+      e.params.reserve(fn->m_parameters.size() + 1);
+      e.params.push_back(fn->m_return_type);
+      for (auto& p : fn->m_parameters) {
+        e.params.push_back(p.m_type);
+      }
+      e.name = fn->m_name;
+      t.second->m_actor_update = add_external(e, false, false);
+    }
     for (auto& fn : t.second->m_member_functions) {
       if (!fn->m_is_external) {
         external_function e;
@@ -720,6 +743,15 @@ void type_manager::finalize_functions(
           e.params.push_back(p.m_type);
         }
         e.name = fn->m_name;
+        if (fn->m_action_call_function) {
+          e.m_mangled_action_call_function =
+              fn->m_action_call_function->m_mangled_name;
+        }
+        if (fn->m_action_function) {
+          e.m_mangled_action_function_name =
+              fn->m_action_function->m_mangled_name;
+        }
+
         auto ext = add_external(e, false, true);
         ext->m_is_virtual = fn->m_is_virtual;
         ext->m_is_override = fn->m_is_override;

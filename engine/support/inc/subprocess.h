@@ -18,15 +18,6 @@ class context;
 }
 namespace support {
 
-struct subprocess_args {
-  containers::dynamic_array<containers::string> args;
-  memory::allocator* allocator;
-  subprocess_args(engine_base::context* _context);
-  void append(const char* arg) {
-    args.push_back(containers::string(allocator, arg));
-  }
-};
-
 class subprocess {
 public:
   static void register_scripting(
@@ -35,8 +26,6 @@ public:
 
   subprocess(memory::allocator* _allocator, engine_base::context* _context,
       const char* _program, const scripting::slice<const char*> _args);
-  subprocess(memory::allocator* _allocator, engine_base::context* _context,
-      const char* _program, const subprocess_args* _args);
   ~subprocess();
   int32_t join();
   const char* get_stdout();

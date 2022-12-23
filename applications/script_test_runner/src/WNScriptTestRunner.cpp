@@ -299,12 +299,18 @@ public:
     function->function(function);
   }
 
-  void update_actors() override {
+  std::chrono::time_point<std::chrono::high_resolution_clock> update_actors()
+      override {
     for (auto& it : m_actors) {
       it->update_values(it + 1);
     }
+    return std::chrono::high_resolution_clock::now();
   }
 
+  void wait(multi_tasking::signal_ptr&, uint64_t) override {}
+  logging::log* get_log() override {
+    return nullptr;
+  }
   wn::memory::allocator* m_allocator;
   wn::containers::hash_set<wn::scripting::actor_header*> m_actors;
 };

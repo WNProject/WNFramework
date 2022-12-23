@@ -65,7 +65,7 @@ struct parse_ast_convertor::convertor_context {
       const expression* _expression);
   memory::unique_ptr<ast_expression> resolve_id(
       const id_expression* _expression);
-  memory::unique_ptr<ast_constant> resolve_constant(
+  memory::unique_ptr<ast_expression> resolve_constant(
       const constant_expression* _expression);
   memory::unique_ptr<ast_constant> get_constant(const node* _node,
       const ast_type* _type, const containers::string& value);
@@ -142,10 +142,11 @@ struct parse_ast_convertor::convertor_context {
   // If _end_scope_block == nullptr, then cleans all scopes.
   void clean_scopes(ast_scope_block* _end_scope_block = nullptr);
 
-  void use_function(const ast_function* _function) {
+  const ast_function* use_function(const ast_function* _function) {
     if (_function && _function->m_is_external) {
       m_used_externals.insert(_function);
     }
+    return _function;
   }
   memory::allocator* m_allocator;
   const parse_ast_convertor* m_convertor;

@@ -39,8 +39,8 @@ private:
   template <typename U, typename UU, typename... UArgs>
   friend class scripting_virtual_object_function;
 
-  template <typename U, typename UU, typename... UArgs>
-  friend class scripting_virtual_actor_function;
+  template <typename U, typename... UArgs>
+  friend class scripting_actor_action;
 
   void_f m_function;
 };
@@ -107,13 +107,14 @@ private:
   size_t m_vtable_idx = 0;
 };
 
-template <typename T, typename R, typename... Args>
-class scripting_virtual_actor_function final {
+template <typename T, typename... Args>
+class scripting_actor_action final {
 public:
-  using ret_type = R;
+  using ret_type = void;
 
 private:
-  ret_type do_(engine* _engine, script_pointer<T>& _ptr, Args... args);
+  ret_type do_(
+      engine* _engine, int32_t ct, script_pointer<T>& _ptr, Args... args);
 
   friend class engine;
 
@@ -123,9 +124,7 @@ private:
   template <typename U>
   friend class shared_script_pointer;
 
-  script_function<R, script_pointer<T>, Args...> m_function;
-  size_t m_vtable_offset = 0;
-  size_t m_vtable_idx = 0;
+  script_function<void, int32_t, script_pointer<T>, Args...> m_function;
 };
 
 // Implementors of this class are expected to take
@@ -253,6 +252,18 @@ public:
       m_success &= success;
     }
 
+    template <typename... Args>
+    void register_function(const containers::string_view& _name,
+        scripting_actor_action<T, Args...>* _ptr) {
+      bool success =
+          m_engine->get_member_actor_action(_name, &_ptr->m_function);
+      if (!success) {
+        m_engine->m_log->log_error(
+            "Could not find member ", _name, " on type ", T::exported_name());
+      }
+      m_success &= success;
+    }
+
     template <typename R, typename... Args>
     void register_function(const containers::string_view& _name,
         scripting_actor_function<T, R, Args...>* _ptr) {
@@ -267,28 +278,6 @@ public:
     template <typename R, typename... Args>
     void register_function(const containers::string_view& _name,
         scripting_virtual_object_function<T, R, Args...>* _ptr) {
-      size_t virtual_index =
-          m_engine->get_virtual_function<R, script_pointer<T>, Args...>(_name);
-      _ptr->m_vtable_idx = virtual_index;
-      _ptr->m_vtable_offset = m_engine->get_vtable_offset<T>();
-      bool success = true;
-      if (_ptr->m_vtable_offset == static_cast<size_t>(-1)) {
-        success = false;
-        m_engine->m_log->log_error(
-            T::exported_name(), " does not have any virtual functions");
-      }
-
-      if (virtual_index == static_cast<size_t>(-1)) {
-        success = false;
-        m_engine->m_log->log_error("Could not find virtual function ", _name,
-            " on type ", T::exported_name());
-      }
-
-      m_success &= success;
-    }
-    template <typename R, typename... Args>
-    void register_function(const containers::string_view& _name,
-        scripting_virtual_actor_function<T, R, Args...>* _ptr) {
       size_t virtual_index =
           m_engine->get_virtual_function<R, script_pointer<T>, Args...>(_name);
       _ptr->m_vtable_idx = virtual_index;
@@ -331,6 +320,10 @@ protected:
   bool get_member_function(containers::string_view _name,
       script_function<R, Args...>* _function) const;
 
+  template <typename... Args>
+  bool get_member_actor_action(containers::string_view _name,
+      script_function<void, int32_t, Args...>* _function) const;
+
   template <typename R, typename... Args>
   bool get_function_internal(containers::string_view _name,
       script_function<R, Args...>* _function, bool _is_member) const;
@@ -339,6 +332,10 @@ protected:
   bool get_named_actor_function_internal(containers::string_view _name,
       containers::string_view _object_name,
       script_function<void, int32_t, void*, Args...>* _function) const;
+
+  template <typename... Args>
+  bool get_actor_function_internal(containers::string_view _name,
+      script_function<void, int32_t, Args...>* _function) const;
 
   template <typename R, typename... Args>
   size_t get_virtual_function(containers::string_view _name) const;
@@ -398,18 +395,11 @@ scripting_virtual_object_function<T, R, Args...>::do_(
   return _engine->invoke(temp_function, _ptr, args...);
 }
 
-template <typename T, typename R, typename... Args>
-typename scripting_virtual_actor_function<T, R, Args...>::ret_type
-scripting_virtual_actor_function<T, R, Args...>::do_(
-    engine* _engine, script_pointer<T>& _ptr, Args... args) {
-  uint8_t* ptr = static_cast<uint8_t*>(_ptr.unsafe_ptr());
-  auto temp_function = m_function;
-
-  ptr += m_vtable_offset;
-  temp_function.m_function =
-      reinterpret_cast<void_f>((*reinterpret_cast<void***>(ptr))[m_vtable_idx]);
-
-  return _engine->invoke(temp_function, _ptr, args...);
+template <typename T, typename... Args>
+typename scripting_actor_action<T, Args...>::ret_type
+scripting_actor_action<T, Args...>::do_(
+    engine* _engine, int32_t delay, script_pointer<T>& _ptr, Args... args) {
+  return _engine->invoke(m_function, delay, _ptr, args...);
 }
 
 }  // namespace scripting

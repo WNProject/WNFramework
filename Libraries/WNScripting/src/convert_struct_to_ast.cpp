@@ -280,7 +280,9 @@ ast_type* parse_ast_convertor::convertor_context::walk_struct_definition(
       // we can inline the whole thing, no need to deal with indirection.
       if (decl->m_type->m_classification ==
           ast_type_classification::reference) {
-        if (!decl->m_type->m_implicitly_contained_type->m_struct_is_class) {
+        if ((decl->m_type->m_implicitly_contained_type->m_classification !=
+                ast_type_classification::extern_type) &&
+            !decl->m_type->m_implicitly_contained_type->m_struct_is_class) {
           decl->m_type = decl->m_type->m_implicitly_contained_type;
         }
       }

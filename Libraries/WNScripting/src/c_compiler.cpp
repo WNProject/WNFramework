@@ -1114,9 +1114,11 @@ bool c_compiler::write_call_function(
     // If this is a virtual function, then the first parameter is the "this"
     // pointer. Therefore we find the vtable from that, and call the
     // appropriate wrapper function.
-
-    const ast_vtable* vtable =
-        _call->m_parameters[0]->m_type->m_implicitly_contained_type->m_vtable;
+    auto t = _call->m_parameters[0]->m_type;
+    if (!t->is_synchronized()) {
+      t = t->m_implicitly_contained_type;
+    };
+    const ast_vtable* vtable = t->m_vtable;
     m_output += m_vtable_functions[vtable][_call->m_function->m_virtual_index];
   } else {
     m_output += _call->m_function->m_mangled_name;
@@ -1441,6 +1443,42 @@ bool c_compiler::write_cast_expression(const ast_cast_expression* _expression) {
       return false;
     }
     m_output += "}";
+    return true;
+  }
+
+  if (_expression->m_type->m_builtin == builtin_type::integral_type &&
+      _expression->m_base_expression->m_type->m_builtin ==
+          builtin_type::size_type) {
+    m_output += "(";
+    m_output += "(";
+    if (!write_type(_expression->m_type)) {
+      return false;
+    }
+    m_output += ")";
+    m_output += "(";
+    if (!write_expression(_expression->m_base_expression.get())) {
+      return false;
+    }
+    m_output += ")";
+    m_output += ")";
+    return true;
+  }
+
+  if (_expression->m_type->m_builtin == builtin_type::size_type &&
+      _expression->m_base_expression->m_type->m_builtin ==
+          builtin_type::integral_type) {
+    m_output += "(";
+    m_output += "(";
+    if (!write_type(_expression->m_type)) {
+      return false;
+    }
+    m_output += ")";
+    m_output += "(";
+    if (!write_expression(_expression->m_base_expression.get())) {
+      return false;
+    }
+    m_output += ")";
+    m_output += ")";
     return true;
   }
 

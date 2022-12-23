@@ -73,7 +73,7 @@ struct exporter : public exporter_base {
 #endif
         member_thunk(T* t, typename get_thunk_passed_type<Args>::type... args) {
       tls_resetter reset;
-      return get_thunk_passed_type<R>::unwrap(
+      return get_thunk_passed_type<R>::wrap_return(
           (t->*fn)(get_thunk_passed_type<Args>::unwrap(args)...));
     }
 
@@ -86,7 +86,7 @@ struct exporter : public exporter_base {
             typename get_thunk_passed_type<Args>::type... args,
             typename get_thunk_passed_type<R>::ret_type* _ret) {
       tls_resetter reset;
-      *_ret = get_thunk_passed_type<R>::unwrap(
+      *_ret = get_thunk_passed_type<R>::wrap_return(
           (t->*fn)(get_thunk_passed_type<Args>::unwrap(args)...));
     }
   };

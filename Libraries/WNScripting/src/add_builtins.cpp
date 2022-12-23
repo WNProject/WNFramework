@@ -56,11 +56,6 @@ bool type_manager::add_builtin_functions() {
     m_log->log_error("External function _call_actor_function");
     return false;
   }
-  if (m_externals_by_name.find(containers::string(m_allocator,
-          "_ZN3wns13update_actorsEv")) == m_externals_by_name.end()) {
-    m_log->log_error("External function update_actors");
-    return false;
-  }
   m_allocate_actor_call =
       m_externals_by_name["_ZN3wns20_allocate_actor_callEPvN3wns4sizeE"];
   m_free_actor_call = m_externals_by_name["_ZN3wns16_free_actor_callEvPv"];
@@ -943,7 +938,7 @@ void type_manager::add_strlen() {
   auto fn = memory::make_unique<ast_function>(m_allocator, nullptr);
   fn->m_is_builtin = true;
   fn->m_name = containers::string(m_allocator, "_wns_strlen");
-  fn->m_return_type = m_integral_types[32].get();
+  fn->m_return_type = m_size_t.get();
   auto scope = memory::make_unique<ast_scope_block>(m_allocator, nullptr);
   scope->m_returns = true;
   auto& body = scope->initialized_statements(m_allocator);
@@ -965,30 +960,30 @@ void type_manager::add_strlen() {
   memory::unique_ptr<ast_declaration> decl =
       memory::make_unique<ast_declaration>(m_allocator, nullptr);
   decl->m_name = temp;
-  decl->m_type = m_integral_types[32].get();
+  decl->m_type = m_size_t.get();
 
   auto zero = memory::make_unique<ast_constant>(m_allocator, nullptr);
-  zero->m_type = m_integral_types[32].get();
-  zero->m_node_value.m_integer = 0;
+  zero->m_type = m_size_t.get();
+  zero->m_node_value.m_size_t = 0;
   zero->m_string_value = containers::string(m_allocator, "0");
 
   decl->m_initializer = core::move(zero);
 
   auto sizer = memory::make_unique<ast_id>(m_allocator, nullptr);
-  sizer->m_type = m_integral_types[32].get();
+  sizer->m_type = m_size_t.get();
   sizer->m_declaration = decl.get();
   body.push_back(core::move(decl));
 
   auto const_one = memory::make_unique<ast_constant>(m_allocator, nullptr);
-  const_one->m_type = m_integral_types[32].get();
-  const_one->m_node_value.m_integer = 1;
+  const_one->m_type = m_size_t.get();
+  const_one->m_node_value.m_size_t = 1;
   const_one->m_string_value = containers::string(m_allocator, "1");
 
   auto add = memory::make_unique<ast_binary_expression>(m_allocator, nullptr);
   add->m_binary_type = ast_binary_type::add;
   add->m_lhs = clone_ast_node(m_allocator, sizer.get());
   add->m_rhs = core::move(const_one);
-  add->m_type = m_integral_types[32].get();
+  add->m_type = m_size_t.get();
 
   auto assign = memory::make_unique<ast_assignment>(m_allocator, nullptr);
   assign->m_lhs = clone_ast_node(m_allocator, sizer.get());

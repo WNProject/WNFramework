@@ -1,0 +1,47 @@
+include "application/application.wns"
+
+Actor AdbListener : Application(Context ctx_, CString adb_) {
+    Context ctx = ctx_;
+    CString adb = adb_;
+    Int i = 100;
+    @action override Void setup_application() {
+        start_listening->();
+    }
+    @action Void start_listening() {
+        if (!listen()) {
+            return;
+        }
+        i = i - 1;
+        if (i == 0) {
+            log_info().o("Out").end_flush();
+            should_shut_down = true;
+            return;
+        }
+        start_listening->5000();
+    }
+    Bool listen() {
+        CString[] cs = CString[]("devices", "-l");
+        Subprocess proc = make_subprocess(ctx, adb, cs{0:length(cs)});
+        Int r = proc.join();
+        if (r != 0) {
+            log_error().o("stderr:\n").o(proc.get_stderr()).end();
+            return false;
+        }
+        String s = make_string(proc.get_stdout());
+        Split splits = split_string(s, "\r\n");
+        Int nlines = splits.num_splits();
+        log_info().o("Android Devices:").end_flush();
+        for (Int j = 0; j < nlines; j = j + 1) {
+            Split line_splits = splits.split_split(j, " \t");
+            if (line_splits.num_splits() != 6) {
+                continue;
+            }
+            log_info().o("    ")
+                .o("Serial:").o(line_splits.get_split(0))
+                .o("    Model:").o(line_splits.split_split(3, ":").get_split(1))
+                .o("    Device:").o(line_splits.split_split(2, ":").get_split(1))
+                .end_flush();
+        }
+        return true;
+    }
+}

@@ -10,11 +10,16 @@
 #include "WNMemory/inc/unique_ptr.h"
 
 namespace wn {
+namespace multi_tasking {
+class signal_ptr;
+}
+
 namespace scripting {
 
 class engine;
 struct script_object_type;
 struct script_actor_type;
+struct actor_function;
 
 struct actor_header {
   void* user_data;
@@ -47,7 +52,12 @@ public:
   // the same time.
   virtual void call_actor_function(int32_t delay, actor_function* function) = 0;
 
-  virtual void update_actors() = 0;
+  virtual std::chrono::time_point<std::chrono::high_resolution_clock>
+  update_actors() = 0;
+
+  virtual void wait(multi_tasking::signal_ptr& signal, uint64_t value) = 0;
+
+  virtual logging::log* get_log() = 0;
 };
 
 struct scripting_tls_data final {
@@ -60,11 +70,10 @@ struct scripting_tls_data final {
   memory::allocator* _support_allocator;
   memory::allocator* _actor_allocator;
   scripting_runtime* _runtime;
+  mutable actor_function* _actor = nullptr;
 };
 
 const scripting_tls_data*& get_scripting_tls();
-
-extern thread_local const scripting_tls_data* g_scripting_tls;
 
 class tls_resetter final {
 public:

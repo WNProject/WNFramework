@@ -181,7 +181,7 @@ parse_ast_convertor::convertor_context::get_constant(
   return nullptr;
 }
 
-memory::unique_ptr<ast_constant>
+memory::unique_ptr<ast_expression>
 parse_ast_convertor::convertor_context::resolve_constant(
     const constant_expression* _const) {
   const ast_type* const_type = nullptr;
@@ -217,6 +217,24 @@ parse_ast_convertor::convertor_context::resolve_constant(
     case static_cast<uint32_t>(type_classification::void_ptr_type): {
       const_type = m_type_manager->void_ptr_t(&m_used_types);
       break;
+    }
+    case static_cast<uint32_t>(type_classification::this_type): {
+      if (m_current_function->m_is_member_function) {
+        memory::unique_ptr<ast_id> c =
+            memory::make_unique<ast_id>(m_allocator, _const);
+        c->m_function_parameter = &m_current_function->m_parameters[0];
+        c->m_type = m_current_function->m_parameters[0].m_type;
+        if (!c->m_type->m_is_synchronized) {
+          _const->log_line(m_log, logging::log_level::error);
+          m_log->log_error(
+              "This pointer is only valid in actors at the moment");
+          return nullptr;
+        }
+        return core::move(c);
+      }
+      _const->log_line(m_log, logging::log_level::error);
+      m_log->log_error("Cannot get this pointer in non-member method");
+      return nullptr;
     }
     default:
       WN_RELEASE_ASSERT(false, "Unhandled: Custom constants");
@@ -1272,9 +1290,10 @@ parse_ast_convertor::convertor_context::resolve_slice_expression(
   transfer_temporaries(slice.get(), outer_expr.get());
   if (_slice->get_index0()) {
     auto index0 = resolve_expression(_slice->get_index0());
-    if (index0->m_type != m_type_manager->integral(32, &m_used_types)) {
+    if (index0->m_type != m_type_manager->integral(32, &m_used_types) &&
+        index0->m_type != m_type_manager->size_t_t(&m_used_types)) {
       _slice->log_line(m_log, logging::log_level ::error);
-      m_log->log_error("Array slice must be an integer");
+      m_log->log_error("Array slice must be an integer or size");
       return nullptr;
     }
     transfer_temporaries(slice.get(), index0.get());
@@ -1297,7 +1316,8 @@ parse_ast_convertor::convertor_context::resolve_slice_expression(
     if (!index1) {
       return nullptr;
     }
-    if (index1->m_type != m_type_manager->integral(32, &m_used_types)) {
+    if (index1->m_type != m_type_manager->integral(32, &m_used_types) &&
+        index1->m_type != m_type_manager->size_t_t(&m_used_types)) {
       _slice->log_line(m_log, logging::log_level ::error);
       m_log->log_error("Array slice must be an integer");
       return nullptr;
@@ -1638,7 +1658,7 @@ parse_ast_convertor::convertor_context::resolve_builtin_unary_expression(
             memory::make_unique<ast_builtin_expression>(m_allocator, _expr);
         builtin->m_builtin_type = builtin_expression_type::array_length;
         builtin->initialized_expressions(m_allocator).push_back(core::move(c));
-        builtin->m_type = m_type_manager->integral(32, &m_used_types);
+        builtin->m_type = m_type_manager->size_t_t(&m_used_types);
         return builtin;
       }
     }
@@ -1904,7 +1924,7 @@ parse_ast_convertor::convertor_context::resolve_actor_allocation_expression(
     auto d = memory::make_unique<ast_function_pointer_expression>(
         m_allocator, _alloc);
     d->m_type = alloc_type->m_actor_update->m_function_pointer_type;
-    d->m_function = alloc_type->m_actor_update;
+    d->m_function = use_function(alloc_type->m_actor_update);
     update = core::move(d);
   } else {
     auto const_null = memory::make_unique<ast_constant>(m_allocator, _alloc);

@@ -72,6 +72,12 @@ bool inline engine::get_member_function(containers::string_view _name,
 }
 
 template <typename... Args>
+bool inline engine::get_member_actor_action(containers::string_view _name,
+    script_function<void, int32_t, Args...>* _function) const {
+  return get_actor_function_internal<Args...>(_name, _function);
+}
+
+template <typename... Args>
 bool inline engine::get_named_actor_function(containers::string_view _name,
     containers::string_view _object_type,
     script_function<void, int32_t, void*, Args...>* _function) const {
@@ -100,6 +106,26 @@ bool inline engine::get_named_actor_function_internal(
     s += count;
     s += _object_name;
   }
+  for (auto& param : signature_types) {
+    s += param;
+  }
+
+  _function->m_function = get_function_pointer(s);
+  return _function->m_function != nullptr;
+}
+
+template <typename... Args>
+bool inline engine::get_actor_function_internal(containers::string_view _name,
+    script_function<void, int32_t, Args...>* _function) const {
+  containers::dynamic_array<containers::string_view> signature_types =
+      m_type_manager.get_mangled_names<Args...>();
+
+  containers::string nm(m_allocator, "__call__action__");
+  nm += _name;
+
+  containers::string s = get_mangled_name(m_allocator, nm);
+  s += m_type_manager.get_mangled_name<void>();
+  s += m_type_manager.get_mangled_name<int32_t>();
   for (auto& param : signature_types) {
     s += param;
   }
@@ -457,7 +483,9 @@ containers::string engine::get_resource_data(containers::string_view _file) {
 
 void inline engine::act(scripting::actor_function* function) {
   tls_resetter reset(&m_tls_data);
+  scripting::get_scripting_tls()->_actor = function;
   function->function(function);
+  scripting::get_scripting_tls()->_actor = nullptr;
 }
 
 void inline engine::update(scripting::actor_header* actor) {

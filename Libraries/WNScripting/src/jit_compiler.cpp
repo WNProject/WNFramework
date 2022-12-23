@@ -212,6 +212,11 @@ bool internal::jit_compiler_context::compile(const ast_script_file* _file) {
       return false;
     }
   }
+  for (auto& function : _file->m_used_externals) {
+    if (!forward_declare_function(function, true)) {
+      return false;
+    }
+  }
   for (auto& function : _file->m_used_builtins) {
     if (!forward_declare_function(function, false)) {
       return false;
@@ -840,9 +845,11 @@ llvm::Value* internal::jit_compiler_context::get_function_pointer(
 
 llvm::Value* internal::jit_compiler_context::get_virtual_function(
     const ast_function_call_expression* _call, llvm::Value* _this) {
-  uint32_t vtable_offset =
-      _call->m_parameters[0]
-          ->m_type->m_implicitly_contained_type->m_vtable_index;
+  auto t = _call->m_parameters[0]->m_type;
+  if (!t->is_synchronized()) {
+    t = t->m_implicitly_contained_type;
+  }
+  uint32_t vtable_offset = t->m_vtable_index;
 
   llvm::Value* gep[2] = {i32(0), i32(vtable_offset)};
   llvm::Value* gep2[1] = {i32(_call->m_function->m_virtual_index)};
@@ -975,6 +982,20 @@ llvm::Value* internal::jit_compiler_context::get_cast(
       _expression->m_base_expression->m_type->m_builtin ==
           builtin_type::nullptr_type) {
     return llvm::ConstantAggregateZero::get(m_types[_expression->m_type]);
+  }
+
+  if (_expression->m_type->m_builtin == builtin_type::integral_type &&
+      _expression->m_base_expression->m_type->m_builtin ==
+          builtin_type::size_type) {
+    return m_function_builder->CreateIntCast(
+        expr, get_type(_expression->m_type), false);
+  }
+
+  if (_expression->m_type->m_builtin == builtin_type::size_type &&
+      _expression->m_base_expression->m_type->m_builtin ==
+          builtin_type::integral_type) {
+    return m_function_builder->CreateIntCast(
+        expr, get_type(_expression->m_type), false);
   }
 
   bool is_int_to_ptr = _expression->m_type->m_classification ==
@@ -1620,8 +1641,8 @@ bool internal::jit_compiler_context::write_assignment(
   if (!load) {
     return false;
   }
-  lhs = load->getOperand(0);
-  m_function_builder->CreateStore(rhs, lhs);
+  llvm::Value* new_lhs = load->getOperand(0);
+  m_function_builder->CreateStore(rhs, new_lhs);
   load->removeFromParent();
   delete load;
   return true;

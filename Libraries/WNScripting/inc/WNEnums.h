@@ -56,6 +56,7 @@ enum class type_classification {
   size_type,
   void_ptr_type,
   nullptr_type,
+  this_type,
   function_ptr_type,
   vtable_type,
   runtime_array_type,

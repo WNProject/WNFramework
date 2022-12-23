@@ -57,10 +57,14 @@ bool parse_ast_convertor::convertor_context::resolve_return(
       }
     }
 
-    if (expr->m_type != m_current_function->m_return_type) {
+    if (!expr->m_type->can_transparently_cast_to(
+            m_current_function->m_return_type)) {
       _instruction->log_line(m_log, logging::log_level::error);
       m_log->log_error("Returned value must match the function");
       return false;
+    }
+    if (expr->m_type != m_current_function->m_return_type) {
+      expr = make_cast(core::move(expr), m_current_function->m_return_type);
     }
 
     auto id_expr = memory::make_unique<ast_id>(m_allocator, _instruction);

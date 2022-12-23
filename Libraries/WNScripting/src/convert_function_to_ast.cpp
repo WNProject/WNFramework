@@ -477,6 +477,7 @@ bool parse_ast_convertor::convertor_context::resolve_function(
     m_return_decl = nullptr;
 
   } else {
+    m_return_parameter = nullptr;
     m_return_decl = nullptr;
   }
 
