@@ -30,6 +30,8 @@
 #include "renderer/inc/temporary_objects.h"
 #include "renderer/inc/texture.h"
 
+#include <chrono>
+
 namespace wn {
 namespace file_system {
 class mapping;
@@ -103,6 +105,7 @@ private:
   int32_t m_height;
   int32_t m_output_rt;
   uint64_t m_frame_num = 0;
+  uint64_t m_last_second_frame = 0;
   uint64_t m_last_up_to_date_frame = 0;
   int32_t m_last_up_to_date_width = 0;
   int32_t m_last_up_to_date_height = 0;
@@ -154,6 +157,8 @@ private:
   containers::dynamic_array<
       containers::list<scripting::shared_cpp_pointer<renderable_object>>>
       m_pending_renderables;
+  std::chrono::time_point<std::chrono::high_resolution_clock> m_time;
+
   friend class render_target;
 };
 
