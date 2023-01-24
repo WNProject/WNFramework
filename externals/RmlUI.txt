@@ -119,8 +119,8 @@ set(Core_PUB_HDR_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Include/RmlUi/Core/Colour.h
     ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Include/RmlUi/Core/Colour.inl
     ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Include/RmlUi/Core/ComputedValues.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Include/RmlUi/Core/Containers/chobo/flat_map.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Include/RmlUi/Core/Containers/chobo/flat_set.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Include/RmlUi/Core/Containers/itlib/flat_map.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Include/RmlUi/Core/Containers/itlib/flat_set.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Include/RmlUi/Core/Containers/robin_hood.h
     ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Include/RmlUi/Core/Context.h
     ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Include/RmlUi/Core/ContextInstancer.h
