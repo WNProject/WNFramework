@@ -1,4 +1,3 @@
-
 set(Core_HDR_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/Clock.h
     ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/ComputeProperty.h
@@ -434,15 +433,15 @@ set(Debugger_SRC_FILES
 )
 
 set(Font_HDR_FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/FontEngineDefault/FontEngineInterfaceDefault.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/FontEngineDefault/FontFace.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/FontEngineDefault/FontFaceHandleDefault.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/FontEngineDefault/FontFaceLayer.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/FontEngineDefault/FontFamily.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/FontEngineDefault/FontProvider.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/FontEngineDefault/FontTypes.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/FontEngineDefault/FreeTypeInterface.h
-    )
+    ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/FontEngineDefault/FontEngineInterfaceDefault.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/FontEngineDefault/FontFace.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/FontEngineDefault/FontFaceHandleDefault.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/FontEngineDefault/FontFaceLayer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/FontEngineDefault/FontFamily.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/FontEngineDefault/FontProvider.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/FontEngineDefault/FontTypes.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/FontEngineDefault/FreeTypeInterface.h
+)
 
 set(Font_SRC_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/rmlui/Source/Core/FontEngineDefault/FontEngineInterfaceDefault.cpp
@@ -490,7 +489,7 @@ add_wn_library(RmlUi
     RMLUI_STATIC_LIB
     RMLUI_USE_CUSTOM_RTTI
     RMLUI_ENABLE_LOTTIE_PLUGIN
-    CHOBO_FLAT_MAP_NO_THROW
+    ITLIB_FLAT_MAP_NO_THROW
   LIBS
     freetype
     rlottie
