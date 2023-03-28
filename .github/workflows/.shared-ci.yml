@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.4.0
+        uses: actions/checkout@v3.5.0
         with:
           submodules: true
       - name: Check external licenses
@@ -191,7 +191,7 @@ jobs:
     container: ghcr.io/wnproject/clang-format
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.4.0
+        uses: actions/checkout@v3.5.0
       - name: Check formatting
         shell: bash
         run: |
@@ -209,7 +209,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.4.0
+        uses: actions/checkout@v3.5.0
       - name: Check formatting
         uses: davidanson/markdownlint-cli2-action@v9.0.0
         with:
@@ -234,7 +234,7 @@ jobs:
       - name: Set up build environment
         run: mkdir build
       - name: Checkout
-        uses: actions/checkout@v3.4.0
+        uses: actions/checkout@v3.5.0
         with:
           path: ./source
           submodules: true
@@ -313,7 +313,7 @@ jobs:
       - name: Set up build environment
         run: mkdir build
       - name: Checkout
-        uses: actions/checkout@v3.4.0
+        uses: actions/checkout@v3.5.0
         with:
           path: ./source
           submodules: true
@@ -382,7 +382,7 @@ jobs:
         env:
           COMPILER: ${{matrix.compiler}}
       - name: Checkout
-        uses: actions/checkout@v3.4.0
+        uses: actions/checkout@v3.5.0
         with:
           path: ./source
           submodules: true
