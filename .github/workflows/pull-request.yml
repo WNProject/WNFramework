@@ -32,7 +32,7 @@ jobs:
       changes-md: ${{steps.analyze-changes.outputs.changes-md}}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.2
         with:
           fetch-depth: 0
       - name: Analyze changes
