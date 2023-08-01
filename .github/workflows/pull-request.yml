@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Apply labels
-        uses: actions/labeler@4.1.0
+        uses: actions/labeler@v4.3.0
         with:
           repo-token: ${{github.token}}
   analyze-changes:
